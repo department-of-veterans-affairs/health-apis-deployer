@@ -5,6 +5,7 @@
 [ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
 [ -z "$OPENSHIFT_USERNAME" ] && echo "Not defined: OPENSHIFT_USERNAME" && exit 1
 [ -z "$OPENSHIFT_PASSWORD" ] && echo "Not defined: OPENSHIFT_PASSWORD" && exit 1
+[ -z "$ARGONAUT_TOKEN" ] &&  echo "Not defined: ARGONAUT_TOKEN" && exit 1
 
 APPS="
   health-apis-ids
@@ -62,6 +63,7 @@ pullLatestImages() {
   echo --$APPS--
   docker login -u "$user" -p "$password" "$registry"
   for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:latest; done
+  docker pull $DOCKER_SOURCE_ORG/agent-k
   docker logout "$registry"
 }
 
@@ -86,5 +88,11 @@ deployToQa() {
 }
 
 pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
-deployToQa "$QA_OCP" "$QA_REGISTRY"
+#deployToQa "$QA_OCP" "$QA_REGISTRY"
 
+#####
+docker run --rm \
+  -e TOKEN=$TOKEN \
+  -v $WORK_DIR/QA:/results \
+  $DOCKER_SOURCE_ORG/agent-k \
+  VAQA-PLUTO 
