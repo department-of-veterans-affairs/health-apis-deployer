@@ -33,10 +33,14 @@ pipeline {
             credentialsId: 'DOCKER_USERNAME_PASSWORD',
             usernameVariable: 'DOCKER_USERNAME',
             passwordVariable: 'DOCKER_PASSWORD'),
-        string(
+          string(
             credentialsId: 'DOCKER_SOURCE_REGISTRY',
-            variable: 'DOCKER_SOURCE_REGISTRY')
-        ]) {
+            variable: 'DOCKER_SOURCE_REGISTRY'),
+          usernamePassword(
+            credentialsId: 'OPENSHIFT_USERNAME_PASSWORD',
+            usernameVariable: 'OPENSHIFT_USERNAME',
+            passwordVariable: 'OPENSHIFT_PASSWORD')
+         ]) {
           script {
             if (env.BRANCH_NAME == 'master') {
               sh script: './deployer.sh'

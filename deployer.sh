@@ -1,58 +1,58 @@
 #!/usr/bin/env bash
 
-DEPLOYER_HOME=$(readlink -f $(dirname $0))
-export WORK_DIR=$DEPLOYER_HOME/work
-
-[ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
-[ -z "$DOCKER_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
-[ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
+[ -z "$OPENSHIFT_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
+[ -z "$OPENSHIFT_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
+[ -z "$OPENSHIFT_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
+[ -z "$OPENSHIFT_USERNAME" ] && echo "Not defined: OPENSHIFT_USERNAME" && exit 1
+[ -z "$OPENSHIFT_PASSWORD" ] && echo "Not defined: OPENSHIFT_PASSWORD" && exit 1
 
 APPS="
-  vasdvp/health-apis-ids
-  vasdvp/health-apis-mr-anderson
-  vasdvp/health-apis-argonaut
-  vasdvp/mule-allergy-intolerance-cdw
-  vasdvp/mule-appointment-cdw
-  vasdvp/mule-cdw-connector
-  vasdvp/mule-cdw-schemas
-  vasdvp/mule-cdw-schemas-runner
-  vasdvp/mule-condition-cdw
-  vasdvp/mule-diagnostic-report-cdw
-  vasdvp/mule-encounter-cdw
-  vasdvp/mule-immunization-cdw
-  vasdvp/mule-location-cdw
-  vasdvp/mule-medication-cdw
-  vasdvp/mule-medication-order-cdw
-  vasdvp/mule-medication-statement-cdw
-  vasdvp/mule-observation-cdw
-  vasdvp/mule-organization-cdw
-  vasdvp/mule-patient-cdw
-  vasdvp/mule-practitioner-cdw
-  vasdvp/mule-procedure-cdw
+  health-apis-ids
+  health-apis-mr-anderson
+  health-apis-argonaut
+  mule-allergy-intolerance-cdw
+  mule-appointment-cdw
+  mule-cdw-connector
+  mule-cdw-schemas
+  mule-cdw-schemas-runner
+  mule-condition-cdw
+  mule-diagnostic-report-cdw
+  mule-encounter-cdw
+  mule-immunization-cdw
+  mule-location-cdw
+  mule-medication-cdw
+  mule-medication-order-cdw
+  mule-medication-statement-cdw
+  mule-observation-cdw
+  mule-organization-cdw
+  mule-patient-cdw
+  mule-practitioner-cdw
+  mule-procedure-cdw
 "
-prodEnvironment() {
-  TO_REGISTRY=registry.lighthouse.va.gov:5000
-  TO_HOST=argonaut.lighthouse.va.gov
-  TO_OCP=https://ocp.lighthouse.va.gov:8443
-}
 
-standbyEnvironment() {
-  TO_REGISTRY=standby-registry.lighthouse.va.gov:5000
-  TO_HOST=argonaut.lighthouse.va.gov
-  TO_OCP=https://standby-ocp.lighthouse.va.gov:8443
-}
 
-stagingEnvironment() {
-  TO_REGISTRY=staging-registry.lighthouse.va.gov:5000
-  TO_HOST=staging-argonaut.lighthouse.va.gov
-  TO_OCP=https://staging-ocp.lighthouse.va.gov:8443
-}
+DEPLOYER_HOME=$(readlink -f $(dirname $0))
+export WORK_DIR=$DEPLOYER_HOME/work
+BASE_DOMAIN=$BASE_DOMAIN
+DOCKER_SOURCE_ORG=vasdvp
+OCP_PROJECT=vasdvp
 
-qaEnvironment() {
-  TO_REGISTRY=qa-registry.lighthouse.va.gov:5000
-  TO_HOST=qa-argonaut.lighthouse.va.gov
-  TO_OCP=https://qa-ocp.lighthouse.va.gov:8443
-}
+PROD_REGISTRY=registry.$BASE_DOMAIN:5000
+PROD_ARGONAUT=argonaut.$BASE_DOMAIN
+PROD_OCP=https://ocp.$BASE_DOMAIN:8443
+
+STANDBY_REGISTRY=standby-registry.$BASE_DOMAIN:5000
+STANDBY_ARGONAUT=argonaut.$BASE_DOMAIN
+STANDBY_OCP=https://standby-ocp.$BASE_DOMAIN:8443
+
+STAGING_REGISTRY=staging-registry.$BASE_DOMAIN:5000
+STAGING_ARGONAUT=staging-argonaut.$BASE_DOMAIN
+STAGING_OCP=https://staging-ocp.$BASE_DOMAIN:8443
+
+QA_REGISTRY=qa-registry.$BASE_DOMAIN:5000
+QA_ARGONAUT=qa-argonaut.$BASE_DOMAIN
+QA_OCP=https://qa-ocp.$BASE_DOMAIN:8443
+
 
 
 pullLatestImages() {
@@ -61,19 +61,30 @@ pullLatestImages() {
   local password="$3"
   echo --$APPS--
   docker login -u "$user" -p "$password" "$registry"
-  for app in $APPS; do docker pull ${app}:latest; done
+  for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:latest; done
+  docker logout "$registry"
 }
 
-#  oc login "$TO_OCP" -u "$TO_USER" -p "$TO_PW" --insecure-skip-tls-verify
-#  oc project vasdvp
-#  docker login -p $(oc whoami -t) -u unused $TO_REGISTRY
-#  [ -z "$targetAvailable" ] && docker push $targetImage
-#  docker push $TO_REGISTRY/$name:latest
+pushOpenshiftRegistry() {
+  local ocp="$1"
+  local registry="$2"
+  oc login "$ocp" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
+  oc project $OCP_PROJECT
+  docker login -p $(oc whoami -t) -u unused $registry
+  for app in $APPS
+  do
+    docker tag $DOCKER_SOURCE_ORG/${app}:latest ${registry}/${app}:latest
+    docker push ${registry}/${app}:latest
+  done
+  docker logout $registry
+}
 
 deployToQa() {
   echo "Deploying applications to QA"
-
+  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY 
 
 }
 
 pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
+deployToQa "$QA_OCP" "$QA_REGISTRY"
+
