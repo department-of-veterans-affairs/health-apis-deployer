@@ -6,6 +6,9 @@
 [ -z "$OPENSHIFT_USERNAME" ] && echo "Not defined: OPENSHIFT_USERNAME" && exit 1
 [ -z "$OPENSHIFT_PASSWORD" ] && echo "Not defined: OPENSHIFT_PASSWORD" && exit 1
 [ -z "$ARGONAUT_TOKEN" ] &&  echo "Not defined: ARGONAUT_TOKEN" && exit 1
+[ -z "$ARGONAUT_REFRESH_TOKEN" ] &&  echo "Not defined: ARGONAUT_REFRESH_TOKEN" && exit 1
+[ -z "$ARGONAUT_CLIENT_ID" ] &&  echo "Not defined: ARGONAUT_CLIENT_ID" && exit 1
+[ -z "$ARGONAUT_CLIENT_SECRET" ] &&  echo "Not defined: ARGONAUT_CLIENT_SECRET" && exit 1
 
 APPS="
   health-apis-ids
@@ -85,6 +88,9 @@ runTests() {
   local collection="$1"
   docker run --rm \
     -e TOKEN=$ARGONAUT_TOKEN \
+    -e REFRESH_TOKEN=$ARGONAUT_REFRESH_TOKEN \
+    -e CLIENT_ID=$ARGONAUT_CLIENT_ID \
+    -e CLIENT_SECRET=$ARGONAUT_CLIENT_SECRET \
     -v $WORK_DIR/$collection:/results \
     $DOCKER_SOURCE_ORG/agent-k \
     $collection  

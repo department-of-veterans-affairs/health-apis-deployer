@@ -42,8 +42,17 @@ pipeline {
             passwordVariable: 'OPENSHIFT_PASSWORD'),
           string(
             credentialsId: 'ARGONAUT_TOKEN',
-            variable: 'ARGONAUT_TOKEN')
-          ]) {
+            variable: 'ARGONAUT_TOKEN'),
+          string(
+            credentialsId: 'ARGONAUT_REFRESH_TOKEN',
+            variable: 'ARGONAUT_REFRESH_TOKEN'),
+          string(
+            credentialsId: 'ARGONAUT_CLIENT_ID',
+            variable: 'ARGONAUT_CLIENT_ID'),
+          string(
+            credentialsId: 'ARGONAUT_CLIENT_SECRET',
+            variable: 'ARGONAUT_CLIENT_SECRET')
+        ]) {
           script {
             if (env.BRANCH_NAME == 'master') {
               sh script: './deployer.sh'
