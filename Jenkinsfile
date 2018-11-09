@@ -64,7 +64,7 @@ pipeline {
   }
   post {
     always {
-      archiveArtifacts artifacts: 'work/**', allowEmptyArchive: true
+      archiveArtifacts artifacts: '**', onlyIfSuccessful: false, allowEmptyArchive: true
     }
     failure {
       script {
