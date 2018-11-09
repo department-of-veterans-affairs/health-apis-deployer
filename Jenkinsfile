@@ -7,7 +7,7 @@ pipeline {
     timestamps()
   }
   agent {
-    docker {
+    dockerfile {
        /*
         * We'll use the host user db so that any files written from the docker container look
         * like they were written by real host users.
