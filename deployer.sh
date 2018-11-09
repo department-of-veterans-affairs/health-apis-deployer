@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+DEPLOYER_HOME=$(readlink -f $(dirname $0))
+export WORK_DIR=$DEPLOYER_HOME/work
+
 [ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
 [ -z "$DOCKER_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
 [ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
