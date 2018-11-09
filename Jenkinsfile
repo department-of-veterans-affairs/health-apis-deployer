@@ -17,9 +17,8 @@ pipeline {
         * is currently 475, we'll need to mount the sock and need access to the rest of docker
         * lib for containers.
         */
-       registryUrl 'https://index.docker.io/v1/'
+      registryUrl 'https://index.docker.io/v1/'
       registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-      image 'vasdvp/health-apis-deployer:latest'
       args "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker"
      }
   }
