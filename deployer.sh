@@ -93,13 +93,18 @@ runTests() {
     -e CLIENT_SECRET=$ARGONAUT_CLIENT_SECRET \
     -v $WORK_DIR/$collection:/results \
     $DOCKER_SOURCE_ORG/agent-k \
-    $collection  
+    $collection
+  
+  local failures=$(grep ", fail," $(find $WORK_DIR/$collection -name shawnee.csv) | wc -l)
+  [ "$failures" == 0 ] && return 0
+  return 1
 }
 
 deployToQa() {
   echo "Deploying applications to QA"
   #pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY 
   runTests VAQA-PLUTO
+  [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
 }
 
 pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
