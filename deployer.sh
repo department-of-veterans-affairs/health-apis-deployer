@@ -81,6 +81,10 @@ pushToOpenshiftRegistry() {
   docker logout $registry
 }
 
+runTests() {
+echo x
+}
+
 deployToQa() {
   echo "Deploying applications to QA"
   pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY 

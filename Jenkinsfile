@@ -39,8 +39,11 @@ pipeline {
           usernamePassword(
             credentialsId: 'OPENSHIFT_USERNAME_PASSWORD',
             usernameVariable: 'OPENSHIFT_USERNAME',
-            passwordVariable: 'OPENSHIFT_PASSWORD')
-         ]) {
+            passwordVariable: 'OPENSHIFT_PASSWORD'),
+          string(
+            credentialsId: 'ARGONAUT_TOKEN',
+            variable: 'ARGONAUT_TOKEN')
+          ]) {
           script {
             if (env.BRANCH_NAME == 'master') {
               sh script: './deployer.sh'
