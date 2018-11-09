@@ -24,7 +24,10 @@ pipeline {
           usernamePassword(
             credentialsId: 'DOCKER_USERNAME_PASSWORD',
             usernameVariable: 'DOCKER_USERNAME',
-            passwordVariable: 'DOCKER_PASSWORD')
+            passwordVariable: 'DOCKER_PASSWORD'),
+        string(
+            credentialsId: 'DOCKER_SOURCE_REGISTRY',
+            variable: 'DOCKER_SOURCE_REGISTRY')
         ]) {
           script {
             if (env.BRANCH_NAME == 'master') {
