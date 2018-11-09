@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 [ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
 [ -z "$DOCKER_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
 [ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
@@ -18,7 +20,6 @@ APPS="
   mule-appointment-cdw
   mule-cdw-connector
   mule-cdw-schemas
-  mule-cdw-schemas-runner
   mule-condition-cdw
   mule-diagnostic-report-cdw
   mule-encounter-cdw
@@ -63,7 +64,6 @@ pullLatestImages() {
   local registry="$1"
   local user="$2"
   local password="$3"
-  echo --$APPS--
   docker login -u "$user" -p "$password" "$registry"
   for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:latest; done
   docker pull $DOCKER_SOURCE_ORG/agent-k
