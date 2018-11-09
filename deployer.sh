@@ -33,7 +33,7 @@ APPS="
 
 DEPLOYER_HOME=$(readlink -f $(dirname $0))
 export WORK_DIR=$DEPLOYER_HOME/work
-BASE_DOMAIN=$BASE_DOMAIN
+BASE_DOMAIN=lighthouse.va.gov
 DOCKER_SOURCE_ORG=vasdvp
 OCP_PROJECT=vasdvp
 
