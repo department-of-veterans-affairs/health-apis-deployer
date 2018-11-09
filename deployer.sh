@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-[ -z "$OPENSHIFT_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
-[ -z "$OPENSHIFT_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
-[ -z "$OPENSHIFT_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
+[ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
+[ -z "$DOCKER_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
+[ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
 [ -z "$OPENSHIFT_USERNAME" ] && echo "Not defined: OPENSHIFT_USERNAME" && exit 1
 [ -z "$OPENSHIFT_PASSWORD" ] && echo "Not defined: OPENSHIFT_PASSWORD" && exit 1
 
