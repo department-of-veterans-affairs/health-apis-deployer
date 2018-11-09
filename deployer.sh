@@ -65,7 +65,7 @@ pullLatestImages() {
   docker logout "$registry"
 }
 
-pushOpenshiftRegistry() {
+pushToOpenshiftRegistry() {
   local ocp="$1"
   local registry="$2"
   oc login "$ocp" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
