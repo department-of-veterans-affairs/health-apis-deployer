@@ -82,21 +82,21 @@ pushToOpenshiftRegistry() {
 }
 
 runTests() {
-echo x
+  local collection="$1"
+  docker run --rm \
+    -e TOKEN=$ARGONAUT_TOKEN \
+    -v $WORK_DIR/$collection:/results \
+    $DOCKER_SOURCE_ORG/agent-k \
+    $collection  
 }
 
 deployToQa() {
   echo "Deploying applications to QA"
-  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY 
-
+  #pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY 
+  runTests VAQA-PLUTO
 }
 
 pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
-#deployToQa "$QA_OCP" "$QA_REGISTRY"
+deployToQa "$QA_OCP" "$QA_REGISTRY"
 
-#####
-docker run --rm \
-  -e TOKEN=$TOKEN \
-  -v $WORK_DIR/QA:/results \
-  $DOCKER_SOURCE_ORG/agent-k \
-  VAQA-PLUTO 
+
