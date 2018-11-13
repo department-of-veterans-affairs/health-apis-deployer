@@ -102,7 +102,7 @@ runTests() {
 
 deployToQa() {
   echo "Deploying applications to QA"
-  #pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY 
+  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY 
   runTests VAQA-PLUTO
   [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
 }
