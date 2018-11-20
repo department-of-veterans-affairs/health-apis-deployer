@@ -79,7 +79,7 @@ pushToOpenshiftRegistry() {
   for app in $APPS
   do
     docker tag $DOCKER_SOURCE_ORG/${app}:latest ${registry}/${app}:latest
-    docker push ${registry}/${app}:latest
+    docker push ${registry}/$OCP_PROJECT/${app}:latest
   done
   docker logout $registry
 }
