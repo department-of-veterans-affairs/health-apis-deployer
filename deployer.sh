@@ -78,7 +78,7 @@ pushToOpenshiftRegistry() {
   docker login -p $(oc whoami -t) -u unused $registry
   for app in $APPS
   do
-    docker tag $DOCKER_SOURCE_ORG/${app}:latest ${registry}/${app}:latest
+    docker tag $DOCKER_SOURCE_ORG/${app}:latest ${registry}/$OCP_PROJECT/${app}:latest
     docker push ${registry}/$OCP_PROJECT/${app}:latest
   done
   docker logout $registry
