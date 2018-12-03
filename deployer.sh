@@ -97,7 +97,7 @@ runTests() {
 
   local failures=$(grep ", fail," $(find $WORK_DIR/$collection -name shawnee.csv) | wc -l)
   [ "$failures" == 0 ] && exit 0
-  return 1
+  exit 1
 }
 
 deployToQa() {
