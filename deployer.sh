@@ -16,25 +16,8 @@ APPS="
   health-apis-ids
   health-apis-mr-anderson
   health-apis-argonaut
-  mule-allergy-intolerance-cdw
-  mule-appointment-cdw
-  mule-cdw-connector
-  mule-cdw-schemas
-  mule-condition-cdw
-  mule-diagnostic-report-cdw
-  mule-encounter-cdw
-  mule-immunization-cdw
-  mule-location-cdw
-  mule-medication-cdw
-  mule-medication-order-cdw
-  mule-medication-statement-cdw
-  mule-observation-cdw
-  mule-organization-cdw
-  mule-patient-cdw
-  mule-practitioner-cdw
-  mule-procedure-cdw
+  mule-argonaut
 "
-
 
 DEPLOYER_HOME=$(readlink -f $(dirname $0))
 export WORK_DIR=$DEPLOYER_HOME/work
@@ -87,6 +70,7 @@ pushToOpenshiftRegistry() {
 runTests() {
   local collection="$1"
   docker run --rm \
+    -e JARGONAUT=true \
     -e TOKEN=$ARGONAUT_TOKEN \
     -e REFRESH_TOKEN=$ARGONAUT_REFRESH_TOKEN \
     -e CLIENT_ID=$ARGONAUT_CLIENT_ID \
