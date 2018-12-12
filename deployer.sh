@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+curl -vk  -H 'Authorization:Bearer 8WizfjH0edmy6A2cDa6I'  https://qa-argonaut.lighthouse.va.gov/api/Procedure/c416df15-fc1d-5a04-ab11-34d7bf453d15
+
+
 set -x
 
 [ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
