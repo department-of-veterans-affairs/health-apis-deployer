@@ -1,6 +1,8 @@
 FROM centos:latest
 
-RUN yum install epel-release -y && yum install jq -y
+RUN curl -sLo /usr/local/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && \
+    chmod +x /usr/local/bin/jq
+
 RUN curl -fsSL https://get.docker.com | sh
 
 ENV OC_VERSION=v3.11.0 \
