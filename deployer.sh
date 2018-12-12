@@ -76,6 +76,7 @@ runTests() {
     -e CLIENT_ID=$ARGONAUT_CLIENT_ID \
     -e CLIENT_SECRET=$ARGONAUT_CLIENT_SECRET \
     -v $WORK_DIR/$collection:/results \
+    --network=host \
     $DOCKER_SOURCE_ORG/agent-k \
     $collection
 
