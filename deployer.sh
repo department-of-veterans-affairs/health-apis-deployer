@@ -87,12 +87,22 @@ waitForPodsToBeRunning() {
     local running=true
     for label in $POD_LABELS
     do
+
+      echo ------------------------------------------------------------
+      curl -sk \
+        -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
+        -H "Accept: application/json" \
+        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label
+      echo ------------------------------------------------------------
+      
       local notRunning=$(curl -sk \
         -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
         -H "Accept: application/json" \
         $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
         | jq -r .items[].status.phase \
         | grep -v Running)
+      
+      echo "$label --> $notRunning"
       [ -z "$notRunning" ] && running=false && break
     done
     [ $running == true ] && return 0
