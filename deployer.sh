@@ -21,6 +21,12 @@ APPS="
   health-apis-argonaut
   mule-argonaut
 "
+POD_LABELS="
+  universal-identity-service
+  mr-anderson
+  jargonaut
+  mule-argonaut
+"
 
 DEPLOYER_HOME=$(readlink -f $(dirname $0))
 export WORK_DIR=$DEPLOYER_HOME/work
@@ -70,6 +76,33 @@ pushToOpenshiftRegistry() {
   docker logout $registry
 }
 
+waitForPodsToBeRunning() {
+  local ocp="$1"
+  local project="$2"
+  local timeout=$(($(date +%s) + 600 ))
+  echo "Waiting for pods to start ..."
+  sleep 30s
+  while [ $(date +%s) -lt $timeout ]
+  do
+    local running=true
+    for label in $POD_LABELS
+    do
+      local notRunning=$(curl -sk \
+        -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
+        -H "Accept: application/json" \
+        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
+        | jq -r .items[].status.phase \
+        | grep -v Running)
+      [ -z "$notRunning" ] && running=false && break
+    done
+    [ $running == true ] && return 0
+    sleep 5
+  done
+  echo "ERROR: Timed out waiting for pods to start, aborting."
+  echo "OMG! BECKY! This is not happening! I'm like, literally dying right now."
+  exit 1
+}
+
 runTests() {
   local collection="$1"
   docker run --rm \
@@ -91,6 +124,7 @@ runTests() {
 deployToQa() {
   echo "Deploying applications to QA"
   pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
+  waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
   runTests VAQA-PLUTO
   [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
 }

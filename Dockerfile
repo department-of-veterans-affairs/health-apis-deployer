@@ -1,5 +1,6 @@
 FROM centos:latest
 
+RUN yum install epel-release -y && yum install jq -y
 RUN curl -fsSL https://get.docker.com | sh
 
 ENV OC_VERSION=v3.11.0 \

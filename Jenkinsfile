@@ -41,6 +41,9 @@ pipeline {
             usernameVariable: 'OPENSHIFT_USERNAME',
             passwordVariable: 'OPENSHIFT_PASSWORD'),
           string(
+            credentialsId: 'OPENSHIFT_API_TOKEN',
+            variable: 'OPENSHIFT_API_TOKEN'),
+          string(
             credentialsId: 'ARGONAUT_TOKEN',
             variable: 'ARGONAUT_TOKEN'),
           string(
