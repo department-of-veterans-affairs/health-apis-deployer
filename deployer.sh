@@ -76,6 +76,7 @@ waitForPodsToBeRunning() {
   local ocp="$1"
   local project="$2"
   local timeout=$(($(date +%s) + 600 ))
+  echo "============================================================"
   echo "Waiting for pods to start ..."
   sleep 30s
   while [ $(date +%s) -lt $timeout ]
@@ -101,19 +102,21 @@ waitForPodsToBeRunning() {
 
 runTests() {
   local collection="$1"
+  echo "============================================================"
+  echo "Running test collection $collection"
   docker run --rm \
     -e JARGONAUT=true \
     -e TOKEN=$ARGONAUT_TOKEN \
     -e REFRESH_TOKEN=$ARGONAUT_REFRESH_TOKEN \
     -e CLIENT_ID=$ARGONAUT_CLIENT_ID \
     -e CLIENT_SECRET=$ARGONAUT_CLIENT_SECRET \
-    -v $WORK_DIR/$collection:/results \
     --network=host \
     $DOCKER_SOURCE_ORG/agent-k \
     $collection | tee $WORK_DIR/agentk.out
 
+  echo "============================================================"
   grep -E '[0-9]+ tests ran, [1-9][0-9]* failures' $WORK_DIR/agentk.out
-  [ $? == 0 ] && exit 1
+  [ $? == 0 ] && echo "This make me sad." && exit 1
   exit 0
 }
 
