@@ -25,6 +25,7 @@ POD_LABELS="
 
 DEPLOYER_HOME=$(readlink -f $(dirname $0))
 export WORK_DIR=$DEPLOYER_HOME/work
+[ ! -d "$WORK_DIR" ] && mkdir -p "$WORK_DIR"
 BASE_DOMAIN=lighthouse.va.gov
 DOCKER_SOURCE_ORG=vasdvp
 OCP_PROJECT=vasdvp
@@ -88,8 +89,7 @@ waitForPodsToBeRunning() {
         $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
         | jq -r .items[].status.phase \
         | grep -v Running)
-      echo "$label status: $notRunning"
-      [ -n "$notRunning" ] && running=false && echo "$label is not ready" && break
+      [ -n "$notRunning" ] && running=false && echo "$label is $notRunning" && break
     done
     [ $running == true ] && return 0
     sleep 5
