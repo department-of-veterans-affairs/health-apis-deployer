@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-curl -vk  -H 'Authorization:Bearer 8WizfjH0edmy6A2cDa6I'  https://qa-argonaut.lighthouse.va.gov/api/Procedure/c416df15-fc1d-5a04-ab11-34d7bf453d15
-
-
-set -x
-
 [ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
 [ -z "$DOCKER_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
 [ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
@@ -94,7 +89,7 @@ waitForPodsToBeRunning() {
         | jq -r .items[].status.phase \
         | grep -v Running)
       echo "$label status: $notRunning"
-      [ -n "$notRunning" ] && running=false && break
+      [ -n "$notRunning" ] && running=false && echo "$label is not ready" && break
     done
     [ $running == true ] && return 0
     sleep 5
@@ -115,11 +110,11 @@ runTests() {
     -v $WORK_DIR/$collection:/results \
     --network=host \
     $DOCKER_SOURCE_ORG/agent-k \
-    $collection
+    $collection | tee $WORK_DIR/agentk.out
 
-  local failures=$(grep ", fail," $(find $WORK_DIR/$collection -name shawnee.csv) | wc -l)
-  [ "$failures" == 0 ] && exit 0
-  exit 1
+  grep -E '[0-9]+ tests ran, [1-9][0-9]* failures' $WORK_DIR/agentk.out
+  [ $? == 0 ] && exit 1
+  exit 0
 }
 
 deployToQa() {
