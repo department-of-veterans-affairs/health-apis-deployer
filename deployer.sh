@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-env | sort
-echo ------------------------------------------------------------
-cat $DOCKER_CONFIG/config.json
-echo ------------------------------------------------------------
-exit 0
-
 [ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
 [ -z "$DOCKER_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
 [ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
@@ -85,25 +79,36 @@ waitForPodsToBeRunning() {
   echo "============================================================"
   echo "Waiting for pods to start ..."
   sleep 30s
-  while [ $(date +%s) -lt $timeout ]
+  local running=false
+  for label in $POD_LABELS
   do
-    local running=true
-    for label in $POD_LABELS
+    running=false
+    echo "Waiting on $label ..."
+    while [ $(date +%s) -lt $timeout ]
     do
-      local notRunning=$(curl -sk \
+      curl -sk \
         -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
         -H "Accept: application/json" \
         $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
-        | jq -r .items[].status.phase \
-        | grep -v Running)
-      [ -n "$notRunning" ] && running=false && echo "$label is $notRunning" && break
+        | jq -r .items[].status
+      
+      local status=$(curl -sk \
+        -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
+        -H "Accept: application/json" \
+        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
+        | jq -r .items[].status.phase)
+      echo "$label is $status"
+      [ "$status" == "Running" ] && running=true && break
+      sleep 5
     done
-    [ $running == true ] && return 0
-    sleep 5
+    if [ $running == false ]
+    then
+      echo "ERROR: Timed out waiting for pods to start, aborting."
+      echo "OMG! BECKY! This is not happening! I'm like, literally dying right now."
+      exit 1
+    fi
   done
-  echo "ERROR: Timed out waiting for pods to start, aborting."
-  echo "OMG! BECKY! This is not happening! I'm like, literally dying right now."
-  exit 1
+  return 0
 }
 
 runTests() {
@@ -129,7 +134,7 @@ runTests() {
 deployToQa() {
   echo "Deploying applications to QA"
 #  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
-#  waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
+  waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
   runTests VAQA-PLUTO
   [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
 }
