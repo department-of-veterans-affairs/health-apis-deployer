@@ -97,8 +97,8 @@ waitForPodsToBeRunning() {
         -H "Accept: application/json" \
         $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
         | jq -r .items[].status.phase)
-      echo "$label is $status"
-      [ "$status" == "Running" ] && running=true && break
+      echo "   $label is \"$status\""
+      [ "$status" == "Running" ] && running=true && echo "Next!" && break
       sleep 5
     done
     if [ $running == false ]
