@@ -20,7 +20,7 @@ POD_LABELS="
   universal-identity-service
   mr-anderson
   jargonaut
-  mule-argonaut
+  argonaut
 "
 
 DEPLOYER_HOME=$(readlink -f $(dirname $0))
