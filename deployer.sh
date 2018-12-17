@@ -10,6 +10,19 @@
 [ -z "$ARGONAUT_CLIENT_ID" ] &&  echo "Not defined: ARGONAUT_CLIENT_ID" && exit 1
 [ -z "$ARGONAUT_CLIENT_SECRET" ] &&  echo "Not defined: ARGONAUT_CLIENT_SECRET" && exit 1
 
+THINGS_TO_SAY="
+Hacking the main frame ...
+Uploading a code ...
+Checking the Instagrams ...
+You've got mail!
+FTP the PNG
+Pondering life ...
+Crossing fingers ...
+Playing quick game of Snake ...
+Now serving customer 138
+Brewing coffee ...
+"
+
 APPS="
   health-apis-ids
   health-apis-mr-anderson
@@ -78,7 +91,8 @@ waitForPodsToBeRunning() {
   local timeout=$(($(date +%s) + 600 ))
   echo "============================================================"
   echo "Waiting for pods to start ..."
-  sleep 25s
+  echo "$THINGS_TO_SAY" | sort -R | head -4 | xargs -I {} bash -c "sleep 8; echo {}"
+  sleep 30s
   local running=false
   for label in $POD_LABELS
   do
@@ -86,7 +100,6 @@ waitForPodsToBeRunning() {
     echo "Waiting on $label ..."
     while [ $(date +%s) -lt $timeout ]
     do
-      sleep 5
       curl -sk \
         -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
         -H "Accept: application/json" \
@@ -94,13 +107,14 @@ waitForPodsToBeRunning() {
         > pods.json
 
       local numberOfPods=$(jq '.items | length' pods.json)
-      [ "$numberOfPods" == 0 ] && echo "  No $label pods exist" && continue
+      [ "$numberOfPods" == 0 ] && echo "  No $label pods exist" && sleep 5 && continue
       
       local podsNotRunning=$(jq -r .items[].status.phase pods.json \
         | grep -v "Running" \
         | wc -l)
       echo "  Waiting on $podsNotRunning $label pods"
       [ "$podsNotRunning" == 0 ] && running=true && break
+      sleep 5
     done
     if [ $running == false ]
     then
@@ -135,7 +149,7 @@ runTests() {
 
 deployToQa() {
   echo "Deploying applications to QA"
-#  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
+  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
   waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
   runTests VAQA-PLUTO
   [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
