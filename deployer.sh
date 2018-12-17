@@ -99,8 +99,8 @@ waitForPodsToBeRunning() {
         | jq -r .items[].status.phase \
         | grep -v "Running" \
         | wc -l)
-      echo "   Number of $label pods not ready: $podsNotRunning"
-      [ "$podsNotRunning" == 0 ] && running=true && echo "Next!" && break
+      echo "   $podsNotRunning $label pods not ready"
+      [ "$podsNotRunning" == 0 ] && running=true && break
       sleep 5
     done
     if [ $running == false ]
