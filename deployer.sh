@@ -78,7 +78,7 @@ waitForPodsToBeRunning() {
   local timeout=$(($(date +%s) + 600 ))
   echo "============================================================"
   echo "Waiting for pods to start ..."
-  sleep 30s
+  sleep 25s
   local running=false
   for label in $POD_LABELS
   do
@@ -86,22 +86,21 @@ waitForPodsToBeRunning() {
     echo "Waiting on $label ..."
     while [ $(date +%s) -lt $timeout ]
     do
+      sleep 5
       curl -sk \
         -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
         -H "Accept: application/json" \
-        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
-        | jq -r .items[].status.phase
+        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label
+      > pods.json
+
+      local numberOfPods=$(jq '.items | length' pods.json)
+      [ $numberOfPods == 0 ] && echo "   No $label pods exist" && continue
       
-      local podsNotRunning=$(curl -sk \
-        -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
-        -H "Accept: application/json" \
-        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
-        | jq -r .items[].status.phase \
+      local podsNotRunning=$(jq -r .items[].status.phase pods.json \
         | grep -v "Running" \
         | wc -l)
       echo "   $podsNotRunning $label pods not ready"
       [ "$podsNotRunning" == 0 ] && running=true && break
-      sleep 5
     done
     if [ $running == false ]
     then
@@ -116,6 +115,7 @@ waitForPodsToBeRunning() {
 runTests() {
   local collection="$1"
   echo "============================================================"
+  local now=$(date +%s)
   echo "Running test collection $collection"
   docker run --rm \
     -e JARGONAUT=true \
@@ -126,8 +126,8 @@ runTests() {
     --network=host \
     $DOCKER_SOURCE_ORG/agent-k \
     $collection | tee $WORK_DIR/agentk.out
-
   echo "============================================================"
+  echo 
   grep -E '[0-9]+ tests ran, [1-9][0-9]* failures' $WORK_DIR/agentk.out
   [ $? == 0 ] && echo "This make me sad." && exit 1
   exit 0
