@@ -100,7 +100,7 @@ waitForPodsToBeRunning() {
         | grep -v "Running" \
         | wc -l)
       echo "   $podsNotRunning $label pods not ready"
-      [ "$podsNotRunning" == 0 ] && running=true && break
+      [ "$podsNotRunning" == 0 ] && echo "   Tada!" && running=true && break
     done
     if [ $running == false ]
     then
