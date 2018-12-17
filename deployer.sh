@@ -122,8 +122,8 @@ runTests() {
 
 deployToQa() {
   echo "Deploying applications to QA"
-  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
-  waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
+#  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
+#  waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
   runTests VAQA-PLUTO
   [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
 }
