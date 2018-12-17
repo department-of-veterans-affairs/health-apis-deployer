@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 env | sort
+echo ------------------------------------------------------------
+cat $DOCKER_CONFIG
+echo ------------------------------------------------------------
 exit 0
 
 [ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
