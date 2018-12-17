@@ -90,11 +90,11 @@ waitForPodsToBeRunning() {
       curl -sk \
         -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
         -H "Accept: application/json" \
-        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label
-      > pods.json
+        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
+        > pods.json
 
       local numberOfPods=$(jq '.items | length' pods.json)
-      [ $numberOfPods == 0 ] && echo "   No $label pods exist" && continue
+      [ "$numberOfPods" == 0 ] && echo "   No $label pods exist" && continue
       
       local podsNotRunning=$(jq -r .items[].status.phase pods.json \
         | grep -v "Running" \
