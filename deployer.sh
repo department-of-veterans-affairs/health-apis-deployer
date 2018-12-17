@@ -94,13 +94,13 @@ waitForPodsToBeRunning() {
         > pods.json
 
       local numberOfPods=$(jq '.items | length' pods.json)
-      [ "$numberOfPods" == 0 ] && echo "   No $label pods exist" && continue
+      [ "$numberOfPods" == 0 ] && echo "  No $label pods exist" && continue
       
       local podsNotRunning=$(jq -r .items[].status.phase pods.json \
         | grep -v "Running" \
         | wc -l)
-      echo "   $podsNotRunning $label pods not ready"
-      [ "$podsNotRunning" == 0 ] && echo "   Tada!" && running=true && break
+      echo "  Waiting on $podsNotRunning $label pods"
+      [ "$podsNotRunning" == 0 ] && running=true && break
     done
     if [ $running == false ]
     then
