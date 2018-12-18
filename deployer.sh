@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 BASE_DIR=$(pwd)
 [ -d "$BASE_DIR/.jenkins" ] && rm -rf "$BASE_DIR/.jenkins"
 mkdir "$BASE_DIR/.jenkins"
@@ -134,7 +136,7 @@ runTests() {
   echo "============================================================"
   echo 
   local failureSummary=$(grep -E '[0-9]+ tests ran, [1-9][0-9]* failures' $WORK_DIR/agentk.out)
-  [ -z "$failureSummary" ] && return 0
+  [ -z "$failureSummary" ] &&   echo "0 failures" > $BASE_DIR/.jenkins/build-name && return 0
   # Report failures and die!
   echo "${failureSummary#*, }" > $BASE_DIR/.jenkins/build-name
   echo "$failureSummary" > $BASE_DIR/.jenkins/description
@@ -154,5 +156,9 @@ deployToQa() {
   [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
 }
 
-pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
-deployToQa "$QA_OCP" "$QA_REGISTRY"
+#pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
+#deployToQa "$QA_OCP" "$QA_REGISTRY"
+
+  echo "TESTAMAJIG" > $BASE_DIR/.jenkins/build-name
+  echo "A test build" > $BASE_DIR/.jenkins/description
+
