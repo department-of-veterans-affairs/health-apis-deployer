@@ -17,6 +17,9 @@ export WORK_DIR=$DEPLOYER_HOME/work
 [ -z "$ARGONAUT_CLIENT_ID" ] &&  echo "Not defined: ARGONAUT_CLIENT_ID" && exit 1
 [ -z "$ARGONAUT_CLIENT_SECRET" ] &&  echo "Not defined: ARGONAUT_CLIENT_SECRET" && exit 1
 
+env | sort
+exit
+
 APPS="
   health-apis-ids
   health-apis-mr-anderson
