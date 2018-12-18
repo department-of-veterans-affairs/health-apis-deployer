@@ -57,7 +57,7 @@ pipeline {
             variable: 'ARGONAUT_CLIENT_SECRET')
         ]) {
           script {
-            if (env.BRANCH_NAME == 'master') {
+            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'lab') {
               sh script: './deployer.sh'
             }
           }
