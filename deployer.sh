@@ -145,9 +145,6 @@ runTests() {
   exit 1
 }
 
-
-
-
 deployToQa() {
   echo "Deploying applications to QA"
   pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
@@ -156,9 +153,6 @@ deployToQa() {
   [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
 }
 
-#pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
-#deployToQa "$QA_OCP" "$QA_REGISTRY"
-
-  echo "TESTAMAJIG" > $BASE_DIR/.jenkins/build-name
-  echo "A test build" > $BASE_DIR/.jenkins/description
-exit 1
+pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
+deployToQa "$QA_OCP" "$QA_REGISTRY"
+exit 0
