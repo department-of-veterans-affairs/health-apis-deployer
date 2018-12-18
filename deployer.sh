@@ -136,7 +136,7 @@ runTests() {
   echo "============================================================"
   echo 
   local failureSummary=$(grep -E '[0-9]+ tests ran, [1-9][0-9]* failures' $WORK_DIR/agentk.out)
-  [ -z "$failureSummary" ] &&   echo "0 failures" > $BASE_DIR/.jenkins/build-name && return 0
+  [ -z "$failureSummary" ] && echo "0 failures" > $BASE_DIR/.jenkins/build-name && return 0
   # Report failures and die!
   echo "${failureSummary#*, }" > $BASE_DIR/.jenkins/build-name
   echo "$failureSummary" > $BASE_DIR/.jenkins/description
@@ -161,4 +161,4 @@ deployToQa() {
 
   echo "TESTAMAJIG" > $BASE_DIR/.jenkins/build-name
   echo "A test build" > $BASE_DIR/.jenkins/description
-
+exit 1
