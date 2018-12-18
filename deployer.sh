@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+
+BASE_DIR=$(pwd)
+[ -d "$BASE_DIR/.jenkins" ] && mkdir "$BASE_DIR/.jenkins"
+DEPLOYER_HOME=$(readlink -f $(dirname $0))
+export WORK_DIR=$DEPLOYER_HOME/work
+[ ! -d "$WORK_DIR" ] && mkdir -p "$WORK_DIR"
+
+[ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
+[ -z "$DOCKER_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
+[ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
+[ -z "$OPENSHIFT_USERNAME" ] && echo "Not defined: OPENSHIFT_USERNAME" && exit 1
+[ -z "$OPENSHIFT_PASSWORD" ] && echo "Not defined: OPENSHIFT_PASSWORD" && exit 1
+[ -z "$ARGONAUT_TOKEN" ] &&  echo "Not defined: ARGONAUT_TOKEN" && exit 1
+[ -z "$ARGONAUT_REFRESH_TOKEN" ] &&  echo "Not defined: ARGONAUT_REFRESH_TOKEN" && exit 1
+[ -z "$ARGONAUT_CLIENT_ID" ] &&  echo "Not defined: ARGONAUT_CLIENT_ID" && exit 1
+[ -z "$ARGONAUT_CLIENT_SECRET" ] &&  echo "Not defined: ARGONAUT_CLIENT_SECRET" && exit 1
+
 THINGS_TO_SAY="
 Priming pumps ...
 Connecting cables ...
@@ -41,18 +58,6 @@ Observing observations ...
 Replacing all copies of vi with emacs ...
 "
 
-[ -z "$DOCKER_SOURCE_REGISTRY" ] && echo "Not defined: DOCKER_SOURCE_REGISTRY" && exit 1
-[ -z "$DOCKER_USERNAME" ] && echo "Not defined: DOCKER_USERNAME" && exit 1
-[ -z "$DOCKER_PASSWORD" ] && echo "Not defined: DOCKER_PASSWORD" && exit 1
-[ -z "$OPENSHIFT_USERNAME" ] && echo "Not defined: OPENSHIFT_USERNAME" && exit 1
-[ -z "$OPENSHIFT_PASSWORD" ] && echo "Not defined: OPENSHIFT_PASSWORD" && exit 1
-[ -z "$ARGONAUT_TOKEN" ] &&  echo "Not defined: ARGONAUT_TOKEN" && exit 1
-[ -z "$ARGONAUT_REFRESH_TOKEN" ] &&  echo "Not defined: ARGONAUT_REFRESH_TOKEN" && exit 1
-[ -z "$ARGONAUT_CLIENT_ID" ] &&  echo "Not defined: ARGONAUT_CLIENT_ID" && exit 1
-[ -z "$ARGONAUT_CLIENT_SECRET" ] &&  echo "Not defined: ARGONAUT_CLIENT_SECRET" && exit 1
-
-
-
 APPS="
   health-apis-ids
   health-apis-mr-anderson
@@ -66,9 +71,6 @@ POD_LABELS="
   argonaut
 "
 
-DEPLOYER_HOME=$(readlink -f $(dirname $0))
-export WORK_DIR=$DEPLOYER_HOME/work
-[ ! -d "$WORK_DIR" ] && mkdir -p "$WORK_DIR"
 BASE_DOMAIN=lighthouse.va.gov
 DOCKER_SOURCE_ORG=vasdvp
 OCP_PROJECT=vasdvp
@@ -172,10 +174,18 @@ runTests() {
     $collection | tee $WORK_DIR/agentk.out
   echo "============================================================"
   echo 
-  grep -E '[0-9]+ tests ran, [1-9][0-9]* failures' $WORK_DIR/agentk.out
-  [ $? == 0 ] && echo "This make me sad." && exit 1
-  exit 0
+  local failureSummary=$(grep -E '[0-9]+ tests ran, [1-9][0-9]* failures' $WORK_DIR/agentk.out)
+  [ -z "$failureSummary" ] && return 0
+  # Report failures and die!
+  echo "${failureSummary#*, }" > $BASE_DIR/.jenkins/build-name
+  echo "$failureSummary" > $BASE_DIR/.jenkins/description
+  grep "fail " $WORK_DIR/agentk.out | head -5  >> $BASE_DIR/.jenkins/description
+  echo "This make me sad." 
+  exit 1
 }
+
+
+
 
 deployToQa() {
   echo "Deploying applications to QA"
