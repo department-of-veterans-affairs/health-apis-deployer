@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
-
 BASE_DIR=$(pwd)
 [ -d "$BASE_DIR/.jenkins" ] && rm -rf "$BASE_DIR/.jenkins"
 mkdir "$BASE_DIR/.jenkins"
