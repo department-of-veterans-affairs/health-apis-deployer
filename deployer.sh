@@ -23,6 +23,7 @@ mkdir "$JENKINS_DIR"
 
 AGENT_K_LOG=$WORKSPACE/agent-k.log
 
+PULL_IMAGES=false
 QA_DEPLOY=false
 QA_TEST=false
 LAB_DEPLOY=false
@@ -162,12 +163,12 @@ deployToQa() {
   pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
   waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
 }
+
 testQa() {
   echo "Testing QA"
   runTests VAQA-PLUTO
   [ $? != 0 ] && echo "ABORT: Failed to update QA" && exit 1
 }
-
 
 deployToLab() {
   echo "Deploying applications to Lab"
@@ -179,7 +180,7 @@ deployToLab() {
 }
 
 
-pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
+[ $PULL_IMAGES == true ] && pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
 [ $QA_DEPLOY == true ] && deployToQa "$QA_OCP" "$QA_REGISTRY"
 [ $QA_TEST == true ] && testQa
 [ $LAB_DEPLOY == true ] && deployToLab "$LAB_OCP" "$LAB_REGISTRY"
