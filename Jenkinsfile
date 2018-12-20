@@ -23,7 +23,7 @@ pipeline {
      }
   }
   triggers {
-//    cron('*/2 * * * 1-5')
+    cron('*/2 * * * 1-5')
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   stages {
@@ -59,9 +59,8 @@ pipeline {
         ]) {
           script {
             for(cause in currentBuild.rawBuild.getCauses()) {
-              env['BUILD_CAUSE_'+cause.class.getSimpleName()]=cause.getShortDescription()
+              env['BUILD_'+cause.class.getSimpleName().toUpperCase()]=cause.getShortDescription()
             }
-            
             if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'lab') {
               sh script: './deployer.sh'
             }
