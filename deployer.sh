@@ -88,11 +88,25 @@ recordCurrentlyRunningImages() {
         -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
         -H "Accept: application/json" \
         $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
-        | jq -r .items[].spec.containers[].image)
-      echo "$label=\"$image\"" >> $out
+        | jq -r .items[].spec.containers[].image | head -1)
+      echo "$label $image" >> $out
   done
   cat $out
 }
+
+restoreImages() {
+  local ocp="$1"
+  local project="$2"
+  local in="$3"
+  for image in $(cat $in | cut -d ' ' -f 2)
+  do
+    echo "Restoring $image as latest"
+    local latest=${image%%@*}:latest
+    echo docker tag $image $latest
+    echo docker push $latest
+  done
+}
+
 
 pushToOpenshiftRegistry() {
   local ocp="$1"
