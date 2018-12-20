@@ -12,6 +12,7 @@ pipeline {
     booleanParam(name: 'QA_TEST', defaultValue: false, description: 'Run regression tests against QA')
     booleanParam(name: 'LAB_DEPLOY', defaultValue: false, description: 'Deploy latest images to the Lab')
     booleanParam(name: 'LAB_TEST', defaultValue: false, description: 'Run regression tests against the Lab')
+    choice(name: 'ARE_YOU_SURE', choices: ['Nope.','YES! Disrupt access!' ], description: 'Updating upper environments may affect public availability.')
   }
   agent {
     dockerfile {

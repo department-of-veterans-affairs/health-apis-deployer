@@ -29,6 +29,11 @@ AGENT_K_LOG=$WORKSPACE/agent-k.log
 [ -z "$LAB_DEPLOY" ] && LAB_DEPLOY=false
 [ -z "$LAB_TEST" ] && LAB_TEST=false
 
+CONFIRMED=false
+[[ "$ARE_YOU_SURE" =~ YES.* ]] && CONFIRMED=true
+[[ "$LAB_DEPLOY" == true && $CONFIRMED == false ]] && echo "You seem unsure ... confirm and try again." && exit 1
+
+
 APPS="
   health-apis-ids
   health-apis-mr-anderson
