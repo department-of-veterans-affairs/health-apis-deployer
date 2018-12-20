@@ -7,9 +7,9 @@ pipeline {
     timestamps()
   }
   parameters {
-    booleanParam(name: 'PULL_IMAGES', defaultValue: false, description: 'Pull latest built images to deploy')
-    booleanParam(name: 'QA_DEPLOY', defaultValue: false, description: 'Deploy latest images to QA')
-    booleanParam(name: 'QA_TEST', defaultValue: false, description: 'Run regression tests against QA')
+    booleanParam(name: 'PULL_IMAGES', defaultValue: true, description: 'Pull latest built images to deploy')
+    booleanParam(name: 'QA_DEPLOY', defaultValue: true, description: 'Deploy latest images to QA')
+    booleanParam(name: 'QA_TEST', defaultValue: true, description: 'Run regression tests against QA')
     booleanParam(name: 'LAB_DEPLOY', defaultValue: false, description: 'Deploy latest images to the Lab')
     booleanParam(name: 'LAB_TEST', defaultValue: false, description: 'Run regression tests against the Lab')
     choice(name: 'ARE_YOU_SURE', choices: ['Nope.','YES! Disrupt access!' ], description: 'Updating upper environments may affect public availability.')
