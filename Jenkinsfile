@@ -31,7 +31,7 @@ pipeline {
      }
   }
   triggers {
-    cron('*/10 * * * 1-5')
+    cron('00 22 * * 1-5')
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   stages {
