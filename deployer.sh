@@ -116,14 +116,15 @@ pushToOpenshiftRegistry() {
     docker pull ${image}:latest | grep -vE "$PULL_FILTER"
     echo "Tagging ${image}:latest as previous"
     docker tag ${image}:latest ${image}:previous
-    echo "Pusing ${image}:previous"
+    echo "Pushing ${image}:previous"
     docker push ${image}:previous | grep -vE "$PULL_FILTER"
+    # Deploy the new image
     echo "------------------------------------------------------------"
     echo "Pushing new $app images ..."
-    # Deploy the new image
+    echo "Tagging new ${image}:latest"
     docker tag $DOCKER_SOURCE_ORG/${app}:latest ${image}:latest
-    echo "---"
-    docker push ${image}:latest
+    echo "Pushing new ${image}:latest"
+    docker push ${image}:latest | grep -vE "$PULL_FILTER"
   done
   docker logout $registry
 }
