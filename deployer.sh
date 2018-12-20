@@ -114,10 +114,10 @@ pushToOpenshiftRegistry() {
     echo "------------------------------------------------------------"
     echo "Marking currently deployed $app image as previous ..."
     docker pull ${image}:latest | grep -vE "$PULL_FILTER"
-    echo "---"
+    echo "Tagging ${image}:latest as previous"
     docker tag ${image}:latest ${image}:previous
-    echo "---"
-    docker push ${image}:previous
+    echo "Pusing ${image}:previous"
+    docker push ${image}:previous | grep -vE "$PULL_FILTER"
     echo "------------------------------------------------------------"
     echo "Pushing new $app images ..."
     # Deploy the new image
