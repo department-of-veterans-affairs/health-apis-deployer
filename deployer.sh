@@ -77,34 +77,19 @@ pullLatestImages() {
   docker logout "$registry"
 }
 
-recordCurrentlyRunningImages() {
-  local ocp="$1"
-  local project="$2"
-  local out="$3"
-  [ -f "$out" ] && rm $out
-  for label in $POD_LABELS
-  do
-      local image=$(curl -sk \
-        -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
-        -H "Accept: application/json" \
-        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
-        | jq -r .items[].spec.containers[].image | head -1)
-      echo "$label $image" >> $out
-  done
-  cat $out
-}
-
 restoreImages() {
   local ocp="$1"
-  local project="$2"
-  local in="$3"
-  for image in $(cat $in | cut -d ' ' -f 2)
+  local registry="$2"
+  oc login "$ocp" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
+  oc project $OCP_PROJECT
+  docker login -p $(oc whoami -t) -u unused $registry
+  for app in $APPS
   do
-    echo "Restoring $image as latest"
-    local latest=${image%%@*}:latest
-    docker tag $image $latest
-    docker push $latest
+    local image=${registry}/$OCP_PROJECT/${app}
+    docker tag ${image}:previous ${image}:latest
+    docker push ${image}:latest
   done
+  docker logout $registry
 }
 
 pushToOpenshiftRegistry() {
@@ -115,8 +100,14 @@ pushToOpenshiftRegistry() {
   docker login -p $(oc whoami -t) -u unused $registry
   for app in $APPS
   do
-    docker tag $DOCKER_SOURCE_ORG/${app}:latest ${registry}/$OCP_PROJECT/${app}:latest
-    docker push ${registry}/$OCP_PROJECT/${app}:latest
+    local image=${registry}/$OCP_PROJECT/${app}
+    # Record the currently running image as the previous
+    docker pull ${image}:latest
+    docker tag ${image}:latest ${image}:previous
+    docker push ${image}:previous
+    # Deploy the new image
+    docker tag $DOCKER_SOURCE_ORG/${app}:latest ${image}:latest
+    docker push ${image}:latest
   done
   docker logout $registry
 }
@@ -191,9 +182,10 @@ runTests() {
 deployToQa() {
   echo "Deploying applications to QA"
   recordCurrentlyRunningImages $QA_OCP $OCP_PROJECT qa-images
+  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
+  waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
   restoreImages $QA_OCP $OCP_PROJECT qa-images
-  #pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
-  #waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
+  waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
 }
 
 testQa() {
