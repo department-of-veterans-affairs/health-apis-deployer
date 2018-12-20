@@ -80,11 +80,14 @@ pullLatestImages() {
 restoreImages() {
   local ocp="$1"
   local registry="$2"
+  echo "============================================================"
+  echo "Restoring images in $ocp ($registry)"
   oc login "$ocp" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
   oc project $OCP_PROJECT
   docker login -p $(oc whoami -t) -u unused $registry
   for app in $APPS
   do
+    echo "Restoring $app ..."
     local image=${registry}/$OCP_PROJECT/${app}
     docker tag ${image}:previous ${image}:latest
     docker push ${image}:latest
@@ -95,6 +98,8 @@ restoreImages() {
 pushToOpenshiftRegistry() {
   local ocp="$1"
   local registry="$2"
+  echo "============================================================"
+  echo "Updating images in $ocp ($registry)"
   oc login "$ocp" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
   oc project $OCP_PROJECT
   docker login -p $(oc whoami -t) -u unused $registry
@@ -102,9 +107,11 @@ pushToOpenshiftRegistry() {
   do
     local image=${registry}/$OCP_PROJECT/${app}
     # Record the currently running image as the previous
+    echo "Marking currently deployed $app image as previous ..."
     docker pull ${image}:latest
     docker tag ${image}:latest ${image}:previous
     docker push ${image}:previous
+    echo "Pushing new $app images ..."
     # Deploy the new image
     docker tag $DOCKER_SOURCE_ORG/${app}:latest ${image}:latest
     docker push ${image}:latest
@@ -117,9 +124,9 @@ waitForPodsToBeRunning() {
   local project="$2"
   local timeout=$(($(date +%s) + 600 ))
   echo "============================================================"
-  echo "Waiting for pods to start ..."
+  echo "Waiting for pods to start in $ocp ..."
   sleep 20s
-  (IFS=$'\n'; for l in $(cat $BASE_DIR/.messages | sort -R | head -10); do  echo "  $l"; sleep 10; done)
+  (IFS=$'\n'; for l in $(cat $WORKSPACE/.messages | sort -R | head -10); do  echo "  $l"; sleep 10; done)
   local running=false
   for label in $POD_LABELS
   do
@@ -180,6 +187,7 @@ runTests() {
 }
 
 deployToQa() {
+  echo "============================================================"
   echo "Deploying applications to QA"
   pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
   waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
