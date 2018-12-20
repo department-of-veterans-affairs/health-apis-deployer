@@ -87,6 +87,7 @@ restoreImages() {
   docker login -p $(oc whoami -t) -u unused $registry
   for app in $APPS
   do
+    echo "------------------------------------------------------------"
     echo "Restoring $app ..."
     local image=${registry}/$OCP_PROJECT/${app}
     docker tag ${image}:previous ${image}:latest
@@ -107,10 +108,12 @@ pushToOpenshiftRegistry() {
   do
     local image=${registry}/$OCP_PROJECT/${app}
     # Record the currently running image as the previous
+    echo "------------------------------------------------------------"
     echo "Marking currently deployed $app image as previous ..."
     docker pull ${image}:latest
     docker tag ${image}:latest ${image}:previous
     docker push ${image}:previous
+    echo "------------------------------------------------------------"
     echo "Pushing new $app images ..."
     # Deploy the new image
     docker tag $DOCKER_SOURCE_ORG/${app}:latest ${image}:latest
