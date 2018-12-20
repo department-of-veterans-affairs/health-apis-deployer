@@ -77,6 +77,23 @@ pullLatestImages() {
   docker logout "$registry"
 }
 
+recordCurrentlyRunningImages() {
+  local ocp="$1"
+  local project="$2"
+  local out="$3"
+  [ -f "$out" ] && rm $out
+  for label in $POD_LABELS
+  do
+      local image=$(curl -sk \
+        -H "Authorization: Bearer $OPENSHIFT_API_TOKEN" \
+        -H "Accept: application/json" \
+        $ocp/api/v1/namespaces/$project/pods?labelSelector=app=$label \
+        | jq -r .items[].spec.containers[].image)
+      echo "$label=\"$image\"" >> $out
+  done
+  cat $out
+}
+
 pushToOpenshiftRegistry() {
   local ocp="$1"
   local registry="$2"
@@ -160,8 +177,9 @@ runTests() {
 
 deployToQa() {
   echo "Deploying applications to QA"
-  pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
-  waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
+  recordCurrentlyRunningImages $QA_OCP $OCP_PROJECT qa-images
+  #pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
+  #waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
 }
 
 testQa() {
@@ -179,8 +197,8 @@ deployToLab() {
   echo "============================================================"
 }
 
-
 [ $PULL_IMAGES == true ] && pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
+
 [ $QA_DEPLOY == true ] && deployToQa "$QA_OCP" "$QA_REGISTRY"
 [ $QA_TEST == true ] && testQa
 [ $LAB_DEPLOY == true ] && deployToLab "$LAB_OCP" "$LAB_REGISTRY"
