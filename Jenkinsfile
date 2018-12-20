@@ -59,7 +59,7 @@ pipeline {
         ]) {
           script {
             for(cause in currentBuild.rawBuild.getCauses()) {
-              env['BUILD_'+cause.class.getSimpleName().toUpperCase()]=cause.getShortDescription()
+              env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
             }
             if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'lab') {
               sh script: './deployer.sh'
