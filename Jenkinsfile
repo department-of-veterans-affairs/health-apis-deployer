@@ -6,6 +6,10 @@ pipeline {
     timeout(time: 30, unit: 'MINUTES')
     timestamps()
   }
+  parameters {
+    booleanParam(name: 'XPULL_IMAGES', defaultValue: true, description: 'Pull latest built images to deploy')
+    booleanParam(name: 'XQA_DEPLOY', defaultValue: true, description: 'Deploy latest images to QA')
+  }
   agent {
     dockerfile {
        /*
