@@ -58,7 +58,10 @@ pipeline {
             variable: 'ARGONAUT_CLIENT_SECRET')
         ]) {
           script {
-            env.BUILD_CAUSES=currentBuild.rawBuild.getCauses().stream().map { c->c.getShortDescription() }.toList();
+            for(cause in currentBuild.rawBuild.getCauses()) {
+              env['BUILD_CAUSE_'+cause.class.getSimpleName()]=cause.getShortDescription()
+            }
+            
             if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'lab') {
               sh script: './deployer.sh'
             }
