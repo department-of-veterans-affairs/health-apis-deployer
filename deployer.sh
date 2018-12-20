@@ -181,10 +181,9 @@ runTests() {
 
 deployToQa() {
   echo "Deploying applications to QA"
-  recordCurrentlyRunningImages $QA_OCP $OCP_PROJECT qa-images
   pushToOpenshiftRegistry $QA_OCP $QA_REGISTRY
   waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
-  restoreImages $QA_OCP $OCP_PROJECT qa-images
+  restoreImages $QA_OCP $QA_REGISTRY
   waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
 }
 
