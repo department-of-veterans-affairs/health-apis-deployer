@@ -102,11 +102,10 @@ restoreImages() {
   do
     echo "Restoring $image as latest"
     local latest=${image%%@*}:latest
-    echo docker tag $image $latest
-    echo docker push $latest
+    docker tag $image $latest
+    docker push $latest
   done
 }
-
 
 pushToOpenshiftRegistry() {
   local ocp="$1"
