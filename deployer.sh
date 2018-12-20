@@ -63,7 +63,7 @@ QA_ARGONAUT=qa-argonaut.$BASE_DOMAIN
 QA_OCP=https://qa-ocp.$BASE_DOMAIN:8443
 
 
-PULL_FILTER="(Preparing|Waiting|already exists)"
+PULL_FILTER='(Preparing|Waiting|already exists)'
 
 env | sort
 
@@ -75,8 +75,8 @@ pullLatestImages() {
   local user="$2"
   local password="$3"
   docker login -u "$user" -p "$password" "$registry"
-  for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:latest | grep -vE $PULL_FILTER; done
-  docker pull $DOCKER_SOURCE_ORG/agent-k | grep -vE $PULL_FILTER
+  for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:latest | grep -vE "$PULL_FILTER"; done
+  docker pull $DOCKER_SOURCE_ORG/agent-k | grep -vE "$PULL_FILTER"
   docker logout "$registry"
 }
 
@@ -113,7 +113,7 @@ pushToOpenshiftRegistry() {
     # Record the currently running image as the previous
     echo "------------------------------------------------------------"
     echo "Marking currently deployed $app image as previous ..."
-    docker pull ${image}:latest | grep -vE $PULL_FILTER
+    docker pull ${image}:latest | grep -vE "$PULL_FILTER"
     docker tag ${image}:latest ${image}:previous
     docker push ${image}:previous
     echo "------------------------------------------------------------"
