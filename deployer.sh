@@ -23,11 +23,11 @@ mkdir "$JENKINS_DIR"
 
 AGENT_K_LOG=$WORKSPACE/agent-k.log
 
-PULL_IMAGES=false
-QA_DEPLOY=false
-QA_TEST=false
-LAB_DEPLOY=false
-LAB_TEST=false
+[ -z "$PULL_IMAGES" ] && PULL_IMAGES=false
+[ -z "$QA_DEPLOY" ] && QA_DEPLOY=false
+[ -z "$QA_TEST" ] && QA_TEST=false
+[ -z "$LAB_DEPLOY" ] && LAB_DEPLOY=false
+[ -z "$LAB_TEST" ] && LAB_TEST=false
 
 APPS="
   health-apis-ids

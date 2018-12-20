@@ -7,8 +7,11 @@ pipeline {
     timestamps()
   }
   parameters {
-    booleanParam(name: 'XPULL_IMAGES', defaultValue: true, description: 'Pull latest built images to deploy')
-    booleanParam(name: 'XQA_DEPLOY', defaultValue: true, description: 'Deploy latest images to QA')
+    booleanParam(name: 'PULL_IMAGES', defaultValue: false, description: 'Pull latest built images to deploy')
+    booleanParam(name: 'QA_DEPLOY', defaultValue: false, description: 'Deploy latest images to QA')
+    booleanParam(name: 'QA_TEST', defaultValue: false, description: 'Run regression tests against QA')
+    booleanParam(name: 'LAB_DEPLOY', defaultValue: false, description: 'Deploy latest images to the Lab')
+    booleanParam(name: 'LAB_TEST', defaultValue: false, description: 'Run regression tests against the Lab')
   }
   agent {
     dockerfile {
@@ -27,7 +30,7 @@ pipeline {
      }
   }
   triggers {
-    cron('*/2 * * * 1-5')
+    cron('*/10 * * * 1-5')
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   stages {
