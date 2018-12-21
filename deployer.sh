@@ -30,8 +30,8 @@ AGENT_K_LOG=$WORKSPACE/agent-k.log
 [ -z "$LAB_TEST" ] && LAB_TEST=false
 
 CONFIRMED=false
-[[ "$ARE_YOU_SURE" =~ YES.* ]] && CONFIRMED=true
-[[ "$LAB_DEPLOY" == true && $CONFIRMED == false ]] && echo "You seem unsure ... confirm and try again." && exit 1
+[ -n "$MR_URL" ] && CONFIRMED=true && echo "$MR_URL" >> $JENKINS_DIR/description
+[[ "$LAB_DEPLOY" == true && $CONFIRMED == false ]] && echo "You must provide a link the Maintenance Request Pull Request in GitHub" && exit 1
 
 
 APPS="
@@ -195,7 +195,7 @@ runTests() {
   [ -z "$failureSummary" ] && echo "0 failures" > $JENKINS_DIR/build-name && return 0
   # Report failures and die!
   echo "${failureSummary#*, }" > $JENKINS_DIR/build-name
-  echo "$failureSummary" > $JENKINS_DIR/description
+  echo "$failureSummary" >> $JENKINS_DIR/description
   grep "fail " $AGENT_K_LOG | head -5  >> $JENKINS_DIR/description
   echo "This make me sad." 
   exit 1
@@ -217,8 +217,8 @@ testQa() {
 deployToLab() {
   echo "============================================================"
   echo "Deploying applications to Lab"
-  pushToOpenshiftRegistry $LAB_OCP $LAB_REGISTRY
-  waitForPodsToBeRunning $LAB_OCP $OCP_PROJECT
+echo  pushToOpenshiftRegistry $LAB_OCP $LAB_REGISTRY
+echo  waitForPodsToBeRunning $LAB_OCP $OCP_PROJECT
 
   # test and if fail ...
   #restoreImages $QA_OCP $QA_REGISTRY
