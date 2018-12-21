@@ -12,8 +12,8 @@ pipeline {
     booleanParam(name: 'QA_TEST', defaultValue: true, description: 'Run regression tests against QA')
     booleanParam(name: 'LAB_DEPLOY', defaultValue: false, description: 'Deploy latest images to the Lab')
     booleanParam(name: 'LAB_TEST', defaultValue: false, description: 'Run regression tests against the Lab')
-    string(name: 'MR_URL', defaultValue: '', description: 'URL to Maintenance Request Pull Request for this change.')
-    booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Fill the logs with copious amounts of trace.')
+    string(name: 'MR_URL', defaultValue: '', description: 'URL to Maintenance Request Pull Request for this change')
+    booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Fill the logs with copious amounts of trace')
   }
   agent {
     dockerfile {
