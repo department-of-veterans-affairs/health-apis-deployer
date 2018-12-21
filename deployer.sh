@@ -219,8 +219,8 @@ testQa() {
 deployToLab() {
   echo "============================================================"
   echo "Deploying applications to Lab"
-echo  pushToOpenshiftRegistry $LAB_OCP $LAB_REGISTRY
-echo  waitForPodsToBeRunning $LAB_OCP $OCP_PROJECT
+  pushToOpenshiftRegistry $LAB_OCP $LAB_REGISTRY
+  waitForPodsToBeRunning $LAB_OCP $OCP_PROJECT
 
   # test and if fail ...
   #restoreImages $QA_OCP $QA_REGISTRY
