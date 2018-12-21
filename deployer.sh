@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-[ "$DEBUG" == true ] && set -x
+[ "$VERBOSE" == true ] && set -x
 
 #
 # Pre-flight check
