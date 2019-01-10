@@ -117,7 +117,7 @@ pushToOpenshiftRegistry() {
   echo "Updating images in $ocp ($registry)"
   oc login "$ocp" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
   oc project $OCP_PROJECT
-  docker --insecured-registry login -p $(oc whoami -t) -u unused $registry
+  docker login -p $(oc whoami -t) -u unused $registry
   for app in $APPS
   do
     local image=${registry}/$OCP_PROJECT/${app}
