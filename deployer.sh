@@ -14,6 +14,9 @@
 [ -z "$ARGONAUT_REFRESH_TOKEN" ] &&  echo "Not defined: ARGONAUT_REFRESH_TOKEN" && exit 1
 [ -z "$ARGONAUT_CLIENT_ID" ] &&  echo "Not defined: ARGONAUT_CLIENT_ID" && exit 1
 [ -z "$ARGONAUT_CLIENT_SECRET" ] &&  echo "Not defined: ARGONAUT_CLIENT_SECRET" && exit 1
+[ -z "$LAB_CLIENT_ID" ] &&  echo "Not defined: LAB_CLIENT_ID" && exit 1
+[ -z "$LAB_CLIENT_SECRET" ] &&  echo "Not defined: LAB_CLIENT_SECRET" && exit 1
+[ -z "$LAB_USER_PASSWORD" ] &&  echo "Not defined: LAB_USER_PASSWORD" && exit 1
 
 
 #
@@ -84,6 +87,7 @@ pullLatestImages() {
   docker login -u "$user" -p "$password" "$registry"
   for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:latest | grep -vE "$PULL_FILTER"; done
   docker pull $DOCKER_SOURCE_ORG/agent-k | grep -vE "$PULL_FILTER"
+  docker pull $DOCKER_SOURCE_ORG/health-apis-sentinel | grep -vE "$PULL_FILTER"
   docker logout "$registry"
 }
 
@@ -113,7 +117,7 @@ pushToOpenshiftRegistry() {
   echo "Updating images in $ocp ($registry)"
   oc login "$ocp" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
   oc project $OCP_PROJECT
-  docker login -p $(oc whoami -t) -u unused $registry
+  docker --insecured-registry login -p $(oc whoami -t) -u unused $registry
   for app in $APPS
   do
     local image=${registry}/$OCP_PROJECT/${app}
@@ -221,17 +225,61 @@ deployToLab() {
   echo "Deploying applications to Lab"
   pushToOpenshiftRegistry $LAB_OCP $LAB_REGISTRY
   waitForPodsToBeRunning $LAB_OCP $OCP_PROJECT
-
-  # test and if fail ...
-  #restoreImages $QA_OCP $QA_REGISTRY
-  #waitForPodsToBeRunning $QA_OCP $OCP_PROJECT
-  echo "============================================================"
 }
+
+restoreLab() {
+  echo "============================================================"
+  echo "Restoring applications in Lab"
+  restoreImages $LAB_OCP $LAB_REGISTRY
+  waitForPodsToBeRunning $LAB_OCP $OCP_PROJECT
+}
+
+testLab() {
+  echo "============================================================"
+  echo "Testing Lab"
+  local id=lab-test-$(date +%s)-$RANDOM
+  docker run \
+    --name $id \
+    --network=host \
+    $DOCKER_SOURCE_ORG/health-apis-sentinel:latest \
+    test \
+    --category gov.va.health.api.sentinel.categories.Lab \
+    -Dlab.client-id="$LAB_CLIENT_ID" \
+    -Dlab.client-secret="$LAB_CLIENT_SECRET" \
+    -Dlab.user-password="$LAB_USER_PASSWORD" \
+    gov.va.health.api.sentinel.LabTest
+  local status=$?
+  docker commit $id $id-files
+  docker run --rm --entrypoint "" $id-files tar -zcC /sentinel/target -f - . > lab-results.tar.gz
+  docker rmi $id-files
+  docker rm $id
+  return $status
+}
+
+
+#
+# Actions
+#
 
 [ $PULL_IMAGES == true ] && pullLatestImages "$DOCKER_SOURCE_REGISTRY" "$DOCKER_USERNAME" "$DOCKER_PASSWORD"
 
+#
+# QA may be deployed to and tested independently. You are not required to test to QA when deploy occurs.
+#
 [ $QA_DEPLOY == true ] && deployToQa "$QA_OCP" "$QA_REGISTRY"
 [ $QA_TEST == true ] && testQa
-[ $LAB_DEPLOY == true ] && deployToLab "$LAB_OCP" "$LAB_REGISTRY"
+
+
+#
+# For the Lab, if deploying, you must test. If there are test failures (and we deployed), we rollback.
+#
+LAB_OK=true
+[ $LAB_DEPLOY == true ] && LAB_TEST=true && deployToLab "$LAB_OCP" "$LAB_REGISTRY"
+[ $LAB_TEST == true ] && LAB_OK=false && testLab && LAB_OK=true
+if [ $LAB_OK == false ]
+then
+  [ $LAB_DEPLOY == true ] && restoreLab
+  exit 1
+fi
 
 exit 0

@@ -64,7 +64,16 @@ pipeline {
             variable: 'ARGONAUT_CLIENT_ID'),
           string(
             credentialsId: 'ARGONAUT_CLIENT_SECRET',
-            variable: 'ARGONAUT_CLIENT_SECRET')
+            variable: 'ARGONAUT_CLIENT_SECRET'),
+          string(
+            credentialsId: 'LAB_CLIENT_ID',
+            variable: 'LAB_CLIENT_ID'),
+          string(
+            credentialsId: 'LAB_CLIENT_SECRET',
+            variable: 'LAB_CLIENT_SECRET'),
+          string(
+            credentialsId: 'LAB_USER_PASSWORD',
+            variable: 'LAB_USER_PASSWORD')
         ]) {
           script {
             for(cause in currentBuild.rawBuild.getCauses()) {
