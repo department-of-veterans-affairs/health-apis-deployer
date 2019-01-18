@@ -4,7 +4,7 @@ cd $(dirname $(readlink -f $0))
 . upgraderator/upgrade.conf
 
 env | sort
-
+echo ------------------------------------------------------------
 
 HASH=${GIT_COMMIT:0:7}
 TAG=${HEALTH_APIS_VERSION}-${HASH}
@@ -18,6 +18,9 @@ BUILD_ID=$BUILD_ID
 BUILD_BRANCH_NAME=$BRANCH_NAME
 BUILD_URL="$BUILD_URL"
 EOF
+
+set -x
+
 docker build -t $IMAGE .
 
 
