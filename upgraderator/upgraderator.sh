@@ -29,9 +29,15 @@ APPS="
   health-apis-mr-anderson
   health-apis-argonaut
 "
-export IMAGE_IDS=$(openshiftImageName health-apis-ids)
-export IMAGE_MR_ANDERSON=$(openshiftImageName health-apis-mr-anderson)
-export IMAGE_ARGONAUT=$(openshiftImageName health-apis-argonaut)
+
+
+echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+echo ************************************************************
+openShiftImageName 123456
+
+export IMAGE_IDS=$(openShiftImageName health-apis-ids)
+export IMAGE_MR_ANDERSON=$(openShiftImageName health-apis-mr-anderson)
+export IMAGE_ARGONAUT=$(openShiftImageName health-apis-argonaut)
 
 
 
@@ -66,13 +72,13 @@ loginToOpenShift() {
 
 
 
-openshiftImageName() {
-  echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${app}:${HEALTH_APIS_VERSION}"
+openShiftImageName() {
+  echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${HEALTH_APIS_VERSION}"
 }
 
 
 
-pushToOpenshiftRegistry() {
+pushToOpenShiftRegistry() {
   echo ============================================================
   echo "Updating images in $OPENSHIFT_URL ($OPENSHIFT_REGISTRY)"
   oc login "$OPENSHIFT_URL" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
@@ -80,7 +86,7 @@ pushToOpenshiftRegistry() {
   docker login -p $(oc whoami -t) -u unused $OPENSHIFT_REGISTRY
   for app in $APPS
   do
-    local image=$(openshiftImageName $app)
+    local image=$(openShiftImageName $app)
     # Deploy the new image
     echo ------------------------------------------------------------
     echo "Pushing new $app images ..."
