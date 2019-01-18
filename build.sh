@@ -12,11 +12,11 @@ IMAGE="vasdvp/health-apis-upgraderator:$TAG"
 echo "Building upgraderator $TAG"
 
 cat <<EOF > build.conf
-BUILD_DATE="$(date)"
-BUILD_HASH=$HASH
-BUILD_ID=$BUILD_ID
-BUILD_BRANCH_NAME=$BRANCH_NAME
-BUILD_URL="$BUILD_URL"
+export BUILD_DATE="$(date)"
+export BUILD_HASH=$HASH
+export BUILD_ID=$BUILD_ID
+export BUILD_BRANCH_NAME=$BRANCH_NAME
+export BUILD_URL="$BUILD_URL"
 EOF
 
 set -ex

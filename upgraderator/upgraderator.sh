@@ -19,7 +19,7 @@ esac
 . $CONF
 . $ENV_CONF
 
-VERSION=${HEALTH_APIS_VERSION}-${BUILD_HASH}
+export VERSION=${HEALTH_APIS_VERSION}-${BUILD_HASH}
 
 echo "Upgrading Health APIs in $ENVIRONMENT to $VERSION"
 cat $ENV_CONF | sort
