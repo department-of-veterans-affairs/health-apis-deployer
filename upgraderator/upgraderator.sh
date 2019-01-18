@@ -2,7 +2,7 @@
 
 BASE=$(dirname $(readlink -f $0))
 
-WORK_DIR=$BASE/work
+WORK=$BASE/work
 
 BUILD_INFO=$BASE/build.conf
 CONF=$BASE/upgrade.conf
@@ -19,7 +19,7 @@ esac
 . $CONF
 . $ENV_CONF
 
-export VERSION=${HEALTH_APIS_VERSION}-${BUILD_HASH}
+export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}
 
 echo "Upgrading Health APIs in $ENVIRONMENT to $VERSION"
 cat $ENV_CONF | sort
