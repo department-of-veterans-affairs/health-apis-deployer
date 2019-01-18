@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-cd $(dirname $(readlink -f $0))
-. upgraderator/upgrade.conf
+cd $(dirname $(readlink -f $0))/upgraderator
+. upgrade.conf
 
 env | sort
 echo ------------------------------------------------------------
@@ -11,7 +11,7 @@ TAG=${HEALTH_APIS_VERSION}-${HASH}
 IMAGE="vasdvp/health-apis-upgraderator:$TAG"
 echo "Building upgraderator $TAG"
 
-cat <<EOF > upgraderator/build.conf
+cat <<EOF > build.conf
 BUILD_DATE="$(date)"
 BUILD_HASH=$HASH
 BUILD_ID=$BUILD_ID
@@ -21,9 +21,10 @@ EOF
 
 set -x
 
+echo ------------------------------------------------------------
 docker build -t $IMAGE .
 
-
+echo ------------------------------------------------------------
 docker run \
        --rm \
        -e ENVIRONMENT=qa \
