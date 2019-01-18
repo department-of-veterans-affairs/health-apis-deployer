@@ -4,10 +4,10 @@ RUN yum update -yqq \
     && yum install -yqq gettext \
     && yum clean all
 
-RUN curl -vLo /usr/local/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
+RUN curl -kLo /usr/local/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
     && chmod +x /usr/local/bin/jq
 
-RUN curl -fsSL https://get.docker.com | sh
+RUN curl -fksSL https://get.docker.com | sh
 
 ENV OC_VERSION=v3.11.0 \
     OC_TAG_SHA=0cbc58b
