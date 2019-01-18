@@ -1,6 +1,6 @@
 FROM centos:latest
 
-RUN yum update \
+RUN yum update -yqq \
     && yum install -yqq gettext \
     && yum clean all
 
