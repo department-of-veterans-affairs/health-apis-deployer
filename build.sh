@@ -36,5 +36,13 @@ docker run \
        -e OPENSHIFT_USERNAME="$OPENSHIFT_USERNAME" \
        -e OPENSHIFT_PASSWORD="$OPENSHIFT_PASSWORD" \
        -e OPENSHIFT_API_TOKEN="$OPENSHIFT_API_TOKEN" \
+       --privileged \
+       --group-add 497 \
+       -v /etc/passwd:/etc/passwd:ro \
+       -v /etc/group:/etc/group:ro \
+       -v /var/lib/jenkins/.ssh:/root/.ssh \
+       -v /var/run/docker.sock:/var/run/docker.sock \
+       -v /var/lib/docker:/var/lib/docker \
+       -v /etc/docker/daemon.json:/etc/docker/daemon.json \
        $IMAGE
       

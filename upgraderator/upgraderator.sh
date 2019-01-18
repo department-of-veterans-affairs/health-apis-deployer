@@ -31,9 +31,9 @@ APPS="
 "
 
 
-echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-echo ************************************************************
-openShiftImageName 123456
+openShiftImageName() {
+  echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${HEALTH_APIS_VERSION}"
+}
 
 export IMAGE_IDS=$(openShiftImageName health-apis-ids)
 export IMAGE_MR_ANDERSON=$(openShiftImageName health-apis-mr-anderson)
@@ -68,12 +68,6 @@ loginToOpenShift() {
   echo ============================================================
   oc login $OPENSHIFT_URL --token $OPENSHIFT_API_TOKEN --insecure-skip-tls-verify=true
   oc project $OPENSHIFT_PROJECT
-}
-
-
-
-openShiftImageName() {
-  echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${HEALTH_APIS_VERSION}"
 }
 
 
