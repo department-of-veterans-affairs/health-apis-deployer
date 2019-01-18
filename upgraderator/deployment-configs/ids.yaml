@@ -11,6 +11,7 @@ spec:
       labels:
         app: universal-identity-service-${VERSION}
         version: ${VERSION}
+        deploymentconfig: universal-identity-service-${VERSION}
     spec:
       containers:
         - name: universal-identity-service-${VERSION}
