@@ -19,10 +19,12 @@ BUILD_BRANCH_NAME=$BRANCH_NAME
 BUILD_URL="$BUILD_URL"
 EOF
 
-set -x
+set -ex
 
 echo ------------------------------------------------------------
-docker build -t $IMAGE .
+docker build -t "$IMAGE" .
+
+docker images | grep health-apis-upgraderator
 
 echo ------------------------------------------------------------
 docker run \
