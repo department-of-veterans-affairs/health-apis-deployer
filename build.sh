@@ -6,7 +6,7 @@ cd $(dirname $(readlink -f $0))
 env | sort
 
 
-HASH=$(git rev-parse --short HEAD)
+HASH=${GIT_COMMIT:0:7}
 TAG=${HEALTH_APIS_VERSION}-${HASH}
 IMAGE="vasdvp/health-apis-upgraderator:$TAG"
 echo "Building upgraderator $TAG"
