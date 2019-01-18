@@ -23,7 +23,6 @@ esac
 
 export DOCKER_SOURCE_ORG=vasdvp
 export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}
-export IMAGE_IDS=$DOCKER_SOURCE_ORG/health-apis-ids:$HEALTH_APIS_VERSION
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="
   health-apis-ids
@@ -37,6 +36,7 @@ export IMAGE_ARGONAUT=$(openshiftImageName health-apis-argonaut)
 
 
 printGreeting() {
+  env | sort
   echo ============================================================
   echo "Upgrading Health APIs in $ENVIRONMENT to $VERSION"
   cat $ENV_CONF | sort
