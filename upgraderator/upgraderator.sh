@@ -111,7 +111,7 @@ createDeploymentConfigs() {
 printGreeting
 pullImages
 loginToOpenShift
-pushImages
+pushToOpenShiftRegistry
 createDeploymentConfigs
 
 
