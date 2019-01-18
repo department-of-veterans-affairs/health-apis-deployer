@@ -35,7 +35,7 @@ openShiftImageName() {
   echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${HEALTH_APIS_VERSION}"
 }
 
-export IMAGE_IDS=$(openShiftImageName health-apis-ids)
+export IMAGE_IDS=${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_VERSION}
 export IMAGE_MR_ANDERSON=$(openShiftImageName health-apis-mr-anderson)
 export IMAGE_ARGONAUT=$(openShiftImageName health-apis-argonaut)
 
