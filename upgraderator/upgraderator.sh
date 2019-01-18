@@ -7,7 +7,7 @@ CONF=$BASE/upgrade.conf
 ENV_CONF=
 [ -z "$ENVIRONMENT" ] && echo "Environment not specified" && exit 1
 case $ENVIRONMENT in
-  qa) ENV_CONF=qa.conf;;
+  qa) ENV_CONF=$BASE/qa.conf;;
   *) echo "Unknown environment: $ENVIRONMENT" && exit 1
 esac
 
