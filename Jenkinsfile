@@ -31,10 +31,12 @@ pipeline {
       args "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
      }
   }
+  /*
   triggers {
     cron('00 22 * * 1-5')
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
+  */
   stages {
     stage('Deploy') {
       steps {
@@ -79,8 +81,8 @@ pipeline {
             for(cause in currentBuild.rawBuild.getCauses()) {
               env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
             }
-            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'test') {
-              sh script: './deployer.sh'
+            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'x/upgraderator') {
+              sh script: './build.sh'
             }
           }
         }
