@@ -30,6 +30,8 @@ cat $CONF | sort
 
 echo ------------------------------------------------------------
 
+set -x
 oc login $OPENSHIFT_URL --token $OPENSHIFT_API_TOKEN --insecure-skip-tls-verify=true
 oc project $OPENSHIFT_PROJECT
+oc get
 oc get pods
