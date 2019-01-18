@@ -17,6 +17,6 @@ RUN curl -skLo /tmp/oc.tar.gz https://github.com/openshift/origin/releases/downl
     && mv /tmp/openshift-origin-client-tools-${OC_VERSION}-${OC_TAG_SHA}-linux-64bit/oc /usr/local/bin/ \
     && rm -rf /tmp/oc.tar.gz /tmp/openshift-origin-client-tools-${OC_VERSION}-${OC_TAG_SHA}-linux-64bit
 
-COPY upgrade.conf build.conf upgraderator.sh /upgraderator/
+COPY . /upgraderator/
 
 ENTRYPOINT /upgraderator/upgraderator.sh
