@@ -2,6 +2,8 @@
 
 BASE=$(dirname $(readlink -f $0))
 
+WORK_DIR=$BASE/work
+
 BUILD_INFO=$BASE/build.conf
 CONF=$BASE/upgrade.conf
 ENV_CONF=
@@ -31,7 +33,17 @@ cat $CONF | sort
 echo ------------------------------------------------------------
 
 set -x
+
+[ -d $WORK ] && rm -rf $WORK
+mkdir -p $WORK
+
 oc login $OPENSHIFT_URL --token $OPENSHIFT_API_TOKEN --insecure-skip-tls-verify=true
 oc project $OPENSHIFT_PROJECT
-oc get
-oc get pods
+
+for TEMPLATE in $(find $BASE/deployment-configs -type f -name "*.yaml")
+do
+  DC=$WORK/$(basename $TEMPLATE)
+  cat $TEMPLATE | envsubst > $DC
+  oc create -f $DC
+done
+
