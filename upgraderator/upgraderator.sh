@@ -94,6 +94,7 @@ pushToOpenShiftRegistry() {
 
 
 createDeploymentConfigs() {
+  loginToOpenShift
   echo ============================================================
   
   for TEMPLATE in $(find $BASE/deployment-configs -type f -name "*.yaml")
