@@ -26,6 +26,15 @@ JENKINS_DIR=$WORKSPACE/.jenkins
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
 
+#
+#
+#
+
+
+exit 0
+# ============================================================
+
+
 AGENT_K_LOG=$WORKSPACE/agent-k.log
 
 [ -z "$PULL_IMAGES" ] && PULL_IMAGES=false

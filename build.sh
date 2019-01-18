@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 
+env | sort
+
 cd $(dirname $(readlink -f $0))
 . upgraderator/upgrade.conf
 
@@ -14,3 +16,4 @@ BUILD_DATE="$(date)"
 BUILD_HASH=$HASH
 EOF
 docker build -t vasdvp/health-apis-upgraderator:$TAG .
+
