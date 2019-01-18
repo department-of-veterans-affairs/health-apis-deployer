@@ -104,8 +104,9 @@ createDeploymentConfigs() {
     echo ------------------------------------------------------------
     echo $DC
     cat $DC
-    oc create -f $DC
     echo ------------------------------------------------------------
+    set -x
+    oc create -f $DC
   done
 }
 
