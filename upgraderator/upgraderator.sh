@@ -20,6 +20,7 @@ esac
 . $ENV_CONF
 
 export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}
+export IMAGE_IDS=$DOCKER_SOURCE_ORG/health-apis-ids:$HEALTH_APIS_VERSION
 
 echo "Upgrading Health APIs in $ENVIRONMENT to $VERSION"
 cat $ENV_CONF | sort
