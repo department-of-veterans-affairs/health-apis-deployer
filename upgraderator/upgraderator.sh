@@ -44,6 +44,10 @@ for TEMPLATE in $(find $BASE/deployment-configs -type f -name "*.yaml")
 do
   DC=$WORK/$(basename $TEMPLATE)
   cat $TEMPLATE | envsubst > $DC
+  echo ------------------------------------------------------------
+  echo $DC
+  cat $DC
   oc create -f $DC
+  echo ------------------------------------------------------------
 done
 
