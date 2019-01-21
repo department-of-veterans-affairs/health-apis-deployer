@@ -3,7 +3,7 @@ kind: DeploymentConfig
 metadata:
   name: universal-identity-service-${VERSION}
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     deploymentconfig: universal-identity-service-${VERSION}
   template:
