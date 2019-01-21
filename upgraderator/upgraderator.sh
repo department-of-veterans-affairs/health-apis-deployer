@@ -36,10 +36,8 @@ openShiftImageName() {
 }
 
 export IMAGE_IDS=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_VERSION}
-export IMAGE_MR_ANDERSON=$(openShiftImageName health-apis-mr-anderson)
+export IMAGE_MR_ANDERSON=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
 export IMAGE_ARGONAUT=$(openShiftImageName health-apis-argonaut)
-
-
 
 printGreeting() {
   env | sort
@@ -52,8 +50,6 @@ printGreeting() {
   cat $CONF | sort
 }
 
-
-
 pullImages() {
   echo ============================================================
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" "$DOCKER_SOURCE_REGISTRY"
@@ -62,15 +58,11 @@ pullImages() {
   docker logout "$DOCKER_SOURCE_REGISTRY"
 }
 
-
-
 loginToOpenShift() {
   echo ============================================================
   oc login $OPENSHIFT_URL --token $OPENSHIFT_API_TOKEN --insecure-skip-tls-verify=true
   oc project $OPENSHIFT_PROJECT
 }
-
-
 
 pushToOpenShiftRegistry() {
   echo ============================================================
