@@ -37,7 +37,7 @@ openShiftImageName() {
 
 export IMAGE_IDS=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_VERSION}
 export IMAGE_MR_ANDERSON=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
-export IMAGE_ARGONAUT=$(openShiftImageName health-apis-argonaut)
+export IMAGE_ARGONAUT=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-argonaut:${HEALTH_APIS_VERSION}
 
 printGreeting() {
   env | sort
