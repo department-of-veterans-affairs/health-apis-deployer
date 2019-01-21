@@ -1,9 +1,9 @@
 apiVersion: v1
-kind: Pod
+kind: DeploymentConfig
 metadata:
   name: mr-anderson-${VERSION}
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     deploymentconfig: mr-anderson-${VERSION}
   template:
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: mr-anderson-${VERSION}
-          image: ${IMAGE_MR_ANDERSION}
+          image: ${IMAGE_MR_ANDERSON}
           ports:
             - name: https
               containerPort: 8082
@@ -38,4 +38,3 @@ spec:
       restartPolicy: Always
       nodeSelector:
         region: primary
-
