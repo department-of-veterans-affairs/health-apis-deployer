@@ -35,9 +35,9 @@ openShiftImageName() {
   echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${HEALTH_APIS_VERSION}"
 }
 
-export IMAGE_IDS=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_VERSION}
-export IMAGE_MR_ANDERSON=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
-export IMAGE_ARGONAUT=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-argonaut:${HEALTH_APIS_VERSION}
+export IMAGE_IDS=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_VERSION}
+export IMAGE_MR_ANDERSON=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
+export IMAGE_ARGONAUT=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-argonaut:${HEALTH_APIS_VERSION}
 
 printGreeting() {
   env | sort
@@ -104,7 +104,16 @@ createDeploymentConfigs() {
 
 
 createApplicationConfigs() {
-  aws s3 sync s3://app-config-storage-qa/ /tmp
+  local ac=$WORK/application-configs
+  mkdir -p $ac
+  for template in $(find $BASE/application-properties -name "*.properties")
+  do
+    local name=$(basename $f);
+    local target=$ac/${name%.*}-$VERSION/
+    mkdir -p $ac/$name-$VERSION
+    cat $template | envsubst > $target/application.properties
+  done
+  (cd $ac && aws s3 sync s3://$APP_CONFIG_BUCKET/ .)
 }
 printGreeting
 pullImages

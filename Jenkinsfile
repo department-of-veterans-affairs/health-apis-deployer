@@ -52,6 +52,36 @@ pipeline {
             credentialsId: 'OPENSHIFT_USERNAME_PASSWORD',
             usernameVariable: 'OPENSHIFT_USERNAME',
             passwordVariable: 'OPENSHIFT_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'QA_IDS_DB_USERNAME_PASSWORD',
+            usernameVariable: 'QA_IDS_DB_USERNAME',
+            passwordVariable: 'QA_IDS_DB_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'PROD_IDS_DB_USERNAME_PASSWORD',
+            usernameVariable: 'PROD_IDS_DB_USERNAME',
+            passwordVariable: 'PROD_IDS_DB_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'LAB_IDS_DB_USERNAME_PASSWORD',
+            usernameVariable: 'LAB_IDS_DB_USERNAME',
+            passwordVariable: 'LAB_IDS_DB_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'QA_CDW_DB_USERNAME_PASSWORD',
+            usernameVariable: 'QA_CDW_DB_USERNAME',
+            passwordVariable: 'QA_CDW_DB_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'PROD_CDW_DB_USERNAME_PASSWORD',
+            usernameVariable: 'PROD_CDW_DB_USERNAME',
+            passwordVariable: 'PROD_CDW_DB_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'LAB_CDW_DB_USERNAME_PASSWORD',
+            usernameVariable: 'LAB_CDW_DB_USERNAME',
+            passwordVariable: 'LAB_CDW_DB_PASSWORD'),
+          string(
+            credentialsId: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD',
+            variable: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD'),
+          string(
+            credentialsId: 'HEALTH_API_CERTIFICATE_PASSWORD',
+            variable: 'HEALTH_API_CERTIFICATE_PASSWORD'),
           string(
             credentialsId: 'OPENSHIFT_API_TOKEN',
             variable: 'OPENSHIFT_API_TOKEN'),
