@@ -65,17 +65,17 @@ pipeline {
             usernameVariable: 'LAB_IDS_DB_USERNAME',
             passwordVariable: 'LAB_IDS_DB_PASSWORD'),
           usernamePassword(
-            credentialsId: 'QA_CDW_DB_USERNAME_PASSWORD',
-            usernameVariable: 'QA_CDW_DB_USERNAME',
-            passwordVariable: 'QA_CDW_DB_PASSWORD'),
+            credentialsId: 'QA_CDW_USERNAME_PASSWORD',
+            usernameVariable: 'QA_CDW_USERNAME',
+            passwordVariable: 'QA_CDW_PASSWORD'),
           usernamePassword(
-            credentialsId: 'PROD_CDW_DB_USERNAME_PASSWORD',
-            usernameVariable: 'PROD_CDW_DB_USERNAME',
-            passwordVariable: 'PROD_CDW_DB_PASSWORD'),
+            credentialsId: 'PROD_CDW_USERNAME_PASSWORD',
+            usernameVariable: 'PROD_CDW_USERNAME',
+            passwordVariable: 'PROD_CDW_PASSWORD'),
           usernamePassword(
-            credentialsId: 'LAB_CDW_DB_USERNAME_PASSWORD',
-            usernameVariable: 'LAB_CDW_DB_USERNAME',
-            passwordVariable: 'LAB_CDW_DB_PASSWORD'),
+            credentialsId: 'LAB_CDW_USERNAME_PASSWORD',
+            usernameVariable: 'LAB_CDW_USERNAME',
+            passwordVariable: 'LAB_CDW_PASSWORD'),
           string(
             credentialsId: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD',
             variable: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD'),
