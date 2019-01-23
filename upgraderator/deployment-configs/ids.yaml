@@ -35,7 +35,7 @@ spec:
               value: us-gov-west-1
             - name: AWS_BUCKET_NAME
               value: app-config-storage-qa
-            - name: AWS_APP_NAME
+            - name: AWS_CONFIG_FOLDER
               value: ids-${VERSION}
       restartPolicy: Always
       nodeSelector:
