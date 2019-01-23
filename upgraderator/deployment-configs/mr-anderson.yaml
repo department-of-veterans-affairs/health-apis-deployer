@@ -35,6 +35,8 @@ spec:
               value: us-gov-west-1
             - name: AWS_BUCKET_NAME
               value: app-config-storage-qa
+            - name: AWS_APP_NAME
+              value: mr-anderson-${VERSION}
       restartPolicy: Always
       nodeSelector:
         region: primary

@@ -22,7 +22,7 @@ esac
 . $ENV_CONF
 
 export DOCKER_SOURCE_ORG=vasdvp
-export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}
+export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}-${BUILD_ID}
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="
   health-apis-ids
@@ -118,11 +118,9 @@ createApplicationConfigs() {
 printGreeting
 pullImages
 createApplicationConfigs
-
-echo "**** SKIPPING DEPLOYMENT ****"
-#loginToOpenShift
-#pushToOpenShiftRegistry
-#createDeploymentConfigs
+loginToOpenShift
+pushToOpenShiftRegistry
+createDeploymentConfigs
 
 
 

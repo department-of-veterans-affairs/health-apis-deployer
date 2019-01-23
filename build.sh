@@ -8,7 +8,7 @@ echo ------------------------------------------------------------
 
 HASH=${GIT_COMMIT:0:7}
 [ -z "$HASH" ] && HASH=DEV
-TAG=${HEALTH_APIS_VERSION}-${HASH}
+TAG=${HEALTH_APIS_VERSION}-${HASH}-${BUILD_ID:-NONE}
 IMAGE="vasdvp/health-apis-upgraderator:$TAG"
 echo "Building upgraderator $TAG"
 
