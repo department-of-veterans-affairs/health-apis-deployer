@@ -108,12 +108,12 @@ createApplicationConfigs() {
   mkdir -p $ac
   for template in $(find $BASE/application-properties -name "*.properties")
   do
-    local name=$(basename $f);
+    local name=$(basename $template);
     local target=$ac/${name%.*}-$VERSION/
     mkdir -p $ac/$name-$VERSION
     cat $template | envsubst > $target/application.properties
   done
-  (cd $ac && aws s3 sync s3://$APP_CONFIG_BUCKET/ .)
+  (cd $ac && aws s3 cp s3://$APP_CONFIG_BUCKET/ .)
 }
 printGreeting
 pullImages
