@@ -113,7 +113,7 @@ createApplicationConfigs() {
     mkdir -p $target
     cat $template | envsubst > $target/application.properties
   done
-#  (cd $ac && aws s3 cp s3://$APP_CONFIG_BUCKET/ .)
+  (cd $ac && aws s3 cp s3://$APP_CONFIG_BUCKET/ .)
 }
 printGreeting
 pullImages
