@@ -110,7 +110,7 @@ createApplicationConfigs() {
   do
     local name=$(basename $template);
     local target=$ac/${name%.*}-$VERSION
-    mkdir -p $ac/$name-$VERSION
+    mkdir -p $target
     cat $template | envsubst > $target/application.properties
   done
 #  (cd $ac && aws s3 cp s3://$APP_CONFIG_BUCKET/ .)
