@@ -102,11 +102,18 @@ createDeploymentConfigs() {
   done
 }
 
+
+createApplicationConfigs() {
+  aws s3 sync s3://app-config-storage-qa/ /tmp
+}
 printGreeting
 pullImages
-loginToOpenShift
-pushToOpenShiftRegistry
-createDeploymentConfigs
+createApplicationConfigs
+
+echo "**** SKIPPING DEPLOYMENT ****"
+#loginToOpenShift
+#pushToOpenShiftRegistry
+#createDeploymentConfigs
 
 
 

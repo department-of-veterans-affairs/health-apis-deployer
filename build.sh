@@ -27,6 +27,7 @@ docker build -t "$IMAGE" .
 docker images | grep health-apis-upgraderator
 
 echo ------------------------------------------------------------
+[ -n "$SKIP_RUN" ] && exit 0
 docker run \
        --rm \
        -e ENVIRONMENT=qa \
@@ -36,6 +37,9 @@ docker run \
        -e OPENSHIFT_USERNAME="$OPENSHIFT_USERNAME" \
        -e OPENSHIFT_PASSWORD="$OPENSHIFT_PASSWORD" \
        -e OPENSHIFT_API_TOKEN="$OPENSHIFT_API_TOKEN" \
+       -e AWS_DEFAULT_REGION=us-gov-west-1 \
+       -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+       -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
        --privileged \
        --group-add 497 \
        -v /etc/passwd:/etc/passwd:ro \
