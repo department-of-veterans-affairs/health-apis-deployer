@@ -2,6 +2,8 @@ apiVersion: v1
 kind: DeploymentConfig
 metadata:
   name: mr-anderson-${VERSION}
+  labels:
+    version: ${VERSION}
 spec:
   replicas: 1
   selector:
