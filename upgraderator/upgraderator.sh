@@ -84,37 +84,19 @@ pushToOpenShiftRegistry() {
   docker logout $OPENSHIFT_REGISTRY
 }
 
-createDeploymentConfigs() {
+createOpenShiftConfigs() {
   loginToOpenShift
   echo ============================================================
-  echo "Creating Deployment Configs"
-  for TEMPLATE in $(find $BASE/deployment-configs -type f -name "*.yaml")
+  for TEMPLATE in $(find $BASE/$1 -type f -name "*.yaml")
   do
-    DC=$WORK/$(basename $TEMPLATE)
-    cat $TEMPLATE | envsubst > $DC
-    echo ------------------------------------------------------------
-    echo $DC
-    cat $DC
-    echo ------------------------------------------------------------
-    set -x
-    oc create -f $DC
-  done
-}
-
-createServices() {
-  loginToOpenShift
-  echo ============================================================
-  echo "Creating Services"
-  for TEMPLATE in $(find $BASE/service-configs -type f -name "*.yaml")
-  do
-    SC=$WORK/$(basename $TEMPLATE)
-    cat $TEMPLATE | envsubst > $SC
+    CONFIGS=$WORK/$(basename $TEMPLATE)
+    cat $TEMPLATE | envsubst > $CONFIGS
     echo ----------------------------------------------------------
-    echo $SC
-    cat $SC
+    echo $CONFIGS
+    cat $CONFIGS
     echo ---------------------------------------------------------
     set -x
-    oc create -f $SC
+    oc create -f $CONFIGS
   done
 }
 
@@ -136,5 +118,6 @@ pullImages
 createApplicationConfigs
 loginToOpenShift
 pushToOpenShiftRegistry
-createDeploymentConfigs
-createServices
+createOpenShiftConfigs "deployment-configs"
+createOpenShiftConfigs "service-configs"
+createOpenShiftConfigs "route-configs"
