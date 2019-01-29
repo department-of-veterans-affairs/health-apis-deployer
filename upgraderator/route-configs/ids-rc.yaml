@@ -5,7 +5,7 @@ metadata:
   labels:
     version: ${VERSION}
 spec:
-  host: ids-vasdvp.lighthouse.va.gov
+  host: ids-${VERSION}-vasdvp.lighthouse.va.gov
   to:
     kind: Service
     name: universal-identity-service-${VERSION}
