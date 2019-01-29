@@ -8,7 +8,7 @@ deleteResources() {
   local path=$2
   echo ============================================================
   echo "Deleting $VERSION $type"
-  curl -k -X DELETE \
+  curl -sk -X DELETE \
     -H "Authorization: Bearer $(oc whoami --show-token)" \
     $(oc whoami --show-server)$path?labelSelector=version=$VERSION
   
@@ -22,11 +22,11 @@ deleteServices() {
   local path=/api/v1/namespaces/${OPENSHIFT_PROJECT}/services
   echo ============================================================
   echo "Deleting $VERSION services"
-  curl -k -X DELETE \
+  curl -sk -X DELETE \
     -H "Authorization: Bearer $(oc whoami --show-token)" \
     $(oc whoami --show-server)$path?labelSelector=version=$VERSION \
     | jq -c .items[].metadata.selfLink -r \
-    | xargs -n 1 curl -k -X DELETE -H "Authorization: Bearer $(oc whoami --show-token)"
+    | xargs -n 1 curl -sk -X DELETE -H "Authorization: Bearer $(oc whoami --show-token)"
 }
 
 
