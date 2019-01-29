@@ -22,7 +22,7 @@ esac
 . $ENV_CONF
 
 export DOCKER_SOURCE_ORG=vasdvp
-export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}
+export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}-${BUILD_ID}
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="
   health-apis-ids
@@ -35,9 +35,9 @@ openShiftImageName() {
   echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${HEALTH_APIS_VERSION}"
 }
 
-export IMAGE_IDS=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_VERSION}
-export IMAGE_MR_ANDERSON=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
-export IMAGE_ARGONAUT=172.31.183.181:5000/${OPENSHIFT_PROJECT}/health-apis-argonaut:${HEALTH_APIS_VERSION}
+export IMAGE_IDS=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_VERSION}
+export IMAGE_MR_ANDERSON=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
+export IMAGE_ARGONAUT=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-argonaut:${HEALTH_APIS_VERSION}
 
 printGreeting() {
   env | sort
@@ -88,7 +88,7 @@ pushToOpenShiftRegistry() {
 createDeploymentConfigs() {
   loginToOpenShift
   echo ============================================================
-  
+  echo "Creating Deployment Configs"
   for TEMPLATE in $(find $BASE/deployment-configs -type f -name "*.yaml")
   do
     DC=$WORK/$(basename $TEMPLATE)
@@ -120,8 +120,22 @@ createServices() {
   done
 }
 
+createApplicationConfigs() {
+  local ac=$WORK/application-configs
+  mkdir -p $ac
+  for template in $(find $BASE/application-properties/$APP_CONFIG -name "*.properties")
+  do
+    local name=$(basename $template);
+    local target=$ac/${name%.*}-$VERSION
+    mkdir -p $target
+    cat $template | envsubst > $target/application.properties
+  done
+  (cd $ac && aws s3 cp . s3://$APP_CONFIG_BUCKET/ --recursive)
+}
+
 printGreeting
 pullImages
+createApplicationConfigs
 loginToOpenShift
 pushToOpenShiftRegistry
 createDeploymentConfigs

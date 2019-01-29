@@ -7,16 +7,17 @@ env | sort
 echo ------------------------------------------------------------
 
 HASH=${GIT_COMMIT:0:7}
-TAG=${HEALTH_APIS_VERSION}-${HASH}
+[ -z "$HASH" ] && HASH=DEV
+TAG=${HEALTH_APIS_VERSION}-${HASH}-${BUILD_ID:-NONE}
 IMAGE="vasdvp/health-apis-upgraderator:$TAG"
 echo "Building upgraderator $TAG"
 
 cat <<EOF > build.conf
 export BUILD_DATE="$(date)"
 export BUILD_HASH=$HASH
-export BUILD_ID=$BUILD_ID
-export BUILD_BRANCH_NAME=$BRANCH_NAME
-export BUILD_URL="$BUILD_URL"
+export BUILD_ID=${BUILD_ID:-NONE}
+export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
+export BUILD_URL="${BUILD_URL:-NONE}"
 EOF
 
 set -ex
@@ -27,6 +28,7 @@ docker build -t "$IMAGE" .
 docker images | grep health-apis-upgraderator
 
 echo ------------------------------------------------------------
+[ -n "$SKIP_RUN" ] && exit 0
 docker run \
        --rm \
        -e ENVIRONMENT=qa \
@@ -36,6 +38,23 @@ docker run \
        -e OPENSHIFT_USERNAME="$OPENSHIFT_USERNAME" \
        -e OPENSHIFT_PASSWORD="$OPENSHIFT_PASSWORD" \
        -e OPENSHIFT_API_TOKEN="$OPENSHIFT_API_TOKEN" \
+       -e AWS_DEFAULT_REGION=us-gov-west-1 \
+       -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+       -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
+       -e QA_IDS_DB_USERNAME="$QA_IDS_DB_USERNAME" \
+       -e QA_IDS_DB_PASSWORD="$QA_IDS_DB_PASSWORD" \
+       -e PROD_IDS_DB_USERNAME="$PROD_IDS_DB_USERNAME" \
+       -e PROD_IDS_DB_PASSWORD="$PROD_IDS_DB_PASSWORD" \
+       -e LAB_IDS_DB_USERNAME="$LAB_IDS_DB_USERNAME" \
+       -e LAB_IDS_DB_PASSWORD="$LAB_IDS_DB_PASSWORD" \
+       -e QA_CDW_USERNAME="$QA_CDW_USERNAME" \
+       -e QA_CDW_PASSWORD="$QA_CDW_PASSWORD" \
+       -e PROD_CDW_USERNAME="$PROD_CDW_USERNAME" \
+       -e PROD_CDW_PASSWORD="$PROD_CDW_PASSWORD" \
+       -e LAB_CDW_USERNAME="$LAB_CDW_USERNAME" \
+       -e LAB_CDW_PASSWORD="$LAB_CDW_PASSWORD" \
+       -e HEALTH_API_CERTIFICATE_PASSWORD="$HEALTH_API_CERTIFICATE_PASSWORD" \
+       -e PROD_HEALTH_API_CERTIFICATE_PASSWORD="$PROD_HEALTH_API_CERTIFICATE_PASSWORD" \
        --privileged \
        --group-add 497 \
        -v /etc/passwd:/etc/passwd:ro \
