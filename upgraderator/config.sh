@@ -23,7 +23,6 @@ esac
 . $ENV_CONF
 
 export DOCKER_SOURCE_ORG=vasdvp
-export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}-${BUILD_ID}
 
 loginToOpenShift() {
   echo ============================================================
