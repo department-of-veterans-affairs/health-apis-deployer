@@ -108,7 +108,7 @@ createServices() {
   for TEMPLATE in $(find $BASE/service-configs -type f -name "*.yaml")
   do
     SC=$WORK/$(basename $TEMPLATE)
-    cat $TEMPLATE | envsubst > $DC
+    cat $TEMPLATE | envsubst > $SC
     echo ----------------------------------------------------------
     echo $SC
     cat $SC
