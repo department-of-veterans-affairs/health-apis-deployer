@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: universal-identity-service-${VERSION}
+  labels:
+    app: universal-identity-service-${VERSION}
+spec:
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8089
+  selector:
+    app: universal-identity-service-${VERSION}
+  clusterIP: 172.31.64.65
+  sessionAffinity: None
+status:
+  loadBalancer: {}

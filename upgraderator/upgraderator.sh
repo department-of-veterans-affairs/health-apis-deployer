@@ -102,13 +102,30 @@ createDeploymentConfigs() {
   done
 }
 
+
+createServices() {
+  loginToOpenshift
+  echo ============================================================
+  echo "Creating Services"
+  for TEMPLATE in $(find $BASE/service-configs -type f -name "*.yaml")
+  do
+    SC=$WORK/$(basename $TEMPLATE)
+    cat $TEMPLATE | envsubst > $DC
+    echo ----------------------------------------------------------
+    echo $SC
+    cat $SC
+    echo ---------------------------------------------------------
+    set -x
+    oc create -f $SC
+  done
+}
+
 printGreeting
 pullImages
 loginToOpenShift
 pushToOpenShiftRegistry
 createDeploymentConfigs
-
-
+createServices
 
 
 
