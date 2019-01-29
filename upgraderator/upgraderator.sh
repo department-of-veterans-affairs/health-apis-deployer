@@ -84,7 +84,6 @@ pushToOpenShiftRegistry() {
   docker logout $OPENSHIFT_REGISTRY
 }
 
-
 createDeploymentConfigs() {
   loginToOpenShift
   echo ============================================================
@@ -102,9 +101,8 @@ createDeploymentConfigs() {
   done
 }
 
-
 createServices() {
-  loginToOpenshift
+  loginToOpenShift
   echo ============================================================
   echo "Creating Services"
   for TEMPLATE in $(find $BASE/service-configs -type f -name "*.yaml")
@@ -140,8 +138,3 @@ loginToOpenShift
 pushToOpenShiftRegistry
 createDeploymentConfigs
 createServices
-
-
-
-
-
