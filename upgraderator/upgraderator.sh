@@ -1,35 +1,14 @@
 #!/usr/bin/env bash
 
 BASE=$(dirname $(readlink -f $0))
+. $BASE/config.sh
 
-WORK=$BASE/work
-[ -d $WORK ] && rm -rf $WORK
-mkdir -p $WORK
-
-BUILD_INFO=$BASE/build.conf
-CONF=$BASE/upgrade.conf
-ENV_CONF=
-[ -z "$ENVIRONMENT" ] && echo "Environment not specified" && exit 1
-case $ENVIRONMENT in
-  qa) ENV_CONF=$BASE/qa.conf;;
-  *) echo "Unknown environment: $ENVIRONMENT" && exit 1
-esac
-
-[ -z "$BUILD_INFO" ] && echo "Build info file not found: $BUILD_INFO" && exit 1
-[ ! -f "$CONF" ] && echo "Configuration file not found: $CONF" && exit 1
-. $BUILD_INFO
-. $CONF
-. $ENV_CONF
-
-export DOCKER_SOURCE_ORG=vasdvp
-export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${BUILD_HASH}-${BUILD_ID}
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="
   health-apis-ids
   health-apis-mr-anderson
   health-apis-argonaut
 "
-
 
 openShiftImageName() {
   echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${HEALTH_APIS_VERSION}"
@@ -56,12 +35,6 @@ pullImages() {
   for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"; done
   docker pull $DOCKER_SOURCE_ORG/health-apis-sentinel:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"
   docker logout "$DOCKER_SOURCE_REGISTRY"
-}
-
-loginToOpenShift() {
-  echo ============================================================
-  oc login $OPENSHIFT_URL --token $OPENSHIFT_API_TOKEN --insecure-skip-tls-verify=true
-  oc project $OPENSHIFT_PROJECT
 }
 
 pushToOpenShiftRegistry() {

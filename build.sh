@@ -18,6 +18,7 @@ export BUILD_HASH=$HASH
 export BUILD_ID=${BUILD_ID:-NONE}
 export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
 export BUILD_URL="${BUILD_URL:-NONE}"
+export VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${HASH}-${BUILD_ID:-NONE}
 EOF
 
 set -ex
