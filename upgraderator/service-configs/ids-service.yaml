@@ -11,7 +11,3 @@ spec:
       targetPort: 8089
   selector:
     app: universal-identity-service-${VERSION}
-  clusterIP: 172.31.64.65
-  sessionAffinity: None
-status:
-  loadBalancer: {}
