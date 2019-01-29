@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: argonaut-${VERSION}
+  labels:
+    app: argonaut-${VERSION}
+    version: ${VERSION}
+spec:
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8090
+  selector:
+    app: argonaut-${VERSION}

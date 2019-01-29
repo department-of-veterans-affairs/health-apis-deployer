@@ -93,4 +93,3 @@ loginToOpenShift
 pushToOpenShiftRegistry
 createOpenShiftConfigs "deployment-configs"
 createOpenShiftConfigs "service-configs"
-createOpenShiftConfigs "route-configs"
