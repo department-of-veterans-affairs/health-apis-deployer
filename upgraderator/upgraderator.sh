@@ -23,8 +23,8 @@ envVarName() {
   echo $1 | tr [:lower:] [:upper:] | tr - _
 }
 
-export ARGONAUT_HOST_ENV="\${$(envVarName jargonaut-${VERSION}-service-host)}"
-export ARGONAUT_PORT_ENV="\${$(envVarName jargonaut-${VERSION}-service-port)}"
+export ARGONAUT_HOST_ENV="\${$(envVarName argonaut-${VERSION}-service-host)}"
+export ARGONAUT_PORT_ENV="\${$(envVarName argonaut-${VERSION}-service-port)}"
 export MR_ANDERSON_HOST_ENV="\${$(envVarName mr-anderson-${VERSION}-service-host)}"
 export MR_ANDERSON_PORT_ENV="\${$(envVarName mr-anderson-${VERSION}-service-port)}"
 export IDS_HOST_ENV="\${$(envVarName universal-identity-service-${VERSION}-service-host)}"
