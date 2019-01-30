@@ -22,11 +22,12 @@ deleteServices() {
   local path=/api/v1/namespaces/${OPENSHIFT_PROJECT}/services
   echo ============================================================
   echo "Deleting $VERSION services"
-  curl -sk -X DELETE \
+  curl -sk \
     -H "Authorization: Bearer $(oc whoami --show-token)" \
     $(oc whoami --show-server)$path?labelSelector=version=$VERSION \
     | jq -c .items[].metadata.selfLink -r \
-    | xargs -n 1 curl -sk -X DELETE -H "Authorization: Bearer $(oc whoami --show-token)"
+    | xargs -I {} bash -c \
+      'curl -sk -X DELETE -H "Authorization: Bearer $(oc whoami --show-token) $(oc whoami --show-server){}"'
 }
 
 
