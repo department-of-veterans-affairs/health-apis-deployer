@@ -23,6 +23,8 @@ envVarName() {
   echo $1 | tr [:lower:] [:upper:] | tr - _
 }
 
+export ARGONAUT_HOST_ENV="\${$(envVarName jargonaut-${VERSION}-service-host)}"
+export ARGONAUT_PORT_ENV="\${$(envVarName jargonaut-${VERSION}-service-port)}"
 export MR_ANDERSON_HOST_ENV="\${$(envVarName mr-anderson-${VERSION}-service-host)}"
 export MR_ANDERSON_PORT_ENV="\${$(envVarName mr-anderson-${VERSION}-service-port)}"
 export IDS_HOST_ENV="\${$(envVarName universal-identity-service-${VERSION}-service-host)}"
@@ -92,6 +94,8 @@ createApplicationConfigs() {
     local target=$ac/${name%.*}-$VERSION
     mkdir -p $target
     cat $template | envsubst > $target/application.properties
+    cat $BASE/on-start.sh.template | envsubst > $target/on-start.sh
+    chmod +x $target/on-start.sh
   done
   (cd $ac && aws s3 cp . s3://$APP_CONFIG_BUCKET/ --recursive)
 }
