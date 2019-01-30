@@ -27,7 +27,7 @@ deleteServices() {
     $(oc whoami --show-server)$path?labelSelector=version=$VERSION \
     | jq -c .items[].metadata.selfLink -r \
     | xargs -I {} bash -c \
-      'curl -sk -X DELETE -H "Authorization: Bearer $(oc whoami --show-token) $(oc whoami --show-server){}"'
+      'curl -sk -X DELETE -H "Authorization: Bearer $(oc whoami --show-token)" $(oc whoami --show-server){}'
 }
 
 
