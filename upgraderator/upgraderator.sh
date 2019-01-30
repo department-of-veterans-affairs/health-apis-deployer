@@ -18,6 +18,16 @@ export IMAGE_IDS=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis
 export IMAGE_MR_ANDERSON=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
 export IMAGE_ARGONAUT=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-argonaut:${HEALTH_APIS_VERSION}
 
+
+envVarName() {
+  echo $1 | tr [:lower:] [:upper:] | tr - _
+}
+
+export MR_ANDERSON_HOST_ENV="\$$(envVarName mr-anderson-${VERSION}-service-host)"
+export MR_ANDERSON_PORT_ENV="\$$(envVarName mr-anderson-${VERSION}-service-port)"
+export IDS_HOST_ENV="\$$(envVarName universal-identity-service-${VERSION}-service-host)"
+export IDS_PORT_ENV="\$$(envVarName universal-identity-service-${VERSION}-service-port)"
+
 printGreeting() {
   env | sort
   echo ============================================================
