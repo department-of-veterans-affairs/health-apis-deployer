@@ -23,10 +23,10 @@ envVarName() {
   echo $1 | tr [:lower:] [:upper:] | tr - _
 }
 
-export MR_ANDERSON_HOST_ENV="\$$(envVarName mr-anderson-${VERSION}-service-host)"
-export MR_ANDERSON_PORT_ENV="\$$(envVarName mr-anderson-${VERSION}-service-port)"
-export IDS_HOST_ENV="\$$(envVarName universal-identity-service-${VERSION}-service-host)"
-export IDS_PORT_ENV="\$$(envVarName universal-identity-service-${VERSION}-service-port)"
+export MR_ANDERSON_HOST_ENV="\${$(envVarName mr-anderson-${VERSION}-service-host)}"
+export MR_ANDERSON_PORT_ENV="\${$(envVarName mr-anderson-${VERSION}-service-port)}"
+export IDS_HOST_ENV="\${$(envVarName universal-identity-service-${VERSION}-service-host)}"
+export IDS_PORT_ENV="\${$(envVarName universal-identity-service-${VERSION}-service-port)}"
 
 printGreeting() {
   env | sort
