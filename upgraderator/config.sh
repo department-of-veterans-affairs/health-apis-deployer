@@ -3,7 +3,7 @@
 # top-level utilities.
 #
 
-WORK=$BASE/work
+export WORK=$BASE/work
 [ -d $WORK ] && rm -rf $WORK
 mkdir -p $WORK
 

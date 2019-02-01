@@ -19,7 +19,8 @@ EOF
 exit 1
 }
 
-
+BASE=$(dirname $(readlink -f $0))
+[ -z "$WORK" ] && WORK=.
 BLUE="blue"
 GREEN="green"
 export OPENSHIFT_PROJECT=$(oc project -q)
@@ -91,7 +92,7 @@ doGreenRoute() {
   export GREEN_ROUTE_RESOURCE_VERSION=$(extractResourceVersion green)
   export GREEN_ROUTE_IP=$(extractRouteIp green)
   export GREEN_INGRESS_HOST=$(extractIngressHost green)
-  cat green.json.template | envsubst > green-update.json
+  cat $BASE/green.json.template | envsubst > green-update.json
   updateRoute green && echo "Green route updated"
 }
 
@@ -106,7 +107,7 @@ doBlueRoute() {
   export BLUE_ROUTE_IP=$(extractRouteIp blue)
   export BLUE_INGRESS_HOST=$(extractIngressHost blue)
   export BLUE_PERCENT=$((100-$GREEN_PERCENT))
-  cat blue.json.template | envsubst > blue-update.json
+  cat $BASE/blue.json.template | envsubst > blue-update.json
   updateRoute blue && echo "Blue route updated"  
 }
 
