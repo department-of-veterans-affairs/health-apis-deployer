@@ -42,3 +42,18 @@ spec:
       restartPolicy: Always
       nodeSelector:
         region: primary
+      livenessprobe:
+        httpGet:
+          path: /actuator/info
+          port: 8090
+        initialDelaySeconds: 10
+        timeoutSeconds: 1
+      readinessprobe:
+        httpGet:
+          path: /actuator/info
+          port: 8090
+        initialDelaySeconds: 10
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
