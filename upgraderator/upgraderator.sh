@@ -81,6 +81,7 @@ createOpenShiftConfigs() {
     cat $CONFIGS
     echo ---------------------------------------------------------
     oc create -f $CONFIGS
+    [ $? != 0 ] && echo "Failed to create configurations" && exit 1
   done
 }
 
