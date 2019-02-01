@@ -129,6 +129,7 @@ loginToOpenShift
 pushToOpenShiftRegistry
 createOpenShiftConfigs "deployment-configs"
 createOpenShiftConfigs "service-configs"
+createOpenShiftConfigs "autoscaling-configs"
 setGreenRoute
 echo "sleeping 60" && sleep 60
 transitionFromGreenToBlue

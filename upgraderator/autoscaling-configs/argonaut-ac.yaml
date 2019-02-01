@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: argonaut-${VERSION}
+  label: ${VERSION}
+spec:
+  scaleRef:
+    kind: DeploymentConfig 
+    name: argonaut-${VERSION}
+    apiVersion: v1 
+    subresource: scale
+  minReplicas: 2 
+  maxReplicas: 5 
+  cpuUtilization:
+    targetPercentage: 20
