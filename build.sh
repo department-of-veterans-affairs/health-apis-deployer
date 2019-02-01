@@ -8,12 +8,12 @@ echo ------------------------------------------------------------
 
 HASH=${GIT_COMMIT:0:7}
 [ -z "$HASH" ] && HASH=DEV
-VERSION=$(echo ${HEALTH_APIS_VERSION}|tr . -)-${HASH}-${BUILD_ID:-NONE}
+VERSION="${BUILD_ID:-NONE}-$(echo ${HEALTH_APIS_VERSION}|tr . -)-${HASH}"
 IMAGE="vasdvp/health-apis-upgraderator:$VERSION"
 echo "Building upgraderator $VERSION"
 
 cat <<EOF > build.conf
-export VERSION=$VERSION
+export VERSION="$VERSION"
 export BUILD_DATE="$(date)"
 export BUILD_HASH=$HASH
 export BUILD_ID=${BUILD_ID:-NONE}
