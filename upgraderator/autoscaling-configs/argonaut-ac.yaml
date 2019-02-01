@@ -7,7 +7,7 @@ spec:
   scaleRef:
     kind: DeploymentConfig 
     name: argonaut-${VERSION}
-    apiVersion: v1 
+    apiVersion: autoscaling/v1 
     subresource: scale
   minReplicas: 2 
   maxReplicas: 5 
