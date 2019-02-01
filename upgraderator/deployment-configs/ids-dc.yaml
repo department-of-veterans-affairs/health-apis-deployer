@@ -39,21 +39,21 @@ spec:
               value: app-config-storage-qa
             - name: AWS_CONFIG_FOLDER
               value: ids-${VERSION}
+        livenessprobe:
+          httpGet:
+            path: /actuator/info
+            port: 8090
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        readinessprobe:
+          httpGet:
+            path: /actuator/info
+            port: 8090
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
       restartPolicy: Always
       nodeSelector:
         region: primary
-      livenessprobe:
-        httpGet:
-          path: /actuator/info
-          port: 8090
-        initialDelaySeconds: 10
-        timeoutSeconds: 1
-      readinessprobe:
-        httpGet:
-          path: /actuator/info
-          port: 8090
-        initialDelaySeconds: 10
-        timeoutSeconds: 1
-        periodSeconds: 10
-        successThreshold: 1
-        failureThreshold: 3
