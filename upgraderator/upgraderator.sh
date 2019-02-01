@@ -80,7 +80,6 @@ createOpenShiftConfigs() {
     echo $CONFIGS
     cat $CONFIGS
     echo ---------------------------------------------------------
-    set -x
     oc create -f $CONFIGS
   done
 }

@@ -93,7 +93,7 @@ doGreenRoute() {
   export GREEN_ROUTE_IP=$(extractRouteIp green)
   export GREEN_INGRESS_HOST=$(extractIngressHost green)
   cat $BASE/green.json.template | envsubst > green-update.json
-  updateRoute green && echo "Green route updated"
+  updateRoute green && echo "Green route updated to $GREEN_VERSION"
 }
 
 doBlueRoute() {
@@ -108,7 +108,8 @@ doBlueRoute() {
   export BLUE_INGRESS_HOST=$(extractIngressHost blue)
   export BLUE_PERCENT=$((100-$GREEN_PERCENT))
   cat $BASE/blue.json.template | envsubst > blue-update.json
-  updateRoute blue && echo "Blue route updated"  
+  updateRoute blue && \
+    echo "Blue route updated to $BLUE_VERSION (${BLUE_PERCENT}%), $GREEN_VERSION (${GREEN_PERCENT}%)"  
 }
 
 ARGS=$(getopt -n $(basename $0) \
