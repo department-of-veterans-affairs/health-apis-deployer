@@ -100,6 +100,28 @@ createApplicationConfigs() {
   (cd $ac && aws s3 cp . s3://$APP_CONFIG_BUCKET/ --recursive)
 }
 
+
+setGreenRoute() {
+  echo ============================================================
+  echo "Updating green route to $VERSION"
+  ./blue-green.sh green-route --green-version "$VERSION"
+}
+
+transitionFromGreenToBlue() {
+  echo ============================================================
+  echo "Transitioning from blue to green"
+  for percent in 25 50 75
+  do
+    echo "Transitioning to ${percent}%"
+    ./blue-green.sh blue-route --green-version "$VERSION" --green-percent $percent
+    local waitUntil=$(($(date +%s) + $GREEN_TO_BLUE_INTERVAL))
+    while [ $(date +%s) -lt $waitUntil ]; do echo -n "."; sleep 15; done
+    echo .
+  done
+  echo "Transitioning to 100%"
+  ./blue-green.sh blue-route --blue-version "$VERSION" --green-version "$VERSION" --green-percent 1
+}
+
 printGreeting
 pullImages
 createApplicationConfigs
@@ -107,3 +129,5 @@ loginToOpenShift
 pushToOpenShiftRegistry
 createOpenShiftConfigs "deployment-configs"
 createOpenShiftConfigs "service-configs"
+setGreenRoute
+transitionFromGreenToBlue
