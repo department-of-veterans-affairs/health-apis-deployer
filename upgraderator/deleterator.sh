@@ -33,9 +33,13 @@ deleteServices() {
 deleteS3Artifacts() {
   echo ============================================================
   echo "Deleting $VERSION S3 Bucket Artifacts"
-  aws s3 rm s3://$APP_CONFIG_BUCKET/ids-$VERSION --recursive
-  aws s3 rm s3://$APP_CONFIG_BUCKET/argonaut-$VERSION --recursive
-  aws s3 rm s3://$APP_CONFIG_BUCKET/mr-anderson-$VERSION --recursive
+  for app in ids mr-anderson argonaut
+  do
+    local resource="s3://$APP_CONFIG_BUCKET/${app}-$VERSION"
+    echo "Deleting $resource"
+    aws s3 rm $resource --recursive
+    [ $? != 0 ] && echo "Failed to delete configuration for $app"
+  done
 }
 
 
