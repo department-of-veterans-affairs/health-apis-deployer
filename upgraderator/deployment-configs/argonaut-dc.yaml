@@ -39,6 +39,9 @@ spec:
               value: app-config-storage-qa
             - name: AWS_CONFIG_FOLDER
               value: argonaut-${VERSION}
+          resources:
+            requests:
+              cpu: 250m
           livenessProbe:
             exec:
               command:
