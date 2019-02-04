@@ -2,6 +2,9 @@
 
 BASE=$(dirname $(readlink -f $0))
 . $BASE/config.sh
+[ -d $WORK ] && rm -rf $WORK
+mkdir -p $WORK
+
 
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="

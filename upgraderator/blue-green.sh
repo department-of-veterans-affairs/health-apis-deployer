@@ -37,6 +37,7 @@ exit 1
 }
 
 BASE=$(dirname $(readlink -f $0))
+. $BASE/config.sh
 [ -z "$WORK" ] && WORK=.
 BLUE="blue"
 GREEN="green"
@@ -165,6 +166,7 @@ done
 [ $# == 0 ] && usage "No command specified"
 COMMAND=$1
 
+loginToOpenShift
 case $COMMAND in
   blue-route) doBlueRoute;;
   blue-version) doPrintVersion "blue";;

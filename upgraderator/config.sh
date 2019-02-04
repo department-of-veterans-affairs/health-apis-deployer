@@ -4,8 +4,7 @@
 #
 
 export WORK=$BASE/work
-[ -d $WORK ] && rm -rf $WORK
-mkdir -p $WORK
+[ ! -d $WORK ] && mkdir -p $WORK
 
 BUILD_INFO=$BASE/build.conf
 CONF=$BASE/upgrade.conf
