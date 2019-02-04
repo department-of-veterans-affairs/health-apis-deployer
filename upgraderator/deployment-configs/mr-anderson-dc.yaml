@@ -39,6 +39,32 @@ spec:
               value: app-config-storage-qa
             - name: AWS_CONFIG_FOLDER
               value: mr-anderson-${VERSION}
+          livenessProbe:
+            exec:
+              command:
+                - /usr/bin/curl
+                - '-sk'
+                - '--cert'
+                - '/opt/va/certs/local.pem:testtest'
+                - 'https://localhost:8089/actuator/info'
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - /usr/bin/curl
+                - '-sk'
+                - '--cert'
+                - '/opt/va/certs/local.pem:testtest'
+                - 'https://localhost:8089/actuator/info'
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
       restartPolicy: Always
       nodeSelector:
         region: primary
