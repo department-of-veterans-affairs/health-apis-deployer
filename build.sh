@@ -76,7 +76,7 @@ deleteOldVersions() {
   set -x
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
-  for version in $(blueGreen list-versions | awk '{NR > 4}')
+  for version in $(blueGreen list-versions)
   do
     [ "$version" == "$blue" ] && continue
     [ "$version" == "$green" ] && continue
