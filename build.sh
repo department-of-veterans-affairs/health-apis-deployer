@@ -89,7 +89,6 @@ deleteOldVersions() {
 deleteVersion() {
   local version=$1
   local deleteMe="vasdvp/health-apis-upgraderator:$version"
-  docker pull $deleteMe
   dockerRun --entrypoint /upgraderator/deleterator.sh $deleteMe
 }
 
