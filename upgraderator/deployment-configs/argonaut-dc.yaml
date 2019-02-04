@@ -46,7 +46,7 @@ spec:
                 - '-sk'
                 - '--cert'
                 - '/opt/va/certs/local.pem:testtest'
-                - 'https://localhost:8089/actuator/info'
+                - 'https://localhost:8090/actuator/info'
             initialDelaySeconds: 30
             timeoutSeconds: 1
             periodSeconds: 10
@@ -59,7 +59,7 @@ spec:
                 - '-sk'
                 - '--cert'
                 - '/opt/va/certs/local.pem:testtest'
-                - 'https://localhost:8089/actuator/info'
+                - 'https://localhost:8090/actuator/info'
             initialDelaySeconds: 10
             timeoutSeconds: 1
             periodSeconds: 10
