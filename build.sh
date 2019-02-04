@@ -88,7 +88,7 @@ deleteOldVersions() {
     deleteVersion $version
     deleted+=" $version"
   done
-  echo "Deleted:$deleted"
+  echo "Deleted old versions:$deleted"
 }
 
 deleteVersion() {
@@ -104,8 +104,7 @@ deleteVersion() {
 #
 # Upgrade
 #
-#dockerRun $IMAGE
-
+dockerRun $IMAGE
 
 #
 # Clean up
