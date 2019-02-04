@@ -96,6 +96,7 @@ deleteVersion() {
   local deleteMe="vasdvp/health-apis-upgraderator:$version"
   echo "Deleting $version"
   dockerRun --entrypoint /upgraderator/deleterator.sh $deleteMe
+  echo "Deleted $version"
 }
 
 [ -n "$SKIP_RUN" ] && exit 0
