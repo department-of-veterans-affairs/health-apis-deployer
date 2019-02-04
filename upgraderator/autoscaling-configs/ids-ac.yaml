@@ -1,0 +1,15 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ids-${VERSION}
+  label: ${VERSION}
+spec:
+  scaleTargetRef:
+    kind: DeploymentConfig 
+    name: ids-${VERSION}
+    apiVersion: v1 
+    subresource: scale
+  minReplicas: 2 
+  maxReplicas: 5 
+  cpuUtilization:
+    targetPercentage: 20
