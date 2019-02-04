@@ -76,17 +76,22 @@ deleteOldVersions() {
   #
   # Delete all but the last 4 versions deployed (except if they are either blue or green)
   #
-  set -x
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
   for version in $(blueGreen list-versions | awk 'NR > 4')
   do
     [ "$version" == "$blue" ] && continue
     [ "$version" == "$green" ] && continue
-    echo "Delete old $version"
+    deleteVersion $version
   done
 }
 
+deleteVersion() {
+  local version=$1
+  local deleteMe="vasdvp/health-apis-upgraderator:$version"
+  docker pull $deleteMe
+  dockerRun --entrypoint /upgraderator/deleterator.sh $deleteMe
+}
 
 [ -n "$SKIP_RUN" ] && exit 0
 
