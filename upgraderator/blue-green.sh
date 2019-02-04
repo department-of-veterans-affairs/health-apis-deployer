@@ -8,11 +8,28 @@ $0 [options] <command>
 Configure blue green roll out of services.
 
 Options
- -h, --help              Print this help and exit
- -g, --green <version>   The green version
+ -h, --help                     Print this help and exit
+ -b, --blue-version <version>   The desired blue version
+ -g, --green-version <version>  The desired green version
+ -p, --green-percent <number>   A number between 0 and 100 representing the
+                                percentage of traffic to direct to the green 
+                                deployment
+
 
 Commands
- TODO
+ blue-route [--blue-version b] --green-version g --green-percent p
+   Set the deployments and percetanges used the blue route. If --blue-version is not specified
+   the current blue deployment is used.
+ blue-version
+   Print the blue version
+ green-route --green-version g
+   Set deployment for the green route
+ green-version
+   Print the green version
+ list-versions
+   List all currently deployed versions
+ pull
+   Pull route configuration for both blue and green deployments
 
 $1
 EOF
@@ -112,6 +129,20 @@ doBlueRoute() {
     echo "Blue route updated to $BLUE_VERSION (${BLUE_PERCENT}%), $GREEN_VERSION (${GREEN_PERCENT}%)"  
 }
 
+doListVersions() {
+  oc get dc \
+    | awk '{print $1}' \
+    | grep -- '-[0-9]\+-[0-9]\+-[0-9]\+-[0-9]\+-[a-z0-9]\+$' \
+    | sed 's/^[-a-z]\+-//' \
+    | sort -uV
+}
+
+doPrintVersion() {
+  local color=$1
+  pullRoute $color
+  extractDeploymentVersion $color
+}
+
 ARGS=$(getopt -n $(basename $0) \
     -l "blue-version:,debug,green-percent:,green-version:,help" \
     -o "b:g:hp:" -- "$@")
@@ -135,9 +166,12 @@ done
 COMMAND=$1
 
 case $COMMAND in
-  pull) doPull;;
-  green-route) doGreenRoute;;
   blue-route) doBlueRoute;;
+  blue-version) doPrintVersion "blue";;
+  green-route) doGreenRoute;;
+  green-version) doPrintVersion "green";;
+  list-versions) doListVersions;;
+  pull) doPull;;
 esac
 
 
