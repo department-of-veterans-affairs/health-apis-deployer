@@ -78,17 +78,21 @@ deleteOldVersions() {
   #
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
+  local deleted=
   for version in $(blueGreen list-versions | awk 'NR > 4')
   do
     [ "$version" == "$blue" ] && continue
     [ "$version" == "$green" ] && continue
     deleteVersion $version
+    deleted+=" $version"
   done
+  echo "Deleted:$deleted"
 }
 
 deleteVersion() {
   local version=$1
   local deleteMe="vasdvp/health-apis-upgraderator:$version"
+  echo "Deleting $version"
   dockerRun --entrypoint /upgraderator/deleterator.sh $deleteMe
 }
 
