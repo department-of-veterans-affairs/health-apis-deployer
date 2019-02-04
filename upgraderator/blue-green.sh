@@ -41,10 +41,6 @@ BASE=$(dirname $(readlink -f $0))
 [ -z "$WORK" ] && WORK=.
 BLUE="blue"
 GREEN="green"
-export OPENSHIFT_PROJECT=$(oc project -q)
-OPENSHIFT=$(oc whoami --show-server)
-TOKEN=$(oc whoami --show-token)
-
 
 pullRoute() {
   local color=$1
@@ -166,7 +162,10 @@ done
 [ $# == 0 ] && usage "No command specified"
 COMMAND=$1
 
-loginToOpenShift
+loginToOpenShift > /dev/null
+OPENSHIFT=$(oc whoami --show-server)
+TOKEN=$(oc whoami --show-token)
+
 case $COMMAND in
   blue-route) doBlueRoute;;
   blue-version) doPrintVersion "blue";;
