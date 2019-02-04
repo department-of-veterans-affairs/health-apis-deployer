@@ -55,6 +55,10 @@ dockerRun() {
     -e LAB_CDW_PASSWORD="$LAB_CDW_PASSWORD" \
     -e HEALTH_API_CERTIFICATE_PASSWORD="$HEALTH_API_CERTIFICATE_PASSWORD" \
     -e PROD_HEALTH_API_CERTIFICATE_PASSWORD="$PROD_HEALTH_API_CERTIFICATE_PASSWORD" \
+    -e TOKEN=$ARGONAUT_TOKEN \
+    -e REFRESH_TOKEN=$ARGONAUT_REFRESH_TOKEN \
+    -e CLIENT_ID=$ARGONAUT_CLIENT_ID \
+    -e CLIENT_SECRET=$ARGONAUT_CLIENT_SECRET \
     --privileged \
     --group-add 497 \
     -v /etc/passwd:/etc/passwd:ro \
@@ -74,11 +78,11 @@ blueGreen() {
 
 deleteOldVersions() {
   #
-  # Delete all but the last 4 versions deployed (except if they are either blue or green)
+  # Delete all but the last few versions deployed (except if they are either blue or green)
   #
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
-  local oldVersions=$(blueGreen list-versions | awk 'NR > 4')
+  local oldVersions=$(blueGreen list-versions | awk 'NR > 3')
   echo "Found old versions: $oldVersions"
   local deleted=
   for version in $oldVersions

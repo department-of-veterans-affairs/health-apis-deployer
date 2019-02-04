@@ -11,7 +11,7 @@ deleteResources() {
   curl -sk -X DELETE \
     -H "Authorization: Bearer $(oc whoami --show-token)" \
     $(oc whoami --show-server)$path?labelSelector=version=$VERSION
-
+  echo
 }
 
 deleteServices() {
@@ -28,6 +28,7 @@ deleteServices() {
     | jq -c .items[].metadata.selfLink -r \
     | xargs -I {} bash -c \
       'curl -sk -X DELETE -H "Authorization: Bearer $(oc whoami --show-token)" $(oc whoami --show-server){}'
+  echo
 }
 
 deleteS3Artifacts() {

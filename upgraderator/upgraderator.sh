@@ -124,6 +124,20 @@ transitionFromGreenToBlue() {
   $BASE/blue-green.sh blue-route --blue-version "$VERSION" --green-version "$VERSION" --green-percent 1
 }
 
+testGreen() {
+  local id="sentinel-$VERSION"
+  docker run \
+    --name="$id" \
+    --network=host \
+    vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
+    test \
+    -Dsentinel=$SENTINEL_ENV \
+    -Daccess-token=$TOKEN \
+    gov.va.health.api.sentinel.PatientIT
+  # TODO copy artifacts?
+  docker rm $id
+}
+
 printGreeting
 pullImages
 createApplicationConfigs
@@ -133,5 +147,6 @@ createOpenShiftConfigs "deployment-configs"
 createOpenShiftConfigs "service-configs"
 createOpenShiftConfigs "autoscaling-configs"
 setGreenRoute
+testGreen
 echo "sleeping 60" && sleep 60
 transitionFromGreenToBlue
