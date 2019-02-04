@@ -131,7 +131,7 @@ doListVersions() {
     | awk '{print $1}' \
     | grep -- '-[0-9]\+-[0-9]\+-[0-9]\+-[0-9]\+-[a-z0-9]\+$' \
     | sed 's/^[-a-z]\+-//' \
-    | sort -uV
+    | sort -urV
 }
 
 doPrintVersion() {
@@ -173,6 +173,7 @@ case $COMMAND in
   green-version) doPrintVersion "green";;
   list-versions) doListVersions;;
   pull) doPull;;
+  *) usage "Unknown command: $COMMAND";;
 esac
 
 exit 0
