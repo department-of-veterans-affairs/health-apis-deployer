@@ -78,11 +78,13 @@ deleteOldVersions() {
   #
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
+  local oldVersions=$(blueGreen list-versions | awk 'NR > 4')
+  echo "Found old versions: $oldVersions"
   local deleted=
-  for version in $(blueGreen list-versions | awk 'NR > 4')
+  for version in $oldVersions
   do
-    [ "$version" == "$blue" ] && continue
-    [ "$version" == "$green" ] && continue
+    [ "$version" == "$blue" ] && echo "Keeping blue version $version" && continue
+    [ "$version" == "$green" ] && echo "Keeping green version $version" && continue
     deleteVersion $version
     deleted+=" $version"
   done
