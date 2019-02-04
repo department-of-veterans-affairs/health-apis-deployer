@@ -174,10 +174,4 @@ case $COMMAND in
   pull) doPull;;
 esac
 
-
-
-
 exit 0
-curl -k -H "Authorization: Bearer $(oc whoami --show-token)" $(oc whoami --show-server)/oapi/v1/namespaces/vasdvp/routes/green > green.json
-sed -e 's/argonaut-1-0-161-2a3447a-79/--TMP--/' -e 's/argonaut-1-0-161-aa5f9e9-80/argonaut-1-0-161-2a3447a-79/' -e 's/--TMP--/argonaut-1-0-161-aa5f9e9-80/' green.json > green2.json
-
