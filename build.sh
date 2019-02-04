@@ -73,10 +73,13 @@ blueGreen() {
 }
 
 deleteOldVersions() {
+  #
+  # Delete all but the last 4 versions deployed (except if they are either blue or green)
+  #
   set -x
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
-  for version in $(blueGreen list-versions)
+  for version in $(blueGreen list-versions | awk 'NR > 4')
   do
     [ "$version" == "$blue" ] && continue
     [ "$version" == "$green" ] && continue
