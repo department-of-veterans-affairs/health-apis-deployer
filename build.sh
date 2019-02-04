@@ -73,6 +73,7 @@ blueGreen() {
 }
 
 deleteOldVersions() {
+  set -x
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
   for version in $(blueGreen list-versions | awk '{NR > 4}')
@@ -89,7 +90,7 @@ deleteOldVersions() {
 #
 # Upgrade
 #
-dockerRun $IMAGE
+#dockerRun $IMAGE
 
 
 #
