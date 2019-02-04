@@ -100,7 +100,6 @@ createApplicationConfigs() {
   (cd $ac && aws s3 cp . s3://$APP_CONFIG_BUCKET/ --recursive)
 }
 
-
 setGreenRoute() {
   echo ============================================================
   echo "Updating green route to $VERSION"
