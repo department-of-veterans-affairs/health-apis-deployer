@@ -1,12 +1,12 @@
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: ids-${VERSION}
+  name: universal-identity-service-${VERSION}
   label: ${VERSION}
 spec:
   scaleTargetRef:
     kind: DeploymentConfig 
-    name: ids-${VERSION}
+    name: universal-identity-service-${VERSION}
     apiVersion: v1 
     subresource: scale
   minReplicas: 2 
