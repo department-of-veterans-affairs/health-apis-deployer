@@ -21,7 +21,7 @@ export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
 export BUILD_URL="${BUILD_URL:-NONE}"
 EOF
 
-set -ex
+set -e
 
 echo ------------------------------------------------------------
 docker build -t "$IMAGE" .
@@ -75,7 +75,7 @@ blueGreen() {
 deleteOldVersions() {
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
-  for version in $(blueGreen list-versions)
+  for version in $(blueGreen list-versions | awk '{NR > 4}')
   do
     [ "$version" == "$blue" ] && continue
     [ "$version" == "$green" ] && continue

@@ -111,7 +111,7 @@ setGreenRoute() {
 
 transitionFromGreenToBlue() {
   echo ============================================================
-  echo "Transitioning from blue to green"
+  echo "Transitioning from blue to green over $((4 * GREEN_TO_BLUE_INTERVAL)) seconds"
   for percent in 25 50 75
   do
     echo "Transitioning to ${percent}%"
