@@ -127,7 +127,7 @@ transitionFromGreenToBlue() {
 waitForGreen() {
   echo ============================================================
   echo "Waiting for green to be ready"
-  sleep 10s
+  sleep 15s
   local timeout=$(($(date +%s) + 120))
   local json=$WORK/health.json
   while [ $(date +%s) -lt $timeout ]
@@ -135,7 +135,7 @@ waitForGreen() {
     sleep 1
     local status=$(curl -sk -w %{http_code} -o $json $GREEN_ARGONAUT_URL/actuator/health)
     [ $status != 200 ] && echo "Green is not ready ($status)" && continue
-    cat $json
+    jq . $json
     local up=$(jq -r .status $json)
     [ "$up" != "UP" ] && echo "Green is $up" && continue
     echo "Green is ready"
@@ -145,9 +145,12 @@ waitForGreen() {
   exit 1
 }
 
-testGreen() {
+testGreenFunctional() {
   local id="sentinel-$VERSION"
+  echo ============================================================
+  echo "Executing functional tests ($HEALTH_APIS_VERSION)"
   docker run \
+    --rm \
     --name="$id" \
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
@@ -156,8 +159,27 @@ testGreen() {
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
     gov.va.health.api.sentinel.PatientIT
-  # TODO copy artifacts?
-  docker rm $id
+  # TODO --exclude-categories="$SENTINEL_EXCLUDES"
+  local status=$?
+  [ $status != 0 ] && echo "Functional tests failed" && echo "IGNOREING FAILURE ----> " exit 0
+}
+
+testGreenCrawl() {
+  echo ============================================================
+  echo "Executing crawler tests ($HEALTH_APIS_VERSION)"
+  docker run \
+    --rm \
+    --name="$id" \
+    --network=host \
+    vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
+    test \
+    -Dsentinel=$SENTINEL_ENV \
+    -Daccess-token=$TOKEN \
+    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
+    $SENTINEL_CRAWLER
+  # TODO --exclude-categories="$SENTINEL_EXCLUDES"
+  local status=$?
+  [ $status != 0 ] && echo "Crawler failed" && echo "IGNORING FAILURE -----> " exit 0
 }
 
 printGreeting
@@ -170,5 +192,6 @@ createOpenShiftConfigs "service-configs"
 createOpenShiftConfigs "autoscaling-configs"
 setGreenRoute
 waitForGreen
-testGreen
+testGreenFunctional
+trstGreenCrawl
 transitionFromGreenToBlue
