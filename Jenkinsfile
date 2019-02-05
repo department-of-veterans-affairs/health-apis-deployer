@@ -122,8 +122,8 @@ pipeline {
       agent none
       steps {
         input {
-          message 'Should we continue?'
-          ok "Yes we should"
+          message "Should we continue?"
+          ok "Yes, we should."
           submitter "ian.laflamme"
           parameters {
             string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I ask for permission?')
@@ -232,7 +232,7 @@ pipeline {
           }
         }
         echo "========================================================="
-        echo "Permission granted to proceed with Orchestraterator"
+        echo "Permission granted by ${PERSON} to proceed with Orchestraterator"
       }
     }
   }
