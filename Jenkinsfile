@@ -114,8 +114,8 @@ pipeline {
             }
           }
         }
-        echo ======================================
-        echo Building Orchestraterator
+        echo "======================================""
+        echo "Building Orchestraterator"
       }
     }
     stage('Ask for Permission') {
@@ -231,8 +231,8 @@ pipeline {
             }
           }
         }
-        echo =========================================================
-        echo Permission granted to proceed with Orchestraterator
+        echo "========================================================="
+        echo "Permission granted to proceed with Orchestraterator"
       }
     }
   }
