@@ -193,5 +193,5 @@ createOpenShiftConfigs "autoscaling-configs"
 setGreenRoute
 waitForGreen
 testGreenFunctional
-trstGreenCrawl
+testGreenCrawl
 transitionFromGreenToBlue
