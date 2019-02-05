@@ -127,10 +127,10 @@ pipeline {
         parameters {
           string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I ask for permission?')
         }
+      }
       steps {
           echo "====================================="
           echo "Permission asked..."
-        }
       }
     }
     stage('Permission Granted') {
