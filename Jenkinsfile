@@ -1,4 +1,4 @@
-Apipeline {
+pipeline {
   options {
     buildDiscarder(logRotator(numToKeepStr: '99', artifactNumToKeepStr: '99'))
     disableConcurrentBuilds()
