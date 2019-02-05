@@ -110,11 +110,12 @@ pipeline {
               env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
             }
             if (env.BRANCH_NAME == 'x/orchestraterator') {
-              echo =========================================================
-              echo Building Orchestraterator
+
             }
           }
         }
+        echo ======================================
+        echo Building Orchestraterator
       }
     }
     stage('Ask for Permission') {
@@ -226,11 +227,12 @@ pipeline {
               env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
             }
             if (env.BRANCH_NAME == 'x/orchestraterator') {
-              echo =========================================================
-              echo Permission granted to proceed with Orchestraterator
+
             }
           }
         }
+        echo =========================================================
+        echo Permission granted to proceed with Orchestraterator
       }
     }
   }
