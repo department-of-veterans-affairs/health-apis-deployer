@@ -120,14 +120,16 @@ pipeline {
     }
     stage('Ask for Permission') {
       agent none
+      input {
+        message "Should we continue?"
+        ok "Yes, we should."
+        submitter "ian.laflamme"
+        parameters {
+          string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I ask for permission?')
+        }
       steps {
-        input {
-          message "Should we continue?"
-          ok "Yes, we should."
-          submitter "ian.laflamme"
-          parameters {
-            string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I ask for permission?')
-          }
+          echo "====================================="
+          echo "Permission asked..."
         }
       }
     }
