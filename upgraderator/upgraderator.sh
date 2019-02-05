@@ -129,12 +129,15 @@ waitForGreen() {
   echo "Waiting for green to be ready"
   sleep 10s
   local timeout=$(($(date +%s) + 120))
+  local json=$WORK/health.json
   while [ $(date +%s) -lt $timeout ]
   do
     sleep 1
-    local status=$(curl -sk -w %{http_code} -o $WORK/health.json $GREEN_ARGONAUT_URL/actuator/health)
-    [ $status != 200 ] && continue
-    [ "$(jq -r .status $WORK/health.json)" != "OK" ] && continue
+    local status=$(curl -sk -w %{http_code} -o $json $GREEN_ARGONAUT_URL/actuator/health)
+    [ $status != 200 ] && echo "Green is not ready ($status)" && continue
+    cat $json
+    local up=$(jq -r .status $json)
+    [ "$up" != "UP" ] && echo "Green is $up" && continue
     echo "Green is ready"
     return
   done
