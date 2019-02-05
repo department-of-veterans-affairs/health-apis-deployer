@@ -133,6 +133,7 @@ testGreen() {
     test \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
+    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
     gov.va.health.api.sentinel.PatientIT
   # TODO copy artifacts?
   docker rm $id
