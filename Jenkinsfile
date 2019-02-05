@@ -6,31 +6,7 @@ pipeline {
     timeout(time: 30, unit: 'MINUTES')
     timestamps()
   }
-  parameters {
-    booleanParam(name: 'PULL_IMAGES', defaultValue: true, description: 'Pull latest built images to deploy')
-    booleanParam(name: 'QA_DEPLOY', defaultValue: true, description: 'Deploy latest images to QA')
-    booleanParam(name: 'QA_TEST', defaultValue: true, description: 'Run regression tests against QA')
-    booleanParam(name: 'LAB_DEPLOY', defaultValue: false, description: 'Deploy latest images to the Lab')
-    booleanParam(name: 'LAB_TEST', defaultValue: false, description: 'Run regression tests against the Lab')
-    string(name: 'MR_URL', defaultValue: '', description: 'URL to Maintenance Request Pull Request for this change')
-    booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Fill the logs with copious amounts of trace')
-  }
-  agent {
-    dockerfile {
-       /*
-        * We'll use the host user db so that any files written from the docker container look
-        * like they were written by real host users.
-        *
-        * We also want to share the Maven repostory and SSH configuration, and finally we'll
-        * need to be able to access docker. For that, we'll need to add the docker group, which
-        * is currently 475, we'll need to mount the sock and need access to the rest of docker
-        * lib for containers.
-        */
-      registryUrl 'https://index.docker.io/v1/'
-      registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-      args "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
-     }
-  }
+  agent none
   /*
   triggers {
     cron('00 22 * * 1-5')
@@ -38,7 +14,23 @@ pipeline {
   }
   */
   stages {
-    stage('Deploy') {
+    stage('Build') {
+      agent {
+        dockerfile {
+             /*
+              * We'll use the host user db so that any files written from the docker container look
+              * like they were written by real host users.
+              *
+              * We also want to share the Maven repostory and SSH configuration, and finally we'll
+              * need to be able to access docker. For that, we'll need to add the docker group, which
+              * is currently 475, we'll need to mount the sock and need access to the rest of docker
+              * lib for containers.
+              */
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
+           }
+      }
       steps {
         withCredentials([
           usernamePassword(
@@ -117,8 +109,125 @@ pipeline {
             for(cause in currentBuild.rawBuild.getCauses()) {
               env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
             }
-            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'x/upgraderator') {
-              sh script: './build.sh'
+            if (env.BRANCH_NAME == 'x/orchestraterator') {
+              echo =========================================================
+              echo Building Orchestraterator
+            }
+          }
+        }
+      }
+    }
+    stage('Ask for Permission') {
+      agent none
+      steps {
+        input {
+          message 'Should we continue?'
+          ok "Yes we should"
+          submitter "ian.laflamme"
+          parameters {
+            string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I ask for permission?')
+          }
+        }
+      }
+    }
+    stage('Permission Granted') {
+      agent {
+        dockerfile {
+             /*
+              * We'll use the host user db so that any files written from the docker container look
+              * like they were written by real host users.
+              *
+              * We also want to share the Maven repostory and SSH configuration, and finally we'll
+              * need to be able to access docker. For that, we'll need to add the docker group, which
+              * is currently 475, we'll need to mount the sock and need access to the rest of docker
+              * lib for containers.
+              */
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
+           }
+      }
+      steps {
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'DOCKER_USERNAME_PASSWORD',
+            usernameVariable: 'DOCKER_USERNAME',
+            passwordVariable: 'DOCKER_PASSWORD'),
+          string(
+            credentialsId: 'DOCKER_SOURCE_REGISTRY',
+            variable: 'DOCKER_SOURCE_REGISTRY'),
+          usernamePassword(
+            credentialsId: 'OPENSHIFT_USERNAME_PASSWORD',
+            usernameVariable: 'OPENSHIFT_USERNAME',
+            passwordVariable: 'OPENSHIFT_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'QA_IDS_DB_USERNAME_PASSWORD',
+            usernameVariable: 'QA_IDS_DB_USERNAME',
+            passwordVariable: 'QA_IDS_DB_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'PROD_IDS_DB_USERNAME_PASSWORD',
+            usernameVariable: 'PROD_IDS_DB_USERNAME',
+            passwordVariable: 'PROD_IDS_DB_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'LAB_IDS_DB_USERNAME_PASSWORD',
+            usernameVariable: 'LAB_IDS_DB_USERNAME',
+            passwordVariable: 'LAB_IDS_DB_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'QA_CDW_USERNAME_PASSWORD',
+            usernameVariable: 'QA_CDW_USERNAME',
+            passwordVariable: 'QA_CDW_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'PROD_CDW_USERNAME_PASSWORD',
+            usernameVariable: 'PROD_CDW_USERNAME',
+            passwordVariable: 'PROD_CDW_PASSWORD'),
+          usernamePassword(
+            credentialsId: 'LAB_CDW_USERNAME_PASSWORD',
+            usernameVariable: 'LAB_CDW_USERNAME',
+            passwordVariable: 'LAB_CDW_PASSWORD'),
+          string(
+            credentialsId: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD',
+            variable: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD'),
+          string(
+            credentialsId: 'HEALTH_API_CERTIFICATE_PASSWORD',
+            variable: 'HEALTH_API_CERTIFICATE_PASSWORD'),
+          string(
+            credentialsId: 'OPENSHIFT_API_TOKEN',
+            variable: 'OPENSHIFT_API_TOKEN'),
+          string(
+            credentialsId: 'APP_CONFIG_AWS_ACCESS_KEY_ID',
+            variable: 'AWS_ACCESS_KEY_ID'),
+          string(
+            credentialsId: 'APP_CONFIG_AWS_SECRET_ACCESS_KEY',
+            variable: 'AWS_SECRET_ACCESS_KEY'),
+          string(
+            credentialsId: 'ARGONAUT_TOKEN',
+            variable: 'ARGONAUT_TOKEN'),
+          string(
+            credentialsId: 'ARGONAUT_REFRESH_TOKEN',
+            variable: 'ARGONAUT_REFRESH_TOKEN'),
+          string(
+            credentialsId: 'ARGONAUT_CLIENT_ID',
+            variable: 'ARGONAUT_CLIENT_ID'),
+          string(
+            credentialsId: 'ARGONAUT_CLIENT_SECRET',
+            variable: 'ARGONAUT_CLIENT_SECRET'),
+          string(
+            credentialsId: 'LAB_CLIENT_ID',
+            variable: 'LAB_CLIENT_ID'),
+          string(
+            credentialsId: 'LAB_CLIENT_SECRET',
+            variable: 'LAB_CLIENT_SECRET'),
+          string(
+            credentialsId: 'LAB_USER_PASSWORD',
+            variable: 'LAB_USER_PASSWORD')
+        ]) {
+          script {
+            for(cause in currentBuild.rawBuild.getCauses()) {
+              env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
+            }
+            if (env.BRANCH_NAME == 'x/orchestraterator') {
+              echo =========================================================
+              echo Permission granted to proceed with Orchestraterator
             }
           }
         }
@@ -137,7 +246,7 @@ pipeline {
     }
     failure {
       script {
-        if (env.BRANCH_NAME == 'master') {
+        if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'x/orchestraterator') {
           sendNotifications();
         }
       }
