@@ -124,6 +124,24 @@ transitionFromGreenToBlue() {
   $BASE/blue-green.sh blue-route --blue-version "$VERSION" --green-version "$VERSION" --green-percent 1
 }
 
+waitForGreen() {
+  echo ============================================================
+  echo "Waiting for green to be ready"
+  sleep 10s
+  local timeout=$(($(date +%s) + 120))
+  while [ $(date +%s) -lt $timeout ]
+  do
+    sleep 1
+    local status=$(curl -sk -w %{http_code} -o $WORK/health.json $GREEN_ARGONAUT_URL/actuator/health)
+    [ $status != 200 ] && continue
+    [ "$(jq -r .status $WORK/health.json)" != "OK" ] && continue
+    echo "Green is ready"
+    return
+  done
+  echo "Timeout waiting for green to be ready"
+  exit 1
+}
+
 testGreen() {
   local id="sentinel-$VERSION"
   docker run \
@@ -148,6 +166,6 @@ createOpenShiftConfigs "deployment-configs"
 createOpenShiftConfigs "service-configs"
 createOpenShiftConfigs "autoscaling-configs"
 setGreenRoute
+waitForGreen
 testGreen
-echo "sleeping 60" && sleep 60
 transitionFromGreenToBlue
