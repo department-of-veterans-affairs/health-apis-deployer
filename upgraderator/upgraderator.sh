@@ -157,11 +157,11 @@ testGreenFunctional() {
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
     test \
+    --exclude-categories="$SENTINEL_EXCLUDES" \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
     gov.va.health.api.sentinel.PatientIT
-  # TODO --exclude-categories="$SENTINEL_EXCLUDES"
   local status=$?
   [ $status != 0 ] \
     && echo "Functional tests failed" \
@@ -178,12 +178,12 @@ testGreenCrawl() {
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
     test \
+    --exclude-categories="$SENTINEL_EXCLUDES" \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
     -Dsentinel.argonaut.url.replace=$PUBLIC_ARGONAUT_URL \
     $SENTINEL_CRAWLER
-  # TODO --exclude-categories="$SENTINEL_EXCLUDES"
   local status=$?
   [ $status != 0 ] \
     && echo "Functional tests failed" \
