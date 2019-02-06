@@ -41,7 +41,10 @@ updateToLatestHealthApis() {
   # elevated permissions. We'll compute a new "origin" that uses an access token. And for
   # good measure, we'll print a little debugging information.
   #
-  ORIGIN=$(git remote get-url --push origin | sed "s|https://|https://$GITHUB_USERNAME_PASSWORD@|")
+  ORIGIN=$(git remote show origin \
+             | grep "Push *URL:" \
+             | sed -s 's/^.*Push \+URL: //' \
+             | sed "s|https://|https://$GITHUB_USERNAME_PASSWORD@|")
   git config --replace-all user.email 'vasdvp.jenkins@libertyits.com'
   git config --replace-all user.name 'jenkins'
   #
