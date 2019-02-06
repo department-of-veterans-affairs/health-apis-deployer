@@ -157,7 +157,7 @@ testGreenFunctional() {
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
     test \
-    --exclude-categories="$SENTINEL_EXCLUDES" \
+    --exclude-category="$SENTINEL_EXCLUDES" \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
@@ -178,7 +178,6 @@ testGreenCrawl() {
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
     test \
-    --exclude-categories="$SENTINEL_EXCLUDES" \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
