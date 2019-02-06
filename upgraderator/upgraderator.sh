@@ -152,7 +152,7 @@ testGreenFunctional() {
   echo ============================================================
   echo "Executing functional tests ($HEALTH_APIS_VERSION)"
   docker run \
-    --rm \
+    --rm --init \
     --name="$id" \
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
@@ -173,7 +173,7 @@ testGreenCrawl() {
   echo ============================================================
   echo "Executing crawler tests ($HEALTH_APIS_VERSION)"
   docker run \
-    --rm \
+    --rm --init \
     --name="$id" \
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \

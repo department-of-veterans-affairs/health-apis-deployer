@@ -43,4 +43,4 @@ RUN curl -skLo /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
 # Upgraderator
 #
 COPY . /upgraderator/
-ENTRYPOINT /upgraderator/upgraderator.sh
+ENTRYPOINT [ "/upgraderator/upgraderator.sh" ]
