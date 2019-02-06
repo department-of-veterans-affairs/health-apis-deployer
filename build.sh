@@ -176,7 +176,7 @@ set -e
 configureUpgraderator
 buildUpgraderator
 
-ENVIRONMENT=QA
+ENVIRONMENT=qa
 dockerRun $IMAGE
 [ $? != 0 ] && exit 1
 
