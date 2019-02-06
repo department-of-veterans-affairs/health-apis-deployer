@@ -45,9 +45,9 @@ pipeline {
            * If you need the explanation for this, check out the function. Hard enough to explain once.
            * tl;dr Github web hooks could cause go in an infinite loop.
            */
-          def mode = 'build'
+          def env.BUILD_MODE = 'build'
           if (checkBigBen()) {
-            mode = 'ignore'
+            env.BUILD_MODE = 'ignore'
               /*
                * OK, this is a janky hack! We don't want this job. We didn't want
                * it to even start building, so we'll make it commit suicide! Build
@@ -61,7 +61,7 @@ pipeline {
       } // steps
     } // stage
     stage('Deploy') {
-      when { expression { return mode != 'ignore' } }
+      when { expression { return env.BUILD_MODE != 'ignore' } }
       steps {
         withCredentials([
           usernamePassword(
