@@ -5,8 +5,8 @@ BASE=$(dirname $(readlink -f $0))
 [ -d $WORK ] && rm -rf $WORK
 mkdir -p $WORK
 
-[ -z "$TEST_FUNCTIONAL" ] && TEST=true
-[ -z "$TEST_CRAWL" ] && CRAWL=true
+[ -z "$TEST_FUNCTIONAL" ] && TEST_FUNCTIONAL=true
+[ -z "$TEST_CRAWL" ] && TEST_CRAWL=true
 
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="

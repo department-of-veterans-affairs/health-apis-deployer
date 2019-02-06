@@ -95,7 +95,7 @@ buildUpgraderator() {
 dockerRun() {
   docker run \
     --rm --init \
-    -e ENVIRONMENT=qa \
+    -e ENVIRONMENT="$ENVIRONMENT" \
     -e TEST_FUNCTIONAL="$TEST_FUNCTIONAL" \
     -e TEST_CRAWL="$TEST_CRAWL" \
     -e GITHUB_USERNAME_PASSWORD="$GITHUB_USERNAME_PASSWORD" \
@@ -135,6 +135,7 @@ dockerRun() {
     -v /var/lib/docker:/var/lib/docker \
     -v /etc/docker/daemon.json:/etc/docker/daemon.json \
     $@
+  return $?
 }
 
 blueGreen() {
@@ -174,8 +175,12 @@ set -e
 [ "$AUTO_UPGRADE_HEALTH_APIS" == true ] && updateToLatestHealthApis
 configureUpgraderator
 buildUpgraderator
-dockerRun $IMAGE
-deleteOldVersions
 
+ENVIRONMENT=QA
+dockerRun $IMAGE
+[ $? != 0 ] && exit 1
+
+deleteOldVersions
+exit 0
 
 
