@@ -40,8 +40,8 @@ printGreeting() {
   cat $ENV_CONF | sort
   echo "Build info"
   cat $BUILD_INFO | sort
-  echo "Configuration"
-  cat $CONF | sort
+  echo "Version Configuration"
+  cat $VERSION_CONF | sort
 }
 
 pullImages() {

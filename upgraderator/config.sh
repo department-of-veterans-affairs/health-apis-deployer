@@ -7,7 +7,7 @@ export WORK=$BASE/work
 [ ! -d $WORK ] && mkdir -p $WORK
 
 BUILD_INFO=$BASE/build.conf
-CONF=$BASE/upgrade.conf
+VERSION_CONF=$BASE/version.conf
 ENV_CONF=
 [ -z "$ENVIRONMENT" ] && echo "Environment not specified" && exit 1
 case $ENVIRONMENT in
@@ -16,9 +16,9 @@ case $ENVIRONMENT in
 esac
 
 [ -z "$BUILD_INFO" ] && echo "Build info file not found: $BUILD_INFO" && exit 1
-[ ! -f "$CONF" ] && echo "Configuration file not found: $CONF" && exit 1
+[ ! -f "$VERSION_CONF" ] && echo "Configuration file not found: $VERSION_CONF" && exit 1
 . $BUILD_INFO
-. $CONF
+. $VERSION_CONF
 . $ENV_CONF
 
 export DOCKER_SOURCE_ORG=vasdvp
