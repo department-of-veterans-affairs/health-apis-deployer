@@ -2,6 +2,10 @@
 
 cd $(dirname $(readlink -f $0))/upgraderator
 
+JENKINS_DIR=$WORKSPACE/.jenkins
+[ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
+mkdir "$JENKINS_DIR"
+
 
 #
 # One of the following build cause environment variables will be set
@@ -61,6 +65,8 @@ updateToLatestHealthApis() {
   git add version.conf
   git commit -m "Jenkins updated HEALTH_APIS_VERSION=$latest"
   git push $ORIGIN $BRANCH_NAME
+
+  echo "Automatic upgrade" >> $JENKINS_DIR/description
 }
 
 
@@ -83,6 +89,8 @@ export BUILD_ID=${BUILD_ID:-NONE}
 export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
 export BUILD_URL="${BUILD_URL:-NONE}"
 EOF
+
+  echo "$VERSION" > $JENKINS_DIR/build-name
 }
 
 buildUpgraderator() {
