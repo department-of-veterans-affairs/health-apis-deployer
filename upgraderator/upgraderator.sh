@@ -7,7 +7,6 @@ mkdir -p $WORK
 
 [ -z "$TEST_FUNCTIONAL" ] && TEST=true
 [ -z "$TEST_CRAWL" ] && CRAWL=true
-[ -z "$AUTO_UPGRADE_HEALTH_APIS" ] && AUTO_UPGRADE_HEALTH_APIS=false
 
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="
@@ -179,6 +178,7 @@ testGreenCrawl() {
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
+    -Dsentinel.argonaut.url.replace=$PUBLIC_ARGONAUT_URL \
     $SENTINEL_CRAWLER
   # TODO --exclude-categories="$SENTINEL_EXCLUDES"
   local status=$?
