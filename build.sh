@@ -7,6 +7,8 @@ cd $(dirname $(readlink -f $0))/upgraderator
 # One of the following build cause environment variables will be set
 # based on the trigger that initiated the build:
 #
+# - BUILD_BRANCH_EVENT_CAUSE
+#   = Push event to branch x/upgraderator
 # - BUILD_TIMER_TRIGGER_CAUSE
 #   = Started by timer
 # - BUILD_USER_ID_CAUSE
@@ -15,7 +17,7 @@ cd $(dirname $(readlink -f $0))/upgraderator
 #   = Started by upstream project "department-of-veterans-affairs/health-apis/master" build number 6,993
 #
 # Automatically upgrade health APIs when the upstream health-apis project builds successfully.
-[ -n "$BUILD_UPSTREAM_CAUSE" ] && AUTO_UPGRADE_HEALTH_APIS=true
+[ -n "$BUILD_UPSTREAM_CAUSE" ] && echo "$BUILD_UPSTREAM_CAUSE. Enabling automatic upgrade of Health API applications." && AUTO_UPGRADE_HEALTH_APIS=true
 
 updateToLatestHealthApis() {
   echo ------------------------------------------------------------
@@ -96,7 +98,6 @@ dockerRun() {
     -e ENVIRONMENT=qa \
     -e TEST_FUNCTIONAL="$TEST_FUNCTIONAL" \
     -e TEST_CRAWL="$TEST_CRAWL" \
-    -e AUTO_UPGRADE_HEALTH_APIS="$AUTO_UPGRADE_HEALTH_APIS" \
     -e GITHUB_USERNAME_PASSWORD="$GITHUB_USERNAME_PASSWORD" \
     -e DOCKER_SOURCE_REGISTRY="$DOCKER_SOURCE_REGISTRY" \
     -e DOCKER_USERNAME="$DOCKER_USERNAME" \
