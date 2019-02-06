@@ -45,7 +45,7 @@ pipeline {
            * If you need the explanation for this, check out the function. Hard enough to explain once.
            * tl;dr Github web hooks could cause go in an infinite loop.
            */
-          def env.BUILD_MODE = 'build'
+          env.BUILD_MODE = 'build'
           if (checkBigBen()) {
             env.BUILD_MODE = 'ignore'
               /*
