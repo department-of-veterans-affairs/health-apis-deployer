@@ -14,7 +14,7 @@ deleteResources() {
     -o "$json" \
     -w "%{http_code}\n" \
     $(oc whoami --show-server)$path?labelSelector=version=$VERSION
-  jq ".items[].metadata.name" $json
+  jq -r ".items[].metadata.name" $json 2>/dev/null
   echo
 }
 
