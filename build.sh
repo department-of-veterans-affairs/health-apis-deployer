@@ -135,9 +135,7 @@ dockerRun() {
     -v /var/lib/docker:/var/lib/docker \
     -v /etc/docker/daemon.json:/etc/docker/daemon.json \
     $@
-  local status=$?
-  echo "Container exited with status $status"
-  return $status
+  return $?
 }
 
 blueGreen() {
