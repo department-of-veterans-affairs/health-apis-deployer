@@ -38,7 +38,32 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   stages {
+    /*
+     * Make sure we're getting into an infinite loop of build, commit, build because we committed.
+     */
+    stage('C-C-C-Combo Breaker!') {
+      steps {
+        script {
+          /*
+           * If you need the explanation for this, check out the function. Hard enough to explain once.
+           * tl;dr Github web hooks could cause go in an infinite loop.
+           */
+          if (checkBigBen()) {
+            mode = 'ignore'
+              /*
+               * OK, this is a janky hack! We don't want this job. We didn't want
+               * it to even start building, so we'll make it commit suicide! Build
+               * numbers will skip, but whatever, that's better than every other
+               * build being cruft.
+               */
+              currentBuild.result = 'NOT_BUILT'
+              currentBuild.rawBuild.delete()
+          }
+        }
+      } // steps
+    } // stage
     stage('Deploy') {
+      when { expression { return mode != 'ignore' } }
       steps {
         withCredentials([
           usernamePassword(
