@@ -151,7 +151,8 @@ deleteOldVersions() {
   local blue=$(blueGreen blue-version)
   local green=$(blueGreen green-version)
   local oldVersions=$(blueGreen list-versions | awk 'NR > 3')
-  echo "Found old versions: $oldVersions"
+  echo "Found old versions:"
+  echo "$oldVersions"
   local deleted=
   for version in $oldVersions
   do
