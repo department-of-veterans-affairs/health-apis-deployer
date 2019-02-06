@@ -5,6 +5,9 @@ BASE=$(dirname $(readlink -f $0))
 [ -d $WORK ] && rm -rf $WORK
 mkdir -p $WORK
 
+[ -z "$TEST_FUNCTIONAL" ] && TEST=true
+[ -z "$TEST_CRAWL" ] && CRAWL=true
+[ -z "$AUTO_UPGRADE_HEALTH_APIS" ] && AUTO_UPGRADE_HEALTH_APIS=false
 
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="
@@ -192,6 +195,6 @@ createOpenShiftConfigs "service-configs"
 createOpenShiftConfigs "autoscaling-configs"
 setGreenRoute
 waitForGreen
-testGreenFunctional
-testGreenCrawl
+[ "$TEST_FUNCTIONAL" == true ] && testGreenFunctional
+[ "$TEST_CRAWL" == true ] &&  testGreenCrawl
 transitionFromGreenToBlue

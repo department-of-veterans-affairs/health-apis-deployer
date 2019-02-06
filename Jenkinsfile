@@ -7,13 +7,10 @@ pipeline {
     timestamps()
   }
   parameters {
-    booleanParam(name: 'PULL_IMAGES', defaultValue: true, description: 'Pull latest built images to deploy')
-    booleanParam(name: 'QA_DEPLOY', defaultValue: true, description: 'Deploy latest images to QA')
-    booleanParam(name: 'QA_TEST', defaultValue: true, description: 'Run regression tests against QA')
-    booleanParam(name: 'LAB_DEPLOY', defaultValue: false, description: 'Deploy latest images to the Lab')
-    booleanParam(name: 'LAB_TEST', defaultValue: false, description: 'Run regression tests against the Lab')
+    booleanParam(name: 'AUTO_UPGRADE_HEALTH_APIS', defaultValue: true, description: 'Automatically upgrade to the latest version of Health API applications')
+    booleanParam(name: 'TEST_FUNCTIONAL', defaultValue: true, description: 'Perform functional tests')
+    booleanParam(name: 'TEST_CRAWL', defaultValue: false, description: 'Perform resource crawl')
     string(name: 'MR_URL', defaultValue: '', description: 'URL to Maintenance Request Pull Request for this change')
-    booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Fill the logs with copious amounts of trace')
   }
   agent {
     dockerfile {
