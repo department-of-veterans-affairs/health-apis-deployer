@@ -135,7 +135,9 @@ dockerRun() {
     -v /var/lib/docker:/var/lib/docker \
     -v /etc/docker/daemon.json:/etc/docker/daemon.json \
     $@
-  return $?
+  local status=$?
+  echo "Container exited with status $status"
+  return $status
 }
 
 blueGreen() {
@@ -178,7 +180,7 @@ buildUpgraderator
 
 ENVIRONMENT=qa
 dockerRun $IMAGE
-[ $? != 0 ] && exit 1
+[ $? != 0 ] && echo "Oh noes... " && exit 1
 
 deleteOldVersions
 exit 0

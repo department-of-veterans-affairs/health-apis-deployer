@@ -202,3 +202,4 @@ waitForGreen
 [ "$TEST_FUNCTIONAL" == true ] && testGreenFunctional
 [ "$TEST_CRAWL" == true ] &&  testGreenCrawl
 transitionFromGreenToBlue
+exit 0
