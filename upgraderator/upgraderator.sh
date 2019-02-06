@@ -160,8 +160,7 @@ testGreenFunctional() {
     --exclude-category="$SENTINEL_EXCLUDES" \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
-    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
-    gov.va.health.api.sentinel.PatientIT
+    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL
   local status=$?
   [ $status != 0 ] \
     && echo "Functional tests failed" \
