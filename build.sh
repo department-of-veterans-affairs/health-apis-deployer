@@ -94,7 +94,7 @@ buildUpgraderator() {
 
 dockerRun() {
   docker run \
-    --rm \
+    --rm --init \
     -e ENVIRONMENT=qa \
     -e TEST_FUNCTIONAL="$TEST_FUNCTIONAL" \
     -e TEST_CRAWL="$TEST_CRAWL" \
