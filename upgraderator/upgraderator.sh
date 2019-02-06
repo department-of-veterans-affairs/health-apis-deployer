@@ -163,7 +163,10 @@ testGreenFunctional() {
     gov.va.health.api.sentinel.PatientIT
   # TODO --exclude-categories="$SENTINEL_EXCLUDES"
   local status=$?
-  [ $status != 0 ] && echo "Functional tests failed" && echo "IGNOREING FAILURE ----> " exit 0
+  [ $status != 0 ] \
+    && echo "Functional tests failed" \
+    && [ "$ABORT_ON_TEST_FAILURES" == true ] \
+    && exit 1
 }
 
 testGreenCrawl() {
@@ -182,7 +185,10 @@ testGreenCrawl() {
     $SENTINEL_CRAWLER
   # TODO --exclude-categories="$SENTINEL_EXCLUDES"
   local status=$?
-  [ $status != 0 ] && echo "Crawler failed" && echo "IGNORING FAILURE -----> " exit 0
+  [ $status != 0 ] \
+    && echo "Functional tests failed" \
+    && [ "$ABORT_ON_TEST_FAILURES" == true ] \
+    && exit 1
 }
 
 printGreeting
