@@ -177,12 +177,14 @@ set -e
 [ "$AUTO_UPGRADE_HEALTH_APIS" == true ] && updateToLatestHealthApis
 configureUpgraderator
 buildUpgraderator
+set +e
 
 ENVIRONMENT=qa
 dockerRun $IMAGE
 [ $? != 0 ] && echo "Oh noes... " && exit 1
 
 deleteOldVersions
+echo "All done!"
 exit 0
 
 

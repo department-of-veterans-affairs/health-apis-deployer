@@ -55,3 +55,4 @@ deleteResources "deployment configurations" /oapi/v1/namespaces/${OPENSHIFT_PROJ
 deleteResources "replication controllers" /api/v1/namespaces/${OPENSHIFT_PROJECT}/replicationcontrollers
 deleteResources "pods" /api/v1/namespaces/${OPENSHIFT_PROJECT}/pods
 deleteS3Artifacts
+exit 0

@@ -81,10 +81,10 @@ createOpenShiftConfigs() {
   do
     CONFIGS=$WORK/$(basename $TEMPLATE)
     cat $TEMPLATE | envsubst > $CONFIGS
-    echo ----------------------------------------------------------
+    echo ------------------------------------------------------------
     echo $CONFIGS
     cat $CONFIGS
-    echo ---------------------------------------------------------
+    echo ------------------------------------------------------------
     oc create -f $CONFIGS
     [ $? != 0 ] && echo "Failed to create configurations" && exit 1
   done
