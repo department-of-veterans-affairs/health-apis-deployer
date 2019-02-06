@@ -2,14 +2,20 @@
 
 cd $(dirname $(readlink -f $0))/upgraderator
 
+
 #
 # One of the following build cause environment variables will be set
-# based on the trigger that initiated the build.
+# based on the trigger that initiated the build:
 #
-# BUILD_TIMER_TRIGGER_CAUSE=Started by timer
-# BUILD_USER_ID_CAUSE=Started by user bryan.schofield
-# BUILD_UPSTREAM_CAUSE=Started by upstream project "department-of-veterans-affairs/health-apis/master" build number 6,993
+# - BUILD_TIMER_TRIGGER_CAUSE
+#   = Started by timer
+# - BUILD_USER_ID_CAUSE
+#   = Started by user bryan.schofield
+# - BUILD_UPSTREAM_CAUSE
+#   = Started by upstream project "department-of-veterans-affairs/health-apis/master" build number 6,993
 #
+# Automatically upgrade health APIs when the upstream health-apis project builds successfully.
+[ -n "$BUILD_UPSTREAM_CAUSE" ] && AUTO_UPGRADE_HEALTH_APIS=true
 
 updateToLatestHealthApis() {
   echo ------------------------------------------------------------
@@ -164,7 +170,7 @@ deleteVersion() {
 }
 
 set -e
-updateToLatestHealthApis
+[ "$AUTO_UPGRADE_HEALTH_APIS" == true ] && updateToLatestHealthApis
 configureUpgraderator
 buildUpgraderator
 dockerRun $IMAGE

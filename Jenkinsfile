@@ -7,7 +7,7 @@ pipeline {
     timestamps()
   }
   parameters {
-    booleanParam(name: 'AUTO_UPGRADE_HEALTH_APIS', defaultValue: true, description: 'Automatically upgrade to the latest version of Health API applications')
+    booleanParam(name: 'AUTO_UPGRADE_HEALTH_APIS', defaultValue: false, description: 'Automatically upgrade to the latest version of Health API applications')
     booleanParam(name: 'TEST_FUNCTIONAL', defaultValue: true, description: 'Perform functional tests')
     booleanParam(name: 'TEST_CRAWL', defaultValue: false, description: 'Perform resource crawl')
     string(name: 'MR_URL', defaultValue: '', description: 'URL to Maintenance Request Pull Request for this change')
