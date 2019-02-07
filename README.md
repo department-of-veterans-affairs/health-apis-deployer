@@ -36,7 +36,7 @@ Deployments are uniquely numbered using
 A _String_ represents the complete set of artifacts deployed.
 
 
-[string](images/string.png)
+![string](images/string.png)
 
 A String consists of
 - OpenShift artifacts
@@ -67,19 +67,19 @@ environment that is servicing all traffic. Green is idle or the next version tha
 
 
 
-[blue-green-01](images/blue-green-01.png)
+![blue-green-01](images/blue-green-01.png)
 
-[blue-green-02](images/blue-green-02.png)
+![blue-green-02](images/blue-green-02.png)
 
-[blue-green-03](images/blue-green-03.png)
+![blue-green-03](images/blue-green-03.png)
 
-[blue-green-04](images/blue-green-04.png)
+![blue-green-04](images/blue-green-04.png)
 
-[blue-green-05](images/blue-green-05.png)
+![blue-green-05](images/blue-green-05.png)
 
-[blue-green-06](images/blue-green-06.png)
+![blue-green-06](images/blue-green-06.png)
 
-[blue-green-07](images/blue-green-07.png)
+![blue-green-07](images/blue-green-07.png)
 
 
 
