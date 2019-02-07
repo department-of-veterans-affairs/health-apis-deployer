@@ -201,5 +201,7 @@ setGreenRoute
 waitForGreen
 [ "$TEST_FUNCTIONAL" == true ] && testGreenFunctional
 [ "$TEST_CRAWL" == true ] &&  testGreenCrawl
+
+echo "Transitioning to green 30 seconds" && sleep 30
 transitionFromGreenToBlue
 exit 0
