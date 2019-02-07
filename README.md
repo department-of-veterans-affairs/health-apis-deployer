@@ -124,45 +124,29 @@ The gory details of the Upgraderator.
 Bonus entrypoint
 - `blue-green.sh` - Configure blue or green routes
 
+##### Running
+Running requires several secrets and other just-in-time information to be passed as environment
+variables to be passed to the container. This information is maintained in Jenkins as secure
+credentials. 
 
 #### Upgraderator configuration
-- `version.conf`
-- `build.conf`
-- `qa.conf`
+- `version.conf` - Contains Health API version and can be automatically updated by Jenkins
+- `build.conf` - Jenkins build information generated at build time
+- `qa.conf` - QA environment specific configuration
+- `prod.conf` - Production environment specific configuration
+- `lab-qa.conf` - Lab QA environment specific configuration
+- `lab.conf` - Lab environment specific configuration
 
 #### OpenShift configuration
-- `deployment-configs/*-dc.yaml`
-- `service-configs/*-sc.yaml`
-- `autoscaling-configs/*-ac.yaml`
-- `blue.json.template`
-- `green.json.template`
+- `deployment-configs/*-dc.yaml` - Deployment configuration templates
+- `service-configs/*-sc.yaml` - Service configuration templates
+- `autoscaling-configs/*-ac.yaml` - Horizontal autoscaler configuration templates
+- `blue.json.template` - Blue route template
+- `green.json.template` - Green route template
 
 #### Application configuration
-- `application-properties/*.properties`
-- `on-start.sh.template`
+- `application-properties/*.properties` - Application properties template
+- `on-start.sh.template` - Application pod startup hook template
 
-An _Upgraderator_ contains the following configurations and functionalities:
-
-##### health-apis version number
-...
-##### health-apis application.properties
-...
-##### environment configurations
-...
-##### openshift deployment-configs
-...
-##### openshift service-configs
-...
-##### openshift autoscaling-configs
-...
-##### template files
-...
-
-Upgraderator containers also contains the following scripts that perform the legwork of the CD/CI process:
-
-##### `upgraderator.sh`
-...
-##### `deleterator.sh`
-...
-##### `blue-green.sh`
-...
+#### Template processing
+Template files are processed to perform environment variable substitution using `envsubst`.
