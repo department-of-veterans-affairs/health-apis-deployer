@@ -47,6 +47,7 @@ updateToLatestHealthApis() {
   #
   # https://support.cloudbees.com/hc/en-us/articles/227266408-current-Git-branch-is-HEAD-detached-at
   #
+  git config http.sslVerify false
   git checkout -B ${BRANCH_NAME} origin/${BRANCH_NAME}
   #
   # We'll need to push tags and pom changes back to Github. We'll do that with a user with
