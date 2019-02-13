@@ -38,7 +38,7 @@ deleteServices() {
 deleteS3Artifacts() {
   echo ============================================================
   echo "Deleting $VERSION S3 Bucket Artifacts"
-  for app in ids mr-anderson argonaut
+  for app in ids mr-anderson argonaut clinician-argonaut
   do
     local resource="s3://$APP_CONFIG_BUCKET/${app}-$VERSION"
     echo "Deleting $resource"
