@@ -94,6 +94,8 @@ pk1 .. sa
 pk2 .. sa
 pk1 .. sc
 pk2 .. sc
+pk1 .. si
+pk2 .left. si
 
 dcfg -[hidden]- rcfg
 rcfg -[hidden]- ascfg
