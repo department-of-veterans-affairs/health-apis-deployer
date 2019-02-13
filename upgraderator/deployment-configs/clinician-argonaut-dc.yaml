@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: argonaut-${VERSION}
-          image: ${IMAGE_CLINICIAN_ARGONAUT}
+          image: ${IMAGE_ARGONAUT}
           ports:
             - name: https
               containerPort: 8082
