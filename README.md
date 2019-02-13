@@ -3,8 +3,8 @@
 This project is the home for the 
 [Health APIs](https://github.com/department-of-veterans-affairs/health-apis/) CD/CI pipeline.
 This pipeline is used for automatic building, testing, and blue-green deployments.
-Health APIs consists of the three applications, Argonaut, Mr. Anderson, and Identity Service.
-This deployer will manage the configuration of OpenShift and applications.
+Health APIs consists of the several applications, Kong, Argonaut, Clinician Argonaut, Mr. Anderson,
+and Identity Service. This deployer will manage the configuration of OpenShift and applications.
 
 ##### Key Concepts
 - This Jenkins job produces an _Upgraderator_ Docker image that contains everything it needs
