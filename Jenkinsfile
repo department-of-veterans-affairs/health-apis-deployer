@@ -163,6 +163,7 @@ pipeline {
         echo "Permission granted by ${PERSON} to proceed with Orchestraterator"
       }
     }
+  }
   post {
     always {
       archiveArtifacts artifacts: '**/*', onlyIfSuccessful: false, allowEmptyArchive: true
