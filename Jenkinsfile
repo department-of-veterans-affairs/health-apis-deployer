@@ -158,7 +158,6 @@ pipeline {
            }
       }
       steps {
-        useJenkinsCredentials()
          {
           script {
             for(cause in currentBuild.rawBuild.getCauses()) {
