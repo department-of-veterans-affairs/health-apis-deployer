@@ -158,7 +158,6 @@ pipeline {
            }
       }
       steps {
-         {
           script {
             for(cause in currentBuild.rawBuild.getCauses()) {
               env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
@@ -167,7 +166,6 @@ pipeline {
 
             }
           }
-        }
         echo "========================================================="
         echo "Permission granted by ${PERSON} to proceed with Orchestraterator"
       }
