@@ -12,83 +12,6 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   */
-
-  def useJenkinsCredentials() {
-    withCredentials([
-      usernamePassword(
-        credentialsId: 'DOCKER_USERNAME_PASSWORD',
-        usernameVariable: 'DOCKER_USERNAME',
-        passwordVariable: 'DOCKER_PASSWORD'),
-      string(
-        credentialsId: 'DOCKER_SOURCE_REGISTRY',
-        variable: 'DOCKER_SOURCE_REGISTRY'),
-      usernamePassword(
-        credentialsId: 'OPENSHIFT_USERNAME_PASSWORD',
-        usernameVariable: 'OPENSHIFT_USERNAME',
-        passwordVariable: 'OPENSHIFT_PASSWORD'),
-      usernamePassword(
-        credentialsId: 'QA_IDS_DB_USERNAME_PASSWORD',
-        usernameVariable: 'QA_IDS_DB_USERNAME',
-        passwordVariable: 'QA_IDS_DB_PASSWORD'),
-      usernamePassword(
-        credentialsId: 'PROD_IDS_DB_USERNAME_PASSWORD',
-        usernameVariable: 'PROD_IDS_DB_USERNAME',
-        passwordVariable: 'PROD_IDS_DB_PASSWORD'),
-      usernamePassword(
-        credentialsId: 'LAB_IDS_DB_USERNAME_PASSWORD',
-        usernameVariable: 'LAB_IDS_DB_USERNAME',
-        passwordVariable: 'LAB_IDS_DB_PASSWORD'),
-      usernamePassword(
-        credentialsId: 'QA_CDW_USERNAME_PASSWORD',
-        usernameVariable: 'QA_CDW_USERNAME',
-        passwordVariable: 'QA_CDW_PASSWORD'),
-      usernamePassword(
-        credentialsId: 'PROD_CDW_USERNAME_PASSWORD',
-        usernameVariable: 'PROD_CDW_USERNAME',
-        passwordVariable: 'PROD_CDW_PASSWORD'),
-      usernamePassword(
-        credentialsId: 'LAB_CDW_USERNAME_PASSWORD',
-        usernameVariable: 'LAB_CDW_USERNAME',
-        passwordVariable: 'LAB_CDW_PASSWORD'),
-      string(
-        credentialsId: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD',
-        variable: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD'),
-      string(
-        credentialsId: 'HEALTH_API_CERTIFICATE_PASSWORD',
-        variable: 'HEALTH_API_CERTIFICATE_PASSWORD'),
-      string(
-        credentialsId: 'OPENSHIFT_API_TOKEN',
-        variable: 'OPENSHIFT_API_TOKEN'),
-      string(
-        credentialsId: 'APP_CONFIG_AWS_ACCESS_KEY_ID',
-        variable: 'AWS_ACCESS_KEY_ID'),
-      string(
-        credentialsId: 'APP_CONFIG_AWS_SECRET_ACCESS_KEY',
-        variable: 'AWS_SECRET_ACCESS_KEY'),
-      string(
-        credentialsId: 'ARGONAUT_TOKEN',
-        variable: 'ARGONAUT_TOKEN'),
-      string(
-        credentialsId: 'ARGONAUT_REFRESH_TOKEN',
-        variable: 'ARGONAUT_REFRESH_TOKEN'),
-      string(
-        credentialsId: 'ARGONAUT_CLIENT_ID',
-        variable: 'ARGONAUT_CLIENT_ID'),
-      string(
-        credentialsId: 'ARGONAUT_CLIENT_SECRET',
-        variable: 'ARGONAUT_CLIENT_SECRET'),
-      string(
-        credentialsId: 'LAB_CLIENT_ID',
-        variable: 'LAB_CLIENT_ID'),
-      string(
-        credentialsId: 'LAB_CLIENT_SECRET',
-        variable: 'LAB_CLIENT_SECRET'),
-      string(
-        credentialsId: 'LAB_USER_PASSWORD',
-        variable: 'LAB_USER_PASSWORD')
-    ])
-  }
-
   stages {
     stage('Build') {
       agent {
@@ -197,4 +120,80 @@ pipeline {
       }
     }
   }
+}
+
+def useJenkinsCredentials() {
+  withCredentials([
+    usernamePassword(
+      credentialsId: 'DOCKER_USERNAME_PASSWORD',
+      usernameVariable: 'DOCKER_USERNAME',
+      passwordVariable: 'DOCKER_PASSWORD'),
+    string(
+      credentialsId: 'DOCKER_SOURCE_REGISTRY',
+      variable: 'DOCKER_SOURCE_REGISTRY'),
+    usernamePassword(
+      credentialsId: 'OPENSHIFT_USERNAME_PASSWORD',
+      usernameVariable: 'OPENSHIFT_USERNAME',
+      passwordVariable: 'OPENSHIFT_PASSWORD'),
+    usernamePassword(
+      credentialsId: 'QA_IDS_DB_USERNAME_PASSWORD',
+      usernameVariable: 'QA_IDS_DB_USERNAME',
+      passwordVariable: 'QA_IDS_DB_PASSWORD'),
+    usernamePassword(
+      credentialsId: 'PROD_IDS_DB_USERNAME_PASSWORD',
+      usernameVariable: 'PROD_IDS_DB_USERNAME',
+      passwordVariable: 'PROD_IDS_DB_PASSWORD'),
+    usernamePassword(
+      credentialsId: 'LAB_IDS_DB_USERNAME_PASSWORD',
+      usernameVariable: 'LAB_IDS_DB_USERNAME',
+      passwordVariable: 'LAB_IDS_DB_PASSWORD'),
+    usernamePassword(
+      credentialsId: 'QA_CDW_USERNAME_PASSWORD',
+      usernameVariable: 'QA_CDW_USERNAME',
+      passwordVariable: 'QA_CDW_PASSWORD'),
+    usernamePassword(
+      credentialsId: 'PROD_CDW_USERNAME_PASSWORD',
+      usernameVariable: 'PROD_CDW_USERNAME',
+      passwordVariable: 'PROD_CDW_PASSWORD'),
+    usernamePassword(
+      credentialsId: 'LAB_CDW_USERNAME_PASSWORD',
+      usernameVariable: 'LAB_CDW_USERNAME',
+      passwordVariable: 'LAB_CDW_PASSWORD'),
+    string(
+      credentialsId: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD',
+      variable: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD'),
+    string(
+      credentialsId: 'HEALTH_API_CERTIFICATE_PASSWORD',
+      variable: 'HEALTH_API_CERTIFICATE_PASSWORD'),
+    string(
+      credentialsId: 'OPENSHIFT_API_TOKEN',
+      variable: 'OPENSHIFT_API_TOKEN'),
+    string(
+      credentialsId: 'APP_CONFIG_AWS_ACCESS_KEY_ID',
+      variable: 'AWS_ACCESS_KEY_ID'),
+    string(
+      credentialsId: 'APP_CONFIG_AWS_SECRET_ACCESS_KEY',
+      variable: 'AWS_SECRET_ACCESS_KEY'),
+    string(
+      credentialsId: 'ARGONAUT_TOKEN',
+      variable: 'ARGONAUT_TOKEN'),
+    string(
+      credentialsId: 'ARGONAUT_REFRESH_TOKEN',
+      variable: 'ARGONAUT_REFRESH_TOKEN'),
+    string(
+      credentialsId: 'ARGONAUT_CLIENT_ID',
+      variable: 'ARGONAUT_CLIENT_ID'),
+    string(
+      credentialsId: 'ARGONAUT_CLIENT_SECRET',
+      variable: 'ARGONAUT_CLIENT_SECRET'),
+    string(
+      credentialsId: 'LAB_CLIENT_ID',
+      variable: 'LAB_CLIENT_ID'),
+    string(
+      credentialsId: 'LAB_CLIENT_SECRET',
+      variable: 'LAB_CLIENT_SECRET'),
+    string(
+      credentialsId: 'LAB_USER_PASSWORD',
+      variable: 'LAB_USER_PASSWORD')
+  ])
 }
