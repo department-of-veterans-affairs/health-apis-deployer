@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cd $(dirname $(readlink -f $0))/upgraderator
 
 dockerRun() {
   docker run \
@@ -85,6 +86,9 @@ deleteVersion() {
 #
 [ $# == 0 ] && echo "No ENVIRONMENT specified" && exit 1
 ENVIRONMENT=$1 && echo "Upgraderator ENVIRONMENT is: $1"
+source build.conf
+IMAGE="vasdvp/health-apis-upgraderator:$VERSION"
+echo "Running Upgraderator $IMAGE"
 dockerRun $IMAGE
 [ $? != 0 ] && echo "Oh noes... " && exit 1
 
