@@ -127,7 +127,7 @@ pipeline {
            }
       }
       steps {
-        run("./build.sh")
+        run('./build.sh')
       }
     }
     stage('Deploy to QA') {
@@ -139,7 +139,7 @@ pipeline {
            }
       }
       steps {
-        run("./deploy.sh qa")
+        run('./deploy.sh qa')
       }
     }
     stage('QA-LAB Permission') {
