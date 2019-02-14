@@ -1,5 +1,5 @@
 
-def run(scriptName, env = null) {
+def run(scriptName, env=null) {
   withCredentials([
     usernamePassword(
       credentialsId: 'DOCKER_USERNAME_PASSWORD',
