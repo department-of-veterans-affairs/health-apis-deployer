@@ -1,5 +1,5 @@
 
-def run(scriptName) {
+def saunter(scriptName) {
   withCredentials([
     usernamePassword(
       credentialsId: 'DOCKER_USERNAME_PASSWORD',
@@ -90,7 +90,8 @@ def run(scriptName) {
  * is currently 475, we'll need to mount the sock and need access to the rest of docker
  * lib for containers.
  */
-final DOCKER_ARGS = "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
+final DOCKER_ARGS = "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/saunter/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
+
 
 pipeline {
   options {
@@ -127,7 +128,7 @@ pipeline {
            }
       }
       steps {
-        run('./build.sh')
+        saunter('./build.sh')
       }
     }
     stage('Deploy to QA') {
@@ -139,7 +140,7 @@ pipeline {
            }
       }
       steps {
-        run('./deploy.sh qa')
+        ('./deploy.sh qa')
       }
     }
     stage('QA-LAB Permission') {
@@ -168,7 +169,7 @@ pipeline {
               */
             registryUrl 'https://index.docker.io/v1/'
             registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-            args "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
+            args DOCKER_ARGS
            }
       }
       steps {
