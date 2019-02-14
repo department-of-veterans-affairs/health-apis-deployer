@@ -1,6 +1,6 @@
 # health-apis-deployer
 
-This project is the home for the 
+This project is the home for the
 [Health APIs](https://github.com/department-of-veterans-affairs/health-apis/) CD/CI pipeline.
 This pipeline is used for automatic building, testing, and blue-green deployments.
 Health APIs consists of the several applications, Kong, Argonaut, Clinician Argonaut, Mr. Anderson,
@@ -14,7 +14,7 @@ and Identity Service. This deployer will manage the configuration of OpenShift a
   - Application configuration
   - Test suites
 - Deployments are uniquely versioned
-- Upgraderators include configuration for all environments (QA, Lab QA, Lab, and Prod) 
+- Upgraderators include configuration for all environments (QA, Lab QA, Lab, and Prod)
 - Upgraderators are immutable and portable
 - Upgraderators can remove the version they installed
 - Zero downtime upgrades
@@ -25,7 +25,7 @@ Deployments are uniquely numbered using
 - The Health APIs application version number
 - The Git commit has of this repository (which includes configuration)
 
-> For example `99_1_0_163-ab3f7h`, is Jenkins build number `99` for version `1.0.163` of the 
+> For example `99_1_0_163-ab3f7h`, is Jenkins build number `99` for version `1.0.163` of the
 > Health APIs using configuration version `ab3f7h`.
 
 ##### Triggers
@@ -51,21 +51,21 @@ A string consists of
   credentials.
 
 Every artifact in the string is uniquely versioned and may only interact with components in it's
-string. 
+string.
 For example, `argonaut-99-1-0-163-ab3f7h` may only communicate with `mr-anderson-99-1-0-163-ab3f7h`.
-It cannot communicate with `mr-anderson-98-1-0-162-ab3f7h`. 
+It cannot communicate with `mr-anderson-98-1-0-162-ab3f7h`.
 
 ##### Routes
-Routes live outside of a string, but are affected by deployments. A route represents the ingress 
-points of the system. During deployments, routes are reconfigured to direct traffic to new 
-deployments. 
+Routes live outside of a string, but are affected by deployments. A route represents the ingress
+points of the system. During deployments, routes are reconfigured to direct traffic to new
+deployments.
 
 ----
 
 # Blue-Green
-Blue-green deployment is an technique for rolling out production upgrades designed to minimize 
+Blue-green deployment is an technique for rolling out production upgrades designed to minimize
 downtime by creating two production environments, _blue_ and _green_. Blue is the currently live
-environment that is servicing all traffic. Green is the next version or idle. Once the green 
+environment that is servicing all traffic. Green is the next version or idle. Once the green
 version is validated, it will be live and public traffic will routed to it.
 
 Consider the following the example. `98-1-0-162-ab3f7h` is blue and currently serving traffic.
@@ -79,14 +79,14 @@ will combine this version with latest version of configuration `ab3f7h` and depl
 ##### Deploy green
 ![blue-green-02](images/blue-green-02.png)
 - Public traffic is directed to blue
-- Upgraderator 
+- Upgraderator
   - deploys a green string
   - configures the green route to direct traffic to newly deployed green
 
 ##### Test green
 ![blue-green-03](images/blue-green-03.png)
 - Public traffic is directed to blue
-- Upgraderator tests green by making requests to the _internal_ green route, e.g 
+- Upgraderator tests green by making requests to the _internal_ green route, e.g
   `green.argonaut.prod.lighthouse.va.gov`
 
 ##### Migrate traffic
@@ -102,14 +102,14 @@ will combine this version with latest version of configuration `ab3f7h` and depl
 ![blue-green-07](images/blue-green-07.png)
 - Once all traffic is migrated to green
   - Blue becomes _gray_ (it is running, but idle)
-  - Green becomes _blue_ (it is now serving 100% of traffic) 
+  - Green becomes _blue_ (it is now serving 100% of traffic)
 
 ### Aborting a deployment
 Should a problem be discovered during or after traffic migration, a system administrator can easily
 restore previous functionality by performing the following steps:
 1. Terminate the Jenkins job that orchestrating the transition, if still running
-2. Re-configure the blue route to direct 100% traffic to the old blue version in OpenShift by 
-   dragging the _Service Weight_ slider back to blue 
+2. Re-configure the blue route to direct 100% traffic to the old blue version in OpenShift by
+   dragging the _Service Weight_ slider back to blue
 
 ----
 
@@ -127,7 +127,7 @@ Bonus entrypoint
 ##### Running
 Running requires several secrets and other just-in-time information to be passed as environment
 variables to be passed to the container. This information is maintained in Jenkins as secure
-credentials. 
+credentials.
 
 #### Upgraderator configuration
 - `version.conf` - Contains Health API version and can be automatically updated by Jenkins
