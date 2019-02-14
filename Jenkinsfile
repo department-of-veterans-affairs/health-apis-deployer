@@ -123,8 +123,7 @@ pipeline {
            }
       }
       steps {
-          startScript("hello.sh")
-        }
+        startScript("hello.sh")
       }
     }
     stage('Ask for Permission') {
