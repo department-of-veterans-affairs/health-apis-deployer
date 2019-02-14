@@ -1,5 +1,5 @@
 
-def startScript(scriptName) {
+def run(scriptName, env = null) {
   withCredentials([
     usernamePassword(
       credentialsId: 'DOCKER_USERNAME_PASSWORD',
@@ -75,25 +75,39 @@ def startScript(scriptName) {
   ]) {
     script {
       if (env.BRANCH_NAME == 'x/orchestraterator') {
-        sh script: './' + scriptName
+        sh script: './' + scriptName env
       }
     }
   }
 }
+
+/*
+ * We'll use the host user db so that any files written from the docker container look
+ * like they were written by real host users.
+ *
+ * We also want to share the Maven repostory and SSH configuration, and finally we'll
+ * need to be able to access docker. For that, we'll need to add the docker group, which
+ * is currently 475, we'll need to mount the sock and need access to the rest of docker
+ * lib for containers.
+ */
+final DOCKER_ARGS = "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
+
 pipeline {
   options {
     buildDiscarder(logRotator(numToKeepStr: '99', artifactNumToKeepStr: '99'))
     retry(0)
-    timeout(time: 30, unit: 'MINUTES')
+    timeout(time: 120, unit: 'MINUTES')
     timestamps()
   }
+  parameters {
+    booleanParam(name: 'AUTO_UPGRADE_HEALTH_APIS', defaultValue: false, description: 'Automatically upgrade to the latest version of Health API applications')
+    booleanParam(name: 'TEST_FUNCTIONAL', defaultValue: true, description: 'Perform functional tests')
+    booleanParam(name: 'TEST_CRAWL', defaultValue: true, description: 'Perform resource crawl')
+  }
   agent none
-  /*
   triggers {
-    cron('00 22 * * 1-5')
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
-  */
   stages {
     stage('Set-up') {
       steps {
@@ -104,43 +118,43 @@ pipeline {
         }
       }
     }
-    stage('Build') {
+    stage('Build Upgraderator') {
       agent {
         dockerfile {
-             /*
-              * We'll use the host user db so that any files written from the docker container look
-              * like they were written by real host users.
-              *
-              * We also want to share the Maven repostory and SSH configuration, and finally we'll
-              * need to be able to access docker. For that, we'll need to add the docker group, which
-              * is currently 475, we'll need to mount the sock and need access to the rest of docker
-              * lib for containers.
-              */
             registryUrl 'https://index.docker.io/v1/'
             registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-            args "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /data/jenkins/.m2/repository:/root/.m2/repository -v /var/lib/jenkins/.ssh:/root/.ssh -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /etc/docker/daemon.json:/etc/docker/daemon.json"
+            args DOCKER_ARGS
            }
       }
       steps {
-        startScript("hello.sh")
+        run("build.sh")
       }
     }
-    stage('Ask for Permission') {
+    stage('Deploy to QA') {
+      agent {
+        dockerfile {
+           registryUrl 'https://index.docker.io/v1/'
+           registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+           args DOCKER_ARGS
+           }
+      }
+      steps {
+        run("deploy.sh", "qa")
+      }
+    }
+    stage('QA-LAB Permission') {
       agent none
       input {
         message "Should we continue?"
         ok "Yes, we should."
         submitter "ian.laflamme"
-        parameters {
-          string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I ask for permission?')
-        }
       }
       steps {
           echo "====================================="
-          echo "Permission asked..."
+          echo " QA-LAB Permission asked..."
       }
     }
-    stage('Permission Granted') {
+    stage('Deploy to QA-LAB') {
       agent {
         dockerfile {
              /*
@@ -159,13 +173,14 @@ pipeline {
       }
       steps {
         echo "========================================================="
-        echo "Permission granted to proceed with Orchestraterator"
+        echo "Deploying to QA-LAB..."
       }
     }
   }
   post {
     always {
       archiveArtifacts artifacts: '**/*', onlyIfSuccessful: false, allowEmptyArchive: true
+
       script {
         def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
         currentBuild.displayName = "#${currentBuild.number} - ${buildName}"

@@ -1,5 +1,7 @@
 FROM centos:latest
 
+RUN yum update -y && yum install -y git && yum clean all
+
 RUN curl -sLo /usr/local/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && \
     chmod +x /usr/local/bin/jq
 

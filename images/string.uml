@@ -1,0 +1,108 @@
+@startuml
+
+left to right direction
+
+skinparam handwritten true
+skinparam shadowing false
+
+hide <<string>> stereotype
+hide <<config>> stereotype
+hide <<applications>> stereotype
+
+skinparam rectangle {
+  BorderColor<<string>> Gray
+  BorderColor<<config>> LightGray
+  BorderColor<<applications>> LightGray
+  BorderColor<<app>> LightGray
+  BackgroundColor<<service>> GoldenRod
+  BackgroundColor<<pod>> Gold
+  BackgroundColor<<openshift>> PaleGoldenRod
+  BackgroundColor<<s3>> LightGoldenRodYellow
+  BackgroundColor<<route>> Coral
+  BackgroundColor WhiteSmoke
+}
+
+rectangle "string" <<string>> {
+  rectangle "applications" <<applications>> as apps {
+
+    rectangle "kong" <<app>> as appk {
+      rectangle "kong-v" <<service>> as sk
+      rectangle "kong-v-2-x" <<pod>> as pk2
+      rectangle "kong-v-1-x" <<pod>> as pk1
+    }
+
+    rectangle "clinician-argonaut" <<app>> as appc {
+      rectangle "clinician-argonaut-v" <<service>> as sc
+      rectangle "clinician-argonaut-v-2-x" <<pod>> as pc2
+      rectangle "clinician-argonaut-v-1-x" <<pod>> as pc1
+    }
+
+    rectangle "argonaut" <<app>> as appa {
+      rectangle "argonaut-v" <<service>> as sa
+      rectangle "argonaut-v-2-x" <<pod>> as pa2
+      rectangle "argonaut-v-1-x" <<pod>> as pa1
+    }
+
+    rectangle "mr-anderson" <<app>> as appm {
+      rectangle "mr-anderson-v" <<service>> as sm
+      rectangle "mr-anderson-v-2-z" <<pod>> as pm2
+      rectangle "mr-anderson-v-1-z" <<pod>> as pm1
+    }
+
+    rectangle "ids" <<app>> as appi {
+      rectangle "ids-v" <<service>> as si
+      rectangle "ids-v-2-x" <<pod>> as pi2
+      rectangle "ids-v-1-x" <<pod>> as pi1
+    }
+
+  }
+
+  rectangle "config" <<config>> as cfg {
+    rectangle "replication controller" <<openshift>> as rcfg
+    rectangle "autoscale configuration" <<openshift>> as ascfg
+    rectangle "deployment configuration" <<openshift>> as dcfg
+    rectangle "application configuration" <<s3>> as acfg
+  }
+}
+
+rectangle color <<route>> as r
+
+
+sk --> pk1
+sk --> pk2
+
+sa --> pa1
+sa --> pa2
+
+sc --> pc1
+sc --> pc2
+
+sm --> pm1
+sm --> pm2
+
+si --> pi1
+si --> pi2
+
+
+pa1 .. sm
+pa2 .. sm
+pc1 .. sm
+pc2 .. sm
+pm1 .. si
+pm2 .. si
+pk1 .. sa
+pk2 .. sa
+pk1 .. sc
+pk2 .. sc
+pk1 .. si
+pk2 .left. si
+
+dcfg -[hidden]- rcfg
+rcfg -[hidden]- ascfg
+ascfg -[hidden]- acfg
+
+apps -[hidden]down- cfg
+
+r -- sk
+
+@enduml

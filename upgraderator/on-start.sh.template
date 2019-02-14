@@ -4,6 +4,7 @@ echo "Updating /etc/hosts"
 echo "${IDS_HOST_ENV} universal-identity-service" >> /etc/hosts
 echo "${MR_ANDERSON_HOST_ENV} mr-anderson" >> /etc/hosts
 echo "${ARGONAUT_HOST_ENV} jargonaut" >> /etc/hosts
+echo "${ARGONAUT_HOST_ENV} clinician-argonaut" >> /etc/hosts
 
 cat /etc/hosts
 exit 0

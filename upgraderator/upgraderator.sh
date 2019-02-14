@@ -5,6 +5,8 @@ BASE=$(dirname $(readlink -f $0))
 [ -d $WORK ] && rm -rf $WORK
 mkdir -p $WORK
 
+[ -z "$TEST_FUNCTIONAL" ] && TEST_FUNCTIONAL=true
+[ -z "$TEST_CRAWL" ] && TEST_CRAWL=true
 
 PULL_FILTER='(Preparing|Waiting|already exists)'
 APPS="
@@ -40,8 +42,8 @@ printGreeting() {
   cat $ENV_CONF | sort
   echo "Build info"
   cat $BUILD_INFO | sort
-  echo "Configuration"
-  cat $CONF | sort
+  echo "Version Configuration"
+  cat $VERSION_CONF | sort
 }
 
 pullImages() {
@@ -79,10 +81,10 @@ createOpenShiftConfigs() {
   do
     CONFIGS=$WORK/$(basename $TEMPLATE)
     cat $TEMPLATE | envsubst > $CONFIGS
-    echo ----------------------------------------------------------
+    echo ------------------------------------------------------------
     echo $CONFIGS
     cat $CONFIGS
-    echo ---------------------------------------------------------
+    echo ------------------------------------------------------------
     oc create -f $CONFIGS
     [ $? != 0 ] && echo "Failed to create configurations" && exit 1
   done
@@ -127,7 +129,7 @@ transitionFromGreenToBlue() {
 waitForGreen() {
   echo ============================================================
   echo "Waiting for green to be ready"
-  sleep 10s
+  sleep 15s
   local timeout=$(($(date +%s) + 120))
   local json=$WORK/health.json
   while [ $(date +%s) -lt $timeout ]
@@ -135,7 +137,7 @@ waitForGreen() {
     sleep 1
     local status=$(curl -sk -w %{http_code} -o $json $GREEN_ARGONAUT_URL/actuator/health)
     [ $status != 200 ] && echo "Green is not ready ($status)" && continue
-    cat $json
+    jq . $json
     local up=$(jq -r .status $json)
     [ "$up" != "UP" ] && echo "Green is $up" && continue
     echo "Green is ready"
@@ -145,9 +147,32 @@ waitForGreen() {
   exit 1
 }
 
-testGreen() {
+testGreenFunctional() {
   local id="sentinel-$VERSION"
+  echo ============================================================
+  echo "Executing functional tests ($HEALTH_APIS_VERSION)"
   docker run \
+    --rm --init \
+    --name="$id" \
+    --network=host \
+    vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
+    test \
+    --include-category="$SENTINEL_CATEGORY" \
+    -Dsentinel=$SENTINEL_ENV \
+    -Daccess-token=$TOKEN \
+    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL
+  local status=$?
+  [ $status != 0 ] \
+    && echo "Functional tests failed" \
+    && [ "$ABORT_ON_TEST_FAILURES" == true ] \
+    && exit 1
+}
+
+testGreenCrawl() {
+  echo ============================================================
+  echo "Executing crawler tests ($HEALTH_APIS_VERSION)"
+  docker run \
+    --rm --init \
     --name="$id" \
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
@@ -155,9 +180,13 @@ testGreen() {
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
-    gov.va.health.api.sentinel.PatientIT
-  # TODO copy artifacts?
-  docker rm $id
+    -Dsentinel.argonaut.url.replace=$PUBLIC_ARGONAUT_URL \
+    $SENTINEL_CRAWLER
+  local status=$?
+  [ $status != 0 ] \
+    && echo "Functional tests failed" \
+    && [ "$ABORT_ON_TEST_FAILURES" == true ] \
+    && exit 1
 }
 
 printGreeting
@@ -170,5 +199,9 @@ createOpenShiftConfigs "service-configs"
 createOpenShiftConfigs "autoscaling-configs"
 setGreenRoute
 waitForGreen
-testGreen
+[ "$TEST_FUNCTIONAL" == true ] && testGreenFunctional
+[ "$TEST_CRAWL" == true ] &&  testGreenCrawl
+
+echo "Transitioning to green 30 seconds" && sleep 30
 transitionFromGreenToBlue
+exit 0

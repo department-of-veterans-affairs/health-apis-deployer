@@ -1,0 +1,15 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: clinician-argonaut-${VERSION}
+  label: ${VERSION}
+spec:
+  scaleTargetRef:
+    kind: DeploymentConfig 
+    name: clinician-argonaut-${VERSION}
+    apiVersion: v1 
+    subresource: scale
+  minReplicas: 2 
+  maxReplicas: 5 
+  cpuUtilization:
+    targetPercentage: 20
