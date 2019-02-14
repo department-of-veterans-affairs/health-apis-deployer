@@ -158,19 +158,10 @@ pipeline {
            }
       }
       steps {
-          script {
-            for(cause in currentBuild.rawBuild.getCauses()) {
-              env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
-            }
-            if (env.BRANCH_NAME == 'x/orchestraterator') {
-
-            }
-          }
         echo "========================================================="
         echo "Permission granted by ${PERSON} to proceed with Orchestraterator"
       }
     }
-  }
   post {
     always {
       archiveArtifacts artifacts: '**/*', onlyIfSuccessful: false, allowEmptyArchive: true
