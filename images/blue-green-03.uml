@@ -3,7 +3,7 @@
 
 left to right direction
 
-actor "public comsumer" as p
+actor "public consumer" as p
 rectangle upgraderator as u
 rectangle blue <<route>> as br
 rectangle green <<route>> as gr

@@ -3,7 +3,7 @@
 
 left to right direction
 
-actor "public comsumer" as p
+actor "public consumer" as p
 rectangle "gateway kong" <<kong>> as k
 rectangle "upgrade & test harness" as u
 rectangle blue <<route>> as br
