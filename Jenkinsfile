@@ -1,5 +1,5 @@
 
-def run(scriptName, env=null) {
+def run(scriptName) {
   withCredentials([
     usernamePassword(
       credentialsId: 'DOCKER_USERNAME_PASSWORD',
@@ -75,7 +75,7 @@ def run(scriptName, env=null) {
   ]) {
     script {
       if (env.BRANCH_NAME == 'x/orchestraterator') {
-        sh script: './' + scriptName env
+        sh script: scriptName
       }
     }
   }
@@ -127,7 +127,7 @@ pipeline {
            }
       }
       steps {
-        run("build.sh")
+        run("./build.sh")
       }
     }
     stage('Deploy to QA') {
@@ -139,7 +139,7 @@ pipeline {
            }
       }
       steps {
-        run("deploy.sh", "qa")
+        run("./deploy.sh qa")
       }
     }
     stage('QA-LAB Permission') {
