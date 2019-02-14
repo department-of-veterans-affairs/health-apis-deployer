@@ -113,6 +113,13 @@ pipeline {
     * Make sure we're getting into an infinite loop of build, commit, build because we committed.
     */
     stage('C-C-C-Combo Breaker!') {
+      agent {
+        dockerfile {
+           registryUrl 'https://index.docker.io/v1/'
+           registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+           args DOCKER_ARGS
+        }
+      }
       steps {
         script {
           /*
@@ -184,7 +191,7 @@ pipeline {
       }
     }
     stage('Deploy to QA-LAB') {
-      when { expression { return env.BUILD_MODE != 'ignore' } }
+    when { expression { return env.BUILD_MODE != 'ignore' } }
       agent {
         dockerfile {
              /*
