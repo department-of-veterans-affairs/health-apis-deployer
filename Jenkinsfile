@@ -74,7 +74,7 @@ def saunter(scriptName) {
       variable: 'LAB_USER_PASSWORD')
   ]) {
     script {
-      if (env.BRANCH_NAME == 'x/orchestraterator') {
+      if (env.BRANCH_NAME == 'x/upgraderator') {
         sh script: scriptName
       }
     }
@@ -109,7 +109,33 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   stages {
+    /*
+    * Make sure we're getting into an infinite loop of build, commit, build because we committed.
+    */
+    stage('C-C-C-Combo Breaker!') {
+      steps {
+        script {
+          /*
+           * If you need the explanation for this, check out the function. Hard enough to explain once.
+           * tl;dr Github web hooks could cause go in an infinite loop.
+           */
+           env.BUILD_MODE = 'build'
+           if (checkBigBen()) {
+             env.BUILD_MODE = 'ignore'
+             /*
+             * OK, this is a janky hack! We don't want this job. We didn't want
+             * it to even start building, so we'll make it commit suicide! Build
+             * numbers will skip, but whatever, that's better than every other
+             * build being cruft.
+             */
+             currentBuild.result = 'NOT_BUILT'
+             currentBuild.rawBuild.delete()
+          }
+        }
+      }
+    }
     stage('Set-up') {
+      when { expression { return env.BUILD_MODE != 'ignore' } }
       steps {
         script {
           for(cause in currentBuild.rawBuild.getCauses()) {
@@ -119,6 +145,7 @@ pipeline {
       }
     }
     stage('Build Upgraderator') {
+      when { expression { return env.BUILD_MODE != 'ignore' } }
       agent {
         dockerfile {
             registryUrl 'https://index.docker.io/v1/'
@@ -131,6 +158,7 @@ pipeline {
       }
     }
     stage('Deploy to QA') {
+      when { expression { return env.BUILD_MODE != 'ignore' } }
       agent {
         dockerfile {
            registryUrl 'https://index.docker.io/v1/'
@@ -143,6 +171,7 @@ pipeline {
       }
     }
     stage('QA-LAB Permission') {
+      when { expression { return env.BUILD_MODE != 'ignore' } }
       agent none
       input {
         message "Should we continue?"
@@ -155,6 +184,7 @@ pipeline {
       }
     }
     stage('Deploy to QA-LAB') {
+      when { expression { return env.BUILD_MODE != 'ignore' } }
       agent {
         dockerfile {
              /*
@@ -190,7 +220,7 @@ pipeline {
     }
     failure {
       script {
-        if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'x/orchestraterator') {
+        if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'x/upgraderator') {
           sendNotifications();
         }
       }
