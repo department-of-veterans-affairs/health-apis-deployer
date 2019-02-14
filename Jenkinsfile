@@ -140,7 +140,7 @@ pipeline {
            }
       }
       steps {
-        ('./deploy.sh qa')
+        saunter('./deploy.sh qa')
       }
     }
     stage('QA-LAB Permission') {
