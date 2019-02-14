@@ -157,7 +157,7 @@ testGreenFunctional() {
     --network=host \
     vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
     test \
-    --exclude-category="$SENTINEL_EXCLUDES" \
+    --include-category="$SENTINEL_CATEGORY" \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL
