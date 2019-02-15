@@ -7,7 +7,7 @@
     "selfLink": "/oapi/v1/namespaces/vasdvp/routes/blue",
     "uid": "${BLUE_ROUTE_UID}",
     "resourceVersion": "${BLUE_ROUTE_RESOURCE_VERSION}",
-    "creationTimestamp": "2019-01-31T18:21:33Z"
+    "creationTimestamp": "2019-01-31T18:21:33Z",
     "annotations":
       "haproxy.router.openshift.io/timeout": "120s"
   },
