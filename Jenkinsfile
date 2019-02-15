@@ -216,27 +216,33 @@ pipeline {
   }
   post {
     always {
-      //
-      //archiveArtifacts artifacts: '**/*', onlyIfSuccessful: false, allowEmptyArchive: true
-      //
-      script {
-        def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
-        currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
-        def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
-        currentBuild.description = "${description}"
+      node('master') {
+        //
+        //archiveArtifacts artifacts: '**/*', onlyIfSuccessful: false, allowEmptyArchive: true
+        //
+        script {
+          def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
+          currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
+          def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
+          currentBuild.description = "${description}"
+        }
       }
     }
     failure {
-      script {
-        if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'x/upgraderator') {
-          sendNotifications();
+      node('master') {
+        script {
+          if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'x/upgraderator') {
+            sendNotifications();
+          }
         }
       }
     }
     changed {
-      script {
-        if (env.BRANCH_NAME == 'master' && currentBuild.result != 'FAILURE') {
-          sendNotifications();
+      node('master') {
+        script {
+          if (env.BRANCH_NAME == 'master' && currentBuild.result != 'FAILURE') {
+            sendNotifications();
+          }
         }
       }
     }
