@@ -183,7 +183,7 @@ pipeline {
       input {
         message "Should we continue?"
         ok "Yes, we should."
-        submitter "ian.laflamme"
+        submitter "ian.laflamme,bryan.schofield"
       }
       steps {
           echo "====================================="
