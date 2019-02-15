@@ -8,6 +8,8 @@
     "uid": "${GREEN_ROUTE_UID}",
     "resourceVersion": "${GREEN_ROUTE_RESOURCE_VERSION}",
     "creationTimestamp": "2019-01-31T18:21:33Z"
+    "annotations":
+      "haproxy.router.openshift.io/timeout": "120s"
   },
   "spec": {
     "host": "${GREEN_ROUTE_IP}",
