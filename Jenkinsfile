@@ -1,6 +1,9 @@
 
 def saunter(scriptName) {
   withCredentials([
+    usernameColonPassword(
+      credentialsId: 'GITHUB_USERNAME_PASSWORD',
+      variable: 'GITHUB_USERNAME_PASSWORD'),
     usernamePassword(
       credentialsId: 'DOCKER_USERNAME_PASSWORD',
       usernameVariable: 'DOCKER_USERNAME',
