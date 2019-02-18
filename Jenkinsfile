@@ -36,6 +36,10 @@ def saunter(scriptName) {
       credentialsId: 'LAB_CDW_USERNAME_PASSWORD',
       usernameVariable: 'LAB_CDW_USERNAME',
       passwordVariable: 'LAB_CDW_PASSWORD'),
+    usernamePassword(
+      credentialsId: 'QA-LAB_IDS_DB_USERNAME_PASSWORD',
+      usernameVariable: 'QA-LAB_IDS_DB_USERNAME'
+      passwordVariable: 'QA-LAB_IDS_DB_PASSWORD'),
     string(
       credentialsId: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD',
       variable: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD'),
@@ -71,11 +75,7 @@ def saunter(scriptName) {
       variable: 'LAB_CLIENT_SECRET'),
     string(
       credentialsId: 'LAB_USER_PASSWORD',
-      variable: 'LAB_USER_PASSWORD'),
-    string(
-      credentialsId: 'QA-LAB_IDS_DB_USERNAME_PASSWORD',
-      variable: 'QA-LAB_IDS_DB_USERNAME_PASSWORD'
-    )
+      variable: 'LAB_USER_PASSWORD')
   ]) {
     script {
       if (env.BRANCH_NAME == 'x/upgraderator') {
