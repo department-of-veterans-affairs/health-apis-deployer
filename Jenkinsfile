@@ -50,8 +50,17 @@ def saunter(scriptName) {
       credentialsId: 'HEALTH_API_CERTIFICATE_PASSWORD',
       variable: 'HEALTH_API_CERTIFICATE_PASSWORD'),
     string(
-      credentialsId: 'OPENSHIFT_API_TOKEN',
-      variable: 'OPENSHIFT_API_TOKEN'),
+      credentialsId: 'OPENSHIFT_QA_API_TOKEN',
+      variable: 'OPENSHIFT_QA_API_TOKEN'),
+    string(
+      credentialsId: 'OPENSHIFT_QA_LAB_API_TOKEN',
+      variable: 'OPENSHIFT_QA_LAB_API_TOKEN'),
+    string(
+      credentialsId: 'OPENSHIFT_LAB_API_TOKEN',
+      variable: 'OPENSHIFT_LAB_API_TOKEN'),
+    string(
+      credentialsId: 'OPENSHIFT_PROD_API_TOKEN',
+      variable: 'OPENSHIFT_PROD_API_TOKEN'),
     string(
       credentialsId: 'APP_CONFIG_AWS_ACCESS_KEY_ID',
       variable: 'AWS_ACCESS_KEY_ID'),
