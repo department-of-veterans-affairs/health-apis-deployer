@@ -39,6 +39,8 @@ updateToLatestHealthApis() {
   [ "$latest" == "$HEALTH_APIS_VERSION" ] && echo "Already configured to use $latest" && return 0
   echo "Updating to $latest"
   sed -i "s/HEALTH_APIS_VERSION=.*/HEALTH_APIS_VERSION=$latest/" version.conf
+
+  set -x
   #
   # This is annoying... Jenkins will checkout in a detached state. This means we
   # won't be able to push changes... They suggest a doing the following shell
@@ -54,6 +56,7 @@ updateToLatestHealthApis() {
   # elevated permissions. We'll compute a new "origin" that uses an access token. And for
   # good measure, we'll print a little debugging information.
   #
+  echo $GITHUB_USERNAME_PASSWORD | rev
   ORIGIN=$(git remote show origin \
              | grep "Push *URL:" \
              | sed -s 's/^.*Push \+URL: //' \
@@ -65,9 +68,15 @@ updateToLatestHealthApis() {
   #
   git add version.conf
   git commit -m "Jenkins updated HEALTH_APIS_VERSION=$latest"
-  git push $ORIGIN $BRANCH_NAME
 
-  echo "Automatic upgrade" >> $JENKINS_DIR/description
+  set +e
+  for i in $(seq 1 10)
+  do
+    git push $ORIGIN $BRANCH_NAME
+    [ $? == 0 ] && set -e && echo "Automatic upgrade" >> $JENKINS_DIR/description && return 0
+  done
+  echo "Failed to push changes"
+  exit 1
 }
 
 
