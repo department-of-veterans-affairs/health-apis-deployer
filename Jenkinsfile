@@ -71,7 +71,11 @@ def saunter(scriptName) {
       variable: 'LAB_CLIENT_SECRET'),
     string(
       credentialsId: 'LAB_USER_PASSWORD',
-      variable: 'LAB_USER_PASSWORD')
+      variable: 'LAB_USER_PASSWORD'),
+    string(
+      credentialsId: 'QA-LAB_IDS_DB_USERNAME_PASSWORD',
+      variable: 'QA-LAB_IDS_DB_USERNAME_PASSWORD'
+    )
   ]) {
     script {
       if (env.BRANCH_NAME == 'x/upgraderator') {
@@ -211,6 +215,7 @@ pipeline {
       steps {
         echo "========================================================="
         echo "Deploying to QA-LAB..."
+        saunter('./deploy.sh qa-lab')
       }
     }
   }
