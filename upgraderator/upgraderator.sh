@@ -180,6 +180,10 @@ testGreenCrawl() {
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
     -Dsentinel.argonaut.url.replace=$PUBLIC_ARGONAUT_URL \
+    -Djargonaut=true \
+    -Dlab.user-password=$LAB_USER_PASSWORD \
+    -Dlab.client-id=$LAB_CLIENT_ID \
+    -Dlab.client-secret=$LAB_CLIENT_SECRET \
     $SENTINEL_CRAWLER
   local status=$?
   [ $status != 0 ] \

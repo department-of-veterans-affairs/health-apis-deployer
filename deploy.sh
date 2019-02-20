@@ -40,6 +40,9 @@ dockerRun() {
     -e REFRESH_TOKEN=$ARGONAUT_REFRESH_TOKEN \
     -e CLIENT_ID=$ARGONAUT_CLIENT_ID \
     -e CLIENT_SECRET=$ARGONAUT_CLIENT_SECRET \
+    -e LAB_CLIENT_ID="$LAB_CLIENT_ID" \
+    -e LAB_CLIENT_SECRET="$LAB_CLIENT_SECRET" \
+    -e LAB_USER_PASSWORD="$LAB_USER_PASSWORD" \
     --privileged \
     --group-add 497 \
     -v /etc/passwd:/etc/passwd:ro \
