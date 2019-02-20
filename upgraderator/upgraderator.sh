@@ -57,8 +57,7 @@ pullImages() {
 pushToOpenShiftRegistry() {
   echo ============================================================
   echo "Updating images in $OPENSHIFT_URL ($OPENSHIFT_REGISTRY)"
-  oc login "$OPENSHIFT_URL" -u "$OPENSHIFT_USERNAME" -p "$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify
-  oc project $OPENSHIFT_PROJECT
+  loginToOpenShift
   docker login -p $(oc whoami -t) -u unused $OPENSHIFT_REGISTRY
   for app in $APPS
   do
