@@ -40,9 +40,9 @@ def saunter(scriptName) {
       usernameVariable: 'LAB_CDW_USERNAME',
       passwordVariable: 'LAB_CDW_PASSWORD'),
     usernamePassword(
-      credentialsId: 'QA-LAB_IDS_DB_USERNAME_PASSWORD',
-      usernameVariable: 'QA-LAB_IDS_DB_USERNAME',
-      passwordVariable: 'QA-LAB_IDS_DB_PASSWORD'),
+      credentialsId: 'QA_LAB_IDS_DB_USERNAME_PASSWORD',
+      usernameVariable: 'QA_LAB_IDS_DB_USERNAME',
+      passwordVariable: 'QA_LAB_IDS_DB_PASSWORD'),
     string(
       credentialsId: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD',
       variable: 'PROD_HEALTH_API_CERTIFICATE_PASSWORD'),
