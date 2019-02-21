@@ -227,7 +227,7 @@ pipeline {
       }
       steps {
           echo "====================================="
-          echo " QA-LAB Permission asked..."
+          echo " LAB Permission asked..."
       }
     }
     stage('Deploy to LAB') {
