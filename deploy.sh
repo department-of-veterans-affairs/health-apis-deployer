@@ -98,11 +98,12 @@ ENVIRONMENT=$1 && echo "Upgraderator ENVIRONMENT is: $1"
 echo ============================================================
 echo ============================================================
 echo ============================================================
-echo DISABLED QA HACK
+echo ENVIRONMENT HACK
+[ "$ENVIRONMENT" == qa ] && echo "SKIPPING $ENVIRONMENT" && exit 0
+[ "$ENVIRONMENT" == qa-lab ] && echo "SKIPPING $ENVIRONMENT" && exit 0
 echo ============================================================
 echo ============================================================
 echo ============================================================
-[ "$ENVIRONMENT" == qa ] && exit 0
 
 
 source build.conf
