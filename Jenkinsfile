@@ -222,7 +222,7 @@ pipeline {
       agent none
       input {
         message "Should we continue?"
-        ok "Yes, we should."
+        ok "Yes, update LAB"
         submitter "ian.laflamme,bryan.schofield"
       }
       steps {
@@ -250,7 +250,7 @@ pipeline {
       }
       steps {
         echo "========================================================="
-        echo "Deploying to QA-LAB..."
+        echo "Deploying to LAB..."
         saunter('./deploy.sh lab')
       }
     }
