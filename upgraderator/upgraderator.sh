@@ -37,7 +37,7 @@ export IDS_PORT_ENV="\${$(envVarName universal-identity-service-${VERSION}-servi
 
 printGreeting() {
   env | sort
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   echo "Upgrading Health APIs in $ENVIRONMENT to $VERSION"
   cat $ENV_CONF | sort
   echo "Build info"
@@ -47,7 +47,7 @@ printGreeting() {
 }
 
 pullImages() {
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" "$DOCKER_SOURCE_REGISTRY"
   for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"; done
   docker pull $DOCKER_SOURCE_ORG/health-apis-sentinel:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"
@@ -55,7 +55,7 @@ pullImages() {
 }
 
 pushToOpenShiftRegistry() {
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   echo "Updating images in $OPENSHIFT_URL ($OPENSHIFT_REGISTRY)"
   loginToOpenShift
   docker login -p $(oc whoami -t) -u unused $OPENSHIFT_REGISTRY
@@ -75,7 +75,7 @@ pushToOpenShiftRegistry() {
 
 createOpenShiftConfigs() {
   loginToOpenShift
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   for TEMPLATE in $(find $BASE/$1 -type f -name "*.yaml")
   do
     CONFIGS=$WORK/$(basename $TEMPLATE)
@@ -105,13 +105,13 @@ createApplicationConfigs() {
 }
 
 setGreenRoute() {
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   echo "Updating green route to $VERSION"
   $BASE/blue-green.sh green-route --green-version "$VERSION"
 }
 
 transitionFromGreenToBlue() {
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   echo "Transitioning from blue to green over $((4 * GREEN_TO_BLUE_INTERVAL)) seconds"
   for percent in 25 50 75
   do
@@ -126,7 +126,7 @@ transitionFromGreenToBlue() {
 }
 
 waitForGreen() {
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   echo "Waiting for green to be ready"
   sleep 15s
   local timeout=$(($(date +%s) + 120))
@@ -148,7 +148,7 @@ waitForGreen() {
 
 testGreenFunctional() {
   local id="sentinel-$VERSION"
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   echo "Executing functional tests ($HEALTH_APIS_VERSION)"
   docker run \
     --rm --init \
@@ -159,7 +159,8 @@ testGreenFunctional() {
     --include-category="$SENTINEL_CATEGORY" \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
-    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL
+    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
+    -Dsentinel.argonaut.api-path=$GREEN_ARGONAUT_API_PATH
   local status=$?
   [ $status != 0 ] \
     && echo "Functional tests failed" \
@@ -168,7 +169,7 @@ testGreenFunctional() {
 }
 
 testGreenCrawl() {
-  echo ============================================================
+  echo ==== $ENVIRONMENT ========================================================
   echo "Executing crawler tests ($HEALTH_APIS_VERSION)"
   docker run \
     --rm --init \
