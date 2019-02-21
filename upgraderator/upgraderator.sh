@@ -179,6 +179,7 @@ testGreenCrawl() {
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
+    -Dsentinel.argonaut.api-path=$GREEN_ARGONAUT_API_PATH \
     -Dsentinel.argonaut.url.replace=$GREEN_LINK_REPLACE_URL \
     -Djargonaut=true \
     -Dlab.user-password=$LAB_USER_PASSWORD \
