@@ -193,19 +193,6 @@ pipeline {
         saunter('./deploy.sh qa')
       }
     }
-    stage('QA-LAB Permission') {
-      when { expression { return env.BUILD_MODE != 'ignore' } }
-      agent none
-      input {
-        message "Should we continue?"
-        ok "Yes, we should."
-        submitter "ian.laflamme,bryan.schofield"
-      }
-      steps {
-          echo "====================================="
-          echo " QA-LAB Permission asked..."
-      }
-    }
     stage('Deploy to QA-LAB') {
     when { expression { return env.BUILD_MODE != 'ignore' } }
       agent {
@@ -228,6 +215,43 @@ pipeline {
         echo "========================================================="
         echo "Deploying to QA-LAB..."
         saunter('./deploy.sh qa-lab')
+      }
+    }
+    stage('LAB Permission') {
+      when { expression { return env.BUILD_MODE != 'ignore' } }
+      agent none
+      input {
+        message "Should we continue?"
+        ok "Yes, we should."
+        submitter "ian.laflamme,bryan.schofield"
+      }
+      steps {
+          echo "====================================="
+          echo " QA-LAB Permission asked..."
+      }
+    }
+    stage('Deploy to LAB') {
+    when { expression { return env.BUILD_MODE != 'ignore' } }
+      agent {
+        dockerfile {
+             /*
+              * We'll use the host user db so that any files written from the docker container look
+              * like they were written by real host users.
+              *
+              * We also want to share the Maven repostory and SSH configuration, and finally we'll
+              * need to be able to access docker. For that, we'll need to add the docker group, which
+              * is currently 475, we'll need to mount the sock and need access to the rest of docker
+              * lib for containers.
+              */
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args DOCKER_ARGS
+           }
+      }
+      steps {
+        echo "========================================================="
+        echo "Deploying to QA-LAB..."
+        saunter('./deploy.sh lab')
       }
     }
   }
