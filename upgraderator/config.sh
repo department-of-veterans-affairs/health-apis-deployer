@@ -13,6 +13,7 @@ ENV_CONF=
 case $ENVIRONMENT in
   qa) ENV_CONF=$BASE/qa.conf;;
   qa-lab) ENV_CONF=$BASE/qa-lab.conf;;
+  lab) ENV_CONF=$BASE/lab.conf;;
   *) echo "Unknown environment: $ENVIRONMENT" && exit 1
 esac
 
