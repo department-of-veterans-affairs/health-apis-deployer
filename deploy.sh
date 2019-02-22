@@ -92,19 +92,15 @@ deleteVersion() {
 #
 # Run the upgraderator targeting the given environment
 #
+
+echo ============================================================
+echo ============================================================
+echo ============================================================
 [ $# == 0 ] && echo "No ENVIRONMENT specified" && exit 1
 ENVIRONMENT=$1 && echo "Upgraderator ENVIRONMENT is: $1"
-
 echo ============================================================
 echo ============================================================
 echo ============================================================
-echo ENVIRONMENT HACK
-[ "$ENVIRONMENT" == qa ] && echo "SKIPPING $ENVIRONMENT" && exit 0
-[ "$ENVIRONMENT" == qa-lab ] && echo "SKIPPING $ENVIRONMENT" && exit 0
-echo ============================================================
-echo ============================================================
-echo ============================================================
-
 
 source build.conf
 IMAGE="vasdvp/health-apis-upgraderator:$VERSION"
