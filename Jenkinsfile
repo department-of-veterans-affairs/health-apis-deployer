@@ -190,9 +190,7 @@ pipeline {
            }
       }
       steps {
-        /*
-         * saunter('./deploy.sh qa')
-         */
+          saunter('./deploy.sh qa')
       }
     }
     stage('Deploy to QA-LAB') {
@@ -216,9 +214,7 @@ pipeline {
       steps {
         echo "========================================================="
         echo "Deploying to QA-LAB..."
-        /*
-         * saunter('./deploy.sh qa-lab')
-         */
+        saunter('./deploy.sh qa-lab')
       }
     }
     stage('LAB Permission') {
@@ -255,9 +251,8 @@ pipeline {
       steps {
         echo "========================================================="
         echo "Deploying to LAB..."
-        /*
-         * saunter('./deploy.sh lab')
-         */
+        saunter('./deploy.sh lab')
+
       }
     }
     stage('PROD Permission') {
