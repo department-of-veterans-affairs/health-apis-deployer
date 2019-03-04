@@ -50,7 +50,7 @@ pullImages() {
   echo ==== $ENVIRONMENT ========================================================
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" "$DOCKER_SOURCE_REGISTRY"
   for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"; done
-  docker pull $DOCKER_SOURCE_ORG/health-apis-sentinel:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"
+  docker pull $DOCKER_SOURCE_ORG/health-apis-data-query-tests:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"
   docker logout "$DOCKER_SOURCE_REGISTRY"
 }
 
@@ -147,14 +147,14 @@ waitForGreen() {
 }
 
 testGreenFunctional() {
-  local id="sentinel-$VERSION"
+  local id="data-query-tests-$VERSION"
   echo ==== $ENVIRONMENT ========================================================
   echo "Executing functional tests ($HEALTH_APIS_VERSION)"
   docker run \
     --rm --init \
     --name="$id" \
     --network=host \
-    vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
+    vasdvp/health-apis-data-query-tests:$HEALTH_APIS_VERSION \
     test \
     --include-category="$SENTINEL_CATEGORY" \
     -Dsentinel=$SENTINEL_ENV \
@@ -175,7 +175,7 @@ testGreenCrawl() {
     --rm --init \
     --name="$id" \
     --network=host \
-    vasdvp/health-apis-sentinel:$HEALTH_APIS_VERSION \
+    vasdvp/health-apis-data-query-tests:$HEALTH_APIS_VERSION \
     test \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \

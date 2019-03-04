@@ -29,7 +29,7 @@ updateToLatestHealthApis() {
   local latest=$(curl \
     -s \
     -u "$DOCKER_USERNAME:$DOCKER_PASSWORD" \
-    "https://registry.hub.docker.com/v1/repositories/vasdvp/health-apis-sentinel/tags" \
+    "https://registry.hub.docker.com/v1/repositories/vasdvp/health-apis-data-query-tests/tags" \
     | jq -r .[].name \
     | grep -E '([0-9]+.[0-9]+.[0-9]+)' \
     | sort -rV \
