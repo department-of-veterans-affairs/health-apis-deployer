@@ -254,6 +254,43 @@ pipeline {
         saunter('./deploy.sh lab')
       }
     }
+    stage('PROD Permission') {
+      when { expression { return env.BUILD_MODE != 'ignore' } }
+      agent none
+      input {
+        message "Should we continue?"
+        ok "Yes, update PROD"
+        submitter "ian.laflamme,bryan.schofield"
+      }
+      steps {
+          echo "====================================="
+          echo " PROD Permission asked..."
+      }
+    }
+    stage('Deploy to PROD') {
+    when { expression { return env.BUILD_MODE != 'ignore' } }
+      agent {
+        dockerfile {
+             /*
+              * We'll use the host user db so that any files written from the docker container look
+              * like they were written by real host users.
+              *
+              * We also want to share the Maven repostory and SSH configuration, and finally we'll
+              * need to be able to access docker. For that, we'll need to add the docker group, which
+              * is currently 475, we'll need to mount the sock and need access to the rest of docker
+              * lib for containers.
+              */
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args DOCKER_ARGS
+           }
+      }
+      steps {
+        echo "========================================================="
+        echo "Deploying to PROD..."
+        saunter('./deploy.sh prod')
+      }
+    }
   }
   post {
     always {
