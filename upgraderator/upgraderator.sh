@@ -9,17 +9,13 @@ mkdir -p $WORK
 [ -z "$TEST_CRAWL" ] && TEST_CRAWL=true
 
 PULL_FILTER='(Preparing|Waiting|already exists)'
-APPS="
-  health-apis-ids
-  health-apis-mr-anderson
-  health-apis-argonaut
-"
 
 openShiftImageName() {
-  echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${HEALTH_APIS_VERSION}"
+  # app, version
+  echo "${OPENSHIFT_REGISTRY}/${OPENSHIFT_PROJECT}/${1}:${2}"
 }
 
-export IMAGE_IDS=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_VERSION}
+export IMAGE_IDS=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_IDS_VERSION}
 export IMAGE_MR_ANDERSON=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
 export IMAGE_ARGONAUT=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-argonaut:${HEALTH_APIS_VERSION}
 
@@ -46,30 +42,41 @@ printGreeting() {
   cat $VERSION_CONF | sort
 }
 
+pullImage() {
+  # app, version
+  docker pull $DOCKER_SOURCE_ORG/$1:$2 | grep -vE "$PULL_FILTER";
+}
+
 pullImages() {
   echo ==== $ENVIRONMENT ========================================================
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" "$DOCKER_SOURCE_REGISTRY"
-  for app in $APPS; do docker pull $DOCKER_SOURCE_ORG/${app}:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"; done
-  docker pull $DOCKER_SOURCE_ORG/health-apis-data-query-tests:${HEALTH_APIS_VERSION} | grep -vE "$PULL_FILTER"
+  pullImage health-apis-ids ${HEALTH_APIS_IDS_VERSION}
+  pullImage health-apis-mr-anderson ${HEALTH_APIS_VERSION}
+  pullImage health-apis-argonaut ${HEALTH_APIS_VERSION}
+  pullImage health-apis-data-query-tests ${HEALTH_APIS_VERSION}
   docker logout "$DOCKER_SOURCE_REGISTRY"
 }
 
 pushToOpenShiftRegistry() {
+  # app, version
+  local image=$(openShiftImageName $1 $2)
+  # Deploy the new image
+  echo ------------------------------------------------------------
+  echo "Pushing new $1 images ..."
+  echo "Tagging new ${image}"
+  docker tag $DOCKER_SOURCE_ORG/$1:$2 ${image}
+  echo "Pushing new ${image}"
+  docker push ${image} | grep -vE "$PULL_FILTER"
+}
+
+pushAllToOpenShiftRegistry() {
   echo ==== $ENVIRONMENT ========================================================
   echo "Updating images in $OPENSHIFT_URL ($OPENSHIFT_REGISTRY)"
   loginToOpenShift
   docker login -p $(oc whoami -t) -u unused $OPENSHIFT_REGISTRY
-  for app in $APPS
-  do
-    local image=$(openShiftImageName $app)
-    # Deploy the new image
-    echo ------------------------------------------------------------
-    echo "Pushing new $app images ..."
-    echo "Tagging new ${image}"
-    docker tag $DOCKER_SOURCE_ORG/${app}:$HEALTH_APIS_VERSION ${image}
-    echo "Pushing new ${image}"
-    docker push ${image} | grep -vE "$PULL_FILTER"
-  done
+  pushToOpenShiftRegistry health-apis-ids $HEALTH_APIS_IDS_VERSION
+  pushToOpenShiftRegistry health-apis-mr-anderson $HEALTH_APIS_VERSION
+  pushToOpenShiftRegistry health-apis-argonaut $HEALTH_APIS_VERSION
   docker logout $OPENSHIFT_REGISTRY
 }
 
@@ -198,7 +205,7 @@ printGreeting
 pullImages
 createApplicationConfigs
 loginToOpenShift
-pushToOpenShiftRegistry
+pushAllToOpenShiftRegistry
 createOpenShiftConfigs "deployment-configs"
 createOpenShiftConfigs "service-configs"
 createOpenShiftConfigs "autoscaling-configs"

@@ -111,7 +111,6 @@ buildUpgraderator() {
 }
 
 
-
 set -e
 [ "$AUTO_UPGRADE_HEALTH_APIS" == true ] && updateToLatestHealthApis
 configureUpgraderator
