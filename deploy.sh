@@ -93,17 +93,18 @@ deleteVersion() {
 # Run the upgraderator targeting the given environment
 #
 
+
+
 echo ============================================================
 echo ============================================================
 echo ============================================================
 [ $# == 0 ] && echo "No ENVIRONMENT specified" && exit 1
 ENVIRONMENT=$1 && echo "Upgraderator ENVIRONMENT is: $1"
-echo $DOCKER_SOURCE_REGISTRY | rev
-[ "$ENVIRONEMTN" == qa ] && echo "SKIPPING $ENVIRONMENT" && exit 0
-[ "$ENVIRONMENT" == qa-lab ] && echo "SKIPPING $ENVIRONMENT" && exit 0
-[ "$ENVIRONMENT" == lab ] && echo "SKIPPING $ENVIRONMENT" && exit 0
-[ "$ENVIRONMENT" == prod ] && echo "SKIPPING $ENVIRONMENT" && exit 0
 
+# Manual overide to prevent deployment to a chosen environment.
+# [ "$ENVIRONMENT" == qa-lab ] && echo "SKIPPING $ENVIRONMENT" && exit 0
+# [ "$ENVIRONMENT" == lab ] && echo "SKIPPING $ENVIRONMENT" && exit 0
+# [ "$ENVIRONMENT" == prod ] && echo "SKIPPING $ENVIRONMENT" && exit 0
 
 echo ============================================================
 echo ============================================================
