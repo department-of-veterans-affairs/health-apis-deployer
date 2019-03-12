@@ -17,15 +17,14 @@ openShiftImageName() {
 
 export IMAGE_IDS=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-ids:${HEALTH_APIS_IDS_VERSION}
 export IMAGE_MR_ANDERSON=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-mr-anderson:${HEALTH_APIS_VERSION}
-export IMAGE_ARGONAUT=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-argonaut:${HEALTH_APIS_VERSION}
-
+export IMAGE_DATA_QUERY=${OPENSHIFT_INTERNAL_REGISTRY}/${OPENSHIFT_PROJECT}/health-apis-data-query:${HEALTH_APIS_VERSION}
 
 envVarName() {
   echo $1 | tr [:lower:] [:upper:] | tr - _
 }
 
-export ARGONAUT_HOST_ENV="\${$(envVarName argonaut-${VERSION}-service-host)}"
-export ARGONAUT_PORT_ENV="\${$(envVarName argonaut-${VERSION}-service-port)}"
+export DATA_QUERY_HOST_ENV="\${$(envVarName data-query-${VERSION}-service-host)}"
+export DATA_QUERY_PORT_ENV="\${$(envVarName data-query-${VERSION}-service-port)}"
 export MR_ANDERSON_HOST_ENV="\${$(envVarName mr-anderson-${VERSION}-service-host)}"
 export MR_ANDERSON_PORT_ENV="\${$(envVarName mr-anderson-${VERSION}-service-port)}"
 export IDS_HOST_ENV="\${$(envVarName universal-identity-service-${VERSION}-service-host)}"
@@ -52,7 +51,7 @@ pullImages() {
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" "$DOCKER_SOURCE_REGISTRY"
   pullImage health-apis-ids ${HEALTH_APIS_IDS_VERSION}
   pullImage health-apis-mr-anderson ${HEALTH_APIS_VERSION}
-  pullImage health-apis-argonaut ${HEALTH_APIS_VERSION}
+  pullImage health-apis-data-query ${HEALTH_APIS_VERSION}
   pullImage health-apis-data-query-tests ${HEALTH_APIS_VERSION}
   docker logout "$DOCKER_SOURCE_REGISTRY"
 }
@@ -76,7 +75,7 @@ pushAllToOpenShiftRegistry() {
   docker login -p $(oc whoami -t) -u unused $OPENSHIFT_REGISTRY
   pushToOpenShiftRegistry health-apis-ids $HEALTH_APIS_IDS_VERSION
   pushToOpenShiftRegistry health-apis-mr-anderson $HEALTH_APIS_VERSION
-  pushToOpenShiftRegistry health-apis-argonaut $HEALTH_APIS_VERSION
+  pushToOpenShiftRegistry health-apis-data-query $HEALTH_APIS_VERSION
   docker logout $OPENSHIFT_REGISTRY
 }
 
@@ -141,7 +140,7 @@ waitForGreen() {
   while [ $(date +%s) -lt $timeout ]
   do
     sleep 1
-    local status=$(curl -sk -w %{http_code} -o $json $GREEN_ARGONAUT_URL/actuator/health)
+    local status=$(curl -sk -w %{http_code} -o $json $GREEN_DATA_QUERY_URL/actuator/health)
     [ $status != 200 ] && echo "Green is not ready ($status)" && continue
     jq . $json
     local up=$(jq -r .status $json)
@@ -166,8 +165,8 @@ testGreenFunctional() {
     --include-category="$SENTINEL_CATEGORY" \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
-    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
-    -Dsentinel.argonaut.api-path=$GREEN_ARGONAUT_API_PATH
+    -Dsentinel.argonaut.url=$GREEN_DATA_QUERY_URL \
+    -Dsentinel.argonaut.api-path=$GREEN_DATA_QUERY_API_PATH
   local status=$?
   [ $status != 0 ] \
     && echo "Functional tests failed" \
@@ -186,8 +185,8 @@ testGreenCrawl() {
     test \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
-    -Dsentinel.argonaut.url=$GREEN_ARGONAUT_URL \
-    -Dsentinel.argonaut.api-path=$GREEN_ARGONAUT_API_PATH \
+    -Dsentinel.argonaut.url=$GREEN_DATA_QUERY_URL \
+    -Dsentinel.argonaut.api-path=$GREEN_DATA_QUERY_API_PATH \
     -Dsentinel.argonaut.url.replace=$GREEN_LINK_REPLACE_URL \
     -Djargonaut=true \
     -Dlab.user-password=$LAB_USER_PASSWORD \
