@@ -2,7 +2,9 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: mr-anderson-${VERSION}
-  label: ${VERSION}
+  labels:
+    app: mr-anderson-${VERSION}
+    version: ${VERSION}
 spec:
   scaleTargetRef:
     kind: DeploymentConfig 

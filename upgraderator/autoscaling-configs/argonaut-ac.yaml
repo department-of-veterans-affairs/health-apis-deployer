@@ -2,7 +2,9 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: argonaut-${VERSION}
-  label: ${VERSION}
+  labels:
+    app: argonaut-${VERSION}
+    version: ${VERSION}
 spec:
   scaleTargetRef:
     kind: DeploymentConfig 
