@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+
+listMasters() {
+  assertClusterId
+  aws ec2 describe-instances \
+      --filter "Name=tag:KubernetesRole,Values=master-$CLUSTER_ID" "Name=instance-state-name,Values=running" \
+    | jq -r '.Reservations[].Instances[]| .Placement.AvailabilityZone, .PrivateIpAddress' \
+    | paste -sd ' \n' \
+    | sort
+}
+
+
+#==============================================================================
+usage() {
+cat <<EOF
+$0 <command> [options]
+EOF
+exit 1
+}
+
+
+assertClusterId() { if [ -z "$CLUSTER_ID" ]; then echo "--cluster-id not specified"; exit 1; fi; }
+
+
+
+ARGS=$(getopt -n $(basename ${0}) \
+    -l "debug,help,cluster-id:" \
+    -o "xdh" -- "$@")
+[ $? != 0 ] && usage
+eval set -- "$ARGS"
+while true
+do
+  case "$1" in
+    --cluster-id) CLUSTER_ID="$2";;
+    -x|--debug) set -x;;
+    -h|--help) usage "halp! what this do?";;
+    --) shift;break;;
+  esac
+  shift;
+done
+
+COMMAND=$1
+[ -z "$COMMAND" ] && usage "No command specified"
+case $COMMAND in
+  list-masters) listMasters;;
+  *) usage "Unknown command: $COMMAND"
+esac
