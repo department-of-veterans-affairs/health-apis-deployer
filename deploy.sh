@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
+
+set -euo pipefail
 cd $(dirname $(readlink -f $0))/upgraderator
+
 
 dockerRun() {
   docker run \
@@ -55,67 +58,13 @@ dockerRun() {
   return $?
 }
 
-blueGreen() {
- dockerRun --entrypoint /upgraderator/blue-green.sh $IMAGE $@
-}
 
-deleteOldVersions() {
-  echo ------------------------------------------------------------
-  echo Deleting old versions
-  #
-  # Delete all but the last few versions deployed (except if they are either blue or green)
-  #
-  local blue=$(blueGreen blue-version)
-  local green=$(blueGreen green-version)
-  local oldVersions=$(blueGreen list-versions | awk 'NR > 3')
-  echo "Found old versions:"
-  echo "$oldVersions"
-  local deleted=
-  for version in $oldVersions
-  do
-    [ "$version" == "$blue" ] && echo "Keeping blue version $version" && continue
-    [ "$version" == "$green" ] && echo "Keeping green version $version" && continue
-    deleteVersion $version
-    deleted+=" $version"
-  done
-  echo "Deleted old versions:$deleted"
-}
-
-deleteVersion() {
-  local version=$1
-  local deleteMe="vasdvp/health-apis-upgraderator:$version"
-  echo "Deleting $version"
-  dockerRun --entrypoint /upgraderator/deleterator.sh $deleteMe
-  echo "Deleted $version"
-}
-
-#
-# Run the upgraderator targeting the given environment
-#
+#source build.conf
+#IMAGE="vasdvp/health-apis-upgraderator:$VERSION"
+#echo "Running Upgraderator $IMAGE"
+#dockerRun $IMAGE
+#[ $? != 0 ] && echo "Oh noes... " && exit 1
 
 
-
-echo ============================================================
-echo ============================================================
-echo ============================================================
-[ $# == 0 ] && echo "No ENVIRONMENT specified" && exit 1
-ENVIRONMENT=$1 && echo "Upgraderator ENVIRONMENT is: $1"
-
-# Manual overide to prevent deployment to a chosen environment.
-# [ "$ENVIRONMENT" == qa-lab ] && echo "SKIPPING $ENVIRONMENT" && exit 0
-# [ "$ENVIRONMENT" == lab ] && echo "SKIPPING $ENVIRONMENT" && exit 0
-# [ "$ENVIRONMENT" == prod ] && echo "SKIPPING $ENVIRONMENT" && exit 0
-
-echo ============================================================
-echo ============================================================
-echo ============================================================
-
-source build.conf
-IMAGE="vasdvp/health-apis-upgraderator:$VERSION"
-echo "Running Upgraderator $IMAGE"
-dockerRun $IMAGE
-[ $? != 0 ] && echo "Oh noes... " && exit 1
-
-deleteOldVersions
 echo "Deployment done"
 exit 0
