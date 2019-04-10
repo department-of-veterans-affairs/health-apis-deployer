@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-set -x
+set +x
 set -euo pipefail
-if [ -z "$DEBUG" ]; then
+if [ "${DEBUG:-false}" != true ]; then
   DEBUG=false
-fi
-if [ "$DEBUG" == true ]; then
   set -x
   env | sort
 fi
@@ -14,7 +12,7 @@ echo "$0 $*"
 dockerRun() {
   docker run \
     --rm --init \
-    -e DEBUG="$DEBUG" \     
+    -e DEBUG="$DEBUG" \
     -e ENVIRONMENT="$ENVIRONMENT" \
     -e GITHUB_USERNAME_PASSWORD="$GITHUB_USERNAME_PASSWORD" \
     -e DOCKER_SOURCE_REGISTRY="$DOCKER_SOURCE_REGISTRY" \
