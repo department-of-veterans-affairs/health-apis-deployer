@@ -48,5 +48,6 @@ buildUpgraderator() {
 configureUpgraderator
 buildUpgraderator
 
+echo ------------------------------------------------------------
 echo "Upgraderator built!"
 exit 0

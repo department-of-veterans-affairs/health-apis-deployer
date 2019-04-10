@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set +x
+set -x
 echo ------------------------------------------------------------
 echo "$0 $*"
 set -euo pipefail
@@ -8,6 +8,9 @@ cd $(dirname $(readlink -f $0))/upgraderator
 JENKINS_DIR=$WORKSPACE/.jenkins
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
+
+
+find . -type f
 
 [ ! -f build.conf ] && echo "build.conf missing! There is a problem with the build stage." && exit 1
 . build.conf
