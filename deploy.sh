@@ -2,6 +2,7 @@
 set +x
 set -euo pipefail
 if [ -z "$DEBUG" ]; then
+  DEBUG=false
   set -x
   env | sort
 fi
