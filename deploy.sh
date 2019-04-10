@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
-
+set +x
 echo ------------------------------------------------------------
 echo "$0 $*"
 set -euo pipefail
 cd $(dirname $(readlink -f $0))/upgraderator
 
+JENKINS_DIR=$WORKSPACE/.jenkins
+[ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
+mkdir "$JENKINS_DIR"
+
+[ ! -f build.conf ] && echo "build.conf missing! There is a problem with the build stage." && exit 1
+. build.conf
 
 dockerRun() {
   docker run \
@@ -61,12 +67,9 @@ dockerRun() {
 }
 
 
-#source build.conf
-#IMAGE="vasdvp/health-apis-upgraderator:$VERSION"
-#echo "Running Upgraderator $IMAGE"
-#dockerRun $IMAGE
-#[ $? != 0 ] && echo "Oh noes... " && exit 1
-
+echo "Running $UPGRADERATOR_IMAGE"
+dockerRun $UPGRADERATOR_IMAGE
+[ $? != 0 ] && echo "Oh noes... " && exit 1
 
 echo "Deployment done"
 exit 0

@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-
+set +x
 set -euo pipefail
 cd $(dirname $(readlink -f $0))/upgraderator
 
-
-#
-# We can pass information back to Jenkins via the .jenkins directory
-#
 JENKINS_DIR=$WORKSPACE/.jenkins
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
@@ -29,6 +25,7 @@ configureUpgraderator() {
   cat <<EOF > build.conf
 export PRODUCT_NAME="$PRODUCT_NAME"
 export PRODUCT_VERSION="$PRODUCT_VERSION"
+export UPGRADERATOR_IMAGE="$IMAGE"
 export VERSION="$VERSION"
 export BUILD_DATE="$(date)"
 export BUILD_HASH=$HASH

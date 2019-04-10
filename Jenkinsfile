@@ -111,11 +111,13 @@ pipeline {
     timeout(time: 1440, unit: 'MINUTES')
     timestamps()
   }
+  /*
   parameters {
     booleanParam(name: 'AUTO_UPGRADE_HEALTH_APIS', defaultValue: false, description: 'Automatically upgrade to the latest version of Health API applications')
     booleanParam(name: 'TEST_FUNCTIONAL', defaultValue: true, description: 'Perform functional tests')
     booleanParam(name: 'TEST_CRAWL', defaultValue: true, description: 'Perform resource crawl')
   }
+  */
   agent none
   triggers {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
