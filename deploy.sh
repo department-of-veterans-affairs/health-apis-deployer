@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+set +x
 echo ------------------------------------------------------------
 echo "$0 $*"
 set -euo pipefail
