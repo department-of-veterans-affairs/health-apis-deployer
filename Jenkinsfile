@@ -89,11 +89,7 @@ def saunter(scriptName) {
       credentialsId: 'LAB_USER_PASSWORD',
       variable: 'LAB_USER_PASSWORD')
   ]) {
-    script {
-      if (env.BRANCH_NAME == 'x/upgraderator') {
-        sh script: scriptName
-      }
-    }
+    sh script: scriptName
   }
 }
 

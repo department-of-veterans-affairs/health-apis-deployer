@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo ------------------------------------------------------------
+echo "$0 $*"
 set -euo pipefail
 cd $(dirname $(readlink -f $0))/upgraderator
 
