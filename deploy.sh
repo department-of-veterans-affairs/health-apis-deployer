@@ -3,24 +3,11 @@ set -x
 echo ------------------------------------------------------------
 echo "$0 $*"
 set -euo pipefail
-cd $(dirname $(readlink -f $0))/upgraderator
-
-JENKINS_DIR=$WORKSPACE/.jenkins
-[ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
-mkdir "$JENKINS_DIR"
-
-
-find . -type f
-
-[ ! -f build.conf ] && echo "build.conf missing! There is a problem with the build stage." && exit 1
-. build.conf
 
 dockerRun() {
   docker run \
     --rm --init \
     -e ENVIRONMENT="$ENVIRONMENT" \
-    -e TEST_FUNCTIONAL="$TEST_FUNCTIONAL" \
-    -e TEST_CRAWL="$TEST_CRAWL" \
     -e GITHUB_USERNAME_PASSWORD="$GITHUB_USERNAME_PASSWORD" \
     -e DOCKER_SOURCE_REGISTRY="$DOCKER_SOURCE_REGISTRY" \
     -e DOCKER_USERNAME="$DOCKER_USERNAME" \
@@ -69,6 +56,19 @@ dockerRun() {
   return $?
 }
 
+#============================================================
+
+cd $(dirname $(readlink -f $0))/upgraderator
+
+JENKINS_DIR=$WORKSPACE/.jenkins
+[ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
+mkdir "$JENKINS_DIR"
+
+[ ! -f build.conf ] && echo "build.conf missing! There is a problem with the build stage." && exit 1
+. build.conf
+
+ENVIRONMENT=$1
+[ -z "$ENVIRONMENT" ] && echo "No environment specified" && exit 1
 
 echo "Running $UPGRADERATOR_IMAGE"
 dockerRun $UPGRADERATOR_IMAGE
