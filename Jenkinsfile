@@ -176,6 +176,7 @@ pipeline {
       }
       steps {
         saunter('./build.sh')
+        stash includes: '**/build.conf', name: 'build-conf'
       }
     }
     stage('Deploy to QA') {
@@ -188,7 +189,8 @@ pipeline {
            }
       }
       steps {
-          saunter('./deploy.sh qa')
+        unstash 'build-conf'
+        saunter('./deploy.sh qa')
       }
     }
   }
