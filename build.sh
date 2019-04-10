@@ -34,6 +34,9 @@ export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
 export BUILD_URL="${BUILD_URL:-NONE}"
 EOF
 
+  echo ------------------------------------------------------------
+  find -type f
+  cat build.conf
   echo "$VERSION" > $JENKINS_DIR/build-name
 }
 
