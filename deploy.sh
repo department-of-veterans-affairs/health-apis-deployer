@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-set +x
+set -x
 set -euo pipefail
 if [ -z "$DEBUG" ]; then
   DEBUG=false
+fi
+if [ "$DEBUG" == true ]; then
   set -x
   env | sort
 fi
