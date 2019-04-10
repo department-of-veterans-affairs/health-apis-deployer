@@ -31,6 +31,6 @@ function copyKubernetesConfig() {
 }
 export -f copyKubernetesConfig
 mkdir ~/.kube
-cat $MASTERS | xargs -n 2 copyKubernetesConfig
+cat $MASTERS | xargs -n 2 -I bash -c 'copyKubernetesConfig {}'
 
 exit 0
