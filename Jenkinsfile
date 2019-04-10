@@ -50,18 +50,6 @@ def saunter(scriptName) {
       credentialsId: 'HEALTH_API_CERTIFICATE_PASSWORD',
       variable: 'HEALTH_API_CERTIFICATE_PASSWORD'),
     string(
-      credentialsId: 'OPENSHIFT_QA_API_TOKEN',
-      variable: 'OPENSHIFT_QA_API_TOKEN'),
-    string(
-      credentialsId: 'OPENSHIFT_QA_LAB_API_TOKEN',
-      variable: 'OPENSHIFT_QA_LAB_API_TOKEN'),
-    string(
-      credentialsId: 'OPENSHIFT_LAB_API_TOKEN',
-      variable: 'OPENSHIFT_LAB_API_TOKEN'),
-    string(
-      credentialsId: 'OPENSHIFT_PROD_API_TOKEN',
-      variable: 'OPENSHIFT_PROD_API_TOKEN'),
-    string(
       credentialsId: 'APP_CONFIG_AWS_ACCESS_KEY_ID',
       variable: 'AWS_ACCESS_KEY_ID'),
     string(
@@ -87,7 +75,10 @@ def saunter(scriptName) {
       variable: 'LAB_CLIENT_SECRET'),
     string(
       credentialsId: 'LAB_USER_PASSWORD',
-      variable: 'LAB_USER_PASSWORD')
+      variable: 'LAB_USER_PASSWORD'),
+    string(
+      credentialsId: 'KUBERNETES_SSH_CERT',
+      variable: 'KUBERNETES_SSH_CERT')
   ]) {
     sh script: scriptName
   }
@@ -111,13 +102,9 @@ pipeline {
     timeout(time: 1440, unit: 'MINUTES')
     timestamps()
   }
-  /*
   parameters {
-    booleanParam(name: 'AUTO_UPGRADE_HEALTH_APIS', defaultValue: false, description: 'Automatically upgrade to the latest version of Health API applications')
-    booleanParam(name: 'TEST_FUNCTIONAL', defaultValue: true, description: 'Perform functional tests')
-    booleanParam(name: 'TEST_CRAWL', defaultValue: true, description: 'Perform resource crawl')
+    booleanParam(name: 'DEBUG', defaultValue: false, description: 'Enable debugging output.')
   }
-  */
   agent none
   triggers {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)

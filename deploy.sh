@@ -1,23 +1,22 @@
 #!/usr/bin/env bash
 set +x
+set -euo pipefail
+if [ -z "$DEBUG" ]; then
+  set -x
+  env | sort
+fi
 echo ------------------------------------------------------------
 echo "$0 $*"
-set -euo pipefail
 
 dockerRun() {
   docker run \
     --rm --init \
+    -e DEBUG="$DEBUG" \     
     -e ENVIRONMENT="$ENVIRONMENT" \
     -e GITHUB_USERNAME_PASSWORD="$GITHUB_USERNAME_PASSWORD" \
     -e DOCKER_SOURCE_REGISTRY="$DOCKER_SOURCE_REGISTRY" \
     -e DOCKER_USERNAME="$DOCKER_USERNAME" \
     -e DOCKER_PASSWORD="$DOCKER_PASSWORD" \
-    -e OPENSHIFT_USERNAME="$OPENSHIFT_USERNAME" \
-    -e OPENSHIFT_PASSWORD="$OPENSHIFT_PASSWORD" \
-    -e OPENSHIFT_QA_API_TOKEN="$OPENSHIFT_QA_API_TOKEN" \
-    -e OPENSHIFT_QA_LAB_API_TOKEN="$OPENSHIFT_QA_LAB_API_TOKEN" \
-    -e OPENSHIFT_LAB_API_TOKEN="$OPENSHIFT_LAB_API_TOKEN" \
-    -e OPENSHIFT_PROD_API_TOKEN="$OPENSHIFT_PROD_API_TOKEN" \
     -e AWS_DEFAULT_REGION=us-gov-west-1 \
     -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
     -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
@@ -44,6 +43,7 @@ dockerRun() {
     -e LAB_CLIENT_ID="$LAB_CLIENT_ID" \
     -e LAB_CLIENT_SECRET="$LAB_CLIENT_SECRET" \
     -e LAB_USER_PASSWORD="$LAB_USER_PASSWORD" \
+    -e KUBERNETES_NODE_SSH_KEY_FILE="/root/.ssh/${KUBERNETES_SSH_CERT}" \
     --privileged \
     --group-add 497 \
     -v /etc/passwd:/etc/passwd:ro \

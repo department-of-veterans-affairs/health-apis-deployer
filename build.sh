@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set +x
 set -euo pipefail
+if [ -z "$DEBUG" ]; then
+  set -x
+  env | sort
+fi
+
 cd $(dirname $(readlink -f $0))/upgraderator
 
 JENKINS_DIR=$WORKSPACE/.jenkins
@@ -14,7 +19,6 @@ mkdir "$JENKINS_DIR"
 
 configureUpgraderator() {
   echo ------------------------------------------------------------
-  env | sort
 
   HASH=${GIT_COMMIT:0:7}
   [ -z "$HASH" ] && HASH=DEV
