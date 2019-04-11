@@ -1,7 +1,7 @@
 FROM centos:latest
 
 RUN yum update -yqq \
-    && yum install -yqq gettext \
+    && yum install -yqq gettext openssh-clients \
     && yum clean all
 
 
