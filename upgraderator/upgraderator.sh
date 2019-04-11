@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [ -z "$DEBUG" ]; then
+if [ "${DEBUG:-false}" == true ]; then
   set -x
   env | sort
 fi
