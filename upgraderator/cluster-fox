@@ -30,6 +30,14 @@ copyKubectlConfig() {
   listMasters | while IFS=' ' read az ip; do copyKubectlConfigFromMaster $az $ip; done
 }
 
+azKubectl() {
+  local az=$1
+  shift
+  local conf=$HOME/.kube/$az-config
+  if [ -f "$conf" ]; then echo "Missing kubectl configuration for $az. See copy-kubectl-config"; exit 1; done
+  kubectl --kubeconf="$conf" $@
+}
+
 #==============================================================================
 usage() {
 cat <<EOF
@@ -66,7 +74,10 @@ done
 
 COMMAND=$1
 [ -z "$COMMAND" ] && usage "No command specified"
+shift
+
 case $COMMAND in
+  kc) azKubectl $@
   list-masters) listMasters;;
   copy-kubectl-config) copyKubectlConfig;;
   *) usage "Unknown command: $COMMAND"

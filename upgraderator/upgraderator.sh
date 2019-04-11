@@ -22,9 +22,10 @@ export CLUSTER_ID=fbs
 export CLUSTER_SSH_KEY="$KUBERNETES_NODE_SSH_KEY_FILE"
 
 MASTERS=$WORK/masters
-cluster-fox list-masters | tee $MASTERS
+cluster-fox copy-kubectl-config | tee $MASTERS
 
-cluster-fox copy-kubectl-config
+cluster-fox kubectl us-gov-west-1a -- get nodes
+cluster-fox kubectl us-gov-west-1a -- get pods --all-namespaces
 
 
 exit 0
