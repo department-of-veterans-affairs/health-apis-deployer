@@ -27,7 +27,7 @@ copyKubectlConfigFromMaster() {
 }
 export -f copyKubectlConfigFromMaster
 copyKubectlConfig() {
-  listMasters | xargs -n 2 -I {} bash -c 'copyKubernetesConfigFromMaster {}'
+  listMasters | xargs -n 2 -I {} bash -c 'copyKubectlConfigFromMaster {}'
 }
 
 #==============================================================================
