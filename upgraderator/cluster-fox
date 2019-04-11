@@ -77,7 +77,7 @@ COMMAND=$1
 shift
 
 case $COMMAND in
-  kc|kubectl) azKubectl $@
+  kc|kubectl) azKubectl $@;;
   list-masters) listMasters;;
   copy-kubectl-config) copyKubectlConfig;;
   *) usage "Unknown command: $COMMAND"
