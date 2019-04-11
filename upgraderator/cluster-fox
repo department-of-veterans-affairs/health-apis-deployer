@@ -14,6 +14,7 @@ listMasters() {
     | paste -sd ' \n' \
     | sort
 }
+
 copyKubectlConfigFromMaster() {
   assertSshKey
   local az=$1
@@ -21,7 +22,7 @@ copyKubectlConfigFromMaster() {
   debug "Retrieving configuration for $az from $ip"
   [ -d $HOME/.kube ] && mkdir $HOME/.kube
   local config=$HOME/.kube/$az-config
-  scp -q -o 'StrictHostKeyChecking no' -i "$CLUSTER_SSH_KEY" ec2-user@$ip:.kube/config $config
+  scp -o 'StrictHostKeyChecking no' -i "$CLUSTER_SSH_KEY" ec2-user@$ip:.kube/config $config
   echo "$az $ip $config"
 }
 
@@ -41,9 +42,9 @@ EOF
 exit 1
 }
 
-
-assertClusterId() { if [ -z "$CLUSTER_ID" ]; then echo "--cluster-id not specified"; exit 1; fi; }
-assertSshKey() { if [ -z "$CLUSTER_SSH_KEY" ]; then echo "--ssh-key not specified"; exit 1; fi; }
+assertSet() { [ -z "$2" ] && echo "$1 not specified" && exit 1; }
+assertClusterId() { assertSet --cluster-id "${CLUSTER_ID:-}"; }
+assertSshKey() { assertSet --ssh-key "${CLUSTER_SSH_KEY:-}"; }
 
 DEBUG=false
 ARGS=$(getopt -n $(basename ${0}) \
