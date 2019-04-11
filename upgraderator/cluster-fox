@@ -2,6 +2,10 @@
 set -euo pipefail
 
 
+debug() {
+  [ "$DEBUG" == true ] && echo "$@"
+}
+
 listMasters() {
   assertClusterId
   aws ec2 describe-instances \
@@ -11,22 +15,40 @@ listMasters() {
     | sort
 }
 
+copyKubectlConfigFromMaster() {
+  assertSshKey
+  local az=$1
+  local ip=$2
+  debug "Retrieving configuration for $az from $ip"
+  [ -d $HOME/.kube ] && mkdir $HOME/.kube
+  local config=$HOME/.kube/$az-config
+  scp -q -o 'StrictHostKeyChecking no' -i "$CLUSTER_SSH_KEY" ec2-user@$ip:.kube/config $config
+  echo "$az $ip $config"
+}
+export -f copyKubectlConfigFromMaster
+copyKubectlConfig() {
+  listMasters | xargs -n 2 -I {} bash -c 'copyKubernetesConfigFromMaster {}'
+}
 
 #==============================================================================
 usage() {
 cat <<EOF
 $0 <command> [options]
+
+Options:
+ --cluster-id <id> The cluster ID, e.g. f43
+ --ssh-key <file>  Certificate for accessing cluster members
 EOF
 exit 1
 }
 
 
 assertClusterId() { if [ -z "$CLUSTER_ID" ]; then echo "--cluster-id not specified"; exit 1; fi; }
+assertSshKey() { if [ -z "$CLUSTER_SSH_KEY" ]; then echo "--ssh-key not specified"; exit 1; fi; }
 
-
-
+DEBUG=false
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "debug,help,cluster-id:" \
+    -l "debug,help,cluster-id:,ssh-key:" \
     -o "xdh" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
@@ -34,7 +56,8 @@ while true
 do
   case "$1" in
     --cluster-id) CLUSTER_ID="$2";;
-    -x|--debug) set -x;;
+    --ssh-key) CLUSTER_SSH_KEY="$2";;
+    -x|--debug) DEBUG=true; set -x;;
     -h|--help) usage "halp! what this do?";;
     --) shift;break;;
   esac
@@ -45,5 +68,6 @@ COMMAND=$1
 [ -z "$COMMAND" ] && usage "No command specified"
 case $COMMAND in
   list-masters) listMasters;;
+  copy-kubectl-config) copyKubectlConfig;;
   *) usage "Unknown command: $COMMAND"
 esac
