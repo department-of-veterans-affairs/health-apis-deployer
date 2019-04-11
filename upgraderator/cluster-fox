@@ -43,9 +43,22 @@ usage() {
 cat <<EOF
 $0 <command> [options]
 
+Commands
+  list-masters --cluster-id <id>
+    List master IPs by availability zone
+  copy-kubectl-config --cluster-id <id> --ssh-key <file>
+    Transfer kubectl config files from masters. This is required before kubectl commands.
+  kubectl <az> -- <arg> [arg ... ]
+    Execute a kubectl command against the master of a particular availability zone.
+    The -- is required to separate $(basename $0) arguments from kubectl arguments.
+
 Options:
  --cluster-id <id> The cluster ID, e.g. f43
- --ssh-key <file>  Certificate for accessing cluster members
+ --ssh-key <file>  Certificate for accessing cluster members via SSH
+
+Example:
+  $0 copy-kubectl-config
+  $0 kubectl us-gov-west-1a -- get pods --all-namespaces
 EOF
 exit 1
 }
@@ -72,7 +85,7 @@ do
   shift;
 done
 
-COMMAND=$1
+COMMAND="${1:-}"
 [ -z "$COMMAND" ] && usage "No command specified"
 shift
 
