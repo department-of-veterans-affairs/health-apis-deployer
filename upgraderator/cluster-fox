@@ -14,7 +14,6 @@ listMasters() {
     | paste -sd ' \n' \
     | sort
 }
-
 copyKubectlConfigFromMaster() {
   assertSshKey
   local az=$1
@@ -25,9 +24,9 @@ copyKubectlConfigFromMaster() {
   scp -q -o 'StrictHostKeyChecking no' -i "$CLUSTER_SSH_KEY" ec2-user@$ip:.kube/config $config
   echo "$az $ip $config"
 }
-export -f copyKubectlConfigFromMaster
+
 copyKubectlConfig() {
-  listMasters | xargs -n 2 -I {} bash -c 'copyKubectlConfigFromMaster {}'
+  listMasters | while IFS=' ' read az ip; do copyKubectlConfigFromMaster $az $ip; done
 }
 
 #==============================================================================
