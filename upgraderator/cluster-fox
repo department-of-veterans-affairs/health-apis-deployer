@@ -3,7 +3,7 @@ set -euo pipefail
 
 
 debug() {
-  [ "$DEBUG" == true ] && echo "$@"
+  if [ "$DEBUG" == true ]; then echo "$@"; fi
 }
 
 listMasters() {
@@ -42,7 +42,7 @@ EOF
 exit 1
 }
 
-assertSet() { [ -z "$2" ] && echo "$1 not specified" && exit 1; }
+assertSet() { if [ -z "$2" ]; then echo "$1 not specified" && exit 1; fi; }
 assertClusterId() { assertSet --cluster-id "${CLUSTER_ID:-}"; }
 assertSshKey() { assertSet --ssh-key "${CLUSTER_SSH_KEY:-}"; }
 

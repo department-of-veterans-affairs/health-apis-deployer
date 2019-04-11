@@ -24,7 +24,7 @@ export CLUSTER_SSH_KEY="$KUBERNETES_NODE_SSH_KEY_FILE"
 MASTERS=$WORK/masters
 cluster-fox list-masters | tee $MASTERS
 
-cluster-fox copy-kubectl-config -x
+cluster-fox copy-kubectl-config
 
 
 exit 0
