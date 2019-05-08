@@ -152,7 +152,7 @@ pipeline {
         }
       }
     }
-    stage('Build Upgraderator') {
+    stage('Deploy') {
       when { expression { return env.BUILD_MODE != 'ignore' } }
       agent {
         dockerfile {
@@ -163,21 +163,6 @@ pipeline {
       }
       steps {
         saunter('./build.sh')
-        stash includes: '**/build.conf', name: 'build-conf'
-      }
-    }
-    stage('Deploy to QA') {
-      when { expression { return env.BUILD_MODE != 'ignore' } }
-      agent {
-        dockerfile {
-           registryUrl 'https://index.docker.io/v1/'
-           registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-           args DOCKER_ARGS
-           }
-      }
-      steps {
-        unstash 'build-conf'
-        saunter('./deploy.sh qa')
       }
     }
   }

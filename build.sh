@@ -6,15 +6,22 @@ if [ "${DEBUG:-false}" == true ]; then
   env | sort
 fi
 
-cd $(dirname $(readlink -f $0))/upgraderator
+export PATH=$WORKSPACE:$PATH
 
 JENKINS_DIR=$WORKSPACE/.jenkins
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
 
-[ ! -f $WORKSPACE/product.conf ] && echo "Missing $WORKSPACE/product.conf" && exit 1
-. $WORKSPACE/product.conf
+test -n "$PRODUCT"
+test -f "$WORKSPACE/products/$PRODUCT.conf"
+. $WORKSPACE/products/$PRODUCT.conf
 
+
+fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
+
+tar tf deployment-unit.tar.gz
+
+exit 0
 
 
 configureUpgraderator() {
@@ -38,13 +45,6 @@ export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
 export BUILD_URL="${BUILD_URL:-NONE}"
 EOF
   echo "$VERSION" > $JENKINS_DIR/build-name
-}
-
-buildUpgraderator() {
-  echo ------------------------------------------------------------
-  echo "Building $IMAGE"
-  docker build -t "$IMAGE" .
-  docker images | grep $PRODUCT_NAME-upgraderator
 }
 
 
