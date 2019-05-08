@@ -7,8 +7,8 @@
 ### Product Repository Structure
 ```
 <product>/
-├── Dockerfile
 ├── Jenkinsfile
+├── pom.xml
 ├── deployment.yaml
 ├── deployment.conf
 ├── qa.conf
@@ -24,12 +24,8 @@
 └── test.conf
 ```
 
-`Dockerfile`  
-Inherits from `vasdvp/health-apis-deployment-unit` and adds the configuration files to 
-`/deployment-unit/` in the container.
-
 `Jenkinsfile`  
-Responsible for building DU container and deploying it to Dockerhub
+Responsible for building DU container and deploying it to Nexus as a project assembly.
 
 `deployment.yaml`  
 Contains all k8s resources except ingress objects related to this deployment unit. All items must

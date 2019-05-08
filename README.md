@@ -22,7 +22,7 @@ configuration for QA, Lab, Production, etc. environments. See [Environments](#en
 - Does not contain ingress objects or load balancer routes
 - Jointly owned by the DevOps and product teams
 - Maintained in a product specific GitHub repository
-- Bundled as a docker image
+- Bundled as a tar.gz
 - Potentially used in all environments at different time
 
 [Read more](deployment-unit.md)
