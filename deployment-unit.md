@@ -38,7 +38,7 @@ Configuration variables that will be applied in all environments, such as applic
 Configuration files for specific environments.
 
 `qa.testvars`, `staging.testvars`, `production.testvars`, `staging-lab.testvars`, `lab.testvars`  
-Configuration files for specific environments.
+Environment variable files for specific environments used when running tests.
 
 `test.conf`  
 Test container configuration for regression and smoke tests.
@@ -54,7 +54,7 @@ enable substitution in the `deployment.yaml` variables must be exported, e.g.
 
 > ##### Testvars files
 > `.testvars` contain variables needed for tests in in Docker `--env-file` format and will be
-> used to set envrinment variables during test execution. Format is `var=value`, one per line, e.g.
+> used to set environment variables during test execution. Format is `var=value`, one per line, e.g.
 > ```
 > CHILLO=ARMADILLO
 > WIGGLY=PIGGLY
