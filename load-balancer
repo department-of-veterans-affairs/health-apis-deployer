@@ -1,0 +1,335 @@
+#!/usr/bin/env bash
+
+#set -euo pipefail
+
+usage() {
+cat<<EOF > /dev/stderr
+$0 <command> [options]
+
+Commands
+  create-target-group --product <product> --env <ENV> --cluser-id <cid> --color <color> --health-check-path <hc-path>
+    Create an AWS target group to be used for the chosen product.
+  delete-target-group --product <product> --env <ENV> --cluster-id <cid> --color <color>
+    Delete an AWS target group for a chosen product.
+  enable-tg --product <product> --az-abreviation <a | b | c> --env <ENV> --color <color> --cluser-id <cid>
+    Activate an existing AWS target group. Attach the target group for
+    a given product to an AZ's Autoscaling group.
+  disable-tg --product <product> --az <az#> --env <ENV> --color <color> --cluster-id <cid>
+    Deactive the chosen AWS target group. Remove the target group for
+    a given product from an AZ's Autoscaling group.
+  create-rule --rule-path <path> --product <product> --health-check-path <health-check-path> --min-priority <priority-group>
+    Create a rule in the ALB.
+  delete-rule --path <path>
+    Delete a rule from the ALB.
+
+Utility Commands
+  list-certificates
+    List the domains for the available certficates. This can be used
+    with the --certificate option
+  list-environments
+    List environments available based on the Environment tag of VPCs.
+
+EOF
+echo -e "$1" > /dev/stderr
+exit 1
+}
+
+ORIGINAL_COMMAND=="$0 $@"
+
+#
+# Create a temporary workspace
+#
+WORK=$(mktemp -p . -d work.XXXX )
+trap onExit EXIT
+onExit() {
+  [ -d $WORK ] && rm -rf $WORK
+}
+
+#
+# Commands
+#
+#============================================================
+tgName() {
+  [ -z "$PRODUCT" ] && usage "Product name not specified"
+  [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
+  echo $CLUSTER_ID-$PRODUCT | tr -dc '[a-z][A-Z][0-9]-'
+}
+
+targetGroupArn() {
+  local tgName
+  tgName=$(tgName) || exit 1
+  local targetGroupArn=$(aws elbv2 describe-target-groups \
+  --names "$tgName" \
+  | jq -r '.TargetGroups[].TargetGroupArn')
+
+  echo $targetGroupArn
+}
+
+createTargetGroup() {
+  local tgName
+  tgName=$(tgName) || exit 1
+  [ -z "$HEALTH_CHECK_PATH" ] && usage "Health check path not specified"
+
+  echo "Creating target group: $tgName"
+  aws elbv2 create-target-group \
+      --name $tgName \
+      --protocol HTTPS \
+      --port 30443 \
+      --vpc-id $(vpcId) \
+      --target-type instance \
+      --health-check-protocol HTTPS \
+      --health-check-port traffic-port \
+      --health-check-path "$HEALTH_CHECK_PATH" \
+      --health-check-interval-seconds "$HEALTH_CHECK_INTERVAL" \
+      --health-check-timeout-seconds "$HEALTH_CHECK_TIMEOUT" \
+      --healthy-threshold-count "$HEALTH_CHECK_HEALTHY_THRESHOLD" \
+      --unhealthy-threshold-count "$HEALTH_CHECK_UNHEALTHY_THRESHOLD" \
+      --matcher "HttpCode=200" \
+      | tee $WORK/target-group.json
+}
+
+deleteTargetGroup() {
+  local tgName
+  tgName=$(tgName) || exit 1
+  local targetGroupArn=$(targetGroupArn)
+
+  echo "Deleting Target Group: $tgName"
+  aws elbv2 delete-target-group \
+  --target-group-arn $targetGroupArn
+}
+
+albName() {
+  [ -z "$COLOR" ] && usage "Color not specified"
+  echo $ALB_PREFIX-$COLOR
+}
+
+#
+# Create a rule on a given ALB's listener
+#
+createRule() {
+  local tgName
+  tgName=$(tgName) || exit 1
+  local targetGroupArn=$(targetGroupArn)
+
+  #
+  # Make sure we have an ALB to attach to
+  #
+  local albName
+  albName=$(albName) || exit 1
+  local alb=$(aws elbv2 describe-load-balancers --names $albName \
+                | jq -r .LoadBalancers[].LoadBalancerArn)
+  [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
+
+  #
+  # Make sure the ALB has an HTTP listener
+  #
+  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
+                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
+
+  echo "Updating HTTPS listener $albName"
+  echo "Load balancer: $alb"
+  echo "Listener: $listener"
+
+  [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule creation" && exit 1
+  echo "Creating Path Rule: $RULE_PATH"
+  aws elbv2 create-rule \
+      --listener-arn $listener \
+      --actions Type=forward,TargetGroupArn=$targetGroupArn \
+      --conditions Field=path-pattern,Values="$RULE_PATH" \
+      --priority $(nextAvailablePriority $listener)
+
+}
+
+nextAvailablePriority() {
+  #
+  # Listeners require priority to be a value less than 50000.
+  # Rules can have gaps in priority and we'll have to find them if they exist.
+  # If no gap exists, then we'll append one
+  #
+  local listener=$1
+  local out=$WORK/rule-priorities
+  aws elbv2 describe-rules --listener-arn $listener \
+    | jq -r '.Rules[].Priority' \
+    | sed 's/default/1/' \
+    | sort -n \
+    | awk -v min=$MIN_PRIORITY '$1 >= min { print } END { print min-1 }' \
+    | sort -nu \
+    > $out
+
+  #
+  # Find any gaps in the priority list, use the first one if found
+  #
+  local gap=$(seq $MIN_PRIORITY $(tail -1 $out) \
+    | diff - $out \
+    | grep -m 1 '<' \
+    | sed 's/[^0-9]//g')
+  [ -n "$gap" ] && echo $gap && return
+
+  #
+  # If no gap is found, use the next in sequence
+  #
+  local last=$(tail -1 $out)
+  echo $(($last + 1))
+}
+
+deleteRule() {
+
+  #
+  # Make sure we have an ALB to attach to
+  #
+  local albName
+  albName=$(albName) || exit 1
+  local alb=$(aws elbv2 describe-load-balancers --names $albName \
+                | jq -r .LoadBalancers[].LoadBalancerArn)
+  [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
+
+  #
+  # Make sure the ALB has an HTTP listener
+  #
+  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
+                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
+
+  echo "Updating HTTPS listener $albName"
+  echo "Load balancer: $alb"
+  echo "Listener: $listener"
+
+  #
+  # Find the RULE-ARN for the corresponding RULE_PATH marked for deletion
+  #
+  [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule deletion." && exit 1
+  local RULE_ARN=$(aws elbv2 describe-rules --listener-arn $listener \
+      | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[]' \
+      | paste -sd " \n" | grep -F "$RULE_PATH" | awk '{print $1}')
+
+  echo "Deleting: Rule-Arn: $RULE_ARN"
+  aws elbv2 delete-rule --rule-arn "$RULE_ARN"
+}
+
+enableTargetGroup() {
+  local tgName
+  tgName=$(tgName) || exit 1
+  local targetGroupArn=$(targetGroupArn)
+
+  [ -z "$AZ_ABREVIATION" ] && echo "Target Availability Zone Abreviation not set." && exit 1
+  aws autoscaling attach-load-balancer-target-groups \
+      --auto-scaling-group-name "kubernetes-$CLUSTER_ID$AZ_ABREVIATION-autoscaling" \
+      --target-group-arns $targetGroupArn
+}
+
+disableTargetGroup() {
+  local tgName
+  tgName=$(tgName) || exit 1
+  local targetGroupArn=$(targetGroupArn)
+
+  [ -z "$AZ_ABREVIATION" ] && echo "Target Availability Zone Abreviation not set."
+  aws autoscaling detach-load-balancer-target-groups \
+      --auto-scaling-group-name "kubernetes-$CLUSTER_ID$AZ_ABREVIATION-autoscaling" \
+      --target-group-arns $targetGroupArn
+}
+
+#
+# Utility Commands
+#
+#============================================================
+listEnvironments() {
+  aws ec2 describe-vpcs \
+    | jq -r '.Vpcs[].Tags[] | select(.Key == "Environment").Value' \
+    | sort
+}
+
+listCertificates() {
+  aws acm list-certificates \
+    | jq -r .CertificateSummaryList[].DomainName \
+    | sort
+}
+#============================================================
+
+#
+# Set some defaults
+#
+#============================================================
+VPC_ENV=
+VPC_ID= # automatically set based on VPC_ENV
+vpcId() {
+  [ -n "$VPC_ID" ] && echo $VPC_ID && return 0
+  VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Environment,Values=$VPC_ENV | jq -r .Vpcs[].VpcId)
+  [ -z "$VPC_ID" ] && echo "Could not find VPC for environment $VPC_ENV" && exit 1
+  echo "VPC $VPC_ID ($VPC_ENV)"
+}
+CERTIFICATE_DOMAIN_NAME=
+CLUSTER_ID=
+HEALTH_CHECK_INTERVAL=15
+HEALTH_CHECK_TIMEOUT=14
+HEALTH_CHECK_HEALTHY_THRESHOLD=2
+HEALTH_CHECK_UNHEALTHY_THRESHOLD=2
+MIN_PRIORITY=1
+WATCH=false
+
+HEALTH_CHECK_OPTIONS="health-check-path:,health-check-interval:,health-check-timeout:,health-check-healthy-threshold:,health-check-unhealthy-threshold"
+
+ARGS=$(getopt -n $(basename ${0}) \
+    -l "certificate:,product:,cluster-id:,az-abreviation:,color:,debug,environment:,help,min-priority:,rule-path:,$HEALTH_CHECK_OPTIONS,subnets:,watch" \
+    -o "xh" -- "$@")
+[ $? != 0 ] && usage
+eval set -- "$ARGS"
+while true
+do
+  case "$1" in
+    --environment) VPC_ENV="$2";;
+    --product) PRODUCT="$2";;
+    --certificate) CERTIFICATE_DOMAIN_NAME="$2";;
+    --color) COLOR="$2";;
+    --cluster-id) CLUSTER_ID="$2";;
+    --az-abreviation) AZ_ABREVIATION="$2";;
+    -x|--debug) set -x;;
+    -h|--help) usage "halp! what this do?";;
+    --health-check-path) HEALTH_CHECK_PATH="$2";;
+    --health-check-interval) HEALTH_CHECK_INTERVAL="$2";;
+    --health-check-timeout) HEALTH_CHECK_TIMEOUT="$2";;
+    --health-check-healthy-threshold) HEALTH_CHECK_HEALTHY_THRESHOLD="$2";;
+    --health-check-unhealthy-threshold) HEALTH_CHECK_UNHEALTHY_THRESHOLD="$2";;
+    --min-priority) MIN_PRIORITY="$2";;
+    --rule-path) RULE_PATH="$2";;
+    --subnets) subnets=$2;;
+    --watch) WATCH=true;;
+    --) shift;break;;
+  esac
+  shift;
+done
+
+#
+# Parse Command
+#
+COMMAND=$1
+echo $COMMAND
+[ -z "$COMMAND" ] && usage "No command specified"
+
+#
+# Information commands do not have the same checks
+# that action commands haves
+#
+
+
+case $COMMAND in
+  le|list-environments) listEnvironments; exit 0;;
+  lc|list-certificates) listCertificates; exit 0;;
+esac
+
+[ -z "$VPC_ENV" ] && usage "Environment not specified"
+ALB_PREFIX=kubernetes-${VPC_ENV,,}
+ALB_SECURITY_GROUP_NAME=$ALB_PREFIX-alb
+ALB_SECURITY_GROUP_ID= # set later
+vpcId
+[ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
+
+case $COMMAND in
+  ctg|create-target-group) createTargetGroup;;
+  dtg|delete-target-group) deleteTargetGroup;;
+  cr|create-rule) createRule;;
+  dr|delete-rule) deleteRule;;
+  tg-on|enable-target-group) enableTargetGroup;;
+  tg-off|disable-target-group) disableTargetGroup;;
+  *) usage "Unkown command";;
+esac
