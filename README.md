@@ -34,7 +34,7 @@ access to a service.
 - Maintained in a _this_ GitHub repository
 - Bundled as a docker image
 
-While products can be mostly managed independently of one another. However, the HTTP routes must be
+While products can be mostly managed independently of one another, the HTTP routes must be
 managed together. Furthermore, routes have the potential to break access to other services if not
 coordinated across all products. The DevOps team provides oversight to ensure that routes do not
 conflict.
@@ -56,7 +56,7 @@ teams and DevOps team.
 - UAT
 - Staging
 - Production
-- QA-Lab
+- Staging-Lab
 - Lab
 
 Path through environments
