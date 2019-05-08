@@ -104,6 +104,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: 'Enable debugging output.')
+    choice(name: 'PRODUCT', choices: ['data-query', 'delete-me'], description: 'Product')
   }
   agent none
   triggers {
