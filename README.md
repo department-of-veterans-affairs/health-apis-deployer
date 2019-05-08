@@ -10,7 +10,11 @@
 
 
 ### Deployment Unit
-The _deployment unit_ is the deployment specification for a product.
+The _deployment unit_ (DU) is the deployment specification for a product. A DU is a self contained
+_installer_ that is capable of deploying a specific version of a product in a given environment.
+The DU is packaged with configurations necessary to run in each environment. For example, it has
+configuration for QA, Lab, Production, etc. environments. See [Environments](#environments) below.
+
 
 - Deployment Unit (DU) is a set of related k8s resources for a specific product
 - Constrained to single namespace
@@ -19,6 +23,7 @@ The _deployment unit_ is the deployment specification for a product.
 - Jointly owned by the DevOps and product teams
 - Maintained in a product specific GitHub repository
 - Bundled as a docker image
+- Potentially used in all environments at different time
 
 [Read more](deployment-unit.md)
 
@@ -31,7 +36,7 @@ access to a service.
 - Contains load balancer routes for all products
 - Owned by the DevOps team
 - Product teams must request ingress objects and load balancers routes from the DevOps team
-- Maintained in a _this_ GitHub repository
+- Maintained in _this_ GitHub repository
 - Bundled as a docker image
 
 While products can be mostly managed independently of one another, the HTTP routes must be
@@ -63,3 +68,12 @@ Path through environments
 - `QA` > `UAT` > `Staging` > `Production` (When user testing is required)
 - `QA` > `Staging` > `Production`
 - `QA` > `Lab QA` > `Lab`
+
+The Jenkins orchestration pipeline will manage progression of deployment units through the
+different environments. Deployment unit packages are versioned and managed in Dockerhub. The
+pipeline will promote a specific version along the path outlined above. At any given time,
+different versions of a DU may be deployed in different environments, e.g. version `1.5.1-f4d4274`
+may be deployed to QA, but version `1.4.7-3f461a0` is deployed to production. If testing is
+successful, `1.5.1-f4d4274` will be promoted to higher environments over time. 
+_Promotion process is not fully designed but will involve version manual interactions to promote
+applications, at least in the initial phase_

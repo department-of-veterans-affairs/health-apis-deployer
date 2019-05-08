@@ -1,5 +1,9 @@
 # Deployment Unit
 
+
+
+
+
 ### Product Repository Structure
 ```
 <product>/
@@ -25,7 +29,7 @@ Inherits from `vasdvp/health-apis-deployment-unit` and adds the configuration fi
 `/deployment-unit/` in the container.
 
 `Jenkinsfile`  
-Responsbible for building DU container and deploying it to Dockerhub
+Responsible for building DU container and deploying it to Dockerhub
 
 `deployment.yaml`  
 Contains all k8s resources except ingress objects related to this deployment unit. All items must
@@ -123,7 +127,7 @@ various situations.
 - May be long running
 
 ##### Smoke tests
-- Rand during route changes to verify connectivity to DU through load balancers and k8s ingress
+- Ran during route changes to verify connectivity to DU through load balancers and k8s ingress
 - Should execute quickly
 - Should exercise operations that cover each expect HTTP path  
   For example, if the DU expects paths `/awesome/possum` and `/chillo/armadillo` to be available,
