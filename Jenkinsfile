@@ -198,7 +198,7 @@ pipeline {
     failure {
       node('master') {
         script {
-          if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'x/upgraderator') {
+          if (env.BRANCH_NAME == 'qa') {
             sendNotifications();
           }
         }
@@ -207,7 +207,7 @@ pipeline {
     changed {
       node('master') {
         script {
-          if (env.BRANCH_NAME == 'master' && currentBuild.result != 'FAILURE') {
+          if (env.BRANCH_NAME == 'qa' && currentBuild.result != 'FAILURE') {
             sendNotifications();
           }
         }
