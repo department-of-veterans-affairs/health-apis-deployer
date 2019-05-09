@@ -3,7 +3,7 @@
 #
 # Disable debugging unless explicitly set
 #
-set -x
+set +x
 if [ "${DEBUG:-false}" == true ]; then
   set -x
   env | sort
@@ -42,6 +42,7 @@ test -n "$AVAILABILITY_ZONE"
 cat <<EOF
 ============================================================
 Product ............. $PRODUCT
+Deployment Unit ..... $DU_ARTIFACT ($DU_VERSION)
 Environment ......... $ENVIRONMENT
 Availability Zone ... $AVAILABILITY_ZONE
 ============================================================
@@ -51,6 +52,8 @@ EOF
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 tar xvf deployment-unit.tar.gz
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
+
+perform-substitution $DU_DIR
 
 cluster-fox copy-kubectl-config
 cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
