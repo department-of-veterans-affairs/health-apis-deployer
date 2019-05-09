@@ -5,7 +5,7 @@ def saunter(scriptName) {
       credentialsId: 'GITHUB_USERNAME_PASSWORD',
       variable: 'GITHUB_USERNAME_PASSWORD'),
     usernamePassword(
-      credentialsId: 'VASDVP_RELEASES_NEXUS_USERNAME_PASSWORD',
+      credentialsId: 'HEALTH_APIS_RELEASES_NEXUS_USERNAME_PASSWORD',
       usernameVariable: 'NEXUS_USERNAME',
       passwordVariable: 'NEXUS_PASSWORD'),
     usernamePassword(
