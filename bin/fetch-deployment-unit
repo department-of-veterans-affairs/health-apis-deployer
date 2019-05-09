@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DU_ARTIFACT=$1
+DU_VERSION=$2
+
+test -n "$NEXUS_USERNAME"
+test -n "$NEXUS_PASSWORD"
+test -n "$DU_ARTIFACT"
+test -n "$DU_VERSION"
+
+URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases/gov/va/api/health/${DU_ARTIFACT}/${DU_VERSION}/${DU_ARTIFACT}-${DU_VERSION}-project.tar.gz
+
+STATUS=$(curl -sk \
+  -u "$NEXUS_USERNAME:$NEXUS_PASSWORD" \
+  -o deployment-unit.tar.gz \
+  -w "%{http_code}" \
+  $URL)
+
+if [ "$STATUS" == 200 ]; then exit 0; fi
+exit $STATUS

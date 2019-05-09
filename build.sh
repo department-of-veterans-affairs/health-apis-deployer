@@ -1,25 +1,62 @@
 #!/usr/bin/env bash
-set +x
-set -euo pipefail
+
+#
+# Disable debugging unless explicitly set
+#
+set -x
 if [ "${DEBUG:-false}" == true ]; then
   set -x
   env | sort
 fi
 
-export PATH=$WORKSPACE:$PATH
+#
+# Ensure that we fail fast on any issues.
+#
+set -euo pipefail
 
+#
+# Make our utilities available on the path
+#
+export PATH=$WORKSPACE/bin:$PATH
+
+#
+# Set up a mechanism to communicate job descriptions, etc. so that Jenkins provides more meaningful pages
+#
 JENKINS_DIR=$WORKSPACE/.jenkins
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
 
+#
+# Load configuration
+#
 test -n "$PRODUCT"
 test -f "$WORKSPACE/products/$PRODUCT.conf"
 . $WORKSPACE/products/$PRODUCT.conf
 
+test -n "$ENVIRONMENT"
+test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
+. "$WORKSPACE/environments/$ENVIRONMENT.conf"
+
+test -n "$AVAILABILITY_ZONE"
+
+cat <<EOF
+============================================================
+Product ............. $PRODUCT
+Environment ......... $ENVIRONMENT
+Availability Zone ... $AVAILABILITY_ZONE
+============================================================
+EOF
+
 
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
-
 tar tf deployment-unit.tar.gz
+DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
+
+
+cluster-fox copy-kubectl-config | tee $MASTERS
+cluster-fox kubectl us-gov-west-1a -- get nodes
+cluster-fox kubectl us-gov-west-1a -- get pods --all-namespaces
+
 
 exit 0
 
