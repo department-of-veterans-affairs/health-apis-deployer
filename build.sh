@@ -3,7 +3,7 @@
 #
 # Disable debugging unless explicitly set
 #
-set +x
+set -x
 if [ "${DEBUG:-false}" == true ]; then
   set -x
   env | sort
