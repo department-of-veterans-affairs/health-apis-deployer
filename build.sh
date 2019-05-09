@@ -27,8 +27,11 @@ JENKINS_DIR=$WORKSPACE/.jenkins
 mkdir "$JENKINS_DIR"
 
 #
-# Load configuration
+# Load configuration. The following variables are expected
 #
+declare -x DU_ARTIFACT
+declare -x DU_VERSION
+declare -x DU_NAMESPACE
 test -n "$PRODUCT"
 test -f "$WORKSPACE/products/$PRODUCT.conf"
 . $WORKSPACE/products/$PRODUCT.conf
