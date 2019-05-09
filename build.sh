@@ -6,6 +6,13 @@ if [ "${DEBUG:-false}" == true ]; then
   env | sort
 fi
 
+env
+echo ============================================================
+pwd
+echo ============================================================
+find .
+echo ============================================================
+
 export PATH=$WORKSPACE:$PATH
 
 JENKINS_DIR=$WORKSPACE/.jenkins
