@@ -17,5 +17,5 @@ STATUS=$(curl -sk \
   -w "%{http_code}" \
   $URL)
 
-if [ "$STATUS" == 200 ]; then exit 0; done
+if [ "$STATUS" == 200 ]; then exit 0; fi
 exit $STATUS
