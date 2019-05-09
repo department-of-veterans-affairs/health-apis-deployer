@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -x
+set -euo pipefail
+
+DU_DIR=$1
+
+test -n "$DU_DIR"
+test -n "$ENVIRONMENT"
+
+
+YAML=$DU_DIR/deployment.yaml
+YAML_BACKUP=$DU_DIR/deployment.yaml.original
+DEFAULT_CONF=$DU_DIR/deployment.conf
+ENV_CONF=$DU_DIR/$ENVIRONMENT.conf
+
+test -f "$YAML"
+test -f "$DEFAULT_CONF"
+test -f "$ENV_CONF"
+
+declare -rx NAMESPACE=$DU_NAMESPACE
+
+. $DEFAULT_CONF
+. $ENV_CONF
+
+mv $YAML $YAML_BACKUP
+cat $YAML_BACKUP | envsubst > $YAML

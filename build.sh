@@ -52,9 +52,10 @@ EOF
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 tar xvf deployment-unit.tar.gz
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
-
+# TODO decrypt/expand *zip files in DU_DIR here
+validate-deployment-unit $DU_DIR
 perform-substitution $DU_DIR
-
+# TODO sanitity check deployment.yaml here
 cluster-fox copy-kubectl-config
 cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
 
