@@ -52,11 +52,9 @@ fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 tar tf deployment-unit.tar.gz
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 
-head $KUBERNETES_QA_SSH_KEY
-
 cluster-fox copy-kubectl-config
-cluster-fox kubectl us-gov-west-1a -- get nodes
-cluster-fox kubectl us-gov-west-1a -- get pods --all-namespaces
+
+cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
 
 
 exit 0
