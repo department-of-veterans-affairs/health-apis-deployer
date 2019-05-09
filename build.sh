@@ -6,12 +6,6 @@ if [ "${DEBUG:-false}" == true ]; then
   env | sort
 fi
 
-env
-echo ============================================================
-pwd
-echo ============================================================
-find .
-echo ============================================================
 
 export PATH=$WORKSPACE:$PATH
 
@@ -24,7 +18,7 @@ test -f "$WORKSPACE/products/$PRODUCT.conf"
 . $WORKSPACE/products/$PRODUCT.conf
 
 
-./fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
+fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 
 tar tf deployment-unit.tar.gz
 
