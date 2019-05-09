@@ -53,7 +53,7 @@ tar tf deployment-unit.tar.gz
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 
 
-cluster-fox copy-kubectl-config | tee $MASTERS
+cluster-fox copy-kubectl-config
 cluster-fox kubectl us-gov-west-1a -- get nodes
 cluster-fox kubectl us-gov-west-1a -- get pods --all-namespaces
 
