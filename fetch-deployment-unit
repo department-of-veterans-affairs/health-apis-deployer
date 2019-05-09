@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x
 set -euo pipefail
 
 DU_ARTIFACT=$1
@@ -18,5 +17,5 @@ STATUS=$(curl -sk \
   -w "%{http_code}" \
   $URL)
 
-test "$STATUS" == 200
-exit 0
+if [ "$STATUS" == 200 ]; then exit 0; done
+exit $STATUS

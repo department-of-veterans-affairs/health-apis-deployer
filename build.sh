@@ -18,6 +18,9 @@ test -f "$WORKSPACE/products/$PRODUCT.conf"
 . $WORKSPACE/products/$PRODUCT.conf
 
 
+
+echo "$NEXUS_USERNAME/$NEXUS_PASSWORD" | tac
+
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 
 tar tf deployment-unit.tar.gz
