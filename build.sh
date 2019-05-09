@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set +x
+set -x
 set -euo pipefail
 if [ "${DEBUG:-false}" == true ]; then
   set -x
@@ -17,7 +17,7 @@ test -f "$WORKSPACE/products/$PRODUCT.conf"
 . $WORKSPACE/products/$PRODUCT.conf
 
 
-fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
+./fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 
 tar tf deployment-unit.tar.gz
 
