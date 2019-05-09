@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x
 set -euo pipefail
 
 DU_DIR=$1
@@ -9,15 +8,13 @@ test -n "$ENVIRONMENT"
 
 cd $DU_DIR
 
-FAIL=false
-
-
 fileExists() {
   if [ -f $1 ]; then return; fi
   echo "Deployment unit is missing $1"
   FAIL=true
 }
 
+FAIL=false
 fileExists deployment.yaml
 fileExists deployment.conf
 fileExists $ENVIRONMENT.conf
