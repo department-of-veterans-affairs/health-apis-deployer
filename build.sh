@@ -63,6 +63,10 @@ cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
 exit 0
 
 
+# ======================================================================
+# LEGACY CRAP BELOW DELETE ME LATER
+#
+
 configureUpgraderator() {
   echo ------------------------------------------------------------
 

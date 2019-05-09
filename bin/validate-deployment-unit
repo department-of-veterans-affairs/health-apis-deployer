@@ -7,20 +7,17 @@ DU_DIR=$1
 test -n "$DU_DIR"
 test -n "$ENVIRONMENT"
 
+cd $DU_DIR
 
-YAML=$DU_DIR/deployment.yaml
-YAML_BACKUP=$DU_DIR/deployment.yaml.original
-DEFAULT_CONF=$DU_DIR/deployment.conf
-ENV_CONF=$DU_DIR/$ENVIRONMENT.conf
+FAIL=false
 
-test -f "$YAML"
-test -f "$DEFAULT_CONF"
-test -f "$ENV_CONF"
 
-declare -rx NAMESPACE=$DU_NAMESPACE
+fileExists() {
+  if [ -f $1 ]; then return; fi
+  echo "Deployment unit is missing $1"
+  FAIL=true
+}
 
-. $DEFAULT_CONF
-. $ENV_CONF
-
-mv $YAML $YAML_BACKUP
-cat $YAML_BACKUP | envsubst > $YAML
+fileExists deployment.yaml
+fileExists deployment.conf
+fileExists $ENVIRONMENT.conf
