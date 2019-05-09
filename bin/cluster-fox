@@ -67,6 +67,8 @@ assertSet() { if [ -z "$2" ]; then echo "$1 not specified" && exit 1; fi; }
 assertClusterId() { assertSet --cluster-id "${CLUSTER_ID:-}"; }
 assertSshKey() { assertSet --ssh-key "${CLUSTER_SSH_KEY:-}"; }
 
+export AWS_DEFAULT_REGION=us-gov-west-1
+
 DEBUG=false
 ARGS=$(getopt -n $(basename ${0}) \
     -l "debug,help,cluster-id:,ssh-key:" \
