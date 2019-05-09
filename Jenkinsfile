@@ -48,8 +48,10 @@ pipeline {
     timestamps()
   }
   parameters {
-    booleanParam(name: 'DEBUG', defaultValue: false, description: 'Enable debugging output.')
-    choice(name: 'PRODUCT', choices: ['data-query', 'delete-me'], description: 'Product')
+    booleanParam(name: 'DEBUG', defaultValue: false)
+    choice(name: 'PRODUCT', choices: ['data-query', 'delete-me'])
+    choice(name: 'ENVIRONMENT', choices: ['qa', 'delete-me'])
+    choice(name: 'AVAILABILITY_ZONE', choices: ['us-gov-west-1a','us-gov-west-1b','us-gov-west-1b'])
   }
   agent none
   triggers {
