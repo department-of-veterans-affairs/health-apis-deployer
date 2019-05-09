@@ -21,9 +21,9 @@ def saunter(scriptName) {
     string(
       credentialsId: 'APP_CONFIG_AWS_SECRET_ACCESS_KEY',
       variable: 'AWS_SECRET_ACCESS_KEY'),
-    withCredentials([file(
-      credentialsId: 'KUBERNETES_QA_SSH_KEY',
-      variable: 'KUBERNETES_QA_SSH_KEY')])
+//    withCredentials([file(
+//      credentialsId: 'KUBERNETES_QA_SSH_KEY',
+//      variable: 'KUBERNETES_QA_SSH_KEY')])
   ]) {
     sh script: scriptName
   }
