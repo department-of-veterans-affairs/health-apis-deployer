@@ -6,28 +6,60 @@ usage() {
 cat<<EOF > /dev/stderr
 $0 <command> [options]
 
-Commands
-  create-target-group --product <product> --env <ENV> --cluser-id <cid> --color <color> --health-check-path <hc-path>
+COMMANDS
+  create-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --health-check-path <hc-path>
     Create an AWS target group to be used for the chosen product.
-  delete-target-group --product <product> --env <ENV> --cluster-id <cid> --color <color>
+  delete-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product>
     Delete an AWS target group for a chosen product.
-  enable-tg --product <product> --az-abreviation <a | b | c> --env <ENV> --color <color> --cluser-id <cid>
+  enable-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --az-abreviation <a | b | c>
     Activate an existing AWS target group. Attach the target group for
     a given product to an AZ's Autoscaling group.
-  disable-tg --product <product> --az <az#> --env <ENV> --color <color> --cluster-id <cid>
+  disable-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --az-abreviation <a | b | c>
     Deactive the chosen AWS target group. Remove the target group for
     a given product from an AZ's Autoscaling group.
-  create-rule --rule-path <path> --product <product> --health-check-path <health-check-path> --min-priority <priority-group>
+  create-rule --env <ENV> --cluster-id <cid> --color <color> --product <product> --rule-path <r-path> --min-priority <priority-group>
     Create a rule in the ALB.
-  delete-rule --path <path>
+  delete-rule --env <ENV> --cluster-id <cid> --color <color> --product <product> --rule-path <r-path>
     Delete a rule from the ALB.
-
-Utility Commands
   list-certificates
     List the domains for the available certficates. This can be used
     with the --certificate option
   list-environments
     List environments available based on the Environment tag of VPCs.
+OPTIONS
+  --az-abreviation <az>
+    The AWS AZ quantifier. For Example: a
+  --cluster-id <cid>
+    The Kubernetes cluster-id. For Example: q4n
+  --color <color>
+    The deployment color. For Example: blue
+  --debug
+    Do you want all of the spam?
+  --env <ENV>
+    The AWS vpc. For Example: QA
+  --health-check-path <hc-path>
+    The path the load balancer will take for health checking. For Example: "/fhir/v0/argonaut/data-query/actuator/health"
+  --health-check-interval <#>
+    The AWS health check interval(seconds). For Example: 10
+  --health-check-timeout <#>
+    The AWS health check timeout(seconds). For Example: 30
+  --health-check-healthy-threshold <#>
+   The AWS healthy threshold. For example: 5
+  --health-check-unhealthy-threshold <#>
+   The AWS unhealth threshold. For example: 2
+  --help
+   Usage.
+  --min-priority 100
+    The minimum priority the given rule will have. If not set, the rule goes in the next available slot in the rules list.
+    For Example: 100
+  --product <name>
+    The name of the product being deployed. For example: data-query
+  --rule-path
+    The route rule for standard traffic from the ALB to your product.
+    For example: */fhir/v0/argonaut/data-query/*
+  --tg-drain-seconds
+    The drain time your target group will respect, when detached or deleted. Default 60 seconds.
+    For example: 120
 
 EOF
 echo -e "$1" > /dev/stderr
@@ -86,6 +118,12 @@ createTargetGroup() {
       --unhealthy-threshold-count "$HEALTH_CHECK_UNHEALTHY_THRESHOLD" \
       --matcher "HttpCode=200" \
       | tee $WORK/target-group.json
+
+    local tgArn=$(cat $WORK/target-group.json \
+        | jq -r '.TargetGroups[].TargetGroupArn')
+
+    aws elbv2 modify-target-group-attributes --target-group-arn $tgArn \
+      --attributes Key=deregistration_delay.timeout_seconds,Value=$TG_DRAIN_SECONDS
 }
 
 deleteTargetGroup() {
@@ -258,19 +296,18 @@ vpcId() {
   [ -z "$VPC_ID" ] && echo "Could not find VPC for environment $VPC_ENV" && exit 1
   echo "VPC $VPC_ID ($VPC_ENV)"
 }
-CERTIFICATE_DOMAIN_NAME=
 CLUSTER_ID=
 HEALTH_CHECK_INTERVAL=15
 HEALTH_CHECK_TIMEOUT=14
 HEALTH_CHECK_HEALTHY_THRESHOLD=2
 HEALTH_CHECK_UNHEALTHY_THRESHOLD=2
 MIN_PRIORITY=1
-WATCH=false
+TG_DRAIN_SECONDS=60
 
 HEALTH_CHECK_OPTIONS="health-check-path:,health-check-interval:,health-check-timeout:,health-check-healthy-threshold:,health-check-unhealthy-threshold"
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "certificate:,product:,cluster-id:,az-abreviation:,color:,debug,environment:,help,min-priority:,rule-path:,$HEALTH_CHECK_OPTIONS,subnets:,watch" \
+    -l "product:,cluster-id:,az-abreviation:,color:,tg-drain-seconds:,debug,environment:,help,min-priority:,rule-path:,$HEALTH_CHECK_OPTIONS" \
     -o "xh" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
@@ -279,7 +316,6 @@ do
   case "$1" in
     --environment) VPC_ENV="$2";;
     --product) PRODUCT="$2";;
-    --certificate) CERTIFICATE_DOMAIN_NAME="$2";;
     --color) COLOR="$2";;
     --cluster-id) CLUSTER_ID="$2";;
     --az-abreviation) AZ_ABREVIATION="$2";;
@@ -291,9 +327,8 @@ do
     --health-check-healthy-threshold) HEALTH_CHECK_HEALTHY_THRESHOLD="$2";;
     --health-check-unhealthy-threshold) HEALTH_CHECK_UNHEALTHY_THRESHOLD="$2";;
     --min-priority) MIN_PRIORITY="$2";;
+    --tg-drain-seconds) TG_DRAIN_SECONDS="$2";;
     --rule-path) RULE_PATH="$2";;
-    --subnets) subnets=$2;;
-    --watch) WATCH=true;;
     --) shift;break;;
   esac
   shift;
