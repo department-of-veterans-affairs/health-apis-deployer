@@ -19,7 +19,7 @@ test -f "$WORKSPACE/products/$PRODUCT.conf"
 
 
 
-echo "$NEXUS_USERNAME/$NEXUS_PASSWORD" | tac
+echo "$NEXUS_USERNAME/$NEXUS_PASSWORD" | tr "aeiou" "*"
 
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 
