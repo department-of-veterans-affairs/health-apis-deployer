@@ -39,18 +39,18 @@ OPTIONS
     The AWS vpc. For Example: QA
   --health-check-path <hc-path>
     The path the load balancer will take for health checking. For Example: "/fhir/v0/argonaut/data-query/actuator/health"
-  --health-check-interval <#>
+  --health-check-interval <interval>
     The AWS health check interval(seconds). For Example: 10
-  --health-check-timeout <#>
+  --health-check-timeout <timeout>
     The AWS health check timeout(seconds). For Example: 30
-  --health-check-healthy-threshold <#>
+  --health-check-healthy-threshold <threshold>
    The AWS healthy threshold. For example: 5
-  --health-check-unhealthy-threshold <#>
+  --health-check-unhealthy-threshold <threshold>
    The AWS unhealth threshold. For example: 2
   --help
    Usage.
-  --min-priority 100
-    The minimum priority the given rule will have. If not set, the rule goes in the next available slot in the rules list.
+  --min-priority <priority>
+    The minimum priority the given rule will have. If not set, the rule gets the next available priority.
     For Example: 100
   --product <name>
     The name of the product being deployed. For example: data-query
@@ -345,8 +345,6 @@ echo $COMMAND
 # Information commands do not have the same checks
 # that action commands haves
 #
-
-
 case $COMMAND in
   le|list-environments) listEnvironments; exit 0;;
   lc|list-certificates) listCertificates; exit 0;;
