@@ -9,6 +9,8 @@ test -n "$NEXUS_PASSWORD"
 test -n "$DU_ARTIFACT"
 test -n "$DU_VERSION"
 
+echo "Fetching $DU_ARTIFACT version $DU_VERSION"
+
 URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases/gov/va/api/health/${DU_ARTIFACT}/${DU_VERSION}/${DU_ARTIFACT}-${DU_VERSION}-project.tar.gz
 
 STATUS=$(curl -sk \

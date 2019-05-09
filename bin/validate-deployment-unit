@@ -8,6 +8,8 @@ test -n "$ENVIRONMENT"
 
 cd $DU_DIR
 
+echo "Validating deployment unit content"
+
 fileExists() {
   if [ -f $1 ]; then return; fi
   echo "Deployment unit is missing $1"

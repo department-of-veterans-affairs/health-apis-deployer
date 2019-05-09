@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x
 set -euo pipefail
 
 DU_DIR=$1
@@ -7,6 +6,7 @@ DU_DIR=$1
 test -n "$DU_DIR"
 test -n "$ENVIRONMENT"
 
+echo "Substituting values in deployment.yaml"
 
 YAML=$DU_DIR/deployment.yaml
 YAML_BACKUP=$DU_DIR/deployment.yaml.original
