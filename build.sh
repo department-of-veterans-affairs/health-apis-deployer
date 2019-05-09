@@ -49,11 +49,10 @@ EOF
 
 
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
-tar tf deployment-unit.tar.gz
+tar xvf deployment-unit.tar.gz
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 
 cluster-fox copy-kubectl-config
-
 cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
 
 
