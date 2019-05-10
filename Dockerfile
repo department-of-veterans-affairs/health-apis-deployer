@@ -3,6 +3,7 @@ FROM centos:latest
 RUN yum update -yqq \
     && yum install -yqq yum-utils \
     && yum install -yqq gettext openssh-clients git \
+    && yum install unzip \
     && yum clean all
 
 #
@@ -39,5 +40,3 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$KUBERNET
 
 
 RUN curl -fsSL https://get.docker.com | sh
-
-
