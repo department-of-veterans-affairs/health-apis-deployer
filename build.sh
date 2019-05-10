@@ -59,7 +59,7 @@ unzip -d $DU_DIR -P $CRYPTO_KEY "$DU_DIR/*.zip"
 validate-deployment-unit $DU_DIR
 perform-substitution $DU_DIR
 # TODO sanitity check deployment.yaml here
-validate-yaml $DU_DIR/deployment.yaml
+validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
 # TODO create namespace and ingress here
 cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
