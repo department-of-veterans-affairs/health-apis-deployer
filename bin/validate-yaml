@@ -22,12 +22,12 @@ exit 1
 [ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1
 
 INGRESS_TEST=$(grep "kind: Ingress" $1)
-[[ ! -z "$INGRESS_TEST" ]] && echo "==============================" \
+[[ ! -z "$INGRESS_TEST" ]] && echo "============================================================" \
   && echo "Ingress Validation Failed. Do NOT include ingress rules in deployment yamls!" \
   && exit 1
 
 NAMESPACE_TEST=$(grep "kind: Namespace" $1)
-[[ ! -z "$NAMESPACE_TEST" ]] echo "==============================" \
+[[ ! -z "$NAMESPACE_TEST" ]] echo "============================================================" \
   && echo "Namespace Test Validation Failed. Do NOT include Namespace creation in deployment yamls!" \
   && exit 1
 
@@ -37,14 +37,14 @@ echo "$NAMESPACE_STRUCT" | while read line ; do
   if [[ "$metadata" = true ]]; then
     if [[ "$line" == *"namespace"* ]]; then
       if [ $(echo "$line" | awk '{ print $2 }') != "$NAMESPACE" ]; then
-        echo "==============================" \
+        echo "============================================================" \
           && echo "Namespace Validation Failed. Namespace should be: $2 but $line was found." \
           && exit 1
       fi
       unset metadata
       continue
     else
-      echo "==============================" \
+      echo "============================================================" \
         && echo "Namespace Validation Failed. Missing 'namespace:' field following a 'metadata' field." \
         && exit 1
     fi
@@ -56,7 +56,7 @@ echo "$NAMESPACE_STRUCT" | while read line ; do
       metadata=true
       continue
     else
-      echo "==============================" \
+      echo "============================================================" \
       && echo "Metadata Validation Failed. Missing 'metadata' field following a 'kind' field." \
       && exit 1
     fi
