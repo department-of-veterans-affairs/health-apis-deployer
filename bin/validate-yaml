@@ -3,8 +3,23 @@
 FILE=$1
 NAMESPACE=$2
 
-[ -z $FILE ] && echo "No deployment.yaml specified" && exit 1
-[ -z $NAMESPACE ] && echo "No namespace specified" && exit 1
+usage() {
+cat<<EOF > /dev/stderr
+$0 <FILE> <NAMESPACE>
+
+ARGS:
+  <FILE>
+    Input .yaml file to validate.
+  <NAMESPACE>
+    The required namespace to validate.
+
+EOF
+echo -e "$1" > /dev/stderr
+exit 1
+}
+
+[ -z $FILE ] && echo "No deployment.yaml specified." && usage && exit 1
+[ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1
 
 
 NAMESPACE_STRUCT=$(grep -E '^.*(kind|metadata|  namespace):' $1)
