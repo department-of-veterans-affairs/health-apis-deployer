@@ -24,7 +24,6 @@ def saunter(scriptName) {
     string(
       credentialsId: 'CRYPTO_KEY',
       variable: 'CRYPTO_KEY'),
-    )
     file(
       credentialsId: 'KUBERNETES_QA_SSH_KEY',
       variable: 'KUBERNETES_QA_SSH_KEY')
