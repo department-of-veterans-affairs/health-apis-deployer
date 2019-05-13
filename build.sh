@@ -44,12 +44,25 @@ test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 
 test -n "$AVAILABILITY_ZONE"
 
+HASH=${GIT_COMMIT:0:7}
+if [ -z "$HASH" ]; then HASH=DEV; fi
+export BUILD_DATE="$(date)"
+export BUILD_HASH=$HASH
+export BUILD_ID=${BUILD_ID:-NONE}
+export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
+export BUILD_URL="${BUILD_URL:-NONE}"
+export K8S_DEPLOYMENT_ID="${BUILD_ID}-$PRODUCT-$(echo ${DU_VERSION}|tr . -)-${HASH}"
+echo "$K8S_DEPLOYMENT_ID" > $JENKINS_DIR/build-name
+
+
 cat <<EOF
 ============================================================
 Product ............. $PRODUCT
 Deployment Unit ..... $DU_ARTIFACT ($DU_VERSION)
 Environment ......... $ENVIRONMENT
 Availability Zone ... $AVAILABILITY_ZONE
+Deployment ID ....... $K8S_DEPLOYMENT_ID
+Build ............... $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
 ============================================================
 EOF
 
@@ -63,8 +76,8 @@ perform-substitution $DU_DIR
 # TODO sanitity check deployment.yaml here
 validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
-cluster-fox kubectl us-gov-west-1a -- apply -f "$WORKSPACE/products/$PRODUCT.yaml"
-cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
+apply-namespace-and-ingress
+cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $DU_DIR/deployment.yaml
 
 
 exit 0
@@ -74,28 +87,7 @@ exit 0
 # LEGACY CRAP BELOW DELETE ME LATER
 #
 
-configureUpgraderator() {
-  echo ------------------------------------------------------------
 
-  HASH=${GIT_COMMIT:0:7}
-  [ -z "$HASH" ] && HASH=DEV
-  VERSION="${BUILD_ID:-NONE}-$(echo ${PRODUCT_VERSION}|tr . -)-${HASH}"
-  IMAGE="vasdvp/$PRODUCT_NAME-upgraderator:$VERSION"
-  echo "Configuring $PRODUCT_NAME upgraderator $VERSION"
-
-  cat <<EOF > build.conf
-export PRODUCT_NAME="$PRODUCT_NAME"
-export PRODUCT_VERSION="$PRODUCT_VERSION"
-export UPGRADERATOR_IMAGE="$IMAGE"
-export VERSION="$VERSION"
-export BUILD_DATE="$(date)"
-export BUILD_HASH=$HASH
-export BUILD_ID=${BUILD_ID:-NONE}
-export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
-export BUILD_URL="${BUILD_URL:-NONE}"
-EOF
-  echo "$VERSION" > $JENKINS_DIR/build-name
-}
 
 
 configureUpgraderator
