@@ -87,4 +87,5 @@ load-balancer create-rule \
     --color "$COLOR" \
     --product "$PRODUCT" \
     --rule-path "$RULE_PATH" \
-    --min-priority "$MIN_PRIORITY"
+    --min-priority "$MIN_PRIORITY" \
+    --az-abreviation "$AZ_ABREVIATION"
