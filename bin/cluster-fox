@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-
-trap onExit EXIT
-onExit() {
-  echo "Cluster Fox!"
-}
-
 debug() {
   if [ "$DEBUG" == true ]; then echo "$@"; fi
 }
@@ -40,12 +34,7 @@ azKubectl() {
   shift
   local conf=$KUBE_DIR/$az-config
   if [ ! -f "$conf" ]; then echo "Missing kubectl configuration for $az. See copy-kubectl-config."; exit 1; fi
-  set +e
-  set -x
   kubectl --kubeconfig="$conf" $@
-  STATUS=$?
-  echo "STATUS $STATUS"
-  exit $STATUS
 }
 
 #==============================================================================
@@ -109,4 +98,3 @@ case $COMMAND in
   *) usage "Unknown command: $COMMAND"
 esac
 
-echo "WTF IS GOING ON"
