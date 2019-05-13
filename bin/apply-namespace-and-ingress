@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+onExit() {
+  if [ -f $NAMESPACE_YAML ]; then rm $NAMESPACE_YAML; fi
+}
+trap onExit EXIT
+
+DU_DIR=$1
+test -n "$DU_DIR"
+
+NAMESPACE_YAML=$(mktemp ns-XXXX.yaml)
+cat $WORKSPACE/products/$PRODUCT.yaml | envsubst > $NAMESPACE_YAML
+cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $NAMESPACE_YAML

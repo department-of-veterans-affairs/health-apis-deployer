@@ -52,7 +52,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
-    choice(name: 'PRODUCT', choices: ['data-query', 'delete-me'], description: "Install this product")
+    choice(name: 'PRODUCT', choices: ['exemplar', 'data-query', 'delete-me'], description: "Install this product")
     choice(name: 'ENVIRONMENT', choices: ['qa', 'delete-me'], description: "Install into this environment")
     choice(name: 'AVAILABILITY_ZONE', choices: ['us-gov-west-1a','us-gov-west-1b','us-gov-west-1b'], description: "Install into this availability zone")
   }
