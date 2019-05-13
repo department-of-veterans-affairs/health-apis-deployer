@@ -34,7 +34,9 @@ declare -x DU_VERSION
 declare -x DU_NAMESPACE
 test -n "$PRODUCT"
 test -f "$WORKSPACE/products/$PRODUCT.conf"
+test -f "$WORKSPACE/products/$PRODUCT.yaml"
 . $WORKSPACE/products/$PRODUCT.conf
+
 
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
@@ -61,7 +63,7 @@ perform-substitution $DU_DIR
 # TODO sanitity check deployment.yaml here
 validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
-# TODO create namespace and ingress here
+cluster-fox kubectl us-gov-west-1a -- apply -f "$WORKSPACE/products/$PRODUCT.yaml"
 cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
 
 
