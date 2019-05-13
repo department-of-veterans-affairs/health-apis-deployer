@@ -64,8 +64,6 @@ test -n "$MIN_PRIORITY"
 test -n "$AZ_ABREVIATION"
 test -n "$ENV"
 
-echo "TIME TO LOAD-BALANCER!\nCreating Target Group."
-
 load-balancer create-target-group \
     --debug \
     --env "$ENV" \
@@ -74,9 +72,6 @@ load-balancer create-target-group \
     --product "$PRODUCT" \
     --health-check-path="$HEALTH_CHECK_PATH" \
     --az-abreviation="$AZ_ABREVIATION"
-
-exit 0
-
 
 load-balancer enable-target-group \
     --env "$ENV" \
