@@ -63,7 +63,8 @@ validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
 cluster-fox kubectl us-gov-west-1a -- apply -f "$WORKSPACE/products/$PRODUCT.yaml"
 cluster-fox kubectl us-gov-west-1a -- apply -f $DU_DIR/deployment.yaml
-
+attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
+                             $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
 
 
 exit 0
