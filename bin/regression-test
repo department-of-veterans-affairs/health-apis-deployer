@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DU_DIR=$1
+test -n "$DU_DIR"
+
+docker run \
+  --rm \
+  --network host \
+  --env-file $DU_DIR/$ENVIRONMENT.testvars \
+  --env K8S_ENVIRONMENT=$ENVIRONMENT \
+  --env K8S_DEPLOYMENT_ID=$K8S_DEPLOYMENT_ID \
+  --env K8S_LOAD_BALANCER=$GREEN_LOAD_BALANCER
+  vasdvp/health-apis-data-query-test \
+  regression-test
+

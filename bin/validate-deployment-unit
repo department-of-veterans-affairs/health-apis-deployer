@@ -20,3 +20,4 @@ FAIL=false
 fileExists deployment.yaml
 fileExists deployment.conf
 fileExists $ENVIRONMENT.conf
+fileExists $ENVIRONMENT.testvars
