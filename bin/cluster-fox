@@ -38,6 +38,9 @@ azKubectl() {
   set +e
   set -x
   kubectl --kubeconfig="$conf" $@
+  STATUS=$?
+  echo "STATUS $STATUS"
+  exit $STATUS
 }
 
 #==============================================================================
