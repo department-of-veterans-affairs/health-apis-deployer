@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-FILE=$1
-NAMESPACE=$2
-
 usage() {
 cat<<EOF > /dev/stderr
 $0 <FILE> <NAMESPACE>
@@ -17,6 +14,9 @@ EOF
 echo -e "$1" > /dev/stderr
 exit 1
 }
+
+FILE=$1
+NAMESPACE=$2
 
 [ -z $FILE ] && echo "No deployment.yaml specified." && usage && exit 1
 [ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1

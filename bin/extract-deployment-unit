@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TARGET_FILE=$1
+DU_DIR=$2
+
+test -n "TARGET_FILE"
+test -n "DU_DIRECTORY"
+
+echo "Extracting deployment to $DU_DIR"
+
+tar xvf $1
+unzip -d "$2" -P $DU_CRYPTO_KEY "$DU_DIR/*.zip"
