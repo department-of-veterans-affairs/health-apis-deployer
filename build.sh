@@ -66,10 +66,6 @@ Build ............... $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
 ============================================================
 EOF
 
-
-echo $WORKSPACE
-pwd
-
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY
