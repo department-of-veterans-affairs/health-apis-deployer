@@ -67,8 +67,8 @@ Build ............... $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
 EOF
 
 
-fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
+fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY
 validate-deployment-unit $DU_DIR
 perform-substitution $DU_DIR
@@ -76,22 +76,10 @@ validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
 apply-namespace-and-ingress $DU_DIR
 cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $DU_DIR/deployment.yaml
+# TODO Test
+# TODO If fail and rollback enabled, rollaback
+# TODO capture logs from pods
+# TODO publish artifacts
 
 
-
-exit 0
-
-
-# ======================================================================
-# LEGACY CRAP BELOW DELETE ME LATER
-#
-
-
-
-
-configureUpgraderator
-buildUpgraderator
-
-echo ------------------------------------------------------------
-echo "Upgraderator built!"
 exit 0
