@@ -76,6 +76,8 @@ validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
 apply-namespace-and-ingress $DU_DIR
 cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $DU_DIR/deployment.yaml
+attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
+  $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
 regression-test
 
 # TODO Test

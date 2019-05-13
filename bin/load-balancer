@@ -7,9 +7,9 @@ cat<<EOF > /dev/stderr
 $0 <command> [options]
 
 COMMANDS
-  create-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --health-check-path <hc-path>
+  create-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --health-check-path <hc-path> --az-abreviation <a | b | c>
     Create an AWS target group to be used for the chosen product.
-  delete-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product>
+  delete-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --az-abreviation <a | b | c>
     Delete an AWS target group for a chosen product.
   enable-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --az-abreviation <a | b | c>
     Activate an existing AWS target group. Attach the target group for
@@ -84,7 +84,8 @@ onExit() {
 tgName() {
   [ -z "$PRODUCT" ] && usage "Product name not specified"
   [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
-  echo $CLUSTER_ID-$PRODUCT | tr -dc '[a-z][A-Z][0-9]-'
+  [- z "$AZ_ABREVIATION" ] && usage "AZ_ABREVIATION not specified"
+  echo $CLUSTER_ID-$PRODUCT-$AZ_ABREVIATION | tr -dc '[a-z][A-Z][0-9]-'
 }
 
 targetGroupArn() {
@@ -102,8 +103,9 @@ createTargetGroup() {
   tgName=$(tgName) || exit 1
   [ -z "$HEALTH_CHECK_PATH" ] && usage "Health check path not specified"
 
-  echo "Creating target group: $tgName"
-  aws elbv2 create-target-group \
+  if [ -z "$(targetGroupArn)" ]; then
+    echo "Creating target group: $tgName"
+    aws elbv2 create-target-group \
       --name $tgName \
       --protocol HTTPS \
       --port 30443 \
@@ -119,11 +121,13 @@ createTargetGroup() {
       --matcher "HttpCode=200" \
       | tee $WORK/target-group.json
 
-    local tgArn=$(cat $WORK/target-group.json \
-        | jq -r '.TargetGroups[].TargetGroupArn')
-
-    aws elbv2 modify-target-group-attributes --target-group-arn $tgArn \
+    local newTgArn=$(cat $WORK/target-group.json \
+            | jq -r '.TargetGroups[].TargetGroupArn')
+    aws elbv2 modify-target-group-attributes --target-group-arn $newTgArn \
       --attributes Key=deregistration_delay.timeout_seconds,Value=$TG_DRAIN_SECONDS
+  else
+    echo "Target Group $tgName already exists: $(targetGroupArn)"
+  fi
 }
 
 deleteTargetGroup() {
@@ -170,13 +174,31 @@ createRule() {
   echo "Listener: $listener"
 
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule creation" && exit 1
-  echo "Creating Path Rule: $RULE_PATH"
-  aws elbv2 create-rule \
-      --listener-arn $listener \
-      --actions Type=forward,TargetGroupArn=$targetGroupArn \
-      --conditions Field=path-pattern,Values="$RULE_PATH" \
-      --priority $(nextAvailablePriority $listener)
+  echo "Creating Rule Path: $RULE_PATH"
 
+  local ruleArn=$(ruleArn $listener $RULE_PATH)
+
+  #
+  # If this rule does not exist on the LB, create it
+  # Otherwise, we need to prevent downtime. Find any existing rules
+  # with a matching path, and remember them. Then create the new rule. Once created,
+  # delete old matches.
+  #
+  if [ -z "$ruleArn" ]; then
+    aws elbv2 create-rule \
+        --listener-arn $listener \
+        --actions Type=forward,TargetGroupArn=$targetGroupArn \
+        --conditions Field=path-pattern,Values="$RULE_PATH" \
+        --priority $(nextAvailablePriority $listener)
+  else
+    aws elbv2 create-rule \
+        --listener-arn $listener \
+        --actions Type=forward,TargetGroupArn=$targetGroupArn \
+        --conditions Field=path-pattern,Values="$RULE_PATH" \
+        --priority $(nextAvailablePriority $listener)
+
+    aws elbv2 delete-rule --rule-arn "$ruleArn"
+  fi
 }
 
 nextAvailablePriority() {
@@ -211,6 +233,12 @@ nextAvailablePriority() {
   echo $(($last + 1))
 }
 
+ruleArn() {
+  echo $(aws elbv2 describe-rules --listener-arn $1 \
+      | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[]' \
+      | paste -sd " \n" | grep -F "$2" | awk '{print $1}')
+}
+
 deleteRule() {
 
   #
@@ -237,12 +265,10 @@ deleteRule() {
   # Find the RULE-ARN for the corresponding RULE_PATH marked for deletion
   #
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule deletion." && exit 1
-  local RULE_ARN=$(aws elbv2 describe-rules --listener-arn $listener \
-      | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[]' \
-      | paste -sd " \n" | grep -F "$RULE_PATH" | awk '{print $1}')
+  local ruleArn=$(ruleArn $listener $RULE_PATH)
 
-  echo "Deleting: Rule-Arn: $RULE_ARN"
-  aws elbv2 delete-rule --rule-arn "$RULE_ARN"
+  echo "Deleting: Rule-Arn: $ruleArn"
+  aws elbv2 delete-rule --rule-arn "$ruleArn"
 }
 
 enableTargetGroup() {

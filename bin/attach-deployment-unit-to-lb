@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+#
+# Helper script for blue-green deployment strategy
+# This script will attach a product to a loadbalancer by...
+# 1. Creating a target group, for the product, if one doesn't exist
+# 2. Attaching the new/existing product target group to a singular
+#    AZ's auto-scaling group
+# 3. Creating a Load Balancer rule that routes traffic along a
+#    given product's path, respecting priority
+#
+
+#
+# K8s cluster ID chosen as cluster creation time
+#
+CLUSTER_ID=$1
+
+#
+# Color of the load-balancer
+# Blue - production/public traffic
+# Green -testing/internal use
+#
+COLOR=$2
+
+#
+# Path for performing target-group health-checks against the product line
+#
+HEALTH_CHECK_PATH=$3
+
+#
+# Path for traffic through the ALB to the product line
+#
+RULE_PATH=$4
+
+#
+# Minimum priority to be assumed in the load-balancer by the RULE_PATH
+# NOTE: Higher Priority is LESS important!
+#
+MIN_PRIORITY=$5
+
+#
+# The prefix we use for AZ's is the last character of the string...
+# Example: us-gov-west-1a
+#                       ^
+#
+AZ_ABREVIATION=${AVAILABILITY_ZONE: -1}
+
+#
+# We want the ENV fully capitalized
+#
+ENV=${ENVIRONMENT^^}
+
+#
+# Weak Input Validation
+#
+test -n "$CLUSTER_ID"
+test -n "$COLOR"
+test -n "$HEALTH_CHECK_PATH"
+test -n "$RULE_PATH"
+test -n "$MIN_PRIORITY"
+test -n "$AZ_ABREVIATION"
+test -n "$ENV"
+
+load-balancer createTargetGroup \
+    --env "$ENVIRONMENT" \
+    --cluster-id "$CLUSTER_ID" \
+    --color "$COLOR" \
+    --product "$PRODUCT" \
+    --health_check-path="$HEALTH_CHECK_PATH" \
+    --az-abreviation="$AZ_ABREVIATION"
+
+load-balancer enableTargetGroup \
+    --env "$ENV" \
+    --cluster-id "$CLUSTER_ID" \
+    --color "$COLOR" \
+    --product "$PRODUCT" \
+    --az-abreviation="$AZ_ABREVIATION"
+
+load-balancer createRule \
+    --env "$ENV" \
+    --cluster-id "$CLUSTER_ID" \
+    --color "$COLOR" \
+    --product "$PRODUCT" \
+    --rule-path "$RULE_PATH" \
+    --min-priority "$MIN_PRIORITY"
