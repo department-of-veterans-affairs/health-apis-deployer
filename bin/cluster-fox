@@ -34,7 +34,10 @@ azKubectl() {
   shift
   local conf=$KUBE_DIR/$az-config
   if [ ! -f "$conf" ]; then echo "Missing kubectl configuration for $az. See copy-kubectl-config."; exit 1; fi
-  kubectl --kubeconfig="$conf" --cache-dir $KUBE_DIR/cache $@
+  (
+    export HOME=$(dirname $KUBE_DIR)
+    kubectl --kubeconfig="$conf" $@
+  )
 }
 
 #==============================================================================
@@ -68,7 +71,7 @@ assertSshKey() { assertSet --ssh-key "${CLUSTER_SSH_KEY:-}"; }
 
 export AWS_DEFAULT_REGION=us-gov-west-1
 
-KUBE_DIR=$WORKSPACE/kube
+KUBE_DIR=$WORKSPACE/.kube
 DEBUG=false
 ARGS=$(getopt -n $(basename ${0}) \
     -l "debug,help,cluster-id:,ssh-key:" \
