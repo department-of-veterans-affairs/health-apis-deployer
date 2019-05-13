@@ -21,3 +21,5 @@ fileExists deployment.yaml
 fileExists deployment.conf
 fileExists $ENVIRONMENT.conf
 fileExists $ENVIRONMENT.testvars
+
+if [ $FAIL == true ]; then exit 1; fi
