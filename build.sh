@@ -68,16 +68,15 @@ EOF
 
 
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
-tar xvf deployment-unit.tar.gz
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
-unzip -d $DU_DIR -P $CRYPTO_KEY "$DU_DIR/*.zip"
+extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY
 validate-deployment-unit $DU_DIR
 perform-substitution $DU_DIR
-# TODO sanitity check deployment.yaml here
 validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
 apply-namespace-and-ingress
 cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $DU_DIR/deployment.yaml
+
 
 
 exit 0
