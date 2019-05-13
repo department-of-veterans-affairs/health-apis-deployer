@@ -65,7 +65,7 @@ test -n "$ENV"
 
 echo "TIME TO LOAD-BALANCER!\nCreating Target Group."
 
-load-balancer createTargetGroup \
+load-balancer create-target-group \
     --env "$ENVIRONMENT" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
@@ -76,14 +76,14 @@ load-balancer createTargetGroup \
 exit 0
 
 
-load-balancer enableTargetGroup \
+load-balancer enable-target-group \
     --env "$ENV" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
     --product "$PRODUCT" \
     --az-abreviation="$AZ_ABREVIATION"
 
-load-balancer createRule \
+load-balancer create-rule \
     --env "$ENV" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
