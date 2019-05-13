@@ -6,6 +6,9 @@ onExit() {
 }
 trap onExit EXIT
 
+DU_DIR=$1
+test -n "$DU_DIR"
+
 NAMESPACE_YAML=$(mktemp ns-XXXX.yaml)
 cat $DU_DIR/$PRODUCT.yaml | envsubst > $NAMESPACE_YAML
 cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $NAMESPACE_YAML
