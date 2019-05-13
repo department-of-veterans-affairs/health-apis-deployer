@@ -142,7 +142,7 @@ deleteTargetGroup() {
 
 albName() {
   [ -z "$COLOR" ] && usage "Color not specified"
-  echo $ALB_PREFIX-$COLOR
+  echo $COLOR-$ALB_SUFFIX
 }
 
 #
@@ -377,9 +377,7 @@ case $COMMAND in
 esac
 
 [ -z "$VPC_ENV" ] && usage "Environment not specified"
-ALB_PREFIX=kubernetes-${VPC_ENV,,}
-ALB_SECURITY_GROUP_NAME=$ALB_PREFIX-alb
-ALB_SECURITY_GROUP_ID= # set later
+ALB_SUFFIX=${VPC_ENV,,}-kubernetes
 vpcId
 [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
 
