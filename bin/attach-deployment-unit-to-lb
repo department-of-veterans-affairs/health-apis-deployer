@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+set -x
 
 #
 # Helper script for blue-green deployment strategy
@@ -66,6 +67,7 @@ test -n "$ENV"
 echo "TIME TO LOAD-BALANCER!\nCreating Target Group."
 
 load-balancer create-target-group \
+    --debug \
     --env "$ENVIRONMENT" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
