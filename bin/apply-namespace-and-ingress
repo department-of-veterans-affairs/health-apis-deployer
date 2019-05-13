@@ -11,4 +11,7 @@ test -n "$DU_DIR"
 
 NAMESPACE_YAML=$(mktemp ns-XXXX.yaml)
 cat $WORKSPACE/products/$PRODUCT.yaml | envsubst > $NAMESPACE_YAML
+echo "Deleting namespace $DU_NAMESPACE"
+cluster-fox kubectl $AVAILABILITY_ZONE -- delete namespace $DU_NAMESPACE
+echo "Creating namespace $DU_NAMESPACE"
 cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $NAMESPACE_YAML
