@@ -11,6 +11,6 @@ docker run \
   --env K8S_ENVIRONMENT=$ENVIRONMENT \
   --env K8S_DEPLOYMENT_ID=$K8S_DEPLOYMENT_ID \
   --env K8S_LOAD_BALANCER=$GREEN_LOAD_BALANCER
-  vasdvp/health-apis-data-query-test \
+  vasdvp/exemplar-test:latest \
   regression-test
 
