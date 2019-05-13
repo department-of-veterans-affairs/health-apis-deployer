@@ -27,7 +27,7 @@ INGRESS_TEST=$(grep "kind: Ingress" $1)
   && exit 1
 
 NAMESPACE_TEST=$(grep "kind: Namespace" $1)
-[[ ! -z "$NAMESPACE_TEST" ]] echo "============================================================" \
+[[ ! -z "$NAMESPACE_TEST" ]] && echo "============================================================" \
   && echo "Namespace Test Validation Failed. Do NOT include Namespace creation in deployment yamls!" \
   && exit 1
 
