@@ -6,7 +6,7 @@ DU_DIR=$2
 DU_DECRYPTION_KEY=$3
 
 test -n "$TARGET_FILE"
-test -n "$DU_DIRECTORY"
+test -n "$DU_DIR"
 test -n "$DU_DECRYPTION_KEY"
 
 echo "Extracting deployment to $DU_DIR"
