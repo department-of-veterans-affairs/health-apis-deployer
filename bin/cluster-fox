@@ -2,6 +2,11 @@
 set -euo pipefail
 
 
+trap onExit EXIT
+onExit() {
+  echo "Cluster Fox!"
+}
+
 debug() {
   if [ "$DEBUG" == true ]; then echo "$@"; fi
 }
@@ -103,3 +108,5 @@ case $COMMAND in
   copy-kubectl-config) copyKubectlConfig;;
   *) usage "Unknown command: $COMMAND"
 esac
+
+echo "WTF IS GOING ON"
