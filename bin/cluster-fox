@@ -34,7 +34,7 @@ azKubectl() {
   shift
   local conf=$KUBE_DIR/$az-config
   if [ ! -f "$conf" ]; then echo "Missing kubectl configuration for $az. See copy-kubectl-config."; exit 1; fi
-  kubectl --kubeconfig="$conf" $@
+  kubectl --kubeconfig="$conf" --cache-dir $KUBE_DIR/cache $@
 }
 
 #==============================================================================
