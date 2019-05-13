@@ -67,6 +67,9 @@ Build ............... $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
 EOF
 
 
+echo $WORKSPACE
+pwd
+
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY
@@ -75,8 +78,8 @@ perform-substitution $DU_DIR
 validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
 apply-namespace-and-ingress $DU_DIR
-cluster-fox kubectl -x $AVAILABILITY_ZONE -- get ns -n $DU_NAMESPACE
-cluster-fox kubectl -x $AVAILABILITY_ZONE -- apply -v 10 -f $DU_DIR/deployment.yaml
+cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
+cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 10 -f $DU_DIR/deployment.yaml
 attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
   $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
 regression-test
