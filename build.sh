@@ -46,7 +46,7 @@ test -n "$AVAILABILITY_ZONE"
 
 HASH=${GIT_COMMIT:0:7}
 if [ -z "$HASH" ]; then HASH=DEV; fi
-export BUILD_DATE="$(date)"
+export BUILD_DATE="$(date +%Y-%m-%d-%H%M)"
 export BUILD_HASH=$HASH
 export BUILD_ID=${BUILD_ID:-NONE}
 export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
