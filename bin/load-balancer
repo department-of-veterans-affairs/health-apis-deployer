@@ -84,7 +84,7 @@ onExit() {
 tgName() {
   [ -z "$PRODUCT" ] && usage "Product name not specified"
   [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
-  [- z "$AZ_ABREVIATION" ] && usage "AZ_ABREVIATION not specified"
+  [ -z "$AZ_ABREVIATION" ] && usage "AZ_ABREVIATION not specified"
   echo $CLUSTER_ID-$PRODUCT-$AZ_ABREVIATION | tr -dc '[a-z][A-Z][0-9]-'
 }
 
