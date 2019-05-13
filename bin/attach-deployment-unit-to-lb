@@ -63,7 +63,7 @@ test -n "$MIN_PRIORITY"
 test -n "$AZ_ABREVIATION"
 test -n "$ENV"
 
-loadbalancer createTargetGroup \
+load-balancer createTargetGroup \
     --env "$ENVIRONMENT" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
@@ -71,14 +71,14 @@ loadbalancer createTargetGroup \
     --health_check-path="$HEALTH_CHECK_PATH" \
     --az-abreviation="$AZ_ABREVIATION"
 
-loadbalancer enableTargetGroup \
+load-balancer enableTargetGroup \
     --env "$ENV" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
     --product "$PRODUCT" \
     --az-abreviation="$AZ_ABREVIATION"
 
-loadbalancer createRule \
+load-balancer createRule \
     --env "$ENV" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
