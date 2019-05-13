@@ -76,6 +76,8 @@ validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 cluster-fox copy-kubectl-config
 apply-namespace-and-ingress $DU_DIR
 cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $DU_DIR/deployment.yaml
+
+
 # TODO Test
 # TODO If fail and rollback enabled, rollaback
 # TODO capture logs from pods
