@@ -63,6 +63,9 @@ test -n "$MIN_PRIORITY"
 test -n "$AZ_ABREVIATION"
 test -n "$ENV"
 
+echo "TIME TO LOAD-BALANCER!"
+exit 0
+
 load-balancer createTargetGroup \
     --env "$ENVIRONMENT" \
     --cluster-id "$CLUSTER_ID" \
