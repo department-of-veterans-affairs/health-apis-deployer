@@ -68,7 +68,7 @@ echo "TIME TO LOAD-BALANCER!\nCreating Target Group."
 
 load-balancer create-target-group \
     --debug \
-    --env "$ENVIRONMENT" \
+    --env "$ENV" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
     --product "$PRODUCT" \
