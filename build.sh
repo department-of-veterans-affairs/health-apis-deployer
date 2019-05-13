@@ -27,6 +27,11 @@ JENKINS_DIR=$WORKSPACE/.jenkins
 mkdir "$JENKINS_DIR"
 
 #
+# Set up the AWS region
+#
+export AWS_DEFAULT_REGION=us-gov-west-1
+
+#
 # Load configuration. The following variables are expected
 #
 declare -x DU_ARTIFACT
