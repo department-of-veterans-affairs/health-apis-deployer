@@ -56,7 +56,7 @@ EOF
 
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
-extract-deployment-unit deployment-unit.tar.gz $DU_DIR
+extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_CRYPTO_KEY
 validate-deployment-unit $DU_DIR
 perform-substitution $DU_DIR
 validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE

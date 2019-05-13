@@ -3,9 +3,11 @@ set -euo pipefail
 
 TARGET_FILE=$1
 DU_DIR=$2
+DU_CRYPTO_KEY=$3
 
-test -n "TARGET_FILE"
-test -n "DU_DIRECTORY"
+test -n "$TARGET_FILE"
+test -n "$DU_DIRECTORY"
+test -n "$DU_CRYPTO_KEY"
 
 echo "Extracting deployment to $DU_DIR"
 
