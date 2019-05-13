@@ -10,7 +10,7 @@ docker run \
   --env-file $DU_DIR/$ENVIRONMENT.testvars \
   --env K8S_ENVIRONMENT=$ENVIRONMENT \
   --env K8S_DEPLOYMENT_ID=$K8S_DEPLOYMENT_ID \
-  --env K8S_LOAD_BALANCER=$GREEN_LOAD_BALANCER
+  --env K8S_LOAD_BALANCER=$GREEN_LOAD_BALANCER \
   vasdvp/exemplar-test:latest \
   regression-test
 
