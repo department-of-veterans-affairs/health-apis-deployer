@@ -95,7 +95,7 @@ fi
 # Determine what is previously installed
 #
 PRIOR_CONF=$K8S_DEPLOYMENT_ID-prior.conf
-record-currently-installed-version ${AVAILABILITY_ZONES%% *} $DU_NAMESPACE $PRIOR_CONF
+record-currently-installed-version ${AVAILABILITY_ZONES%% *} $PRIOR_CONF
 . $PRIOR_CONF
 
 cat <<EOF

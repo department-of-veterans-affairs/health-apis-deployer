@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -x
-set -euo pipefail
+set -eu
 
 AVAILABILITY_ZONE=$1
 CONF=$3
