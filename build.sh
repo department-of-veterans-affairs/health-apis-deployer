@@ -115,7 +115,6 @@ do
 
   # TODO CLEAR GREEN
 
-  
   cluster-fox copy-kubectl-config
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
