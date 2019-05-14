@@ -1,5 +1,13 @@
 # health-apis-deployer
 
+TODO
+- practice roll back
+- add uat
+- encrypt testvars
+- default cpu/mem limits 
+
+---
+
 
 ### Goals
 - Enable products an easy to use, automated deployment mechanism into Health APIs Kubernetes 

@@ -14,6 +14,10 @@ listMasters() {
     | sort
 }
 
+listAvailabilityZones() {
+  listMasters | awk '{printf $1 " "}'
+}
+
 copyKubectlConfigFromMaster() {
   assertSshKey
   local az=$1
@@ -46,6 +50,8 @@ cat <<EOF
 $0 <command> [options]
 
 Commands
+  list-availability-zones --cluster-id <id>
+    List master availability zones the cluster is running in.
   list-masters --cluster-id <id>
     List master IPs by availability zone
   copy-kubectl-config --cluster-id <id> --ssh-key <file>
@@ -95,6 +101,7 @@ shift
 case $COMMAND in
   kc|kubectl) azKubectl $@;;
   list-masters) listMasters;;
+  list-availability-zones) listAvailabilityZones;;
   copy-kubectl-config) copyKubectlConfig;;
   *) usage "Unknown command: $COMMAND"
 esac

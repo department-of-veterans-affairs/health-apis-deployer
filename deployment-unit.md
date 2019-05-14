@@ -41,7 +41,13 @@ Configuration files for specific environments.
 Environment variable files for specific environments used when running tests.
 
 `test.conf`  
-Test container configuration for regression and smoke tests.
+Test container configuration for regression and smoke tests. File contents must set `TEST_IMAGE` 
+to Docker image to run for tests, e.g.
+```
+export TEST_IMAGE=chillo/armadillo:1.2.3
+```
+
+
 
 > ##### Conf files
 > `.conf` files are bits of bash code that are evaluated during the deployment process. `.conf`

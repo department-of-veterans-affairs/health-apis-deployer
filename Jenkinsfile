@@ -54,7 +54,7 @@ pipeline {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
     choice(name: 'PRODUCT', choices: ['exemplar', 'data-query', 'delete-me'], description: "Install this product")
     choice(name: 'ENVIRONMENT', choices: ['qa', 'delete-me'], description: "Install into this environment")
-    choice(name: 'AVAILABILITY_ZONE', choices: ['us-gov-west-1b','us-gov-west-1a','us-gov-west-1c'], description: "Install into this availability zone")
+    choice(name: 'AVAILABILITY_ZONES', choices: ['us-gov-west-1b','all','us-gov-west-1a','us-gov-west-1c'], description: "Install into this availability zone")
   }
   agent none
   triggers {
@@ -120,9 +120,7 @@ pipeline {
   post {
     always {
       node('master') {
-        //
-        //archiveArtifacts artifacts: '**/*', onlyIfSuccessful: false, allowEmptyArchive: true
-        //
+        archiveArtifacts artifacts: '**/*-logs.tar.gz', onlyIfSuccessful: false, allowEmptyArchive: true
         script {
           def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"

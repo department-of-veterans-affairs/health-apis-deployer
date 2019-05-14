@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export NAMESPACE=$1
+export LOG_DIR=$2
+
+test -n "$NAMESPACE"
+test -d "$LOG_DIR"
+
+fetchLogs() {
+  local pod=$1
+  echo "Fetching logs for $pod"
+  kubectl logs -n $NAMESPACE $pod > $LOG_DIR/$pod.log
+}
+export -f fetchLogs
+
+kubectl get pods --no-headers -n $NAMESPACE \
+  | awk '{print $1}' \
+  | xargs -P 8 -I {} bash -c "fetchLogs {}"
+
