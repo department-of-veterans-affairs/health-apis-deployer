@@ -20,6 +20,7 @@ docker run \
   --env K8S_ENVIRONMENT=$ENVIRONMENT \
   --env K8S_DEPLOYMENT_ID=$K8S_DEPLOYMENT_ID \
   --env K8S_LOAD_BALANCER=$GREEN_LOAD_BALANCER \
+  --env EXIT_STATUS=1 \
   vasdvp/exemplar-test:latest \
   $TEST \
   | tee $LOG_DIR/$TEST-$AVAILABILITY_ZONE.log
