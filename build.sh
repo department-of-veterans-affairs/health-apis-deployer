@@ -65,7 +65,7 @@ echo "$K8S_DEPLOYMENT_ID" > $JENKINS_DIR/build-name
 #
 # Make a place to collect logs
 #
-export LOG_DIR=$BUILD_ID-logs
+export LOG_DIR=$K8S_DEPLOYMENT_ID-logs
 if [ -d $LOG_DIR ]; then rm -rf $LOG_DIR; fi
 mkdir $LOG_DIR
 
@@ -123,7 +123,6 @@ do
     $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
 
 
-  # TODO LOAD TEST CONF
 
   if ! execute-tests regression-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
   then
