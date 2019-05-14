@@ -112,9 +112,7 @@ do
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
-
   # TODO CLEAR GREEN
-
   cluster-fox copy-kubectl-config
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
@@ -137,7 +135,6 @@ do
   fi
 done
 
-set -x
 # TODO If fail and rollback enabled, rollaback
 if [ $TEST_FAILURE == true -a $ROLLBACK_ON_TEST_FAILURES == true ]
 then
