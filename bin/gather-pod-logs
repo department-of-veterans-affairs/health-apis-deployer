@@ -10,11 +10,11 @@ test -d "$LOG_DIR"
 fetchLogs() {
   local pod=$1
   echo "Fetching logs for $pod"
-  kubectl logs -n $NAMESPACE $pod > $LOG_DIR/$pod.log
+  cluster-fox kubectl $AVAILABILITY_ZONE -- logs -n $NAMESPACE $pod > $LOG_DIR/$AVAILABILITY_ZONE-$pod.log
 }
 export -f fetchLogs
 
-kubectl get pods --no-headers -n $NAMESPACE \
+cluster-fox kubectl $AVAILABILITY_ZONE -- get pods --no-headers -n $NAMESPACE \
   | awk '{print $1}' \
   | xargs -P 8 -I {} bash -c "fetchLogs {}"
 
