@@ -106,6 +106,7 @@ validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
 
 UPDATED_AVAILABILITY_ZONES=
 TEST_FAILURE=false
+declare -x AVAILABILITY_ZONE
 for AVAILABILITY_ZONE in $AVAILABILITY_ZONES
 do
   echo "============================================================"
