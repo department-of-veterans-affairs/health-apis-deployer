@@ -118,6 +118,8 @@ do
   cluster-fox copy-kubectl-config
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
+  echo "============================================================"
+  echo "Applying kubernetes configuration"
   cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
   attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
     $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY

@@ -58,6 +58,9 @@ test -n "$MIN_PRIORITY"
 test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
+echo "============================================================"
+echo "Attaching $RULE_PATH to $CLUSTER_ID $COLOR load balancer" 
+
 load-balancer create-target-group \
     --env "$VPC_NAME" \
     --cluster-id "$CLUSTER_ID" \

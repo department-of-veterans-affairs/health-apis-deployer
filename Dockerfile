@@ -3,7 +3,7 @@ FROM centos:latest
 RUN yum update -yqq \
     && yum install -yqq yum-utils \
     && yum install -yqq gettext openssh-clients git \
-    && yum install -yqq unzip \
+    && yum install -yqq zip unzip \
     && yum clean all
 
 #

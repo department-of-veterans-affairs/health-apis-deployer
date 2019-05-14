@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "============================================================"
+
 onExit() {
   if [ -f $NAMESPACE_YAML ]; then rm $NAMESPACE_YAML; fi
 }
