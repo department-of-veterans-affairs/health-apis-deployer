@@ -6,7 +6,8 @@ onExit() {
 }
 trap onExit EXIT
 
-DU_DIR=$1
+AVAILABILITY_ZONE=$1
+DU_DIR=$2
 test -n "$DU_DIR"
 
 NAMESPACE_YAML=$(mktemp ns-XXXX.yaml)
