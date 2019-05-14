@@ -125,7 +125,7 @@ do
 
   # TODO LOAD TEST CONF
 
-  if [ ! execute-tests regression-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR ]
+  if ! execute-tests regression-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
   then
     TEST_FAILURE=true
     echo "============================================================"
@@ -157,7 +157,7 @@ then
       $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
 
     # TODO LOAD TEST CONF
-    if [ ! execute-tests smoke-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR ]
+    if ! execute-tests smoke-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
     then
       echo "============================================================"
       echo "ERROR: SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"

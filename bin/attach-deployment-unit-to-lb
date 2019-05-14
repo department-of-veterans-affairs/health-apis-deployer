@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-set -x
 
 #
 # Helper script for blue-green deployment strategy
@@ -60,7 +59,6 @@ test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
 load-balancer create-target-group \
-    --debug \
     --env "$VPC_NAME" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
@@ -76,7 +74,6 @@ load-balancer enable-target-group \
     --az-abreviation="$AZ_ABREVIATION"
 
 load-balancer create-rule \
-    --debug \
     --env "$VPC_NAME" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
