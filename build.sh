@@ -137,7 +137,7 @@ done
 
 set -x
 # TODO If fail and rollback enabled, rollaback
-if [[ $TEST_FAILURE == true && $ROLLBACK_ON_TEST_FAILURES == true ]]
+if [ $TEST_FAILURE == true -a $ROLLBACK_ON_TEST_FAILURES == true ]
 then
   echo "Rolling back $UPDATED_AVAILABILITY_ZONES"
   # TODO download old
