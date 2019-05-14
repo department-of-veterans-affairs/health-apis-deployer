@@ -87,14 +87,12 @@ cat <<EOF
 ============================================================
 Product ............. $PRODUCT
 Deployment Unit ..... $DU_ARTIFACT ($DU_VERSION)
-Environment ......... $ENVIRONMENT
+Environment ......... $ENVIRONMENT ($VPC_NAME VPC)
 Availability Zones .. $AVAILABILITY_ZONES
 Deployment ID ....... $K8S_DEPLOYMENT_ID
 Build ............... $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
 ============================================================
 EOF
-
-exit
 
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 
