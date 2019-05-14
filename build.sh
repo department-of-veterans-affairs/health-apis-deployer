@@ -49,6 +49,7 @@ test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
 
+echo "Using cluster $CLUSTER_ID"
 
 
 #
@@ -94,14 +95,14 @@ fi
 # Determine what is previously installed
 #
 PRIOR_CONF=$K8S_DEPLOYMENT_ID-prior.conf
-record-currently-installed-version ${AVAILABILITY_ZONES%% *} $PRIOR_CONF
+record-currently-installed-version ${AVAILABILITY_ZONES%% *} $DU_NAMESPACE $PRIOR_CONF
 . $PRIOR_CONF
 
 cat <<EOF
 ============================================================
 Product ............... $PRODUCT
 Deployment Unit ....... $DU_ARTIFACT ($DU_VERSION)
-Environment ........... $ENVIRONMENT ($VPC_NAME VPC)
+Environment ........... $ENVIRONMENT ($VPC_NAME VPC) ($CLUSTER_ID)
 Availability Zones .... $AVAILABILITY_ZONES
 Deployment ID ......... $K8S_DEPLOYMENT_ID
 Build ................. $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
