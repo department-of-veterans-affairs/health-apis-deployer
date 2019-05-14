@@ -3,7 +3,7 @@ set -x
 set -eu
 
 AVAILABILITY_ZONE=$1
-CONF=$3
+CONF=$2
 
 test -n "$AVAILABILITY_ZONE"
 test -n "$CONF"
