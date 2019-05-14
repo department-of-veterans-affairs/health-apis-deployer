@@ -81,9 +81,11 @@ load-balancer enable-target-group \
     --az-abreviation="$AZ_ABREVIATION"
 
 load-balancer create-rule \
+    --debug \
     --env "$ENV" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
     --product "$PRODUCT" \
     --rule-path "$RULE_PATH" \
-    --min-priority "$MIN_PRIORITY"
+    --min-priority "$MIN_PRIORITY" \
+    --az-abreviation "$AZ_ABREVIATION"

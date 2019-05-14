@@ -17,7 +17,7 @@ COMMANDS
   disable-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --az-abreviation <a | b | c>
     Deactive the chosen AWS target group. Remove the target group for
     a given product from an AZ's Autoscaling group.
-  create-rule --env <ENV> --cluster-id <cid> --color <color> --product <product> --rule-path <r-path> --min-priority <priority-group>
+  create-rule --env <ENV> --cluster-id <cid> --color <color> --product <product> --rule-path <r-path> --min-priority <priority-group> --az-abreviation <a | b | c>
     Create a rule in the ALB.
   delete-rule --env <ENV> --cluster-id <cid> --color <color> --product <product> --rule-path <r-path>
     Delete a rule from the ALB.
@@ -142,7 +142,7 @@ deleteTargetGroup() {
 
 albName() {
   [ -z "$COLOR" ] && usage "Color not specified"
-  echo $ALB_PREFIX-$COLOR
+  echo $COLOR-$ALB_SUFFIX
 }
 
 #
@@ -377,9 +377,7 @@ case $COMMAND in
 esac
 
 [ -z "$VPC_ENV" ] && usage "Environment not specified"
-ALB_PREFIX=kubernetes-${VPC_ENV,,}
-ALB_SECURITY_GROUP_NAME=$ALB_PREFIX-alb
-ALB_SECURITY_GROUP_ID= # set later
+ALB_SUFFIX=${VPC_ENV,,}-kubernetes
 vpcId
 [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
 
