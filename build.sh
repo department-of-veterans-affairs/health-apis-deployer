@@ -49,8 +49,11 @@ test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
 
-test -n "$AVAILABILITY_ZONES"
 
+
+#
+# Create a build ID based on product, version, Jenkins job, etc.
+#
 HASH=${GIT_COMMIT:0:7}
 if [ -z "$HASH" ]; then HASH=DEV; fi
 export BUILD_DATE="$(TZ=America/New_York date +%Y-%m-%d-%H%M-%Z)"
@@ -76,28 +79,39 @@ archiveLogs() {
 }
 
 
+#
+# Determine which Availability Zones to deploy into
+#
 if [ "$AVAILABILITY_ZONES" == "all" ]
 then
   echo "Discovering availibility zones"
   AVAILABILITY_ZONES="$(cluster-fox list-availability-zones)"
+  test -n "$AVAILABILITY_ZONES"
 fi
 
 
+#
+# Determine what is previously installed
+#
+PRIOR_CONF=$K8S_DEPLOYMENT_ID-prior.conf
+record-currently-installed-version ${AVAILABILITY_ZONES%% *} $PRIOR_CONF
+. $PRIOR_CONF
+
 cat <<EOF
 ============================================================
-Product ............. $PRODUCT
-Deployment Unit ..... $DU_ARTIFACT ($DU_VERSION)
-Environment ......... $ENVIRONMENT ($VPC_NAME VPC)
-Availability Zones .. $AVAILABILITY_ZONES
-Deployment ID ....... $K8S_DEPLOYMENT_ID
-Build ............... $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
+Product ............... $PRODUCT
+Deployment Unit ....... $DU_ARTIFACT ($DU_VERSION)
+Environment ........... $ENVIRONMENT ($VPC_NAME VPC)
+Availability Zones .... $AVAILABILITY_ZONES
+Deployment ID ......... $K8S_DEPLOYMENT_ID
+Build ................. $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
+Currently Installed ... $PRIOR_DU_ARTIFACT ($PRIOR_DU_VERSION)
 ============================================================
 EOF
 
+
+
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
-
-
-
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
 extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY
 validate-deployment-unit $DU_DIR

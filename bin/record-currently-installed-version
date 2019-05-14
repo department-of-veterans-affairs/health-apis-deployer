@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+AVAILABILITY_ZONE=$1
+CONF=$2
+
+test -n "$AVAILABILITY_ZONE"
+test -n "$CONF"
+
+if [ -f $CONF ]; then exit 0; fi
+
+#
+# Check to see if the namespace exists and delete it if it does
+#
+EXISTING_NAMESPACE=$(cluster-fox kubectl $AVAILABILITY_ZONE -- get namespace --no-headers \
+  | awk "/^$DU_NAMESPACE / {print \$1}")
+if [ -z "$EXISTING_NAMESPACE" ]
+then
+
+cat <<EOF > $CONF
+PRIOR_DU_ARTIFACT=not-installed
+PRIOR_DU_VERSION=not-installed
+EOF
+
+else
+  cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml \
+    | jq -r '.metadata.labels| "PRIOR_DU_ARTIFACT=" + ."deployment-unit-artifact", "PRIOR_DU_VERSION=" + ."deployment-unit-version"' > $CONF
+fi
+
