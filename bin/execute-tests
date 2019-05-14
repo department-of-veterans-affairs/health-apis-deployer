@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DU_DIR=$1
+TEST=$1
+AVAILABILITY_ZONE=$2
+DU_DIR=$3
+LOG_DIR=$4
 test -n "$DU_DIR"
+test -d "$LOG_DIR"
+
+
+#TODO LOAD TEST CONF
+echo "LOAD TEST CONF"
+
 
 docker run \
   --rm \
@@ -12,5 +21,5 @@ docker run \
   --env K8S_DEPLOYMENT_ID=$K8S_DEPLOYMENT_ID \
   --env K8S_LOAD_BALANCER=$GREEN_LOAD_BALANCER \
   vasdvp/exemplar-test:latest \
-  regression-test
-
+  $TEST \
+  | tee $LOG_DIR/$TEST-$AVAILABILITY_ZONE.log
