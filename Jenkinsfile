@@ -120,7 +120,7 @@ pipeline {
   post {
     always {
       node('master') {
-        archiveArtifacts artifacts: '**/*-logs.tar.gz', onlyIfSuccessful: false, allowEmptyArchive: true
+        archiveArtifacts artifacts: '**/*-logs.zip', onlyIfSuccessful: false, allowEmptyArchive: true
         script {
           def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"

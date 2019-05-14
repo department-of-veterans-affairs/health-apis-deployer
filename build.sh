@@ -71,7 +71,7 @@ mkdir $LOG_DIR
 
 trap archiveLogs EXIT
 archiveLogs() {
-  tar czf $LOG_DIR.tar.gz $LOG_DIR
+  zip -r $LOG_DIR.zip $LOG_DIR
   rm -rf $LOG_DIR
 }
 
@@ -122,8 +122,6 @@ do
   attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
     $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
 
-
-
   if ! execute-tests regression-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
   then
     TEST_FAILURE=true
@@ -132,12 +130,12 @@ do
     gather-pod-logs $DU_NAMESPACE $LOG_DIR
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
   else
-    echo "YAY"
+    echo "SUCCESS! $AVAILABILITY_ZONE"
     # TODO ATTACH TO BLUE
   fi
 done
 
-
+set -x
 # TODO If fail and rollback enabled, rollaback
 if [[ $TEST_FAILURE == true && $ROLLBACK_ON_TEST_FAILURES == true ]]
 then
@@ -155,7 +153,6 @@ then
     attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
       $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
 
-    # TODO LOAD TEST CONF
     if ! execute-tests smoke-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
     then
       echo "============================================================"
