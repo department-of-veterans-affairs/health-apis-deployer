@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-exit
-
 #
 # Disable debugging unless explicitly set
 #
@@ -95,6 +93,8 @@ Deployment ID ....... $K8S_DEPLOYMENT_ID
 Build ............... $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
 ============================================================
 EOF
+
+exit
 
 DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 
