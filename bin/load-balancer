@@ -21,6 +21,8 @@ COMMANDS
     Create a rule in the ALB.
   delete-rule --env <ENV> --cluster-id <cid> --color <color> --product <product> --rule-path <r-path>
     Delete a rule from the ALB.
+  delete-all-rules --env <ENV> --cluster-id <cid> --color <color>
+    Delete all rules, except the default, from the ALB.
   list-certificates
     List the domains for the available certficates. This can be used
     with the --certificate option
@@ -271,6 +273,37 @@ deleteRule() {
   aws elbv2 delete-rule --rule-arn "$ruleArn"
 }
 
+deleteAllRules() {
+  #
+  # Make sure we have an ALB to attach to
+  #
+  local albName
+  albName=$(albName) || exit 1
+  local alb=$(aws elbv2 describe-load-balancers --names $albName \
+                | jq -r .LoadBalancers[].LoadBalancerArn)
+  [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
+
+  #
+  # Make sure the ALB has an HTTP listener
+  #
+  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
+                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
+
+  echo "Updating HTTPS listener $albName"
+  echo "Load balancer: $alb"
+  echo "Listener: $listener"
+
+  local rulesArns=$(aws elbv2 describe-rules --listener-arn $listener \
+   | jq -r '.Rules[] | .RuleArn , .Priority' \
+   | paste -sd " \n" | grep -v default | awk  '{print $1}')
+
+  for ruleArn in $rulesArns; do
+    echo "Deleting: Rule-Arn: $ruleArn"
+    aws elbv2 delete-rule --rule-arn "$ruleArn"
+  done
+}
+
 enableTargetGroup() {
   local tgName
   tgName=$(tgName) || exit 1
@@ -386,6 +419,7 @@ case $COMMAND in
   dtg|delete-target-group) deleteTargetGroup;;
   cr|create-rule) createRule;;
   dr|delete-rule) deleteRule;;
+  da|delete-all-rules) deleteAllRules;;
   tg-on|enable-target-group) enableTargetGroup;;
   tg-off|disable-target-group) disableTargetGroup;;
   *) usage "Unkown command";;
