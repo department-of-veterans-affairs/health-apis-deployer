@@ -138,6 +138,7 @@ do
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
+  dettach-deployment-unit-from-lb blue
   remove-all-green-routes
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   echo "---"
@@ -145,9 +146,7 @@ do
   echo "============================================================"
   echo "Applying kubernetes configuration"
   cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
-  attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
-    $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
-
+  attach-deployment-unit-to-lb green
   # TODO wait for LB to be ready
   sleep 30
 
@@ -161,7 +160,7 @@ do
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
   else
     echo "SUCCESS! $AVAILABILITY_ZONE"
-    # TODO ATTACH TO BLUE
+    attach-deployment-unit-to-lb blue
   fi
 done
 
@@ -185,6 +184,7 @@ then
   do
     echo "============================================================"
     echo "Rolling back $AVAILABILITY_ZONE"
+    dettach-deployment-unit-from-lb blue
     remove-all-green-routes
     apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
     echo "---"
@@ -192,8 +192,7 @@ then
     echo "============================================================"
     echo "Applying kubernetes configuration"
     cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
-    attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
-      $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
+    attach-deployment-unit-to-lb green
 
     # TODO wait for LB to be ready
     sleep 30
@@ -204,7 +203,7 @@ then
       echo "ERROR: SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
       echo "Smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     fi
-    # TODO ATTACH TO BLUE
+    attach-deployment-unit-to-lb blue
   done
 
   # Restore the DU_* vars
@@ -214,5 +213,7 @@ then
 fi
 
 if [ $LEAVE_GREEN_ROUTES == false ]; then remove-all-green-routes; fi
+echo "============================================================"
+echo "Goodbye."
 if [ $TEST_FAILURE == true ]; then exit 1; fi
 exit 0

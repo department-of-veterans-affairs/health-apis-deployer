@@ -13,32 +13,11 @@ set -euo pipefail
 #
 
 #
-# K8s cluster ID chosen as cluster creation time
-#
-CLUSTER_ID=$1
-
-#
 # Color of the load-balancer
 # Blue - production/public traffic
 # Green -testing/internal use
 #
-COLOR=$2
-
-#
-# Path for performing target-group health-checks against the product line
-#
-HEALTH_CHECK_PATH=$3
-
-#
-# Path for traffic through the ALB to the product line
-#
-RULE_PATH=$4
-
-#
-# Minimum priority to be assumed in the load-balancer by the RULE_PATH
-# NOTE: Higher Priority is LESS important!
-#
-MIN_PRIORITY=$5
+COLOR=$1
 
 #
 # The prefix we use for AZ's is the last character of the string...
@@ -52,21 +31,21 @@ AZ_ABREVIATION=${AVAILABILITY_ZONE: -1}
 #
 test -n "$CLUSTER_ID"
 test -n "$COLOR"
-test -n "$HEALTH_CHECK_PATH"
-test -n "$RULE_PATH"
-test -n "$MIN_PRIORITY"
+test -n "$DU_HEALTH_CHECK_PATH"
+test -n "$DU_LOAD_BALANCER_RULE_PATH"
+test -n "$DU_MIN_PRIORITY"
 test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
 echo "============================================================"
-echo "Attaching $RULE_PATH to $CLUSTER_ID $COLOR load balancer" 
+echo "Attaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer" 
 
 load-balancer create-target-group \
     --env "$VPC_NAME" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
     --product "$PRODUCT" \
-    --health-check-path="$HEALTH_CHECK_PATH" \
+    --health-check-path="$DU_HEALTH_CHECK_PATH" \
     --az-abreviation="$AZ_ABREVIATION"
 
 load-balancer enable-target-group \
@@ -81,6 +60,6 @@ load-balancer create-rule \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
     --product "$PRODUCT" \
-    --rule-path "$RULE_PATH" \
-    --min-priority "$MIN_PRIORITY" \
+    --rule-path "$DU_LOAD_BALANCER_RULE_PATH" \
+    --min-priority "$DU_MIN_PRIORITY" \
     --az-abreviation "$AZ_ABREVIATION"

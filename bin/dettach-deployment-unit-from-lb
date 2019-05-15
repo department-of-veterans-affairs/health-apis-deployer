@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+#
+# Helper script for blue-green deployment strategy
+# This script will remove a product from a loadbalancer by...
+#
+
+#
+# Color of the load-balancer
+# Blue - production/public traffic
+# Green -testing/internal use
+#
+COLOR=$1
+
+#
+# The prefix we use for AZ's is the last character of the string...
+# Example: us-gov-west-1a
+#                       ^
+#
+AZ_ABREVIATION=${AVAILABILITY_ZONE: -1}
+
+#
+# Weak Input Validation
+#
+test -n "$CLUSTER_ID"
+test -n "$COLOR"
+test -n "$DU_HEALTH_CHECK_PATH"
+test -n "$DU_LOAD_BALANCER_RULE_PATH"
+test -n "$DU_MIN_PRIORITY"
+test -n "$AZ_ABREVIATION"
+test -n "$VPC_NAME"
+
+echo "============================================================"
+echo "Dettaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer" 
+
+load-balancer disable-target-group \
+    --env "$VPC_NAME" \
+    --cluster-id "$CLUSTER_ID" \
+    --color "$COLOR" \
+    --product "$PRODUCT" \
+    --az-abreviation="$AZ_ABREVIATION"

@@ -38,7 +38,9 @@ Configuration variables that will be applied in all environments, such as applic
 Configuration files for specific environments.
 
 `qa.testvars`, `staging.testvars`, `production.testvars`, `staging-lab.testvars`, `lab.testvars`  
-Environment variable files for specific environments used when running tests.
+Environment variable files for specific environments used when running tests.  
+**WARNING**: Docker env files are literal and do not use shell evaluation. Quoutes, dollar signs, 
+new lines, etc. will be passed literally to your application.
 
 `test.conf`  
 Test container configuration for regression and smoke tests. File contents must set `TEST_IMAGE` 
