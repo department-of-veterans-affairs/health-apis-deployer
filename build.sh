@@ -147,8 +147,7 @@ do
   echo "Applying kubernetes configuration"
   cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
   attach-deployment-unit-to-lb green
-  # TODO wait for LB to be ready
-  sleep 30
+  wait-for-lb green
 
   if ! execute-tests regression-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
   then
@@ -194,9 +193,7 @@ then
     echo "Applying kubernetes configuration"
     cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
     attach-deployment-unit-to-lb green
-
-    # TODO wait for LB to be ready
-    sleep 30
+    wait-for-lb green
 
     if ! execute-tests smoke-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
     then
