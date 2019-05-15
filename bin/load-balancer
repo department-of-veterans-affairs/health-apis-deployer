@@ -348,6 +348,9 @@ ruleHealth() {
 
   [ -z "$RULE_PATH" ] && echo "Rule-path not specified." && exit 1
 
+  echo "ALB $alb"
+  echo "Path $RULE_PATH"
+
   #
   # Find the Target Group associated to a rule-path
   #
