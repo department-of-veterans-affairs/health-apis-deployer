@@ -36,21 +36,32 @@ export AWS_DEFAULT_REGION=us-gov-west-1
 #
 # Load configuration. The following variables are expected
 #
-declare -x DU_ARTIFACT
-declare -x DU_VERSION
-declare -x DU_NAMESPACE
 test -n "$PRODUCT"
 test -f "$WORKSPACE/products/$PRODUCT.conf"
 test -f "$WORKSPACE/products/$PRODUCT.yaml"
+declare -x DU_ARTIFACT
+declare -x DU_VERSION
+declare -x DU_NAMESPACE
+declare -x DU_DECRYPTION_KEY
+declare -x DU_HEALTH_CHECK_PATH
+declare -x DU_LOAD_BALANCER_RULE_PATH
+declare -x DU_MIN_PRIORITY
 . $WORKSPACE/products/$PRODUCT.conf
+test -n "$DU_ARTIFACT"
+test -n "$DU_VERSION"
+test -n "$DU_NAMESPACE"
+test -n "$DU_DECRYPTION_KEY"
+test -n "$DU_HEALTH_CHECK_PATH"
+test -n "$DU_LOAD_BALANCER_RULE_PATH"
+test -n "$DU_MIN_PRIORITY"
 
-
+#
+# Load the environment configuration
+#
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
-
 echo "Using cluster $CLUSTER_ID"
-
 
 #
 # Create a build ID based on product, version, Jenkins job, etc.
