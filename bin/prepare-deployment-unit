@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+test -n "$DU_DIR"
+
+fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
+extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY
+validate-deployment-unit $DU_DIR
+perform-substitution $DU_DIR
+validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
