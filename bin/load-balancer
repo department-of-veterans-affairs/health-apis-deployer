@@ -23,9 +23,11 @@ COMMANDS
     Delete a rule from the ALB.
   delete-all-rules --env <ENV> --cluster-id <cid> --color <color>
     Delete all rules, except the default, from the ALB.
+  rule-health --env <ENV> --cluster-id <cid> --color <color> --rule-path <path>
+    Test the health of a rule's target group's targets.
   list-certificates
     List the domains for the available certficates. This can be used
-    with the --certificate option
+    with the --certificate option.
   list-environments
     List environments available based on the Environment tag of VPCs.
 OPTIONS
@@ -326,6 +328,48 @@ disableTargetGroup() {
       --target-group-arns $targetGroupArn
 }
 
+ruleHealth() {
+  #
+  # Make sure we have an ALB to attach to
+  #
+  local albName
+  albName=$(albName) || exit 1
+  local alb=$(aws elbv2 describe-load-balancers --names $albName \
+                | jq -r .LoadBalancers[].LoadBalancerArn)
+  [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
+
+  #
+  # Make sure the ALB has an HTTP listener
+  #
+  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
+                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
+
+  echo "Updating HTTPS listener $albName"
+  echo "Load balancer: $alb"
+  echo "Listener: $listener"
+
+  [ -z "$RULE_PATH" ] && echo "Rule-path not specified." && exit 1
+
+  #
+  # Find the Target Group associated to a rule-path
+  #
+  local tgArn=$(aws elbv2 describe-rules --listener-arn $listener \
+      | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[] , .Actions[].TargetGroupArn' \
+      | paste -sd "  \n" | grep -F "$RULE_PATH" | awk '{print $3}' | head -c -1)
+
+  local healths=$(aws elbv2 describe-target-health \
+      --target-group-arn $tgArn \
+      --query 'TargetHealthDescriptions[*]' \
+      | jq -r '.[] | .TargetHealth.State')
+  for health in $healths; do
+    if [ $health != "healthy" ]; then
+      echo "Target not healthy." && exit 1
+    fi
+  done
+  echo "All targets are Healthy." && exit 0
+}
+
 #
 # Utility Commands
 #
@@ -421,5 +465,6 @@ case $COMMAND in
   da|delete-all-rules) deleteAllRules;;
   tg-on|enable-target-group) enableTargetGroup;;
   tg-off|disable-target-group) disableTargetGroup;;
+  rule-health) ruleHealth;;
   *) usage "Unkown command";;
 esac
