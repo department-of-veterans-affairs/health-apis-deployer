@@ -7,9 +7,9 @@ cat<<EOF > /dev/stderr
 $0 <command> [options]
 
 COMMANDS
-  create-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --health-check-path <hc-path> --az-abreviation <a | b | c>
-    Create an AWS target group to be used for the chosen product.
-  delete-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --az-abreviation <a | b | c>
+  create-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --health-check-path <hc-path>
+    Create an AWS target group to be used for the chosen product-env-color.
+  delete-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product>
     Delete an AWS target group for a chosen product.
   enable-target-group --env <ENV> --cluster-id <cid> --color <color> --product <product> --az-abreviation <a | b | c>
     Activate an existing AWS target group. Attach the target group for
@@ -88,8 +88,8 @@ onExit() {
 tgName() {
   [ -z "$PRODUCT" ] && usage "Product name not specified"
   [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
-  [ -z "$AZ_ABREVIATION" ] && usage "AZ_ABREVIATION not specified"
-  echo $CLUSTER_ID-$PRODUCT-$AZ_ABREVIATION | tr -dc '[a-z][A-Z][0-9]-'
+  [ -z "$COLOR" ] && usage "Color not specified"
+  echo $CLUSTER_ID-$PRODUCT-$COLOR | tr -dc '[a-z][A-Z][0-9]-'
 }
 
 targetGroupArn() {
