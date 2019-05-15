@@ -17,7 +17,7 @@ timeout=$(($(date +%s) + 20))
 while [ $(date +%s) -lt $timeout ]
 do
   sleep 1
-  load-balancer rule-health -x --env $VPC_NAME --cluster-id $CLUSTER_ID --color $COLOR --rule-path $DU_LOAD_BALANCER_RULE_PATH
+  load-balancer rule-health --env $VPC_NAME --cluster-id $CLUSTER_ID --color $COLOR --rule-path $DU_LOAD_BALANCER_RULE_PATH
   [ $? != 0 ] && continue
   exit 0
 done
