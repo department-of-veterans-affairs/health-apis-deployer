@@ -33,7 +33,7 @@ test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
 echo "============================================================"
-echo "Dettaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer" 
+echo "Dettaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer"
 
 load-balancer disable-target-group \
     --env "$VPC_NAME" \
@@ -41,3 +41,6 @@ load-balancer disable-target-group \
     --color "$COLOR" \
     --product "$PRODUCT" \
     --az-abreviation="$AZ_ABREVIATION"
+
+if [ $? != 0 ]; then echo "Detach did not succeed, proceeding anyway"; fi
+exit 0
