@@ -17,7 +17,8 @@ echo "Looking for currently installed version of $DU_NAMESPACE"
 cluster-fox kubectl $AVAILABILITY_ZONE -- get namespace --no-headers
 
 #
-# Check to see if the namespace exists and delete it if it does
+# Check to see if the namespace exists and record it's deployment unit
+# metadata if it does.
 #
 EXISTING_NAMESPACE=$(cluster-fox kubectl $AVAILABILITY_ZONE -- get namespace --no-headers \
   | awk "/^$DU_NAMESPACE / {print \$1}")
