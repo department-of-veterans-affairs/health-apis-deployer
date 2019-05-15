@@ -346,10 +346,6 @@ ruleHealth() {
                      | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
-  echo "Updating HTTPS listener $albName"
-  echo "Load balancer: $alb"
-  echo "Listener: $listener"
-
   [ -z "$RULE_PATH" ] && echo "Rule-path not specified." && exit 1
 
   #
@@ -365,7 +361,7 @@ ruleHealth() {
       | jq -r '.[] | .TargetHealth.State')
   for health in $healths; do
     if [ $health != "healthy" ]; then
-      echo "Target not healthy." && exit 1
+      echo "Targets not healthy." && exit 1
     fi
   done
   echo "All targets are Healthy." && exit 0
