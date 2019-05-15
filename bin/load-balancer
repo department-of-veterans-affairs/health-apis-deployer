@@ -364,7 +364,7 @@ ruleHealth() {
       | jq -r '.[] | .TargetHealth.State')
 
   echo $healths
-  [ -z "$healths" ] && echo "Can't find target group state" && exit 1 
+  [ -z "$healths" ] && echo "Can't find target group state" && exit 1
 
   for health in $healths; do
     if [ $health != "healthy" ]; then
@@ -404,8 +404,8 @@ vpcId() {
   echo "VPC $VPC_ID ($VPC_ENV)"
 }
 CLUSTER_ID=
-HEALTH_CHECK_INTERVAL=15
-HEALTH_CHECK_TIMEOUT=14
+HEALTH_CHECK_INTERVAL=5
+HEALTH_CHECK_TIMEOUT=2
 HEALTH_CHECK_HEALTHY_THRESHOLD=2
 HEALTH_CHECK_UNHEALTHY_THRESHOLD=2
 MIN_PRIORITY=1
