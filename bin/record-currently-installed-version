@@ -13,9 +13,6 @@ if [ -f $CONF ]; then exit 0; fi
 echo "============================================================"
 echo "Looking for currently installed version of $DU_NAMESPACE"
 
-
-cluster-fox kubectl $AVAILABILITY_ZONE -- get namespace --no-headers
-
 #
 # Check to see if the namespace exists and record it's deployment unit
 # metadata if it does.
@@ -32,7 +29,7 @@ EOF
 
 else
   echo "Determining version of $DU_NAMESPACE is currently installed"
-  cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml \
+  cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o json \
     | jq -r '.metadata.labels| "PRIOR_DU_ARTIFACT=" + ."deployment-unit-artifact", "PRIOR_DU_VERSION=" + ."deployment-unit-version"' > $CONF
 fi
 
