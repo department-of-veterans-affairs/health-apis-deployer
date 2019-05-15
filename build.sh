@@ -25,6 +25,8 @@ export PATH=$WORKSPACE/bin:$PATH
 # Set up a mechanism to communicate job descriptions, etc. so that Jenkins provides more meaningful pages
 #
 JENKINS_DIR=$WORKSPACE/.jenkins
+JENKINS_DESCRIPTION=$JENKINS_DIR/description
+JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
 
@@ -74,7 +76,7 @@ export BUILD_ID=${BUILD_ID:-NONE}
 export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
 export BUILD_URL="${BUILD_URL:-NONE}"
 export K8S_DEPLOYMENT_ID="${BUILD_ID}-$PRODUCT-$(echo ${DU_VERSION}|tr . -)-${HASH}"
-echo "$K8S_DEPLOYMENT_ID" > $JENKINS_DIR/build-name
+echo "$K8S_DEPLOYMENT_ID" > $JENKINS_BUILD_NAME
 
 
 #
@@ -154,6 +156,7 @@ do
     TEST_FAILURE=true
     echo "============================================================"
     echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
+    echo "Regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     gather-pod-logs $DU_NAMESPACE $LOG_DIR
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
   else
@@ -162,7 +165,7 @@ do
   fi
 done
 
-# TODO If fail and rollback enabled, rollaback
+
 if [ $TEST_FAILURE == true \
      -a $ROLLBACK_ON_TEST_FAILURES == true \
      -a $PRIOR_DU_ARTIFACT != "not-installed" ]
@@ -199,7 +202,7 @@ then
     then
       echo "============================================================"
       echo "ERROR: SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
-      # TODO TRACK SMOKE TEST FAILURES FOR REPORT
+      echo "Smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     fi
     # TODO ATTACH TO BLUE
   done
@@ -210,10 +213,6 @@ then
   DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fi
 
-remove-all-green-routes
-
-# TODO FAIL IF TEST_FAILURE exit 1
-
-
-
+if [ $LEAVE_GREEN_ROUTES == false ]; then remove-all-green-routes; fi
+if [ $TEST_FAILURE == true ]; then exit 1; fi
 exit 0

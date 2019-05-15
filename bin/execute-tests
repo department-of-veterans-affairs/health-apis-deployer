@@ -31,3 +31,9 @@ docker run \
   $TEST_IMAGE \
   $TEST \
   | tee $LOG_DIR/$TEST-$AVAILABILITY_ZONE.log
+
+if [ $TEST == regression-test -a  $SIMULATE_REGRESSION_TEST_FAILURE == true ]
+then
+  echo "*** SIMULATING REGRESSION TEST FAILURE ***"
+  exit 1
+fi
