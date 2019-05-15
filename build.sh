@@ -127,7 +127,7 @@ do
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
-  load-balancer delete-all-rules --cluster-id $CLUSTER_ID green --env $VPC_NAME
+  load-balancer -x delete-all-rules --cluster-id $CLUSTER_ID green --env $VPC_NAME
   cluster-fox copy-kubectl-config
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
