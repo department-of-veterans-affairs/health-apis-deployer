@@ -113,12 +113,9 @@ EOF
 
 
 
-DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
-fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
-extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY
-validate-deployment-unit $DU_DIR
-perform-substitution $DU_DIR
-validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
+export DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
+prepare-deployment-unit
+
 
 UPDATED_AVAILABILITY_ZONES=
 TEST_FAILURE=false
@@ -152,11 +149,21 @@ do
 done
 
 # TODO If fail and rollback enabled, rollaback
-if [ $TEST_FAILURE == true -a $ROLLBACK_ON_TEST_FAILURES == true ]
+if [ $TEST_FAILURE == true \
+     -a $ROLLBACK_ON_TEST_FAILURES == true \
+     -a $PRIOR_DU_ARTIFACT != "not-installed" ]
 then
   echo "Affected availability zones: $UPDATED_AVAILABILITY_ZONES"
-  # TODO download old
-  # TODO Load conf files
+  #
+  # Override the DU_ vars to make using the utilities much easier.
+  # We'll restore them once we've rolled back.
+  #
+  FAILED_DU_ARTIFACT=$DU_ARTIFACT
+  FAILED_DU_VERSION=$DU_VERSION
+  DU_ARTIFACT=$PRIOR_DU_ARTIFACT
+  DU_VERSION=$PRIOR_DU_VERSION
+  DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
+  prepare-deployment-unit
   for AVAILABILITY_ZONE in $UPDATED_AVAILABILITY_ZONES
   do
     echo "============================================================"
@@ -170,7 +177,6 @@ then
     cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
     attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
       $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
-
     if ! execute-tests smoke-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
     then
       echo "============================================================"
@@ -179,9 +185,15 @@ then
     fi
     # TODO ATTACH TO BLUE
   done
+
+  # Restore the DU_* vars
+  DU_ARTIFACT=$FAILED_DU_ARTIFACT
+  DU_VERSION=$FAILED_DU_VERSION
+  DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fi
 
-# TODO CLEAR GREEN
+remove-all-green-routes
+
 # TODO FAIL IF TEST_FAILURE exit 1
 
 
