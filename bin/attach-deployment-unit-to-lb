@@ -38,7 +38,7 @@ test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
 echo "============================================================"
-echo "Attaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer" 
+echo "Attaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer"
 
 load-balancer create-target-group \
     --env "$VPC_NAME" \
@@ -46,7 +46,6 @@ load-balancer create-target-group \
     --color "$COLOR" \
     --product "$PRODUCT" \
     --health-check-path="$DU_HEALTH_CHECK_PATH" \
-    --az-abreviation="$AZ_ABREVIATION"
 
 load-balancer enable-target-group \
     --env "$VPC_NAME" \
