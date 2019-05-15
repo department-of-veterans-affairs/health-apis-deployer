@@ -397,7 +397,6 @@ done
 # Parse Command
 #
 COMMAND=$1
-echo $COMMAND
 [ -z "$COMMAND" ] && usage "No command specified"
 
 #
