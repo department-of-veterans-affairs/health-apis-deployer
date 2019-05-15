@@ -146,6 +146,9 @@ do
   attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
     $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
 
+  # TODO wait for LB to be ready
+  sleep 30
+
   if ! execute-tests regression-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
   then
     TEST_FAILURE=true
@@ -188,6 +191,10 @@ then
     cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
     attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
       $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
+
+    # TODO wait for LB to be ready
+    sleep 30
+
     if ! execute-tests smoke-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
     then
       echo "============================================================"
