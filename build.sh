@@ -162,9 +162,7 @@ do
   echo "SUCCESS! $AVAILABILITY_ZONE"
   detach-deployment-unit-from-lb green
   attach-deployment-unit-to-lb blue
-
-  # TODO wait for LB to be ready
-  sleep 30
+  wait-for-lb blue
 
   if ! execute-tests smoke-test $BLUE_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
   then
