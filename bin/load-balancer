@@ -362,6 +362,10 @@ ruleHealth() {
       --target-group-arn $tgArn \
       --query 'TargetHealthDescriptions[*]' \
       | jq -r '.[] | .TargetHealth.State')
+
+  echo $healths
+  [ -z "$healths" ] && echo "Can't find target group state" && exit 1 
+
   for health in $healths; do
     if [ $health != "healthy" ]; then
       echo "Targets not healthy." && exit 1
