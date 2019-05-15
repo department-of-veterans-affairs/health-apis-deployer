@@ -160,6 +160,7 @@ do
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
   else
     echo "SUCCESS! $AVAILABILITY_ZONE"
+    dettach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
   fi
 done
@@ -203,6 +204,7 @@ then
       echo "ERROR: SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
       echo "Smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     fi
+    dettach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
   done
 
