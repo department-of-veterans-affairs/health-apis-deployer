@@ -323,6 +323,7 @@ disableTargetGroup() {
   local targetGroupArn=$(targetGroupArn)
 
   [ -z "$AZ_ABREVIATION" ] && echo "Target Availability Zone Abreviation not set."
+  echo "Detaching $targetGroupArn"
   aws autoscaling detach-load-balancer-target-groups \
       --auto-scaling-group-name "kubernetes-$CLUSTER_ID$AZ_ABREVIATION-autoscaling" \
       --target-group-arns $targetGroupArn

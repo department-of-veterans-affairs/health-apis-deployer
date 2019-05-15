@@ -138,7 +138,7 @@ do
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
-  dettach-deployment-unit-from-lb blue
+  detach-deployment-unit-from-lb blue
   remove-all-green-routes
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   echo "---"
@@ -149,7 +149,7 @@ do
   attach-deployment-unit-to-lb green
   wait-for-lb green
 
-  if ! execute-tests regression-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
+  if ! execute-tests regression-test $GREEN_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
   then
     TEST_FAILURE=true
     echo "============================================================"
@@ -157,10 +157,23 @@ do
     echo "Regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     gather-pod-logs $DU_NAMESPACE $LOG_DIR
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
-  else
-    echo "SUCCESS! $AVAILABILITY_ZONE"
-    dettach-deployment-unit-from-lb green
-    attach-deployment-unit-to-lb blue
+  fi
+
+  echo "SUCCESS! $AVAILABILITY_ZONE"
+  detach-deployment-unit-from-lb green
+  attach-deployment-unit-to-lb blue
+
+  # TODO wait for LB to be ready
+  sleep 30
+
+  if ! execute-tests smoke-test $BLUE_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
+  then
+    echo "============================================================"
+    echo "ERROR: BLUE SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
+    echo "Blue smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
+    TEST_FAILURE=true
+    gather-pod-logs $DU_NAMESPACE $LOG_DIR
+    if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
   fi
 done
 
@@ -184,7 +197,7 @@ then
   do
     echo "============================================================"
     echo "Rolling back $AVAILABILITY_ZONE"
-    dettach-deployment-unit-from-lb blue
+    detach-deployment-unit-from-lb blue
     remove-all-green-routes
     apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
     echo "---"
@@ -195,13 +208,13 @@ then
     attach-deployment-unit-to-lb green
     wait-for-lb green
 
-    if ! execute-tests smoke-test $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
+    if ! execute-tests smoke-test $GREEN_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
     then
       echo "============================================================"
-      echo "ERROR: SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
-      echo "Smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
+      echo "ERROR: GREEN SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE ON ROLLBACK"
+      echo "Green smoke test failure in $AVAILABILITY_ZONE on rollback" >> $JENKINS_DESCRIPTION
     fi
-    dettach-deployment-unit-from-lb green
+    detach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
   done
 
