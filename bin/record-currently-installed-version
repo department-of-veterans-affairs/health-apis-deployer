@@ -13,6 +13,9 @@ if [ -f $CONF ]; then exit 0; fi
 echo "============================================================"
 echo "Looking for currently installed version of $DU_NAMESPACE"
 
+cluster-fox kubectl $AVAILABILITY_ZONE -- get namespace --no-headers
+
+
 #
 # Check to see if the namespace exists and delete it if it does
 #

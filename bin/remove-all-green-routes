@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+test -n "$CLUSTER_ID"
+test -n "$VPC_NAME"
+
+echo "============================================================"
+echo "Removing all rules from $CLUSTER_ID green load balancer" 
+
+load-balancer delete-all-rules \
+  --cluster-id $CLUSTER_ID \
+  --color green \
+  --env $VPC_NAME

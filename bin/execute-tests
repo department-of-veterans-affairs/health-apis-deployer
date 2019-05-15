@@ -11,10 +11,15 @@ test -f "$DU_DIR/test.conf"
 
 . $DU_DIR/test.conf
 
+
 echo "============================================================"
 echo "Running $TEST on $TEST_IMAGE"
 
 echo "---- START TEST LOG ----------------------------------------"
+trap onExit EXIT
+onExit() {
+  echo "---- END TEST LOG ------------------------------------------"
+}
 docker run \
   --rm \
   --network host \
@@ -26,4 +31,3 @@ docker run \
   $TEST_IMAGE \
   $TEST \
   | tee $LOG_DIR/$TEST-$AVAILABILITY_ZONE.log
-echo "---- END TEST LOG ------------------------------------------"

@@ -127,9 +127,10 @@ do
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
-  load-balancer delete-all-rules --cluster-id $CLUSTER_ID --color green --env $VPC_NAME
+  remove-all-green-routes
   cluster-fox copy-kubectl-config
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
+  echo "---"
   cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
   echo "============================================================"
   echo "Applying kubernetes configuration"
@@ -160,9 +161,12 @@ then
   do
     echo "============================================================"
     echo "Rolling back $AVAILABILITY_ZONE"
-    load-balancer delete-all-rules --cluster-id $CLUSTER_ID --color green --env $VPC_NAME
+    remove-all-green-routes
     apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
+    echo "---"
     cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
+    echo "============================================================"
+    echo "Applying kubernetes configuration"
     cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
     attach-deployment-unit-to-lb $CLUSTER_ID green $DU_HEALTH_CHECK_PATH \
       $DU_LOAD_BALANCER_RULE_PATH $DU_MIN_PRIORITY
