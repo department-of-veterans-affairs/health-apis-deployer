@@ -2,9 +2,11 @@
 set -euo pipefail
 
 TEST=$1
-AVAILABILITY_ZONE=$2
-DU_DIR=$3
-LOG_DIR=$4
+LOAD_BALANCER=$2
+AVAILABILITY_ZONE=$3
+DU_DIR=$4
+LOG_DIR=$5
+test -n "$LOAD_BALANCER"
 test -n "$DU_DIR"
 test -d "$LOG_DIR"
 test -f "$DU_DIR/test.conf"
@@ -26,7 +28,7 @@ docker run \
   --env-file $DU_DIR/$ENVIRONMENT.testvars \
   --env K8S_ENVIRONMENT=$ENVIRONMENT \
   --env K8S_DEPLOYMENT_ID=$K8S_DEPLOYMENT_ID \
-  --env K8S_LOAD_BALANCER=$GREEN_LOAD_BALANCER \
+  --env K8S_LOAD_BALANCER=$LOAD_BALANCER \
   --env EXIT_STATUS=1 \
   $TEST_IMAGE \
   $TEST \
