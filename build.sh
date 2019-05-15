@@ -154,7 +154,7 @@ done
 # TODO If fail and rollback enabled, rollaback
 if [ $TEST_FAILURE == true -a $ROLLBACK_ON_TEST_FAILURES == true ]
 then
-  echo "Rolling back $UPDATED_AVAILABILITY_ZONES"
+  echo "Affected availability zones: $UPDATED_AVAILABILITY_ZONES"
   # TODO download old
   # TODO Load conf files
   for AVAILABILITY_ZONE in $UPDATED_AVAILABILITY_ZONES
