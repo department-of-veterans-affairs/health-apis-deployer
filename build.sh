@@ -138,7 +138,7 @@ do
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
-  dettach-deployment-unit-from-lb blue
+  detach-deployment-unit-from-lb blue
   remove-all-green-routes
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   echo "---"
@@ -160,7 +160,7 @@ do
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
   else
     echo "SUCCESS! $AVAILABILITY_ZONE"
-    dettach-deployment-unit-from-lb green
+    detach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
   fi
 done
@@ -185,7 +185,7 @@ then
   do
     echo "============================================================"
     echo "Rolling back $AVAILABILITY_ZONE"
-    dettach-deployment-unit-from-lb blue
+    detach-deployment-unit-from-lb blue
     remove-all-green-routes
     apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
     echo "---"
@@ -204,7 +204,7 @@ then
       echo "ERROR: SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
       echo "Smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     fi
-    dettach-deployment-unit-from-lb green
+    detach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
   done
 
