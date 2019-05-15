@@ -95,6 +95,7 @@ fi
 # Determine what is previously installed
 #
 PRIOR_CONF=$K8S_DEPLOYMENT_ID-prior.conf
+cluster-fox copy-kubectl-config
 record-currently-installed-version ${AVAILABILITY_ZONES%% *} $PRIOR_CONF
 . $PRIOR_CONF
 
@@ -128,7 +129,6 @@ do
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
   remove-all-green-routes
-  cluster-fox copy-kubectl-config
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   echo "---"
   cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
