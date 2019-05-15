@@ -33,7 +33,7 @@ test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
 echo "============================================================"
-echo "Dettaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer"
+echo "Detaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer"
 
 load-balancer disable-target-group \
     --env "$VPC_NAME" \
