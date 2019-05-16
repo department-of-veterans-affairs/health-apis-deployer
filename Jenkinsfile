@@ -45,6 +45,7 @@ final DOCKER_ARGS = "--privileged --group-add 497 -v /etc/passwd:/etc/passwd:ro 
 
 pipeline {
   options {
+    disableConcurrentBuilds()
     buildDiscarder(logRotator(numToKeepStr: '99', artifactNumToKeepStr: '99'))
     retry(0)
     timeout(time: 1440, unit: 'MINUTES')
