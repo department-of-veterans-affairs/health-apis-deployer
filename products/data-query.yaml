@@ -55,7 +55,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /api/(AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|metadata|Observation|Organization|Patient|Practitioner|Procedure).*
+          - path: /api/(.well-known|AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|metadata|Observation|Organization|Patient|Practitioner|Procedure).*
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
