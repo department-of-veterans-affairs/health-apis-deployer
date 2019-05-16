@@ -42,5 +42,11 @@ load-balancer disable-target-group \
     --product "$PRODUCT" \
     --az-abreviation="$AZ_ABREVIATION"
 
+if [ $COLOR == blue ]
+then
+  echo "Giving the blue load balancer time to catch up"
+  sleep 30
+fi
+
 if [ $? != 0 ]; then echo "Detach did not succeed, proceeding anyway"; fi
 exit 0
