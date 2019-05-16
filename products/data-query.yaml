@@ -22,7 +22,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /$DSTU2_HTTP_PATH/?(.*)
+          - path: /fhir/v0/dstu2/?(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
@@ -39,7 +39,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /$DATA_QUERY_HTTP_PATH/?(.*)
+          - path: /fhir/v0/argonaut/data-query/?(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
