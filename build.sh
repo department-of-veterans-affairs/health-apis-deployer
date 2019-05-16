@@ -11,6 +11,15 @@ if [ "${DEBUG}" == true ]; then
   env | sort
 fi
 
+if [ "$PRODUCT" == "none" ]
+then
+  echo "Building nothing."
+  echo "Good day, sir."
+  echo
+  echo "I SAID GOOD DAY, SIR!"
+  exit 0
+fi
+
 #
 # Ensure that we fail fast on any issues.
 #

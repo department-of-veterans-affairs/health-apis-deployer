@@ -111,34 +111,43 @@ For a given environment
 - Perform `envsubst` style substitution on the `deployment.yaml` to produce a final configuration
 
 For each Availability Zone supported by the cluster in this environment
-- Detach the deployment unit's AZ-specific target group from the k8s blue load balancer
+- Detach the deployment unit's green target group from the k8s blue load balancer
+- Remove all rules from green load balancer
 - Save ingress rules from the DU namespace
 - Delete the DU namespace
 - Create the namespace
 - Restore ingress rules
 - Apply substituted final configuration
-- Attach DU AZ-specific target group to the k8s green load balancer
+- Attach deployment unit's green target group to the k8s green load balancer
 - Load `test.conf`
-- Run regression test container (stdout will be captured and made available on Jenkins)
+- Run regression test container against green load balancer
 
 On regression test success
-- Attach the deployment unit's AZ-specific target group to the k8s blue load balancer
+- Detach the deployment unit's green target group from the k8s green load balancer 
+- Attach the deployment unit's blue target group to the k8s blue load balancer
+- Run smoke test container against blue load balancer
 - Begin next AZ
 
-On regression test failure in QA
+On regression test or smoke test failure in QA
 - Environment is left in current state and is available for debugging which may be a mixture of 
-  partially upgraded AZs  
-- Deployment to next AZ is skipped 
+  partially upgraded AZs
+- Gather logs from pods
+- Deployment to next AZ is skipped
 
-On regression test failure in upper environments
+On regression test or smoke test failure in upper environments
 - Logs are captured from all pods in the failed AZ and provided on Jenkins
 - Previously installed version is re-applied to this and any previously updated AZs by re-running
   previously installed versions docker image
 - Blue load balancer is restored
+- Run smoke test container against blue load balancer
 
+
+Read more about [Blue/Green](blue-green.md)
 
 > The above steps are achieved by a combination of the deployment unit docker image, the routes
 docker image, and the Jenkins pipeline that orchestrates the pipeline.
+
+> Regression and smoke test container stdout will be captured and made available on Jenkins.
 
 
 ---
