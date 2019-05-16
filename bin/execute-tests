@@ -6,13 +6,18 @@ LOAD_BALANCER=$2
 AVAILABILITY_ZONE=$3
 DU_DIR=$4
 LOG_DIR=$5
+DEFAULT_CONF=$DU_DIR/deployment.conf
+ENV_CONF=$DU_DIR/$ENVIRONMENT.conf
 test -n "$LOAD_BALANCER"
 test -n "$DU_DIR"
 test -d "$LOG_DIR"
 test -f "$DU_DIR/test.conf"
+test -f "$DEFAULT_CONF"
+test -f "$ENV_CONF"
 
+. $DEFAULT_CONF
+. $ENV_CONF
 . $DU_DIR/test.conf
-
 
 echo "============================================================"
 echo "Running $TEST on $TEST_IMAGE"
