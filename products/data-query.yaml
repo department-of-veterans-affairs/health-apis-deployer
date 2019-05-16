@@ -13,8 +13,8 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: hello
-  namespace: $DU_NAMESPACE
+  name: data-query-dstu2-ingress
+  namespace: $NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /$1
@@ -22,7 +22,40 @@ spec:
   rules:
     - http:
         paths:
-          - path: /hello/?(.*)
+          - path: /$DSTU2_HTTP_PATH/?(.*)
             backend:
-              serviceName: hello
-              servicePort: 80
+              serviceName: health-apis-kong
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: data-query-ingress
+  namespace: $NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /$DATA_QUERY_HTTP_PATH/?(.*)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: data-query-legacy-ingress
+  namespace: $NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api/(AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|metadata|Observation|Organization|Patient|Practitioner|Procedure).*
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
