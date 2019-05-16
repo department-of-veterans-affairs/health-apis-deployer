@@ -20,4 +20,6 @@ STATUS=$(curl -sk \
   $URL)
 
 if [ "$STATUS" == 200 ]; then exit 0; fi
+echo "Failed to download deployment unit"
+echo "URL: $URL"
 exit $STATUS
