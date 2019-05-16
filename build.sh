@@ -130,10 +130,9 @@ Availability Zones .... $AVAILABILITY_ZONES
 Deployment ID ......... $K8S_DEPLOYMENT_ID
 Build ................. $BUILD_ID $BUILD_HASH ($BUILD_DATE) [$BUILD_URL]
 Currently Installed ... $PRIOR_DU_ARTIFACT ($PRIOR_DU_VERSION)
+Simulated Failures .... $SIMULATE_REGRESSION_TEST_FAILURE
 ============================================================
 EOF
-
-
 
 export DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 prepare-deployment-unit
