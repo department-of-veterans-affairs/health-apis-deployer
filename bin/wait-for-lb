@@ -13,7 +13,7 @@ test -n "$CLUSTER_ID"
 test -n "$VPC_NAME"
 
 echo "Waiting for load balancer to be ready."
-timeout=$(($(date +%s) + 20))
+timeout=$(($(date +%s) + 300))
 while [ $(date +%s) -lt $timeout ]
 do
   sleep 1
