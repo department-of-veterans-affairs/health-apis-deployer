@@ -13,7 +13,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: views-squares-ingress
-  namespace: $NAMESPACE
+  namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
