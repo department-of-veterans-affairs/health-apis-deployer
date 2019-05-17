@@ -356,7 +356,7 @@ ruleHealth() {
   #
   local tgArn=$(aws elbv2 describe-rules --listener-arn $listener \
       | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[] , .Actions[].TargetGroupArn' \
-      | paste -sd "  \n" | grep -F "$RULE_PATH" | awk '{print $3}' | head -c -1)
+      | paste -sd "  \n" | grep -F "$RULE_PATH" | awk '{print $3}' | head -1)
 
   local healths=$(aws elbv2 describe-target-health \
       --target-group-arn $tgArn \
