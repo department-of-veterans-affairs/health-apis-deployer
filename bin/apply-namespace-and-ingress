@@ -22,9 +22,9 @@ EXISTING_NAMESPACE=$(cluster-fox kubectl $AVAILABILITY_ZONE -- get namespace --n
   | awk "/^$DU_NAMESPACE / {print \$1}")
 if [ -n "$EXISTING_NAMESPACE" ]
 then
-  echo "Deleting namespace $DU_NAMESPACE"
+  echo "Deleting namespace $DU_NAMESPACE from $AVAILABILITY_ZONE"
   cluster-fox kubectl $AVAILABILITY_ZONE -- delete namespace $DU_NAMESPACE
 fi
 
-echo "Creating namespace $DU_NAMESPACE"
+echo "Creating namespace $DU_NAMESPACE in $AVAILABILITY_ZONE"
 cluster-fox kubectl $AVAILABILITY_ZONE -- apply -f $NAMESPACE_YAML
