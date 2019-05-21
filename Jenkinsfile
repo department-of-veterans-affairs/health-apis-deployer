@@ -28,8 +28,8 @@ def saunter(scriptName) {
       credentialsId: 'KUBERNETES_QA_SSH_KEY',
       variable: 'KUBERNETES_QA_SSH_KEY'),
     file(
-    credentialsId: 'KUBERNETES_LAB_SSH_KEY',
-    variable: 'KUBERNETES_LAB_SSH_KEY')
+      credentialsId: 'KUBERNETES_LAB_SSH_KEY',
+      variable: 'KUBERNETES_LAB_SSH_KEY')
   ]) {
     sh script: scriptName
   }
