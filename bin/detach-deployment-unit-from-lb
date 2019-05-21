@@ -45,7 +45,7 @@ load-balancer disable-target-group \
 if [ $COLOR == blue ]
 then
   echo "Giving the blue load balancer time to catch up"
-  sleep 30
+  sleep 60
 fi
 
 if [ $? != 0 ]; then echo "Detach did not succeed, proceeding anyway"; fi

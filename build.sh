@@ -232,6 +232,8 @@ fi
 
 if [ $LEAVE_GREEN_ROUTES == false ]; then remove-all-green-routes; fi
 echo "============================================================"
+echo "Blue Load Balancer Rules"
+load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
 echo "Goodbye."
 if [ $TEST_FAILURE == true ]; then exit 1; fi
 exit 0

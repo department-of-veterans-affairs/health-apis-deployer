@@ -329,6 +329,46 @@ disableTargetGroup() {
       --target-group-arns $targetGroupArn
 }
 
+listRules() {
+  #
+  # Make sure we have an ALB to attach to
+  #
+  local albName
+  albName=$(albName) || exit 1
+  local alb=$(aws elbv2 describe-load-balancers --names $albName \
+                | jq -r .LoadBalancers[].LoadBalancerArn)
+  [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
+
+  #
+  # Make sure the ALB has an HTTP listener
+  #
+  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
+                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
+
+  aws elbv2 describe-rules --listener-arn $listener \
+    | jq -r '.Rules[]| select(.Priority != "default") | .Priority, .Conditions[].Values[], .Actions[].TargetGroupArn' \
+    > $WORK/rules
+
+  while read priority
+  do
+    read path
+    read tgArn
+    echo -n "$priority $path " > $WORK/rule.$priority
+    aws elbv2 describe-target-health \
+        --target-group-arn $tgArn \
+        --query 'TargetHealthDescriptions[*]' \
+      | jq -r '.[] | .TargetHealth.State' \
+      | awk 'BEGIN {h=0;u=0} /^healthy/ { h++ } /^unhealthy/ {u++} END {print h " " u " " (h+u) }' \
+            >> $WORK/rule.$priority &
+  done < $WORK/rules
+  wait
+  echo "PRIORITY RULE HEALTHY UNHEALTHY TOTAL" > $WORK/rule.summary
+  cat $WORK/rule.[0-9]* | sort -n >> $WORK/rule.summary
+  cat $WORK/rule.[0-9]* | awk '{h+=$3;u+=$4;t+=$5} END {print "TOTAL - " h " " u " " t}' >> $WORK/rule.summary
+  cat $WORK/rule.summary | column -t
+}
+
 ruleHealth() {
   #
   # Make sure we have an ALB to attach to
@@ -381,12 +421,6 @@ ruleHealth() {
 listEnvironments() {
   aws ec2 describe-vpcs \
     | jq -r '.Vpcs[].Tags[] | select(.Key == "Environment").Value' \
-    | sort
-}
-
-listCertificates() {
-  aws acm list-certificates \
-    | jq -r .CertificateSummaryList[].DomainName \
     | sort
 }
 #============================================================
@@ -453,7 +487,6 @@ COMMAND=$1
 #
 case $COMMAND in
   le|list-environments) listEnvironments; exit 0;;
-  lc|list-certificates) listCertificates; exit 0;;
 esac
 
 [ -z "$VPC_ENV" ] && usage "Environment not specified"
@@ -470,5 +503,6 @@ case $COMMAND in
   tg-on|enable-target-group) enableTargetGroup;;
   tg-off|disable-target-group) disableTargetGroup;;
   rule-health) ruleHealth;;
+  list-rules) listRules;;
   *) usage "Unkown command";;
 esac
