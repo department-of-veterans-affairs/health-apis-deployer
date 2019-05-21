@@ -347,7 +347,7 @@ listRules() {
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   aws elbv2 describe-rules --listener-arn $listener \
-    | jq -r '.Rules[]| select(.Priority != "default") | .Priority, .Conditions[].Values[], .Actions[].TargetGroupArn' \
+    | jq -r '.Rules[]| select(.Actions[0].Type == "forward") | .Priority, .Conditions[].Values[], .Actions[].TargetGroupArn' \
     > $WORK/rules
 
   while read priority
