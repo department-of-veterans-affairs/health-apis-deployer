@@ -11,7 +11,7 @@ if [ "${DEBUG}" == true ]; then
   env | sort
 fi
 
-if [ "$PRODUCT" == "none" ]
+if [ -z "$PRODUCT" ] || [ "$PRODUCT" == "none" ]
 then
   echo "Building nothing."
   echo "Good day, sir."
