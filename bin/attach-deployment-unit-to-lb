@@ -27,8 +27,10 @@ COLOR=$1
 AZ_ABREVIATION=${AVAILABILITY_ZONE: -1}
 
 #
-# Weak Input Validation
+# Work around export arrays limitation
 #
+. $LOAD_BALANCER_RULES
+
 test -n "$CLUSTER_ID"
 test -n "$COLOR"
 test -n "$DU_HEALTH_CHECK_PATH"

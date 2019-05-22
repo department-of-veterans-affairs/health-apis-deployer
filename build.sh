@@ -65,6 +65,16 @@ test -n "$DU_DECRYPTION_KEY"
 test -n "$DU_HEALTH_CHECK_PATH"
 test -n "${#DU_LOAD_BALANCER_RULES[@]}"
 
+#
+# Here's a sad work around ...
+# Arrays can't be exported. To prevent tools for sourcing product conf files
+# We'll save the load balancer rules to a well known file that can be sources
+# by support scripts
+#
+export LOAD_BALANCER_RULES="$WORKSPACE/lb-rules.conf"
+declare -p DU_LOAD_BALANCER_RULES > $LOAD_BALANCER_RULES
+
+
 
 #
 # Load the environment configuration
