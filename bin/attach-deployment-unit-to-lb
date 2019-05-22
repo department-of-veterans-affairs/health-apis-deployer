@@ -32,7 +32,7 @@ AZ_ABREVIATION=${AVAILABILITY_ZONE: -1}
 test -n "$CLUSTER_ID"
 test -n "$COLOR"
 test -n "$DU_HEALTH_CHECK_PATH"
-test -n "$DU_LOAD_BALANCER_RULES"
+test -n "${#DU_LOAD_BALANCER_RULES[@]}"
 test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 

@@ -7,7 +7,7 @@
 
 COLOR=$1
 
-test -n "$DU_LOAD_BALANCER_RULES"
+test -n "${#DU_LOAD_BALANCER_RULES[@]}"
 test -n "$COLOR"
 test -n "$CLUSTER_ID"
 test -n "$VPC_NAME"

@@ -63,7 +63,8 @@ test -n "$DU_VERSION"
 test -n "$DU_NAMESPACE"
 test -n "$DU_DECRYPTION_KEY"
 test -n "$DU_HEALTH_CHECK_PATH"
-test -n "$DU_LOAD_BALANCER_RULES"
+test -n "${#DU_LOAD_BALANCER_RULES[@]}"
+
 
 #
 # Load the environment configuration
