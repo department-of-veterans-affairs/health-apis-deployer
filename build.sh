@@ -55,16 +55,15 @@ declare -x DU_VERSION
 declare -x DU_NAMESPACE
 declare -x DU_DECRYPTION_KEY
 declare -x DU_HEALTH_CHECK_PATH
-declare -x DU_LOAD_BALANCER_RULE_PATH
-declare -x DU_MIN_PRIORITY
+declare -xA DU_LOAD_BALANCER_RULES # Associative array of priority to path
+
 . $WORKSPACE/products/$PRODUCT.conf
 test -n "$DU_ARTIFACT"
 test -n "$DU_VERSION"
 test -n "$DU_NAMESPACE"
 test -n "$DU_DECRYPTION_KEY"
 test -n "$DU_HEALTH_CHECK_PATH"
-test -n "$DU_LOAD_BALANCER_RULE_PATH"
-test -n "$DU_MIN_PRIORITY"
+test -n "$DU_LOAD_BALANCER_RULES"
 
 #
 # Load the environment configuration

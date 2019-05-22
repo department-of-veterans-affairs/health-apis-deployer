@@ -32,13 +32,12 @@ AZ_ABREVIATION=${AVAILABILITY_ZONE: -1}
 test -n "$CLUSTER_ID"
 test -n "$COLOR"
 test -n "$DU_HEALTH_CHECK_PATH"
-test -n "$DU_LOAD_BALANCER_RULE_PATH"
-test -n "$DU_MIN_PRIORITY"
+test -n "$DU_LOAD_BALANCER_RULES"
 test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
 echo "============================================================"
-echo "Attaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer"
+echo "Attaching $PRODUCT to $CLUSTER_ID $COLOR load balancer"
 
 load-balancer create-target-group \
     --env "$VPC_NAME" \
@@ -54,11 +53,17 @@ load-balancer enable-target-group \
     --product "$PRODUCT" \
     --az-abreviation="$AZ_ABREVIATION"
 
-load-balancer create-rule \
+
+for priority in ${!DU_LOAD_BALANCER_RULES[@]}
+do
+  rule="${DU_LOAD_BALANCER_RULES[$priority]}"
+  echo "Creating rule $rule with minimum priority $priority"
+  load-balancer create-rule \
     --env "$VPC_NAME" \
     --cluster-id "$CLUSTER_ID" \
     --color "$COLOR" \
     --product "$PRODUCT" \
-    --rule-path "$DU_LOAD_BALANCER_RULE_PATH" \
-    --min-priority "$DU_MIN_PRIORITY" \
+    --rule-path "$rule" \
+    --min-priority "$priority" \
     --az-abreviation "$AZ_ABREVIATION"
+done

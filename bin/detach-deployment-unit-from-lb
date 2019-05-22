@@ -26,14 +26,11 @@ AZ_ABREVIATION=${AVAILABILITY_ZONE: -1}
 #
 test -n "$CLUSTER_ID"
 test -n "$COLOR"
-test -n "$DU_HEALTH_CHECK_PATH"
-test -n "$DU_LOAD_BALANCER_RULE_PATH"
-test -n "$DU_MIN_PRIORITY"
 test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
 echo "============================================================"
-echo "Detaching $DU_LOAD_BALANCER_RULE_PATH to $CLUSTER_ID $COLOR load balancer"
+echo "Detaching $PRODUCT from $CLUSTER_ID $COLOR load balancer"
 
 load-balancer disable-target-group \
     --env "$VPC_NAME" \
