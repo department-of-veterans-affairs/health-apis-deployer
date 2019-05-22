@@ -172,7 +172,7 @@ do
     TEST_FAILURE=true
     echo "============================================================"
     echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
-    echo "Regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
+    echo "$PRODUCT regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     gather-pod-logs $DU_NAMESPACE $LOG_DIR
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
   fi
@@ -186,7 +186,7 @@ do
   then
     echo "============================================================"
     echo "ERROR: BLUE SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
-    echo "Blue smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
+    echo "$PRODUCT blue smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     TEST_FAILURE=true
     gather-pod-logs $DU_NAMESPACE $LOG_DIR
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
@@ -228,7 +228,7 @@ then
     then
       echo "============================================================"
       echo "ERROR: GREEN SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE ON ROLLBACK"
-      echo "Green smoke test failure in $AVAILABILITY_ZONE on rollback" >> $JENKINS_DESCRIPTION
+      echo "$PRODUCT green smoke test failure in $AVAILABILITY_ZONE on rollback" >> $JENKINS_DESCRIPTION
     fi
     detach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
