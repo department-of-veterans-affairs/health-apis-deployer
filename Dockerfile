@@ -4,6 +4,7 @@ RUN yum update -yqq \
     && yum install -yqq yum-utils \
     && yum install -yqq gettext openssh-clients git \
     && yum install -yqq zip unzip \
+    && yum install -yqq dos2unix \
     && yum clean all
 
 #

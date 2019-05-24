@@ -97,6 +97,7 @@ export BUILD_URL="${BUILD_URL:-NONE}"
 export K8S_DEPLOYMENT_ID="${BUILD_ID}-$PRODUCT-$(echo ${DU_VERSION}|tr . -)-${HASH}"
 echo "$K8S_DEPLOYMENT_ID" > $JENKINS_BUILD_NAME
 
+export DU_S3_FOLDER="$K8S_DEPLOYMENT_ID"
 
 #
 # Make a place to collect logs
@@ -234,6 +235,9 @@ then
     attach-deployment-unit-to-lb blue
   done
 
+  # make sure we clean up the new propeties
+  bucket-beaver clean-up-properties --folder-name "$DU_S3_FOLDER" --bucket-name "$DU_AWS_BUCKET"
+
   # Restore the DU_* vars
   DU_ARTIFACT=$FAILED_DU_ARTIFACT
   DU_VERSION=$FAILED_DU_VERSION
@@ -244,6 +248,11 @@ if [ $LEAVE_GREEN_ROUTES == false ]; then remove-all-green-routes; fi
 echo "============================================================"
 echo "Blue Load Balancer Rules"
 load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
-echo "Goodbye."
+
 if [ $TEST_FAILURE == true ]; then exit 1; fi
+
+# If we get here, then the build succeeded!!!!! We can delete the old du properties from s3!!!
+bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
+
+echo "Goodbye."
 exit 0
