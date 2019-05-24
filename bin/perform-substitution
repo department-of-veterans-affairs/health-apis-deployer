@@ -15,12 +15,12 @@ test -f "$ENV_CONF"
 declare -rx NAMESPACE=$DU_NAMESPACE
 
 echo "Standardizing Line Endings..."
-dos2unix $(find $DU_DIR -name "*.yaml" -or -name "*.properties" -or -name "*.conf" -or -name "*.testvars")
+dos2unix $(find $DU_DIR -name "*.yaml" -or -name "*.properties" -or -name "*.conf" -or -name "*.testvars" -or -name "*.yml")
 
 . $DEFAULT_CONF
 . $ENV_CONF
 
-for i in $(find $DU_DIR -name "*.yaml" -or -name "*.properties")
+for i in $(find $DU_DIR -name "*.yaml" -or -name "*.properties" -or -name "*.yml")
 do
   echo "Substituting values in ${i/$DU_DIR/}"
   FILE_PATH=$i
