@@ -236,7 +236,7 @@ then
   done
 
   # make sure we clean up the new propeties
-  bucket-beaver clean-up-properties --folder-name "$DU_S3_FOLDER" --bucket-name "$DU_AWS_BUCKET"
+  bucket-beaver clean-up-properties --folder-name "$DU_S3_FOLDER" --bucket-name "$DU_AWS_BUCKET_NAME"
 
   # Restore the DU_* vars
   DU_ARTIFACT=$FAILED_DU_ARTIFACT
