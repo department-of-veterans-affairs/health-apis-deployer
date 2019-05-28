@@ -251,8 +251,14 @@ load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --colo
 
 if [ $TEST_FAILURE == true ]; then exit 1; fi
 
-# If we get here, then the build succeeded!!!!! We can delete the old du properties from s3!!!
-bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
+if [ -z "$PRIOR_DU_S3_FOLDER" ] || [ -z "$PRIOR_DU_S3_BUCKET" ]
+then
+  echo "No previous S3 bucket. Skipping bucket deletion."
+else
+  # If we get here, then the build succeeded!!!!! We can delete the old du properties from s3!!!
+  echo "Deleting previous deployments S3 bucket."
+  bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
+fi
 
 echo "Goodbye."
 exit 0
