@@ -132,7 +132,9 @@ cluster-fox copy-kubectl-config
 record-currently-installed-version ${AVAILABILITY_ZONES%% *} $PRIOR_CONF
 . $PRIOR_CONF
 
-cat <<EOF
+export DEPLOYMENT_INFO_TEXT="$WORKSPACE/DEPLOYMENT_INFO.txt"
+
+echo | cat | tee "$DEPLOYMENT_INFO_TEXT" <<EOF
 ============================================================
 Product ............... $PRODUCT
 Deployment Unit ....... $DU_ARTIFACT ($DU_VERSION)
