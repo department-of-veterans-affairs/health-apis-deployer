@@ -134,7 +134,7 @@ record-currently-installed-version ${AVAILABILITY_ZONES%% *} $PRIOR_CONF
 
 export DEPLOYMENT_INFO_TEXT=DEPLOYMENT_INFO.txt
 
-yes | cat | tee $DEPLOYMENT_INFO_TEXT <<EOF
+cat <<EOF >> $DEPLOYMENT_INFO_TEXT
 ============================================================
 Product ............... $PRODUCT
 Deployment Unit ....... $DU_ARTIFACT ($DU_VERSION)
@@ -146,6 +146,8 @@ Currently Installed ... $PRIOR_DU_ARTIFACT ($PRIOR_DU_VERSION)
 Simulated Failures .... $SIMULATE_REGRESSION_TEST_FAILURE
 ============================================================
 EOF
+
+cat $DEPLOYMENT_INFO_TEXT
 
 export DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 prepare-deployment-unit
