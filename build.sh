@@ -191,17 +191,16 @@ do
   detach-deployment-unit-from-lb green
   attach-deployment-unit-to-lb blue
   wait-for-lb blue
-
-  if ! execute-tests smoke-test $BLUE_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
-  then
-    echo "============================================================"
-    echo "ERROR: BLUE SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
-    echo "$PRODUCT blue smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
-    TEST_FAILURE=true
-    gather-pod-logs $DU_NAMESPACE $LOG_DIR
-    if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
-  fi
 done
+
+if ! execute-tests smoke-test $BLUE_LOAD_BALANCER all-azs $DU_DIR $LOG_DIR
+then
+  echo "============================================================"
+  echo "ERROR: SMOKE TESTS HAVE FAILED"
+  echo "$PRODUCT smoke test failure" >> $JENKINS_DESCRIPTION
+  TEST_FAILURE=true
+  gather-pod-logs $DU_NAMESPACE $LOG_DIR
+fi
 
 
 if [ $TEST_FAILURE == true \
