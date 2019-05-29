@@ -132,7 +132,7 @@ cluster-fox copy-kubectl-config
 record-currently-installed-version ${AVAILABILITY_ZONES%% *} $PRIOR_CONF
 . $PRIOR_CONF
 
-export DEPLOYMENT_INFO_TEXT=DEPLOYMENT_INFO.txt
+export DEPLOYMENT_INFO_TEXT=deployment-info.txt
 
 cat <<EOF >> $DEPLOYMENT_INFO_TEXT
 ============================================================
