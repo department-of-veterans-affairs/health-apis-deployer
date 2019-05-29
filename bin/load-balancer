@@ -180,7 +180,7 @@ createRule() {
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule creation" && exit 1
   echo "Creating Rule Path: $RULE_PATH"
 
-  local ruleArn=$(ruleArn $listener $RULE_PATH)
+  local ruleArn=$(ruleArn $listener "$RULE_PATH")
 
   #
   # If this rule does not exist on the LB, create it
@@ -269,7 +269,7 @@ deleteRule() {
   # Find the RULE-ARN for the corresponding RULE_PATH marked for deletion
   #
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule deletion." && exit 1
-  local ruleArn=$(ruleArn $listener $RULE_PATH)
+  local ruleArn=$(ruleArn $listener "$RULE_PATH")
 
   echo "Deleting: Rule-Arn: $ruleArn"
   aws elbv2 delete-rule --rule-arn "$ruleArn"
@@ -347,7 +347,7 @@ listRules() {
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   aws elbv2 describe-rules --listener-arn $listener \
-    | jq -r '.Rules[]| select(.Priority != "default") | .Priority, .Conditions[].Values[], .Actions[].TargetGroupArn' \
+    | jq -r '.Rules[]| select(.Actions[0].Type == "forward") | .Priority, .Conditions[].Values[], .Actions[].TargetGroupArn' \
     > $WORK/rules
 
   while read priority
@@ -481,16 +481,18 @@ done
 COMMAND=$1
 [ -z "$COMMAND" ] && usage "No command specified"
 
+[ -z "$VPC_ENV" ] && usage "Environment not specified"
+ALB_SUFFIX=${VPC_ENV,,}-kubernetes
+
 #
 # Information commands do not have the same checks
 # that action commands haves
 #
 case $COMMAND in
   le|list-environments) listEnvironments; exit 0;;
+  list-rules) listRules; exit 0;;
 esac
 
-[ -z "$VPC_ENV" ] && usage "Environment not specified"
-ALB_SUFFIX=${VPC_ENV,,}-kubernetes
 vpcId
 [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
 
@@ -503,6 +505,5 @@ case $COMMAND in
   tg-on|enable-target-group) enableTargetGroup;;
   tg-off|disable-target-group) disableTargetGroup;;
   rule-health) ruleHealth;;
-  list-rules) listRules;;
   *) usage "Unkown command";;
 esac

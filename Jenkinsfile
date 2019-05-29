@@ -24,6 +24,9 @@ def saunter(scriptName) {
     string(
       credentialsId: 'CRYPTO_KEY',
       variable: 'CRYPTO_KEY'),
+    string(
+      credentialsId: 'UC_CRYPTO_KEY',
+      variable: 'UC_CRYPTO_KEY'),
     file(
       credentialsId: 'KUBERNETES_QA_SSH_KEY',
       variable: 'KUBERNETES_QA_SSH_KEY'),
@@ -56,7 +59,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
-    choice(name: 'PRODUCT', choices: ['none','data-query','exemplar','gal','squares'], description: "Install this product")
+    choice(name: 'PRODUCT', choices: ['none','data-query','exemplar','gal','squares','hotline','urgent-care'], description: "Install this product")
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
@@ -66,7 +69,7 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   environment {
-    ENVIRONMENT = "${env.BRANCH_NAME}"
+    ENVIRONMENT = "${["qa", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
   }
   stages {
     /*

@@ -9,6 +9,8 @@ metadata:
     deployment-unit-artifact: $DU_ARTIFACT
     deployment-unit-version: $DU_VERSION
     deployment-date: $BUILD_DATE
+    deployment-s3-bucket: $DU_AWS_BUCKET_NAME
+    deployment-s3-folder: $DU_S3_FOLDER
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -17,12 +19,12 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
     - http:
         paths:
-          - path: /hello/?(.*)
+          - path: /(hello|hola)/?(.*)
             backend:
               serviceName: hello
               servicePort: 80

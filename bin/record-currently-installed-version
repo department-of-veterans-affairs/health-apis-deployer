@@ -25,11 +25,12 @@ echo "No version of $DU_NAMESPACE is currently installed"
 cat <<EOF > $CONF
 PRIOR_DU_ARTIFACT=not-installed
 PRIOR_DU_VERSION=not-installed
+PRIOR_DU_S3_BUCKET=not-installed
+PRIOR_DU_S3_FOLDER=not-installed
 EOF
 
 else
   echo "Determining version of $DU_NAMESPACE is currently installed"
   cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o json \
-    | jq -r '.metadata.labels| "PRIOR_DU_ARTIFACT=" + ."deployment-unit-artifact", "PRIOR_DU_VERSION=" + ."deployment-unit-version"' > $CONF
+    | jq -r '.metadata.labels| "PRIOR_DU_ARTIFACT=" + ."deployment-unit-artifact", "PRIOR_DU_VERSION=" + ."deployment-unit-version", "PRIOR_DU_S3_BUCKET=" + ."deployment-s3-bucket", "PRIOR_DU_S3_FOLDER=" + ."deployment-s3-folder"' > $CONF
 fi
-

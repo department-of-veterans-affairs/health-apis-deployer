@@ -11,14 +11,6 @@ if [ "${DEBUG}" == true ]; then
   env | sort
 fi
 
-if [ -z "$PRODUCT" ] || [ "$PRODUCT" == "none" ]
-then
-  echo "Building nothing."
-  echo "Good day, sir."
-  echo
-  echo "I SAID GOOD DAY, SIR!"
-  exit 0
-fi
 
 #
 # Ensure that we fail fast on any issues.
@@ -39,6 +31,19 @@ JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
 
+
+if [ -z "$PRODUCT" ] || [ "$PRODUCT" == "none" ]
+then
+  echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
+  echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
+  echo "Building nothing."
+  echo "Good day, sir."
+  echo
+  echo "I SAID GOOD DAY, SIR!"
+  exit 0
+fi
+
+
 #
 # Set up the AWS region
 #
@@ -55,16 +60,26 @@ declare -x DU_VERSION
 declare -x DU_NAMESPACE
 declare -x DU_DECRYPTION_KEY
 declare -x DU_HEALTH_CHECK_PATH
-declare -x DU_LOAD_BALANCER_RULE_PATH
-declare -x DU_MIN_PRIORITY
+declare -xA DU_LOAD_BALANCER_RULES # Associative array of priority to path
+
 . $WORKSPACE/products/$PRODUCT.conf
 test -n "$DU_ARTIFACT"
 test -n "$DU_VERSION"
 test -n "$DU_NAMESPACE"
 test -n "$DU_DECRYPTION_KEY"
 test -n "$DU_HEALTH_CHECK_PATH"
-test -n "$DU_LOAD_BALANCER_RULE_PATH"
-test -n "$DU_MIN_PRIORITY"
+test -n "${#DU_LOAD_BALANCER_RULES[@]}"
+
+#
+# Here's a sad work around ...
+# Arrays can't be exported. To prevent tools for sourcing product conf files
+# We'll save the load balancer rules to a well known file that can be sources
+# by support scripts
+#
+export LOAD_BALANCER_RULES="$WORKSPACE/lb-rules.conf"
+declare -p DU_LOAD_BALANCER_RULES > $LOAD_BALANCER_RULES
+
+
 
 #
 # Load the environment configuration
@@ -87,6 +102,7 @@ export BUILD_URL="${BUILD_URL:-NONE}"
 export K8S_DEPLOYMENT_ID="${BUILD_ID}-$PRODUCT-$(echo ${DU_VERSION}|tr . -)-${HASH}"
 echo "$K8S_DEPLOYMENT_ID" > $JENKINS_BUILD_NAME
 
+export DU_S3_FOLDER="$K8S_DEPLOYMENT_ID"
 
 #
 # Make a place to collect logs
@@ -121,7 +137,9 @@ cluster-fox copy-kubectl-config
 record-currently-installed-version ${AVAILABILITY_ZONES%% *} $PRIOR_CONF
 . $PRIOR_CONF
 
-cat <<EOF
+export DEPLOYMENT_INFO_TEXT=deployment-info.txt
+
+cat <<EOF >> $DEPLOYMENT_INFO_TEXT
 ============================================================
 Product ............... $PRODUCT
 Deployment Unit ....... $DU_ARTIFACT ($DU_VERSION)
@@ -133,6 +151,8 @@ Currently Installed ... $PRIOR_DU_ARTIFACT ($PRIOR_DU_VERSION)
 Simulated Failures .... $SIMULATE_REGRESSION_TEST_FAILURE
 ============================================================
 EOF
+
+cat $DEPLOYMENT_INFO_TEXT
 
 export DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 prepare-deployment-unit
@@ -162,7 +182,7 @@ do
     TEST_FAILURE=true
     echo "============================================================"
     echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
-    echo "Regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
+    echo "$PRODUCT regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
     gather-pod-logs $DU_NAMESPACE $LOG_DIR
     if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
   fi
@@ -171,17 +191,16 @@ do
   detach-deployment-unit-from-lb green
   attach-deployment-unit-to-lb blue
   wait-for-lb blue
-
-  if ! execute-tests smoke-test $BLUE_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
-  then
-    echo "============================================================"
-    echo "ERROR: BLUE SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
-    echo "Blue smoke test failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
-    TEST_FAILURE=true
-    gather-pod-logs $DU_NAMESPACE $LOG_DIR
-    if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
-  fi
 done
+
+if ! execute-tests smoke-test $BLUE_LOAD_BALANCER all-azs $DU_DIR $LOG_DIR
+then
+  echo "============================================================"
+  echo "ERROR: SMOKE TESTS HAVE FAILED"
+  echo "$PRODUCT smoke test failure" >> $JENKINS_DESCRIPTION
+  TEST_FAILURE=true
+  gather-pod-logs $DU_NAMESPACE $LOG_DIR
+fi
 
 
 if [ $TEST_FAILURE == true \
@@ -218,11 +237,14 @@ then
     then
       echo "============================================================"
       echo "ERROR: GREEN SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE ON ROLLBACK"
-      echo "Green smoke test failure in $AVAILABILITY_ZONE on rollback" >> $JENKINS_DESCRIPTION
+      echo "$PRODUCT green smoke test failure in $AVAILABILITY_ZONE on rollback" >> $JENKINS_DESCRIPTION
     fi
     detach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
   done
+
+  # make sure we clean up the new propeties
+  bucket-beaver clean-up-properties --folder-name "$DU_S3_FOLDER" --bucket-name "$DU_AWS_BUCKET_NAME"
 
   # Restore the DU_* vars
   DU_ARTIFACT=$FAILED_DU_ARTIFACT
@@ -234,6 +256,17 @@ if [ $LEAVE_GREEN_ROUTES == false ]; then remove-all-green-routes; fi
 echo "============================================================"
 echo "Blue Load Balancer Rules"
 load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
-echo "Goodbye."
+
 if [ $TEST_FAILURE == true ]; then exit 1; fi
+
+if [ -z ${PRIOR_DU_S3_FOLDER:-} ] || [ -z ${PRIOR_DU_S3_BUCKET:-} ] || [ "$PRIOR_DU_VERSION" == "not-installed" ]
+then
+  echo "No previous S3 bucket. Skipping bucket deletion."
+else
+  # If we get here, then the build succeeded!!!!! We can delete the old du properties from s3!!!
+  echo "Deleting previous deployments S3 bucket."
+  bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
+fi
+
+echo "Goodbye."
 exit 0

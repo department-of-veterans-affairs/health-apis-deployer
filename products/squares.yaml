@@ -8,6 +8,8 @@ metadata:
     deployment-unit-artifact: $DU_ARTIFACT
     deployment-unit-version: $DU_VERSION
     deployment-date: $BUILD_DATE
+    deployment-s3-bucket: $DU_AWS_BUCKET_NAME
+    deployment-s3-folder: $DU_S3_FOLDER
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

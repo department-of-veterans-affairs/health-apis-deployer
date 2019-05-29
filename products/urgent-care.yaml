@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -14,16 +15,16 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: views-gal-ingress
+  name: urgent-care-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/proxy-next-upstream-tries: "1"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
     - http:
         paths:
-          - path: /(api/)?gal/?(.*)
+          - path: /fhir/v0/r4/(.*)
             backend:
-              serviceName: gal-experience
+              serviceName: urgent-care-kong
               servicePort: 8082

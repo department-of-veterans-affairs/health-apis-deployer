@@ -14,16 +14,15 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: views-gal-ingress
+  name: salesforce-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/proxy-next-upstream-tries: "1"
 spec:
   rules:
     - http:
         paths:
-          - path: /(api/)?gal/?(.*)
+          - path: /(api/)?(patsr|sfdc|vimt)(.*)
             backend:
-              serviceName: gal-experience
-              servicePort: 8082
+              serviceName: salesforce
+              servicePort: 8091
