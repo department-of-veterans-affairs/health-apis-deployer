@@ -11,14 +11,6 @@ if [ "${DEBUG}" == true ]; then
   env | sort
 fi
 
-if [ -z "$PRODUCT" ] || [ "$PRODUCT" == "none" ]
-then
-  echo "Building nothing."
-  echo "Good day, sir."
-  echo
-  echo "I SAID GOOD DAY, SIR!"
-  exit 0
-fi
 
 #
 # Ensure that we fail fast on any issues.
@@ -38,6 +30,19 @@ JENKINS_DESCRIPTION=$JENKINS_DIR/description
 JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
+
+
+if [ -z "$PRODUCT" ] || [ "$PRODUCT" == "none" ]
+then
+  echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
+  echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
+  echo "Building nothing."
+  echo "Good day, sir."
+  echo
+  echo "I SAID GOOD DAY, SIR!"
+  exit 0
+fi
+
 
 #
 # Set up the AWS region

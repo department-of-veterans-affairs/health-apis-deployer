@@ -180,7 +180,7 @@ createRule() {
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule creation" && exit 1
   echo "Creating Rule Path: $RULE_PATH"
 
-  local ruleArn=$(ruleArn $listener $RULE_PATH)
+  local ruleArn=$(ruleArn $listener "$RULE_PATH")
 
   #
   # If this rule does not exist on the LB, create it
@@ -269,7 +269,7 @@ deleteRule() {
   # Find the RULE-ARN for the corresponding RULE_PATH marked for deletion
   #
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule deletion." && exit 1
-  local ruleArn=$(ruleArn $listener $RULE_PATH)
+  local ruleArn=$(ruleArn $listener "$RULE_PATH")
 
   echo "Deleting: Rule-Arn: $ruleArn"
   aws elbv2 delete-rule --rule-arn "$ruleArn"
