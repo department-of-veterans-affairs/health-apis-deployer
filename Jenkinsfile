@@ -137,25 +137,8 @@ pipeline {
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
-        }
-      }
-    }
-    failure {
-      node('master') {
-        script {
-          notifyBranchName = ["qa", "lab"]
-          if (notifyBranchName.contains(env.BRANCH_NAME)) {
-            sendNotifications();
-          }
-        }
-      }
-    }
-    changed {
-      node('master') {
-        script {
-          notifyBranchName = ["qa", "lab"]
-          if (notifyBranchName.contains(env.BRANCH_NAME) && currentBuild.result != 'FAILURE') {
-            sendNotifications();
+          if (env.PRODUCT != "none") {
+            sendNotifications()
           }
         }
       }
