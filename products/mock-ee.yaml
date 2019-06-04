@@ -24,7 +24,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /mock-ee/v0/(.*)
+          - path: /mock-ee/(.*)
             backend:
               serviceName: mock-ee
               servicePort: 8082
