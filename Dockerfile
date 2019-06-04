@@ -5,8 +5,6 @@ RUN yum update -yqq \
     && yum install -yqq gettext openssh-clients git \
     && yum install -yqq zip unzip \
     && yum install -yqq dos2unix \
-    && yum install -yqq openssl-devel \
-    && yum install -yqq openssl \
     && yum clean all
 
 #
