@@ -5,6 +5,7 @@ RUN yum update -yqq \
     && yum install -yqq gettext openssh-clients git \
     && yum install -yqq zip unzip \
     && yum install -yqq dos2unix \
+    && yum install -y -q -q openssl \
     && yum clean all
 
 #
@@ -41,6 +42,3 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$KUBERNET
 
 
 RUN curl -fsSL https://get.docker.com | sh
-
-
-RUN yum install -y -q -q openssl
