@@ -32,7 +32,7 @@ JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 mkdir "$JENKINS_DIR"
 
 
-if [ -z "$PRODUCT" ] || [ "$PRODUCT" == "none" ]
+if [ -z ${PRODUCT:-} ] || [ "$PRODUCT" == "none" ]
 then
   echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
   echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
