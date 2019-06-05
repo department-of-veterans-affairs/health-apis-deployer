@@ -4,6 +4,7 @@ set -euo pipefail
 TARGET_FILE=$1
 DU_DIR=$2
 DU_DECRYPTION_KEY=$3
+DU_PROPERTY_LEVEL_ENCRYPTION=$4
 
 test -n "$TARGET_FILE"
 test -n "$DU_DIR"
@@ -19,7 +20,7 @@ echo "Extracting deployment to $DU_DIR"
 if [ -d $DU_DIR ]; then mv $DU_DIR $DU_DIR.failed; fi
 
 tar xvf $TARGET_FILE
-if [[ -z `find $DU_DIR -maxdepth 1 -name *.zip` ]]; then
+if [[ "$DU_PROPERTY_LEVEL_ENCRYPTION" == true ]]; then
 ryan-secrets decrypt-all --directory $DU_DIR --encryption-passphrase $DU_DECRYPTION_KEY
 else
 unzip -d "$DU_DIR" -P $DU_DECRYPTION_KEY "$DU_DIR/*.zip"

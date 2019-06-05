@@ -6,7 +6,7 @@ test -n "$DU_S3_FOLDER"
 test -n "$DU_AWS_BUCKET_NAME"
 
 fetch-deployment-unit $DU_ARTIFACT $DU_VERSION
-extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY
+extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY ${DU_PROPERTY_LEVEL_ENCRYPTION:-false}
 validate-deployment-unit $DU_DIR
 perform-substitution $DU_DIR
 validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE
