@@ -4,7 +4,7 @@ set -euo pipefail
 TARGET_FILE=$1
 DU_DIR=$2
 DU_DECRYPTION_KEY=$3
-DU_SECRETS=$4
+DU_PROPERTY_LEVEL_ENCRYPTION=$4
 
 test -n "$TARGET_FILE"
 test -n "$DU_DIR"
