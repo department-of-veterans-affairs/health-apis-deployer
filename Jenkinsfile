@@ -48,7 +48,7 @@ def sendDeployMessage(channelName) {
 
 def notifySlackOfDeployment() {
   if (env.PRODUCT != "none") {
-    if(["lab", "production"].contains("${ENVIRONMENT}")) {
+    if(["lab", "production", "qa"].contains("${ENVIRONMENT}")) {
       sendDeployMessage('api_operations')
     }
     sendDeployMessage('health_apis_jenkins')
