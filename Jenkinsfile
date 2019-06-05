@@ -40,7 +40,10 @@ def saunter(scriptName) {
 
 def notifyOfDeployment() {
   if (env.PRODUCT != "none") {
-    slackSend(color: '#808080', message: "DEPLOYING - ${env.JOB_NAME} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${ENVIRONMENT}")
+    slackSend(
+      color: '#808080',
+      message: "DEPLOYING - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${ENVIRONMENT}"
+    )
   }
 }
 
