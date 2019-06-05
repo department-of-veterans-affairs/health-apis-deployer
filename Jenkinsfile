@@ -76,7 +76,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
-    choice(name: 'PRODUCT', choices: ['none','data-query','exemplar','gal','squares','hotline','urgent-care','mock-ee'], description: "Install this product")
+    choice(name: 'PRODUCT', choices: ['none','data-query','exemplar','gal','squares','hotline','urgent-care','mock-ee','community-care'], description: "Install this product")
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
