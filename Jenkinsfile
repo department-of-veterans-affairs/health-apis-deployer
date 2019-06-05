@@ -124,6 +124,9 @@ pipeline {
            }
       }
       steps {
+        if (env.PRODUCT != "none") {
+          slackSend(color: '#808080', message: "${env.JOB_NAME} is being deployed to ${ENVIRONMENT}")
+        }
         saunter('./build.sh')
       }
     }
