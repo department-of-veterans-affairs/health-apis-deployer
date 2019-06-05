@@ -38,12 +38,20 @@ def saunter(scriptName) {
   }
 }
 
-def notifyOfDeployment() {
+def sendDeployMessage(channelName) {
+  slackSend(
+    channel: channelName,
+    color: '#4682B4',
+    message: "DEPLOYING - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${ENVIRONMENT}"
+  )
+}
+
+def notifySlackOfDeployment() {
   if (env.PRODUCT != "none") {
-    slackSend(
-      color: '#4682B4',
-      message: "DEPLOYING - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${ENVIRONMENT}"
-    )
+    if(["lab", "production"].contains("${ENVIRONMENT}")) {
+      sendDeployMessage('api_operations')
+    }
+    sendDeployMessage('health_apis_jenkins')
   }
 }
 
@@ -133,7 +141,7 @@ pipeline {
            }
       }
       steps {
-        notifyOfDeployment()
+        notifySlackOfDeployment()
         saunter('./build.sh')
       }
     }
