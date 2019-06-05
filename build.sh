@@ -61,6 +61,7 @@ declare -x DU_NAMESPACE
 declare -x DU_DECRYPTION_KEY
 declare -x DU_HEALTH_CHECK_PATH
 declare -xA DU_LOAD_BALANCER_RULES # Associative array of priority to path
+declare -x DU_PROPERTY_LEVEL_ENCRYPTION
 
 . $WORKSPACE/products/$PRODUCT.conf
 test -n "$DU_ARTIFACT"
