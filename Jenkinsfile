@@ -38,6 +38,23 @@ def saunter(scriptName) {
   }
 }
 
+def sendDeployMessage(channelName) {
+  slackSend(
+    channel: channelName,
+    color: '#4682B4',
+    message: "DEPLOYING - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${ENVIRONMENT}"
+  )
+}
+
+def notifySlackOfDeployment() {
+  if (env.PRODUCT != "none") {
+    if(["lab", "production"].contains("${ENVIRONMENT}")) {
+      sendDeployMessage('api_operations')
+    }
+    sendDeployMessage('health_apis_jenkins')
+  }
+}
+
 /*
  * We'll use the host user db so that any files written from the docker container look
  * like they were written by real host users.
@@ -124,6 +141,7 @@ pipeline {
            }
       }
       steps {
+        notifySlackOfDeployment()
         saunter('./build.sh')
       }
     }
