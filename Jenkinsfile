@@ -38,6 +38,12 @@ def saunter(scriptName) {
   }
 }
 
+def notifyOfDeployment() {
+  if (env.PRODUCT != "none") {
+    slackSend(color: '#808080', message: "${env.JOB_NAME} is being deployed to ${ENVIRONMENT}")
+  }
+}
+
 /*
  * We'll use the host user db so that any files written from the docker container look
  * like they were written by real host users.
@@ -124,9 +130,7 @@ pipeline {
            }
       }
       steps {
-        if (env.PRODUCT != "none") {
-          slackSend(color: '#808080', message: "${env.JOB_NAME} is being deployed to ${ENVIRONMENT}")
-        }
+        notifyOfDeployment()
         saunter('./build.sh')
       }
     }
