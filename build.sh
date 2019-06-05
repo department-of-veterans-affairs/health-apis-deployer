@@ -269,5 +269,6 @@ else
   bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
 fi
 
+echo "$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)" >> $JENKINS_DESCRIPTION
 echo "Goodbye."
 exit 0
