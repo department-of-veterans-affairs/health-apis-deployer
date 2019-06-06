@@ -191,12 +191,20 @@ do
   if [ "$FAST_AND_DANGEROUS_BUILD" == false ]
   then
     remove-all-green-routes
-    apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
-    echo "---"
-    cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
-    echo "============================================================"
-    echo "Applying kubernetes configuration"
-    cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
+  fi
+
+  apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
+  echo "---"
+  cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
+  echo "============================================================"
+  echo "Applying kubernetes configuration"
+  cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
+
+  #
+  # If we are in the danger zone, skip all non-essential deployment steps.
+  #
+  if [ "$FAST_AND_DANGEROUS_BUILD" == false ]
+  then
     attach-deployment-unit-to-lb green
     wait-for-lb green
 
