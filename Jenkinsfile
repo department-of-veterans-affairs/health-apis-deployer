@@ -31,6 +31,15 @@ def saunter(scriptName) {
       credentialsId: 'KUBERNETES_QA_SSH_KEY',
       variable: 'KUBERNETES_QA_SSH_KEY'),
     file(
+      credentialsId: 'KUBERNETES_STAGING_SSH_KEY',
+      variable: 'KUBERNETES_STAGING_SSH_KEY'),
+    file(
+      credentialsId: 'KUBERNETES_PRODUCTION_SSH_KEY',
+      variable: 'KUBERNETES_PRODUCTION_SSH_KEY'),
+    file(
+      credentialsId: 'KUBERNETES_STAGING_LAB_SSH_KEY',
+      variable: 'KUBERNETES_STAGING_LAB_SSH_KEY'),
+    file(
       credentialsId: 'KUBERNETES_LAB_SSH_KEY',
       variable: 'KUBERNETES_LAB_SSH_KEY')
   ]) {
@@ -47,7 +56,7 @@ def sendDeployMessage(channelName) {
 }
 
 def notifySlackOfDeployment() {
-  if (env.PRODUCT != "none") {
+  if (env.PRODUCT != "none" && env.PRODUCT != null) {
     if(["lab", "production"].contains(env.ENVIRONMENT)) {
       sendDeployMessage('api_operations')
     }
@@ -80,13 +89,15 @@ pipeline {
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
+    booleanParam(name: 'DANGER_ZONE', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
+    string(name: 'DANGER_ZONE_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for DANGER_ZONE." )
   }
   agent none
   triggers {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   environment {
-    ENVIRONMENT = "${["qa", "lab", "staging-lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
+    ENVIRONMENT = "${["qa", "staging", "production", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
   }
   stages {
     /*
@@ -132,7 +143,10 @@ pipeline {
       }
     }
     stage('Deploy') {
-      when { expression { return env.BUILD_MODE != 'ignore' } }
+      when {
+        expression { return env.BUILD_MODE != 'ignore' }
+        expression { return env.DANGER_ZONE == 'false' }
+      }
       agent {
         dockerfile {
             registryUrl 'https://index.docker.io/v1/'
@@ -141,6 +155,30 @@ pipeline {
            }
       }
       steps {
+        notifySlackOfDeployment()
+        saunter('./build.sh')
+      }
+    }
+    stage('Danger Zone!') {
+      when {
+        beforeInput true
+        expression { return env.BUILD_MODE != 'ignore' }
+        expression { return env.DANGER_ZONE == 'true' }
+      }
+      input {
+       message "I would like to enter the DANGER_ZONE..."
+       ok "You may enter!"
+       submitter "bryan.schofield,ian.laflamme,aparcel-va"
+      }
+      agent {
+        dockerfile {
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args DOCKER_ARGS
+           }
+      }
+      steps {
+        echo "LANA!!!"
         notifySlackOfDeployment()
         saunter('./build.sh')
       }
