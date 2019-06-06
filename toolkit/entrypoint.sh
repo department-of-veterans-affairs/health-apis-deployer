@@ -22,7 +22,7 @@ dos2unix
 
 EXAMPLE
 docker run \\
-  -rm \\
+  --rm \\
   -v /my/awesome/unit:/du \\
   vasdvp/deployer-toolkit:latest encrypt --encryption-passphrase sp00py
 
