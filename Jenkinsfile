@@ -149,15 +149,16 @@ pipeline {
            }
       }
       steps {
-        notifySlackOfDeployment()
-        saunter('./build.sh')
+        /* notifySlackOfDeployment()
+        * saunter('./build.sh')
+        */
       }
     }
     stage('Danger Zone!') {
       when {
         beforeInput true
         expression { return env.BUILD_MODE != 'ignore' }
-        expression { env.FAST_AND_DANGEROUS_BUILD != false }
+        expression { env.FAST_AND_DANGEROUS_BUILD == true }
       }
       input {
        message "I would like to enter the DANGER_ZONE..."
