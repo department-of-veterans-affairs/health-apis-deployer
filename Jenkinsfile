@@ -138,10 +138,8 @@ pipeline {
     }
     stage('Deploy') {
       when {
-        allOf {
-          expression { return env.BUILD_MODE != 'ignore' }
-          expression { env.FAST_AND_DANGEROUS_BUILD == false }
-        }
+        expression { return env.BUILD_MODE != 'ignore' }
+        expression { env.FAST_AND_DANGEROUS_BUILD == false }
       }
       agent {
         dockerfile {
@@ -175,7 +173,6 @@ pipeline {
       }
       steps {
         echo "LANA!!!"
-        saunter('./danger-build.sh')
       }
     }
   }
