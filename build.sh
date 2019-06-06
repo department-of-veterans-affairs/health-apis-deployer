@@ -87,7 +87,7 @@ test -n "$FAST_AND_DANGEROUS_DU_VERSION"
 if [ "$FAST_AND_DANGEROUS_DU_VERSION" != "default" ]
 then
   DU_VERSION="$FAST_AND_DANGEROUS_DU_VERSION"
-done
+fi
 
 #
 # Load the environment configuration
