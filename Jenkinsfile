@@ -34,6 +34,9 @@ def saunter(scriptName) {
       credentialsId: 'KUBERNETES_STAGING_SSH_KEY',
       variable: 'KUBERNETES_STAGING_SSH_KEY'),
     file(
+      credentialsId: 'KUBERNETES_PRODUCTION_SSH_KEY',
+      variable: 'KUBERNETES_PRODUCTION_SSH_KEY'),
+    file(
       credentialsId: 'KUBERNETES_STAGING_LAB_SSH_KEY',
       variable: 'KUBERNETES_STAGING_LAB_SSH_KEY'),
     file(
@@ -92,7 +95,7 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   environment {
-    ENVIRONMENT = "${["qa", "staging", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
+    ENVIRONMENT = "${["qa", "staging", "production", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
   }
   stages {
     /*
