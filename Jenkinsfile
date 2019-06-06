@@ -158,11 +158,17 @@ pipeline {
     }
     stage('Danger Zone!') {
       when {
+        beforeInput true
         allOf {
           expression { return env.BUILD_MODE != 'ignore' }
           expression { env.FAST_AND_DANGEROUS_BUILD != false }
           expression { env.FAST_AND_DANGEROUS_DU_VERSION != 'none' }
         }
+      }
+      input {
+       message "I would like to enter the DANGER_ZONE..."
+       ok "You may enter!"
+       submitter "bryan.schofield,ian.laflamme"
       }
       agent {
         dockerfile {
