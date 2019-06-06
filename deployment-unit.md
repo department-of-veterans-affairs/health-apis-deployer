@@ -1,9 +1,6 @@
 # Deployment Unit
 
 
-
-
-
 ### Product Repository Structure
 ```
 <product>/
@@ -119,9 +116,13 @@ also be set.
 
 > ##### Protecting Sensitive Information
 > `.conf`  and `.testvars` files may need to contain sensitive information such as access tokens
-or passwords. Conf files may be stored as an encrypted zip files with `.conf.zip` extension.
-Likewise, Testvar files may be stored as an encrypted zip files with `.testvars.zip` extension.
-Decryption key must be stored in as a Jenkins credential to be used to execute the DU docker image.
+or passwords. These files should be protected using one of two methods:
+> 1. Store as an encrypted zip file
+>    Conf files may be stored as an encrypted zip files with `.conf.zip` extension.
+>    Likewise, Testvar files may be stored as an encrypted zip files with `.testvars.zip` extension.
+> 2. Use the deployer toolkit to encrypt base variables. See [Toolkit usage](toolkit.md) is described below.
+>
+> Decryption key must be stored in as a Jenkins credential to be used to execute the DU docker image.
 Coordinate with the DevOps team if you need encryption.
 
 >This will be changing to property level encryption. For now, to switch to property level encryption for a DU, add a property in the product.conf to be `DU_PROPERTY_LEVEL_ENCRYPTION=true` and encrypt the confs using `ryan-secrets`. Usage is documented in the script.
