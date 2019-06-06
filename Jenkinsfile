@@ -84,7 +84,7 @@ pipeline {
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
     booleanParam(name: 'FAST_AND_DANGEROUS_BUILD', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
-    string(name: 'FAST_AND_DANGEROUS_DU_VERSION', defaultValue: 'none', description: "Manual override of DU_VERSION for FAST_AND_DANGEROUS_BUILD." )
+    string(name: 'FAST_AND_DANGEROUS_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for FAST_AND_DANGEROUS_BUILD." )
   }
   agent none
   triggers {
@@ -141,7 +141,6 @@ pipeline {
         allOf {
           expression { return env.BUILD_MODE != 'ignore' }
           expression { env.FAST_AND_DANGEROUS_BUILD == false }
-          expression { env.FAST_AND_DANGEROUS_DU_VERSION == 'none' }
         }
       }
       agent {
@@ -162,7 +161,6 @@ pipeline {
         allOf {
           expression { return env.BUILD_MODE != 'ignore' }
           expression { env.FAST_AND_DANGEROUS_BUILD != false }
-          expression { env.FAST_AND_DANGEROUS_DU_VERSION != 'none' }
         }
       }
       input {
@@ -178,7 +176,8 @@ pipeline {
            }
       }
       steps {
-        echo "DANGER ZONE!"
+        echo "LANA!!!"
+        saunter('./danger-build.sh')
       }
     }
   }
