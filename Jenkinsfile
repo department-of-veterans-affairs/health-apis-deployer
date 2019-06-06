@@ -89,7 +89,7 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   environment {
-    ENVIRONMENT = "${["qa", "lab", "staging-lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
+    ENVIRONMENT = "${["qa", "lab", "staging_lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
   }
   stages {
     /*
