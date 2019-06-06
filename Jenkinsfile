@@ -84,7 +84,7 @@ pipeline {
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
     booleanParam(name: 'FAST_AND_DANGEROUS_BUILD', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
-    string(name: 'FAST_AND_DANGEROUS_DU_VERSION', defaultValue: '', description: "Manual override of DU_VERSION for FAST_AND_DANGEROUS_BUILD." )
+    string(name: 'FAST_AND_DANGEROUS_DU_VERSION', defaultValue: 'none', description: "Manual override of DU_VERSION for FAST_AND_DANGEROUS_BUILD." )
   }
   agent none
   triggers {
@@ -137,7 +137,13 @@ pipeline {
       }
     }
     stage('Deploy') {
-      when { expression { return env.BUILD_MODE != 'ignore' } }
+      when {
+        allOf {
+          expression { return env.BUILD_MODE != 'ignore' }
+          expression { env.FAST_AND_DANGEROUS_BUILD == false }
+          expression { env.FAST_AND_DANGEROUS_DU_VERSION == 'none' }
+        }
+      }
       agent {
         dockerfile {
             registryUrl 'https://index.docker.io/v1/'
@@ -148,6 +154,25 @@ pipeline {
       steps {
         notifySlackOfDeployment()
         saunter('./build.sh')
+      }
+    }
+    stage('Danger Zone!') {
+      when {
+        allOf {
+          expression { return env.BUILD_MODE != 'ignore' }
+          expression { env.FAST_AND_DANGEROUS_BUILD != false }
+          expression { env.FAST_AND_DANGEROUS_DU_VERSION != 'none' }
+        }
+      }
+      agent {
+        dockerfile {
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args DOCKER_ARGS
+           }
+      }
+      steps {
+        echo "DANGER ZONE!"
       }
     }
   }
