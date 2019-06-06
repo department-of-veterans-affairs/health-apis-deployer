@@ -31,6 +31,12 @@ def saunter(scriptName) {
       credentialsId: 'KUBERNETES_QA_SSH_KEY',
       variable: 'KUBERNETES_QA_SSH_KEY'),
     file(
+      credentialsId: 'KUBERNETES_STAGING_SSH_KEY',
+      variable: 'KUBERNETES_STAGING_SSH_KEY'),
+    file(
+      credentialsId: 'KUBERNETES_PRODUCTION_SSH_KEY',
+      variable: 'KUBERNETES_PRODUCTION_SSH_KEY'),
+    file(
       credentialsId: 'KUBERNETES_STAGING_LAB_SSH_KEY',
       variable: 'KUBERNETES_STAGING_LAB_SSH_KEY'),
     file(
@@ -50,7 +56,7 @@ def sendDeployMessage(channelName) {
 }
 
 def notifySlackOfDeployment() {
-  if (env.PRODUCT != "none") {
+  if (env.PRODUCT != "none" && env.PRODUCT != null) {
     if(["lab", "production"].contains(env.ENVIRONMENT)) {
       sendDeployMessage('api_operations')
     }
@@ -89,7 +95,7 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   environment {
-    ENVIRONMENT = "${["qa", "lab", "staging-lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
+    ENVIRONMENT = "${["qa", "staging", "production", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
   }
   stages {
     /*
