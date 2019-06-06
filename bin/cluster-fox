@@ -25,6 +25,7 @@ copyKubectlConfigFromMaster() {
   debug "Retrieving configuration for $az from $ip"
   [ ! -d $KUBE_DIR ] && mkdir $KUBE_DIR
   local config=$KUBE_DIR/$az-config
+  echo "$config"
   scp -v -q -o 'StrictHostKeyChecking no' -i "$CLUSTER_SSH_KEY" ec2-user@$ip:~/.kube/config $config
   echo "$az $ip $config"
 }
