@@ -50,7 +50,7 @@ def sendDeployMessage(channelName) {
 }
 
 def notifySlackOfDeployment() {
-  if (env.PRODUCT != "none") {
+  if (env.PRODUCT != "none" && env.PRODUCT != null) {
     if(["lab", "production"].contains(env.ENVIRONMENT)) {
       sendDeployMessage('api_operations')
     }
