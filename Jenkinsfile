@@ -157,7 +157,7 @@ pipeline {
     }
     stage('Danger Zone!') {
       when {
-        beforeInput: true
+        beforeInput true
         allOf {
           expression { return env.BUILD_MODE != 'ignore' }
           expression { env.FAST_AND_DANGEROUS_BUILD != false }
