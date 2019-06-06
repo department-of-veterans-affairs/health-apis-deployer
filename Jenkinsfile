@@ -173,6 +173,8 @@ pipeline {
       }
       steps {
         echo "LANA!!!"
+        notifySlackOfDeployment()
+        saunter('./build.sh')
       }
     }
   }
