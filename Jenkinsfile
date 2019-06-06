@@ -83,6 +83,8 @@ pipeline {
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
+    booleanParam(name: 'FAST_AND_DANGEROUS_BUILD', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
+    string(name: 'FAST_AND_DANGEROUS_DU_VERSION', defaultValue: '', description: "Manual override of DU_VERSION for FAST_AND_DANGEROUS_BUILD." )
   }
   agent none
   triggers {
