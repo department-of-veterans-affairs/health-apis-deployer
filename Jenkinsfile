@@ -149,10 +149,8 @@ pipeline {
            }
       }
       steps {
-        /* notifySlackOfDeployment()
-        * saunter('./build.sh')
-        */
-        echo "Deploy as normal"
+        notifySlackOfDeployment()
+        saunter('./build.sh')
       }
     }
     stage('Danger Zone!') {
