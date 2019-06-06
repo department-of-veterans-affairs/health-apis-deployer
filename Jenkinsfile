@@ -89,8 +89,8 @@ pipeline {
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
-    booleanParam(name: 'FAST_AND_DANGEROUS_BUILD', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
-    string(name: 'FAST_AND_DANGEROUS_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for FAST_AND_DANGEROUS_BUILD." )
+    booleanParam(name: 'DANGER_ZONE', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
+    string(name: 'DANGER_ZONE_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for DANGER_ZONE." )
   }
   agent none
   triggers {
@@ -145,7 +145,7 @@ pipeline {
     stage('Deploy') {
       when {
         expression { return env.BUILD_MODE != 'ignore' }
-        expression { return env.FAST_AND_DANGEROUS_BUILD == 'false' }
+        expression { return env.DANGER_ZONE == 'false' }
       }
       agent {
         dockerfile {
@@ -163,7 +163,7 @@ pipeline {
       when {
         beforeInput true
         expression { return env.BUILD_MODE != 'ignore' }
-        expression { return env.FAST_AND_DANGEROUS_BUILD == 'true' }
+        expression { return env.DANGER_ZONE == 'true' }
       }
       input {
        message "I would like to enter the DANGER_ZONE..."

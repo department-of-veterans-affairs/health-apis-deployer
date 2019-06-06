@@ -83,10 +83,10 @@ declare -p DU_LOAD_BALANCER_RULES > $LOAD_BALANCER_RULES
 #
 # If we're in the DANGER ZONE, DU_VERSION might have been overwritten, lets check.
 #
-test -n "$FAST_AND_DANGEROUS_DU_VERSION"
-if [ "$FAST_AND_DANGEROUS_DU_VERSION" != "default" && "$FAST_AND_DANGEROUS_BUILD" =="true" ]
+test -n "$DANGER_ZONE_DU_VERSION"
+if [ "$DANGER_ZONE_DU_VERSION" != "default" && "$DANGER_ZONE" =="true" ]
 then
-  DU_VERSION="$FAST_AND_DANGEROUS_DU_VERSION"
+  DU_VERSION="$DANGER_ZONE_DU_VERSION"
 fi
 
 #
@@ -100,8 +100,8 @@ echo "Using cluster $CLUSTER_ID"
 #
 # If we're in the DANGER ZONE, never roll back
 #
-test -n "$FAST_AND_DANGEROUS_BUILD"
-if [ "$FAST_AND_DANGEROUS_BUILD" == "true" ]
+test -n "$DANGER_ZONE"
+if [ "$DANGER_ZONE" == "true" ]
 then
   echo "You are now entering the danger zone... rollback on test failures is disabled!"
   ROLLBACK_ON_TEST_FAILURES=false
@@ -188,7 +188,7 @@ do
   #
   # If we are in the danger zone, skip all non-essential deployment steps.
   #
-  if [ "$FAST_AND_DANGEROUS_BUILD" == false ]
+  if [ "$DANGER_ZONE" == false ]
   then
     remove-all-green-routes
   fi
@@ -203,7 +203,7 @@ do
   #
   # If we are in the danger zone, skip all non-essential deployment steps.
   #
-  if [ "$FAST_AND_DANGEROUS_BUILD" == false ]
+  if [ "$DANGER_ZONE" == false ]
   then
     attach-deployment-unit-to-lb green
     wait-for-lb green
