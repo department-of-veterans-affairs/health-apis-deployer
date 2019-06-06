@@ -89,6 +89,8 @@ pipeline {
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
+    booleanParam(name: 'FAST_AND_DANGEROUS_BUILD', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
+    string(name: 'FAST_AND_DANGEROUS_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for FAST_AND_DANGEROUS_BUILD." )
   }
   agent none
   triggers {
@@ -141,7 +143,10 @@ pipeline {
       }
     }
     stage('Deploy') {
-      when { expression { return env.BUILD_MODE != 'ignore' } }
+      when {
+        expression { return env.BUILD_MODE != 'ignore' }
+        expression { return env.FAST_AND_DANGEROUS_BUILD == 'false' }
+      }
       agent {
         dockerfile {
             registryUrl 'https://index.docker.io/v1/'
@@ -150,6 +155,30 @@ pipeline {
            }
       }
       steps {
+        notifySlackOfDeployment()
+        saunter('./build.sh')
+      }
+    }
+    stage('Danger Zone!') {
+      when {
+        beforeInput true
+        expression { return env.BUILD_MODE != 'ignore' }
+        expression { return env.FAST_AND_DANGEROUS_BUILD == 'true' }
+      }
+      input {
+       message "I would like to enter the DANGER_ZONE..."
+       ok "You may enter!"
+       submitter "bryan.schofield,ian.laflamme,aparcel-va"
+      }
+      agent {
+        dockerfile {
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args DOCKER_ARGS
+           }
+      }
+      steps {
+        echo "LANA!!!"
         notifySlackOfDeployment()
         saunter('./build.sh')
       }
