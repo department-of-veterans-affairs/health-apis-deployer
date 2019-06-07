@@ -84,7 +84,7 @@ declare -p DU_LOAD_BALANCER_RULES > $LOAD_BALANCER_RULES
 # If we're in the DANGER ZONE, DU_VERSION might have been overwritten, lets check.
 #
 test -n "$DANGER_ZONE_DU_VERSION"
-if [ "$DANGER_ZONE_DU_VERSION" != "default" && "$DANGER_ZONE" == "true" ]
+if [ "$DANGER_ZONE_DU_VERSION" != "default" -a "$DANGER_ZONE" == "true" ]
 then
   DU_VERSION="$DANGER_ZONE_DU_VERSION"
 fi
