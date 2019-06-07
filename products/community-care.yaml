@@ -24,7 +24,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /community-care/v0/eligibility/(.*)
+          - path: /community-care/(.*)
             backend:
               serviceName: cce-kong
               servicePort: 8082
