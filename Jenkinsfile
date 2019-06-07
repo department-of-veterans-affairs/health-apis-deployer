@@ -51,7 +51,7 @@ def sendDeployMessage(channelName) {
   slackSend(
     channel: channelName,
     color: '#4682B4',
-    message: "DEPLOYING - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${env.ENVIRONMENT}"
+    message: "DEPLOYING - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${env.ENVIRONMENT}\nIn availability zones: ${env.AVAILABILITY_ZONES}"
   )
 }
 
