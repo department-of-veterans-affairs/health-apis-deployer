@@ -1,0 +1,11 @@
+FROM vasdvp/deployer:latest
+
+RUN yum install -yqq file
+
+ADD bin/ /toolkit/bin/
+ADD entrypoint.sh /toolkit/
+
+VOLUME /du
+
+ENTRYPOINT ["/toolkit/entrypoint.sh"]
+CMD ["--help"]
