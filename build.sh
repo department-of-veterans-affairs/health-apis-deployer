@@ -84,7 +84,7 @@ declare -p DU_LOAD_BALANCER_RULES > $LOAD_BALANCER_RULES
 # If we're in the DANGER ZONE, DU_VERSION might have been overwritten, lets check.
 #
 test -n "$DANGER_ZONE_DU_VERSION"
-if [ "$DANGER_ZONE_DU_VERSION" != "default" && "$DANGER_ZONE" =="true" ]
+if [ "$DANGER_ZONE_DU_VERSION" != "default" && "$DANGER_ZONE" == "true" ]
 then
   DU_VERSION="$DANGER_ZONE_DU_VERSION"
 fi
@@ -300,6 +300,6 @@ else
   bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
 fi
 
-echo "$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)" >> $JENKINS_DESCRIPTION
+echo "$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)\nIn availability zones: $AVAILABILITY_ZONES" >> $JENKINS_DESCRIPTION
 echo "Goodbye."
 exit 0
