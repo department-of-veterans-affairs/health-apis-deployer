@@ -300,6 +300,11 @@ else
   bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
 fi
 
-echo "$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)\nIn availability zones: $AVAILABILITY_ZONES" >> $JENKINS_DESCRIPTION
+
+cat <<EOF >> $JENKINS_DESCRIPTION
+$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
+in availability zones: $AVAILABILITY_ZONES
+EOF
+
 echo "Goodbye."
 exit 0
