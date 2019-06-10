@@ -25,8 +25,8 @@ def saunter(scriptName) {
       credentialsId: 'CRYPTO_KEY',
       variable: 'CRYPTO_KEY'),
     string(
-      credentialsId: 'DEPLOYMENT_CYPTO_KEY',
-      variable: 'DEPLOYMENT_CYPTO_KEY'),
+      credentialsId: 'DEPLOYMENT_CRYPTO_KEY',
+      variable: 'DEPLOYMENT_CRYPTO_KEY'),
     string(
       credentialsId: 'UC_CRYPTO_KEY',
       variable: 'UC_CRYPTO_KEY'),
@@ -100,7 +100,7 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   environment {
-    ENVIRONMENT = "${["qa", "staging", "production", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
+    ENVIRONMENT = "${["qa", "staging", "production", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME.replaceAll('_','-') : "qa"}"
   }
   stages {
     /*
