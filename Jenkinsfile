@@ -59,7 +59,7 @@ def sendDeployMessage(channelName) {
 }
 
 def notifyOperationsChannel() {
-  return ["staging-lab", "lab", "production"].contains(env.ENVIRONMENT)
+  return ["lab", "production"].contains(env.ENVIRONMENT)
 }
 
 def notifySlackOfDeployment() {
