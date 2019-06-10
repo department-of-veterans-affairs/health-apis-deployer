@@ -4,7 +4,7 @@ set -euo pipefail
 echo "============================================================"
 
 onExit() {
-  if [ -f $NAMESPACE_YAML ]; then rm $NAMESPACE_YAML; fi
+  if [ -f "$NAMESPACE_YAML" ]; then rm $NAMESPACE_YAML; fi
 }
 trap onExit EXIT
 
