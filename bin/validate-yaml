@@ -35,8 +35,8 @@ NAMESPACE_STRUCT=$(grep -E '^.*(kind|metadata|  namespace):' $1)
 echo "$NAMESPACE_STRUCT" | while read line ; do
 
   if [ "$metadata" = true ]; then
-    if [ "$line" == *"namespace"* ]; then
-      if [ $(echo "$line" | awk '{ print $2 }') != "$NAMESPACE" ]; then
+    if [[ "$line" == *"namespace"* ]]; then
+      if [ "$(echo "$line" | awk '{ print $2 }')" != "$NAMESPACE" ]; then
         echo "============================================================" \
           && echo "Namespace Validation Failed. Namespace should be: $2 but $line was found." \
           && exit 1
@@ -51,7 +51,7 @@ echo "$NAMESPACE_STRUCT" | while read line ; do
   fi
 
   if [ "$kind" = true ]; then
-    if [ "$line" == *"metadata:"* ]; then
+    if [[ "$line" == *"metadata:"* ]]; then
       unset kind
       metadata=true
       continue
