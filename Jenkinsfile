@@ -25,6 +25,9 @@ def saunter(scriptName) {
       credentialsId: 'CRYPTO_KEY',
       variable: 'CRYPTO_KEY'),
     string(
+      credentialsId: 'DEPLOYMENT_CRYPTO_KEY',
+      variable: 'DEPLOYMENT_CRYPTO_KEY'),
+    string(
       credentialsId: 'UC_CRYPTO_KEY',
       variable: 'UC_CRYPTO_KEY'),
     file(
@@ -51,7 +54,7 @@ def sendDeployMessage(channelName) {
   slackSend(
     channel: channelName,
     color: '#4682B4',
-    message: "DEPLOYING - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${env.ENVIRONMENT}"
+    message: "DEPLOYING - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n${env.PRODUCT} is being deployed to ${env.ENVIRONMENT}\nIn availability zones: ${env.AVAILABILITY_ZONES}"
   )
 }
 
@@ -85,10 +88,12 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
-    choice(name: 'PRODUCT', choices: ['none','data-query','exemplar','gal','squares','hotline','urgent-care','mock-ee'], description: "Install this product")
+    choice(name: 'PRODUCT', choices: ['none','community-care','data-query','exemplar','gal','hotline','mock-ee','squares','urgent-care'], description: "Install this product")
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
+    booleanParam(name: 'DANGER_ZONE', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
+    string(name: 'DANGER_ZONE_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for DANGER_ZONE." )
   }
   agent none
   triggers {
@@ -141,7 +146,10 @@ pipeline {
       }
     }
     stage('Deploy') {
-      when { expression { return env.BUILD_MODE != 'ignore' } }
+      when {
+        expression { return env.BUILD_MODE != 'ignore' }
+        expression { return env.DANGER_ZONE == 'false' }
+      }
       agent {
         dockerfile {
             registryUrl 'https://index.docker.io/v1/'
@@ -150,6 +158,30 @@ pipeline {
            }
       }
       steps {
+        notifySlackOfDeployment()
+        saunter('./build.sh')
+      }
+    }
+    stage('Danger Zone!') {
+      when {
+        beforeInput true
+        expression { return env.BUILD_MODE != 'ignore' }
+        expression { return env.DANGER_ZONE == 'true' }
+      }
+      input {
+       message "I would like to enter the DANGER_ZONE..."
+       ok "You may enter!"
+       submitter "bryan.schofield,ian.laflamme,aparcel-va"
+      }
+      agent {
+        dockerfile {
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args DOCKER_ARGS
+           }
+      }
+      steps {
+        echo "LANA!!!"
         notifySlackOfDeployment()
         saunter('./build.sh')
       }

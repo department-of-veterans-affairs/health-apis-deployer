@@ -80,7 +80,14 @@ test -n "${#DU_LOAD_BALANCER_RULES[@]}"
 export LOAD_BALANCER_RULES="$WORKSPACE/lb-rules.conf"
 declare -p DU_LOAD_BALANCER_RULES > $LOAD_BALANCER_RULES
 
-
+#
+# If we're in the DANGER ZONE, DU_VERSION might have been overwritten, lets check.
+#
+test -n "$DANGER_ZONE_DU_VERSION"
+if [ "$DANGER_ZONE_DU_VERSION" != "default" -a "$DANGER_ZONE" == "true" ]
+then
+  DU_VERSION="$DANGER_ZONE_DU_VERSION"
+fi
 
 #
 # Load the environment configuration
@@ -89,6 +96,16 @@ test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
 echo "Using cluster $CLUSTER_ID"
+
+#
+# If we're in the DANGER ZONE, never roll back
+#
+test -n "$DANGER_ZONE"
+if [ "$DANGER_ZONE" == "true" ]
+then
+  echo "You are now entering the danger zone... rollback on test failures is disabled!"
+  ROLLBACK_ON_TEST_FAILURES=false
+fi
 
 #
 # Create a build ID based on product, version, Jenkins job, etc.
@@ -168,28 +185,42 @@ do
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
   detach-deployment-unit-from-lb blue
-  remove-all-green-routes
+  #
+  # If we are in the danger zone, skip all non-essential deployment steps.
+  #
+  if [ "$DANGER_ZONE" == false ]
+  then
+    remove-all-green-routes
+  fi
+
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
   echo "---"
   cluster-fox kubectl $AVAILABILITY_ZONE -- get ns $DU_NAMESPACE -o yaml
   echo "============================================================"
   echo "Applying kubernetes configuration"
   cluster-fox kubectl $AVAILABILITY_ZONE -- apply -v 5 -f $DU_DIR/deployment.yaml
-  attach-deployment-unit-to-lb green
-  wait-for-lb green
 
-  if ! execute-tests regression-test $GREEN_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
+  #
+  # If we are in the danger zone, skip all non-essential deployment steps.
+  #
+  if [ "$DANGER_ZONE" == false ]
   then
-    TEST_FAILURE=true
-    echo "============================================================"
-    echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
-    echo "$PRODUCT regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
-    gather-pod-logs $DU_NAMESPACE $LOG_DIR
-    if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
+    attach-deployment-unit-to-lb green
+    wait-for-lb green
+
+    if ! execute-tests regression-test $GREEN_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
+    then
+      TEST_FAILURE=true
+      echo "============================================================"
+      echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
+      echo "$PRODUCT regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
+      gather-pod-logs $DU_NAMESPACE $LOG_DIR
+      if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
+    fi
+    detach-deployment-unit-from-lb green
   fi
 
   echo "SUCCESS! $AVAILABILITY_ZONE"
-  detach-deployment-unit-from-lb green
   attach-deployment-unit-to-lb blue
   wait-for-lb blue
 done
@@ -269,6 +300,11 @@ else
   bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
 fi
 
-echo "$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)" >> $JENKINS_DESCRIPTION
+
+cat <<EOF >> $JENKINS_DESCRIPTION
+$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
+in availability zones: $AVAILABILITY_ZONES
+EOF
+
 echo "Goodbye."
 exit 0
