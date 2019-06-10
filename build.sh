@@ -32,7 +32,7 @@ JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 mkdir "$JENKINS_DIR"
 
 
-if [ -z ${PRODUCT:-} ] || [ "$PRODUCT" == "none" ]
+if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
   echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
   echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
@@ -126,7 +126,7 @@ export DU_S3_FOLDER="$K8S_DEPLOYMENT_ID"
 # Make a place to collect logs
 #
 export LOG_DIR=$K8S_DEPLOYMENT_ID-logs
-if [ -d $LOG_DIR ]; then rm -rf $LOG_DIR; fi
+if [ -d "$LOG_DIR" ]; then rm -rf "$LOG_DIR"; fi
 mkdir $LOG_DIR
 
 trap archiveLogs EXIT
@@ -208,14 +208,14 @@ do
     attach-deployment-unit-to-lb green
     wait-for-lb green
 
-    if ! execute-tests regression-test $GREEN_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
+    if ! execute-tests regression-test "$GREEN_LOAD_BALANCER" "$AVAILABILITY_ZONE" "$DU_DIR" "$LOG_DIR"
     then
       TEST_FAILURE=true
       echo "============================================================"
       echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
       echo "$PRODUCT regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
       gather-pod-logs $DU_NAMESPACE $LOG_DIR
-      if [ $ROLLBACK_ON_TEST_FAILURES == true ]; then break; fi
+      if [ "$ROLLBACK_ON_TEST_FAILURES" == true ]; then break; fi
     fi
     detach-deployment-unit-from-lb green
   fi
@@ -225,7 +225,7 @@ do
   wait-for-lb blue
 done
 
-if ! execute-tests smoke-test $BLUE_LOAD_BALANCER all-azs $DU_DIR $LOG_DIR
+if ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
 then
   echo "============================================================"
   echo "ERROR: SMOKE TESTS HAVE FAILED"
@@ -235,9 +235,9 @@ then
 fi
 
 
-if [ $TEST_FAILURE == true \
-     -a $ROLLBACK_ON_TEST_FAILURES == true \
-     -a $PRIOR_DU_ARTIFACT != "not-installed" ]
+if [ "$TEST_FAILURE" == true \
+     -a "$ROLLBACK_ON_TEST_FAILURES" == true \
+     -a "$PRIOR_DU_ARTIFACT" != "not-installed" ]
 then
   echo "Affected availability zones: $UPDATED_AVAILABILITY_ZONES"
   #
@@ -265,7 +265,7 @@ then
     attach-deployment-unit-to-lb green
     wait-for-lb green
 
-    if ! execute-tests smoke-test $GREEN_LOAD_BALANCER $AVAILABILITY_ZONE $DU_DIR $LOG_DIR
+    if ! execute-tests smoke-test "$GREEN_LOAD_BALANCER" "$AVAILABILITY_ZONE" "$DU_DIR" "$LOG_DIR"
     then
       echo "============================================================"
       echo "ERROR: GREEN SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE ON ROLLBACK"
@@ -284,14 +284,14 @@ then
   DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fi
 
-if [ $LEAVE_GREEN_ROUTES == false ]; then remove-all-green-routes; fi
+if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
 echo "============================================================"
 echo "Blue Load Balancer Rules"
 load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
 
-if [ $TEST_FAILURE == true ]; then exit 1; fi
+if [ "$TEST_FAILURE" == true ]; then exit 1; fi
 
-if [ -z ${PRIOR_DU_S3_FOLDER:-} ] || [ -z ${PRIOR_DU_S3_BUCKET:-} ] || [ "$PRIOR_DU_VERSION" == "not-installed" ]
+if [ -z "${PRIOR_DU_S3_FOLDER:-}" ] || [ -z "${PRIOR_DU_S3_BUCKET:-}" ] || [ "$PRIOR_DU_VERSION" == "not-installed" ]
 then
   echo "No previous S3 bucket. Skipping bucket deletion."
 else
