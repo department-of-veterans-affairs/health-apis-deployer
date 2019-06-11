@@ -11,4 +11,4 @@ for tool in ryan-secrets deployment-git-secrets; do
 done
 
 docker build -t vasdvp/deployer:latest ..
-docker build --no-cache -t vasdvp/deployer-toolkit . -f Dockerfile.toolkit
+docker build --no-cache -t vasdvp/deployer-toolkit:latest . -f Dockerfile.toolkit
