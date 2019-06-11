@@ -6,7 +6,7 @@ set -euo pipefail
 #
 if [ -d bin ]; then rm -rf bin; fi
 mkdir bin
-for tool in ryan-secrets; do
+for tool in ryan-secrets deployment-git-secrets; do
   cp -r ../bin/$tool bin/$tool
 done
 

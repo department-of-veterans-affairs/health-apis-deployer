@@ -13,6 +13,9 @@ encrypt --encryption-passphrase <secret>
 decrypt --encryption-passphrase <secret>
   Encrypt or decrypt configuration and testvars files in the /du volume mount.
 
+gitsecrets
+  Initialize git secrets on provided directory
+
 zip --encryption-passphrase <secret>
 unzip --encryption-passphrase <secret>
   Zip or unzip configuration and testvars zip files in the /du volume mount.
@@ -47,6 +50,12 @@ doEncrypt() {
 doDecrypt() {
   checkVolume
   ryan-secrets decrypt-all -e "$ENCRYPTION_PASSPHRASE" -d $DU
+}
+
+doGitSecrets() {
+  checkVolume
+  cd /du
+  deployment-git-secrets
 }
 
 doUnzip() {
@@ -107,6 +116,7 @@ COMMAND=$1
 case "$COMMAND" in
   e|encrypt) doEncrypt;;
   d|decrypt) doDecrypt;;
+  gs|gitsecrets) doGitSecrets;;
   zip) doZip;;
   unzip) doUnzip;;
   dos2unix) doDos2Unix;;

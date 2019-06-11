@@ -27,6 +27,9 @@ cd /somewhere/awesome-deployment
 # Decrypt sensitive files
 docker run --rm -v $(pwd):/du vasdvp/deployer-toolkit:latest decrypt -e $SECRET
 
+# Prevent decrypted secrets from being committed
+docker run --rm -v $(pwd):/du vasdvp/deployer-toolkit:latest gitsecrets
+
 # Still have encrypted zips?
 docker run --rm -v $(pwd):/du vasdvp/deployer-toolkit:latest unzip -e $SECRET
 
