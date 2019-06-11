@@ -58,9 +58,13 @@ def sendDeployMessage(channelName) {
   )
 }
 
+def notifyOperationsChannel() {
+  return ["lab", "production"].contains(env.ENVIRONMENT)
+}
+
 def notifySlackOfDeployment() {
   if (env.PRODUCT != "none" && env.PRODUCT != null) {
-    if(["lab", "production"].contains(env.ENVIRONMENT)) {
+    if(notifyOperationsChannel()) {
       sendDeployMessage('api_operations')
     }
     sendDeployMessage('health_apis_jenkins')
@@ -197,6 +201,9 @@ pipeline {
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
           if (env.PRODUCT != "none") {
+            if (notifyOperationsChannel()) {
+              sendNotifications('api_operations')
+            }
             sendNotifications()
           }
         }

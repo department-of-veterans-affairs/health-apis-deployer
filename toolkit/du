@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+#
+# Provides short cut for using the deployer toolkit.
+# The current directory is a deployment unit and will be mounted.
+#
+#
+IMAGE=vasdvp/deployer-toolkit:latest
+
+[ ! -f deployment.conf ] && echo "Current directory is not a deployment unit" && exit
+[ -z "$ENCRYPTION_PASSPHRASE" -a -n "$DU_CRYPTO_KEY" ] && ENCRYPTION_PASSPHRASE="$DU_CRYPTO_KEY"
+
+docker pull $IMAGE
+docker run -v $(pwd):/du -e ENCRYPTION_PASSPHRASE="$ENCRYPTION_PASSPHRASE" --rm $IMAGE $@
