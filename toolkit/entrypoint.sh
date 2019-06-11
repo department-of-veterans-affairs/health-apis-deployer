@@ -23,11 +23,16 @@ unzip --encryption-passphrase <secret>
 dos2unix
   Fix those DOS line endings!
 
-EXAMPLE
+EXAMPLES
 docker run \\
   --rm \\
   -v /my/awesome/unit:/du \\
   vasdvp/deployer-toolkit:latest encrypt --encryption-passphrase sp00py
+
+  docker run \\
+    --rm \\
+    -v /my/awesome/unit:/du \\
+    vasdvp/deployer-toolkit:latest gitsecrets
 
 $1
 EOF
@@ -50,11 +55,14 @@ doEncrypt() {
 doDecrypt() {
   checkVolume
   ryan-secrets decrypt-all -e "$ENCRYPTION_PASSPHRASE" -d $DU
+  doGitSecrets
 }
 
 doGitSecrets() {
   checkVolume
   cd /du
+  echo -e "\033[33;7mInstalling git-secrets!\033[0m"
+  echo -e "\033[33;7mGo to https://github.com/awslabs/git-secrets and make sure git-secrets is installed locally.\033[0m"
   deployment-git-secrets
 }
 

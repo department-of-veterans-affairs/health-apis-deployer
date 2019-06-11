@@ -4,9 +4,8 @@ set -euo pipefail
 #
 # Selectively make some tools available
 #
-if [ -d bin ]; then rm -rf bin; fi
-mkdir bin
-for tool in ryan-secrets deployment-git-secrets; do
+if [ -f bin/ryan-secrets ]; then rm ryan-secrets; fi
+for tool in ryan-secrets do
   cp -r ../bin/$tool bin/$tool
 done
 
