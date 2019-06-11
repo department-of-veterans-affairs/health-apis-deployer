@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x
 set -u
 
 AVAILABILITY_ZONE=$1
@@ -19,6 +18,7 @@ echo "Looking for currently installed version of $DU_NAMESPACE"
 #
 EXISTING_NAMESPACE=$(cluster-fox kubectl $AVAILABILITY_ZONE -- get namespace --no-headers \
   | awk "/^$DU_NAMESPACE / {print \$1}")
+
 if [ -z "$EXISTING_NAMESPACE" ]
 then
 echo "No version of $DU_NAMESPACE is currently installed"

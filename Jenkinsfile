@@ -58,9 +58,13 @@ def sendDeployMessage(channelName) {
   )
 }
 
+def notifyOperationsChannel() {
+  return ["lab", "production"].contains(env.ENVIRONMENT)
+}
+
 def notifySlackOfDeployment() {
   if (env.PRODUCT != "none" && env.PRODUCT != null) {
-    if(["lab", "production"].contains(env.ENVIRONMENT)) {
+    if(notifyOperationsChannel()) {
       sendDeployMessage('api_operations')
     }
     sendDeployMessage('health_apis_jenkins')
@@ -100,7 +104,7 @@ pipeline {
     upstream(upstreamProjects: 'department-of-veterans-affairs/health-apis/master', threshold: hudson.model.Result.SUCCESS)
   }
   environment {
-    ENVIRONMENT = "${["qa", "staging", "production", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME : "qa"}"
+    ENVIRONMENT = "${["qa", "staging", "production", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME.replaceAll('_','-') : "qa"}"
   }
   stages {
     /*
@@ -197,6 +201,9 @@ pipeline {
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
           if (env.PRODUCT != "none") {
+            if (notifyOperationsChannel()) {
+              sendNotifications('api_operations')
+            }
             sendNotifications()
           }
         }
