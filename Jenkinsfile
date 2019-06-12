@@ -175,7 +175,7 @@ pipeline {
       input {
        message "I would like to enter the DANGER_ZONE..."
        ok "You may enter!"
-       submitter "bryan.schofield,ian.laflamme,aparcel-va"
+       submitter "bryan.schofield,ian.laflamme,aparcel-va,eclendenning,joshua.hulbert"
       }
       agent {
         dockerfile {
