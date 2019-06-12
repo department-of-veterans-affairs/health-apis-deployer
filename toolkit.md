@@ -30,6 +30,9 @@ docker run --rm -v $(pwd):/du vasdvp/deployer-toolkit:latest decrypt -e $SECRET
 # Prevent decrypted secrets from being committed
 docker run --rm -v $(pwd):/du vasdvp/deployer-toolkit:latest gitsecrets
 
+If you are recieving the message: git: 'secrets' is not a git command. See 'git --help'.
+Follow the install instructions here : https://github.com/awslabs/git-secrets
+
 # Still have encrypted zips?
 docker run --rm -v $(pwd):/du vasdvp/deployer-toolkit:latest unzip -e $SECRET
 
