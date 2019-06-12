@@ -4,8 +4,8 @@ set -euo pipefail
 #
 # Selectively make some tools available
 #
-if [ -f bin/ryan-secrets ]; then rm ryan-secrets; fi
-for tool in ryan-secrets do
+if [ -f bin/ryan-secrets ]; then rm bin/ryan-secrets; fi
+for tool in ryan-secrets; do
   cp -r ../bin/$tool bin/$tool
 done
 

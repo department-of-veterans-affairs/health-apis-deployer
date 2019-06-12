@@ -42,3 +42,9 @@ docker run --rm -v $(pwd):/du vasdvp/deployer-toolkit:latest encrypt -e $SECRET
 # Still need encrypted zips? Are you sure? They're lame.
 docker run --rm -v $(pwd):/du vasdvp/deployer-toolkit:latest zip -e $SECRET
 ```
+
+
+#### Notes
+- The `gitsecrets` command only hooks git-secrets to your GitHub repository.
+  If you are receiving the message: `git: 'secrets' is not a git command. See 'git --help'.`
+  Follow the [install instructions](https://github.com/awslabs/git-secrets) to install git-secrets locally.
