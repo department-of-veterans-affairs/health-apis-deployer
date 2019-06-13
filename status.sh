@@ -3,6 +3,7 @@ set -euo pipefail
 
 set -x
 
+export PATH=$WORKSPACE/bin:$PATH
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
