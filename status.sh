@@ -18,5 +18,7 @@ cluster-fox copy-kubectl-config
 for az in $AVAILABILITY_ZONES
 do
   echo "Collecting status from $az"
-  cluster-fox kubectl $az -- get ns -o json > namespaces.$az.json
+  cluster-fox kubectl $az -- get ns -o json \
+    | jq  '[.items[].metadata.labels | select( .["deployment-unit"] != null)]' \
+          > status.$az.json
 done
