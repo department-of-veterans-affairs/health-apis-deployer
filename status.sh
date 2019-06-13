@@ -4,6 +4,8 @@ set -euo pipefail
 set -x
 
 export PATH=$WORKSPACE/bin:$PATH
+export AWS_DEFAULT_REGION=us-gov-west-1
+
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
