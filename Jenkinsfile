@@ -190,18 +190,6 @@ pipeline {
         saunter('./build.sh')
       }
     }
-    stage('Status') {
-      agent {
-        dockerfile {
-            registryUrl 'https://index.docker.io/v1/'
-            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-            args DOCKER_ARGS
-           }
-      }
-      steps {
-        saunter('./status.sh')
-      }
-    }
   }
   post {
     always {
