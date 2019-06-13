@@ -15,7 +15,7 @@ test -f "$ENV_CONF"
 declare -rx NAMESPACE=$DU_NAMESPACE
 
 echo "Standardizing Line Endings..."
-dos2unix $(find $DU_DIR -name "*.yaml" -or -name "*.properties" -or -name "*.conf" -or -name "*.testvars" -or -name "*.yml")
+dos2unix -q $(find $DU_DIR -name "*.yaml" -or -name "*.properties" -or -name "*.conf" -or -name "*.testvars" -or -name "*.yml")
 
 . $DEFAULT_CONF
 . $ENV_CONF

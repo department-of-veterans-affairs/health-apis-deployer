@@ -39,7 +39,7 @@ load-balancer disable-target-group \
     --product "$PRODUCT" \
     --az-abreviation="$AZ_ABREVIATION"
 
-if [ $COLOR == blue ]
+if [ "$COLOR" == blue ]
 then
   echo "Giving the blue load balancer time to catch up"
   sleep 60

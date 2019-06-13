@@ -406,8 +406,9 @@ ruleHealth() {
   echo $healths
   [ -z "$healths" ] && echo "Can't find target group state" && exit 1
 
-  for health in $healths; do
-    if [ $health != "healthy" ]; then
+  for health in $healths
+  do
+    if [ "$health" != "healthy" ]; then
       echo "Targets not healthy." && exit 1
     fi
   done
