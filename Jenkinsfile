@@ -190,11 +190,23 @@ pipeline {
         saunter('./build.sh')
       }
     }
+    stage('Status') {
+      agent {
+        dockerfile {
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args DOCKER_ARGS
+           }
+      }
+      steps {
+        saunter('./status.sh')
+      }
+    }
   }
   post {
     always {
       node('master') {
-        archiveArtifacts artifacts: '**/*-logs.zip', onlyIfSuccessful: false, allowEmptyArchive: true
+        archiveArtifacts artifacts: '**/*-logs.zip,**/namespaces.*.json', onlyIfSuccessful: false, allowEmptyArchive: true
         script {
           def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
