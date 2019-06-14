@@ -149,11 +149,10 @@ pipeline {
         }
       }
     }
-    stage('Deploy - qa') {
+    stage('Deploy') {
       when {
         expression { return env.BUILD_MODE != 'ignore' }
         expression { return env.DANGER_ZONE == 'false' }
-        expression { return env.ENVIRONMENT == 'qa'}
       }
       agent {
         dockerfile {
@@ -163,29 +162,16 @@ pipeline {
            }
       }
       steps {
-        lock('qa-deployments') {
-          echo "Deployments to QA have been locked"
+        if(env.ENVIRONMENT == 'qa') {
+          lock('qa-deployments') {
+            echo "Deployments to QA have been locked"
+            notifySlackOfDeployment()
+            saunter('./build.sh')
+          }
+        } else {
           notifySlackOfDeployment()
           saunter('./build.sh')
         }
-      }
-    }
-    stage('Deploy - Higher Environments') {
-      when {
-        expression { return env.BUILD_MODE != 'ignore' }
-        expression { return env.DANGER_ZONE == 'false' }
-        expression { return env.ENVIRONMENT != 'qa'}
-      }
-      agent {
-        dockerfile {
-            registryUrl 'https://index.docker.io/v1/'
-            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-            args DOCKER_ARGS
-           }
-      }
-      steps {
-        notifySlackOfDeployment()
-        saunter('./build.sh')
       }
     }
     stage('Danger Zone!') {
