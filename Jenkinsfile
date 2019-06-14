@@ -155,7 +155,7 @@ pipeline {
         expression { return env.DANGER_ZONE == 'false' }
         expression { return env.ENVIRONMENT == 'qa'}
       }
-      lock(label: 'qa-deployments' variable: 'locked') {
+      lock(label: 'qa-deployments', variable: 'locked') {
         echo "Locked until the following resources have been built: ${env.locked}"
       }
       agent {
