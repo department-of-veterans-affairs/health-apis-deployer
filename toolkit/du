@@ -11,5 +11,5 @@ IMAGE=vasdvp/deployer-toolkit:latest
 
 
 
-if [ "${PULL:-true}" == true ]; then docker pull $IMAGE; fi
+if [ "${PULL:-true}" == true ]; then docker pull $IMAGE > /dev/null; fi
 docker run -v $(pwd):/du -e ENCRYPTION_PASSPHRASE="$ENCRYPTION_PASSPHRASE" --rm $IMAGE $@
