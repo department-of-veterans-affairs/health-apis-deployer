@@ -32,6 +32,19 @@ JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 mkdir "$JENKINS_DIR"
 
 
+#
+# Set up the AWS region
+#
+export AWS_DEFAULT_REGION=us-gov-west-1
+
+#
+# Load the environment configuration
+#
+test -n "$ENVIRONMENT"
+test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
+. "$WORKSPACE/environments/$ENVIRONMENT.conf"
+echo "Using cluster $CLUSTER_ID"
+
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
   deployment-status
@@ -44,11 +57,6 @@ then
   exit 0
 fi
 
-
-#
-# Set up the AWS region
-#
-export AWS_DEFAULT_REGION=us-gov-west-1
 
 #
 # Load configuration. The following variables are expected
@@ -90,13 +98,6 @@ then
   DU_VERSION="$DANGER_ZONE_DU_VERSION"
 fi
 
-#
-# Load the environment configuration
-#
-test -n "$ENVIRONMENT"
-test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
-. "$WORKSPACE/environments/$ENVIRONMENT.conf"
-echo "Using cluster $CLUSTER_ID"
 
 #
 # If we're in the DANGER ZONE, never roll back
