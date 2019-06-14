@@ -163,11 +163,11 @@ pipeline {
            }
       }
       steps {
-        lock(resource: 'qa-deployments', variable: 'locked') {
-          echo "Locked until the following resources have been built: ${env.locked}"
+        lock('qa-deployments') {
+          echo "Deployments to QA have been locked"
+          notifySlackOfDeployment()
+          saunter('./build.sh')
         }
-        notifySlackOfDeployment()
-        saunter('./build.sh')
       }
     }
     stage('Deploy - Higher Environments') {
