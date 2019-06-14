@@ -34,13 +34,13 @@ mkdir "$JENKINS_DIR"
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
+  deployment-status
   echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
   echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
   echo "Building nothing."
   echo "Good day, sir."
   echo
   echo "I SAID GOOD DAY, SIR!"
-  deployment-status
   exit 0
 fi
 

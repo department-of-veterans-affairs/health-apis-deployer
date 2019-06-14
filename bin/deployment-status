@@ -7,6 +7,8 @@ set -euo pipefail
 # artifact label metadata
 #
 
+echo "Collecting deployment status"
+
 AVAILABILITY_ZONES="$(cluster-fox list-availability-zones)"
 cluster-fox copy-kubectl-config
 
