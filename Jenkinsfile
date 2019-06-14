@@ -149,10 +149,32 @@ pipeline {
         }
       }
     }
-    stage('Deploy') {
+    stage('Deploy - qa') {
       when {
         expression { return env.BUILD_MODE != 'ignore' }
         expression { return env.DANGER_ZONE == 'false' }
+        expression { return env.ENVIRONMENT == 'qa'}
+      }
+      lock(label: 'qa-deployments' variable: 'locked') {
+        echo "Locked until the following resources have been built: ${env.locked}"
+      }
+      agent {
+        dockerfile {
+            registryUrl 'https://index.docker.io/v1/'
+            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+            args DOCKER_ARGS
+           }
+      }
+      steps {
+        notifySlackOfDeployment()
+        saunter('./build.sh')
+      }
+    }
+    stage('Deploy - Higher Environments') {
+      when {
+        expression { return env.BUILD_MODE != 'ignore' }
+        expression { return env.DANGER_ZONE == 'false' }
+        expression { return env.ENVIRONMENT != 'qa'}
       }
       agent {
         dockerfile {
