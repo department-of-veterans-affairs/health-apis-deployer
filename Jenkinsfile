@@ -155,9 +155,6 @@ pipeline {
         expression { return env.DANGER_ZONE == 'false' }
         expression { return env.ENVIRONMENT == 'qa'}
       }
-      lock(label: 'qa-deployments', variable: 'locked') {
-        echo "Locked until the following resources have been built: ${env.locked}"
-      }
       agent {
         dockerfile {
             registryUrl 'https://index.docker.io/v1/'
@@ -166,6 +163,9 @@ pipeline {
            }
       }
       steps {
+        lock(label: 'qa-deployments', variable: 'locked') {
+          echo "Locked until the following resources have been built: ${env.locked}"
+        }
         notifySlackOfDeployment()
         saunter('./build.sh')
       }
