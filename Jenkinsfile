@@ -162,13 +162,8 @@ pipeline {
            }
       }
       steps {
-        if(env.ENVIRONMENT == 'qa') {
-          lock('qa-deployments') {
-            echo "Deployments to QA have been locked"
-            notifySlackOfDeployment()
-            saunter('./build.sh')
-          }
-        } else {
+        lock('${env.ENVIRONMENT}-deployments') {
+          echo "Deployments to ${env.ENVIRONMENT} have been locked"
           notifySlackOfDeployment()
           saunter('./build.sh')
         }
