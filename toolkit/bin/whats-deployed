@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+STATUS_JSON=$(mktemp)
+onExit() {  rm $STATUS_JSON; }
+trap onExit EXIT
+
+
+
+
+ENV=${1:-}
+if [ -z "${ENV}" ]
+then
+  echo "Usage: $(basename $0) <env>"
+  echo "Environments: qa, staging, production, staging-lab, lab"
+  exit 1
+fi
+ENV=${ENV/-/_}
+
+whatsDeployed() {
+  local when=$1
+  local status=$(curl -s -w "%{http_code}" -o $STATUS_JSON \
+    https://tools.health.dev-developer.va.gov/jenkins/job/department-of-veterans-affairs/job/health-apis-deployer/job/$ENV/$when/artifact/status.us-gov-west-1a.json)
+  if [ "$status" != 200 ]; then return 1; fi
+  cat $STATUS_JSON \
+    | jq -r '.[] | .["deployment-unit"], .["deployment-app-version"], .["deployment-unit-artifact"], .["deployment-unit-version"], .["deployment-date"]' \
+    | paste -sd "    \n" \
+    | column -t
+  return 0
+}
+
+if ! whatsDeployed lastBuild
+then
+  whatsDeployed lastSuccessfulBuild
+fi
