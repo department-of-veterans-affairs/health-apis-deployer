@@ -23,6 +23,9 @@ unzip --encryption-passphrase <secret>
 dos2unix
   Fix those DOS line endings!
 
+whats-deployed <env>
+  Print a summary of deployed products.
+
 EXAMPLES
 docker run \\
   --rm \\
@@ -43,6 +46,7 @@ exit 1
 
 checkVolume() {
   if [ ! -d $DU ]; then usage "Deployment unit volume not found"; fi
+  if [ ! -f deployment.conf ]; then usage "Current directory is not a deployment unit"; fi
   local count=$(find $DU | wc -l)
   if [ "$count" == 1 ]; then usage "Deployment unit appears empty"; fi
 }
@@ -98,6 +102,10 @@ doDos2Unix() {
   dos2unix $(find /du -type f -print0 | xargs -0 file | grep -E "ASCII .* CRLF line terminators" | cut -d : -f 1)
 }
 
+doWhatsDeployed() {
+  whats-deployed "${1:-}"
+}
+
 #============================================================
 
 DU=/du
@@ -128,5 +136,6 @@ case "$COMMAND" in
   zip) doZip;;
   unzip) doUnzip;;
   dos2unix) doDos2Unix;;
+  whats-deployed) doWhatsDeployed "${2:-}";;
   *) usage "Unknown command: $COMMAND";;
 esac
