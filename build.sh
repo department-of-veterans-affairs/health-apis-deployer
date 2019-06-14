@@ -114,7 +114,7 @@ fi
 #
 HASH=${GIT_COMMIT:0:7}
 if [ -z "$HASH" ]; then HASH=DEV; fi
-export BUILD_DATE="$(TZ=America/New_York date +%Y-%m-%d-%H%M-%Z)"
+export BUILD_DATE="$(TZ=America/New_York date --iso-8601=seconds)"
 export BUILD_HASH=$HASH
 export BUILD_ID=${BUILD_ID:-NONE}
 export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
