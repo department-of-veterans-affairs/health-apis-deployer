@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
+if [ "${DEBUG:-false}" == true ]; then set -x; done
 
 #
 # Create a JSON file per AZ that includes the deployed
