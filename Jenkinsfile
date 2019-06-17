@@ -208,7 +208,6 @@ pipeline {
 
           def unstableStatus = sh returnStatus: true, script: '''[ -f .jenkins_unstable ] && exit 1 ; exit 0'''
           if (unstableStatus == 1 && currentBuild.result != "FAILURE") {
-            echo "${env.ENVIRONMENT} -- ${currentBuild.result}"
             currentBuild.result = 'UNSTABLE'
           }
 
