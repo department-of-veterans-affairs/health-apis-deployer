@@ -237,7 +237,7 @@ then
   echo "ERROR: SMOKE TESTS HAVE FAILED"
   echo "$PRODUCT smoke test failure" >> $JENKINS_DESCRIPTION
   TEST_FAILURE=true
-  set-test-label $AVAILABILITY_ZONE DU_NAMESPACE "FAILED"
+  if [ "$DANGER_ZONE" == false ]; then set-test-label $AVAILABILITY_ZONE DU_NAMESPACE "FAILED"; fi
   gather-pod-logs $DU_NAMESPACE $LOG_DIR
 fi
 
