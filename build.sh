@@ -219,7 +219,7 @@ do
       echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
       echo "$PRODUCT regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
       gather-pod-logs $DU_NAMESPACE $LOG_DIR
-      set-test-label $AVAILABILITY_ZONE DU_NAMESPACE "FAILED"
+      set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "FAILED"
       if [ "$ROLLBACK_ON_TEST_FAILURES" == true ]; then break; fi
     fi
     detach-deployment-unit-from-lb green
@@ -244,7 +244,7 @@ fi
 
 if [ "$TEST_FAILURE" == true \
      -a "$ROLLBACK_ON_TEST_FAILURES" == true \
-     -a "$PRIOR_DU_ARTIFACT" != "not-installed" ]
+     -a "$PRIOR_DU_ARTIFACT" != "not-installed"
 then
   echo "Affected availability zones: $UPDATED_AVAILABILITY_ZONES"
   #
