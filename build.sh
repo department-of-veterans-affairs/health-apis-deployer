@@ -294,7 +294,16 @@ load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --colo
 
 deployment-status
 
-if [ "$TEST_FAILURE" == true ]; then exit 1; fi
+if [ "$TEST_FAILURE" == true ]
+then
+  if [ "$ENVIRONMENT" == "qa" ]
+  then
+    touch ./.jenkins_unstable
+    exit 0
+  else
+    exit 1
+  fi
+fi
 
 if [ -z "${PRIOR_DU_S3_FOLDER:-}" ] || [ -z "${PRIOR_DU_S3_BUCKET:-}" ] || [ "$PRIOR_DU_VERSION" == "not-installed" ]
 then

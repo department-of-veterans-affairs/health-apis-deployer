@@ -205,10 +205,13 @@ pipeline {
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
-          if (env.ENVIRONMENT == "qa" && currentBuild.result == "FAILURE") {
+
+          def unstableStatus = sh returnStatus: true, script: '''[ -f .jenkins_unstable ] && exit 1 ; exit 0'''
+          if (unstableStatus == 1 && currentBuild.result != "FAILURE") {
             echo "${env.ENVIRONMENT} -- ${currentBuild.result}"
-            currentBuild.rawBuild.@result = hudson.model.Result.UNSTABLE
+            currentBuild.result = 'UNSTABLE'
           }
+
           if (env.PRODUCT != "none") {
             if (notifyOperationsChannel()) {
               sendNotifications('api_operations')
