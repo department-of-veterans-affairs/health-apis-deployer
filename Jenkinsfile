@@ -71,12 +71,6 @@ def notifySlackOfDeployment() {
   }
 }
 
-def markYellowBuilds() {
-  if (env.ENVIRONMENT == 'qa' && currentBuild.result == 'FAILURE') {
-    currentBuild.result = 'UNSTABLE'
-  }
-}
-
 /*
  * We'll use the host user db so that any files written from the docker container look
  * like they were written by real host users.
@@ -212,6 +206,11 @@ pipeline {
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
+          System.out.println("${currentBuild.result}")
+          if (env.ENVIRONMENT == 'qa' && currentBuild.result == 'FAILURE') {
+            currentBuild.result = 'UNSTABLE'
+          }
+          System.out.println("${currentBuild.result}")
           if (env.PRODUCT != "none") {
             if (notifyOperationsChannel()) {
               sendNotifications('api_operations')
