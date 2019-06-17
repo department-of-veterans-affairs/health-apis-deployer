@@ -166,7 +166,6 @@ pipeline {
           echo "Deployments to ${env.ENVIRONMENT} have been locked"
           notifySlackOfDeployment()
           saunter('./build.sh')
-          markYellowBuilds()
         }
       }
     }
