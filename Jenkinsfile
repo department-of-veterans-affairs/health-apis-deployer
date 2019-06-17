@@ -206,7 +206,7 @@ pipeline {
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
           echo "${env.ENVIRONMENT} -- ${currentBuild.result}"
-          if (env.ENVIRONMENT == "qa" && currentBuild.result == "FAILURE") {
+          if (env.ENVIRONMENT == "qa" && currentBuild.result == "SUCCESS") {
             currentBuild.result = 'UNSTABLE'
           }
           echo "${env.ENVIRONMENT} -- ${currentBuild.result}"
