@@ -207,7 +207,7 @@ pipeline {
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
           System.out.println("${currentBuild.result}")
-          if (env.ENVIRONMENT == 'qa' && currentBuild.result == 'FAILURE') {
+          if (env.ENVIRONMENT == 'qa' && "${currentBuild.result}" == 'FAILURE') {
             currentBuild.result = 'UNSTABLE'
           }
           System.out.println("${currentBuild.result}")
