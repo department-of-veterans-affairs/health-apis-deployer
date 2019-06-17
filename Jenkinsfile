@@ -195,16 +195,18 @@ pipeline {
            }
       }
       steps {
-        echo "LANA!!!"
-        notifySlackOfDeployment()
-        saunter('./build.sh')
+        lock("${env.ENVIRONMENT}-deployments") {
+          echo "LANA!!!"
+          notifySlackOfDeployment()
+          saunter('./build.sh')
+        }
       }
     }
   }
   post {
     always {
       node('master') {
-        archiveArtifacts artifacts: '**/*-logs.zip', onlyIfSuccessful: false, allowEmptyArchive: true
+        archiveArtifacts artifacts: '**/*-logs.zip,**/status.*.json', onlyIfSuccessful: false, allowEmptyArchive: true
         script {
           def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"

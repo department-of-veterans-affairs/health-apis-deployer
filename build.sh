@@ -32,8 +32,22 @@ JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 mkdir "$JENKINS_DIR"
 
 
+#
+# Set up the AWS region
+#
+export AWS_DEFAULT_REGION=us-gov-west-1
+
+#
+# Load the environment configuration
+#
+test -n "$ENVIRONMENT"
+test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
+. "$WORKSPACE/environments/$ENVIRONMENT.conf"
+echo "Using cluster $CLUSTER_ID"
+
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
+  deployment-status
   echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
   echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
   echo "Building nothing."
@@ -43,11 +57,6 @@ then
   exit 0
 fi
 
-
-#
-# Set up the AWS region
-#
-export AWS_DEFAULT_REGION=us-gov-west-1
 
 #
 # Load configuration. The following variables are expected
@@ -89,13 +98,6 @@ then
   DU_VERSION="$DANGER_ZONE_DU_VERSION"
 fi
 
-#
-# Load the environment configuration
-#
-test -n "$ENVIRONMENT"
-test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
-. "$WORKSPACE/environments/$ENVIRONMENT.conf"
-echo "Using cluster $CLUSTER_ID"
 
 #
 # If we're in the DANGER ZONE, never roll back
@@ -112,7 +114,7 @@ fi
 #
 HASH=${GIT_COMMIT:0:7}
 if [ -z "$HASH" ]; then HASH=DEV; fi
-export BUILD_DATE="$(TZ=America/New_York date +%Y-%m-%d-%H%M-%Z)"
+export BUILD_DATE="$(TZ=America/New_York date --iso-8601=minutes | tr -d :)"
 export BUILD_HASH=$HASH
 export BUILD_ID=${BUILD_ID:-NONE}
 export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
@@ -288,6 +290,9 @@ if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
 echo "============================================================"
 echo "Blue Load Balancer Rules"
 load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
+
+
+deployment-status
 
 if [ "$TEST_FAILURE" == true ]; then exit 1; fi
 

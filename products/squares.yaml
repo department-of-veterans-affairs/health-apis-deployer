@@ -10,6 +10,7 @@ metadata:
     deployment-date: $BUILD_DATE
     deployment-s3-bucket: $DU_AWS_BUCKET_NAME
     deployment-s3-folder: $DU_S3_FOLDER
+    deployment-app-version: $SQUARES_EXPERIENCE_VERSION
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
