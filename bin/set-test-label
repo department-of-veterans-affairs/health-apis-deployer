@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export AVAILABILITY_ZONE=$1
+export NAMESPACE=$2
+export STATUS=$3
+
+test -n "$AVAILABILITY_ZONE"
+test -n "$NAMESPACE"
+test -n "$STATUS"
+
+
+cluster-fox kubectl $AVAILABILITY_ZONE -- label -n $NAMESPACE deployment-test-status=$STATUS

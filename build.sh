@@ -210,6 +210,8 @@ do
     attach-deployment-unit-to-lb green
     wait-for-lb green
 
+    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "IN-PROGRESS"
+
     if ! execute-tests regression-test "$GREEN_LOAD_BALANCER" "$AVAILABILITY_ZONE" "$DU_DIR" "$LOG_DIR"
     then
       TEST_FAILURE=true
@@ -217,11 +219,13 @@ do
       echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
       echo "$PRODUCT regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
       gather-pod-logs $DU_NAMESPACE $LOG_DIR
+      set-test-label $AVAILABILITY_ZONE DU_NAMESPACE "FAILED"
       if [ "$ROLLBACK_ON_TEST_FAILURES" == true ]; then break; fi
     fi
     detach-deployment-unit-from-lb green
   fi
 
+  set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
   echo "SUCCESS! $AVAILABILITY_ZONE"
   attach-deployment-unit-to-lb blue
   wait-for-lb blue
@@ -233,6 +237,7 @@ then
   echo "ERROR: SMOKE TESTS HAVE FAILED"
   echo "$PRODUCT smoke test failure" >> $JENKINS_DESCRIPTION
   TEST_FAILURE=true
+  set-test-label $AVAILABILITY_ZONE DU_NAMESPACE "FAILED"
   gather-pod-logs $DU_NAMESPACE $LOG_DIR
 fi
 
@@ -273,6 +278,8 @@ then
       echo "ERROR: GREEN SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE ON ROLLBACK"
       echo "$PRODUCT green smoke test failure in $AVAILABILITY_ZONE on rollback" >> $JENKINS_DESCRIPTION
     fi
+
+    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "ROLLBACK"
     detach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
   done
