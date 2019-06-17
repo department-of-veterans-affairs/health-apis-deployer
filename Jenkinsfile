@@ -162,8 +162,11 @@ pipeline {
            }
       }
       steps {
-        notifySlackOfDeployment()
-        saunter('./build.sh')
+        lock("${env.ENVIRONMENT}-deployments") {
+          echo "Deployments to ${env.ENVIRONMENT} have been locked"
+          notifySlackOfDeployment()
+          saunter('./build.sh')
+        }
       }
     }
     stage('Danger Zone!') {
@@ -185,9 +188,11 @@ pipeline {
            }
       }
       steps {
-        echo "LANA!!!"
-        notifySlackOfDeployment()
-        saunter('./build.sh')
+        lock("${env.ENVIRONMENT}-deployments") {
+          echo "LANA!!!"
+          notifySlackOfDeployment()
+          saunter('./build.sh')
+        }
       }
     }
   }
