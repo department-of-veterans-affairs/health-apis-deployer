@@ -209,6 +209,7 @@ pipeline {
           if ("${env.ENVIRONMENT}" == 'qa' && "${currentBuild.result}" == 'FAILURE') {
             currentBuild.result = 'UNSTABLE'
           }
+          currentBuild.result = 'UNSTABLE'
           echo "${env.ENVIRONMENT} -- ${currentBuild.result}"
           if (env.PRODUCT != "none") {
             if (notifyOperationsChannel()) {
