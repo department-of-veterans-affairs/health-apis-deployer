@@ -10,4 +10,4 @@ test -n "$NAMESPACE"
 test -n "$STATUS"
 
 
-cluster-fox kubectl $AVAILABILITY_ZONE -- label namespace $NAMESPACE deployment-test-status=$STATUS
+cluster-fox kubectl $AVAILABILITY_ZONE -- label --overwrite namespace $NAMESPACE deployment-test-status=$STATUS
