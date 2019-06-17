@@ -12,6 +12,7 @@ metadata:
     deployment-s3-bucket: $DU_AWS_BUCKET_NAME
     deployment-s3-folder: $DU_S3_FOLDER
     deployment-app-version: $MEE_VERSION
+    deployment-test-status: UNTESTED
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
