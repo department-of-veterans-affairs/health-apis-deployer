@@ -223,9 +223,9 @@ do
       if [ "$ROLLBACK_ON_TEST_FAILURES" == true ]; then break; fi
     fi
     detach-deployment-unit-from-lb green
+    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
   fi
 
-  set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
   echo "SUCCESS! $AVAILABILITY_ZONE"
   attach-deployment-unit-to-lb blue
   wait-for-lb blue
