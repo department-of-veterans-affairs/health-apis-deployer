@@ -71,6 +71,12 @@ def notifySlackOfDeployment() {
   }
 }
 
+def markYellowBuilds() {
+  if (env.ENVIRONMENT == 'qa' && currentBuild.result == 'FAILURE') {
+    currentBuild.result = 'UNSTABLE'
+  }
+}
+
 /*
  * We'll use the host user db so that any files written from the docker container look
  * like they were written by real host users.
@@ -166,6 +172,7 @@ pipeline {
           echo "Deployments to ${env.ENVIRONMENT} have been locked"
           notifySlackOfDeployment()
           saunter('./build.sh')
+          markYellowBuilds()
         }
       }
     }
@@ -199,9 +206,6 @@ pipeline {
       node('master') {
         archiveArtifacts artifacts: '**/*-logs.zip', onlyIfSuccessful: false, allowEmptyArchive: true
         script {
-          if (env.ENVIRONMENT == 'qa' && currentBuild.result == 'FAILURE') {
-            currentBuild.result = 'UNSTABLE'
-          }
           def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
