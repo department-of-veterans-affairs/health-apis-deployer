@@ -244,7 +244,7 @@ fi
 
 if [ "$TEST_FAILURE" == true \
      -a "$ROLLBACK_ON_TEST_FAILURES" == true \
-     -a "$PRIOR_DU_ARTIFACT" != "not-installed"
+     -a "$PRIOR_DU_ARTIFACT" != "not-installed" ]
 then
   echo "Affected availability zones: $UPDATED_AVAILABILITY_ZONES"
   #
