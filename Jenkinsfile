@@ -162,7 +162,7 @@ pipeline {
            }
       }
       steps {
-        lock('${env.ENVIRONMENT}-deployments') {
+        lock("${env.ENVIRONMENT}-deployments") {
           echo "Deployments to ${env.ENVIRONMENT} have been locked"
           notifySlackOfDeployment()
           saunter('./build.sh')
