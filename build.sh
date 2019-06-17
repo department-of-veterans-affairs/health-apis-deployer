@@ -32,8 +32,22 @@ JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 mkdir "$JENKINS_DIR"
 
 
+#
+# Set up the AWS region
+#
+export AWS_DEFAULT_REGION=us-gov-west-1
+
+#
+# Load the environment configuration
+#
+test -n "$ENVIRONMENT"
+test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
+. "$WORKSPACE/environments/$ENVIRONMENT.conf"
+echo "Using cluster $CLUSTER_ID"
+
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
+  deployment-status
   echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
   echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
   echo "Building nothing."
@@ -43,11 +57,6 @@ then
   exit 0
 fi
 
-
-#
-# Set up the AWS region
-#
-export AWS_DEFAULT_REGION=us-gov-west-1
 
 #
 # Load configuration. The following variables are expected
@@ -89,13 +98,6 @@ then
   DU_VERSION="$DANGER_ZONE_DU_VERSION"
 fi
 
-#
-# Load the environment configuration
-#
-test -n "$ENVIRONMENT"
-test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
-. "$WORKSPACE/environments/$ENVIRONMENT.conf"
-echo "Using cluster $CLUSTER_ID"
 
 #
 # If we're in the DANGER ZONE, never roll back
@@ -112,7 +114,7 @@ fi
 #
 HASH=${GIT_COMMIT:0:7}
 if [ -z "$HASH" ]; then HASH=DEV; fi
-export BUILD_DATE="$(TZ=America/New_York date +%Y-%m-%d-%H%M-%Z)"
+export BUILD_DATE="$(TZ=America/New_York date --iso-8601=minutes | tr -d :)"
 export BUILD_HASH=$HASH
 export BUILD_ID=${BUILD_ID:-NONE}
 export BUILD_BRANCH_NAME=${BRANCH_NAME:-NONE}
@@ -208,6 +210,8 @@ do
     attach-deployment-unit-to-lb green
     wait-for-lb green
 
+    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "IN-PROGRESS"
+
     if ! execute-tests regression-test "$GREEN_LOAD_BALANCER" "$AVAILABILITY_ZONE" "$DU_DIR" "$LOG_DIR"
     then
       TEST_FAILURE=true
@@ -215,9 +219,11 @@ do
       echo "ERROR: REGRESSION TESTS HAVE FAILED IN $AVAILABILITY_ZONE"
       echo "$PRODUCT regression failure in $AVAILABILITY_ZONE" >> $JENKINS_DESCRIPTION
       gather-pod-logs $DU_NAMESPACE $LOG_DIR
+      set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "FAILED"
       if [ "$ROLLBACK_ON_TEST_FAILURES" == true ]; then break; fi
     fi
     detach-deployment-unit-from-lb green
+    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
   fi
 
   echo "SUCCESS! $AVAILABILITY_ZONE"
@@ -231,6 +237,7 @@ then
   echo "ERROR: SMOKE TESTS HAVE FAILED"
   echo "$PRODUCT smoke test failure" >> $JENKINS_DESCRIPTION
   TEST_FAILURE=true
+  if [ "$DANGER_ZONE" == false ]; then set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "FAILED"; fi
   gather-pod-logs $DU_NAMESPACE $LOG_DIR
 fi
 
@@ -271,6 +278,8 @@ then
       echo "ERROR: GREEN SMOKE TESTS HAVE FAILED IN $AVAILABILITY_ZONE ON ROLLBACK"
       echo "$PRODUCT green smoke test failure in $AVAILABILITY_ZONE on rollback" >> $JENKINS_DESCRIPTION
     fi
+
+    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "ROLLBACK"
     detach-deployment-unit-from-lb green
     attach-deployment-unit-to-lb blue
   done
@@ -288,6 +297,9 @@ if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
 echo "============================================================"
 echo "Blue Load Balancer Rules"
 load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
+
+
+deployment-status
 
 if [ "$TEST_FAILURE" == true ]; then exit 1; fi
 

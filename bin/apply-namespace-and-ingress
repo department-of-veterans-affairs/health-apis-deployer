@@ -12,8 +12,27 @@ AVAILABILITY_ZONE=$1
 DU_DIR=$2
 test -n "$DU_DIR"
 
+DEFAULT_CONF=$DU_DIR/deployment.conf
+ENV_CONF=$DU_DIR/$ENVIRONMENT.conf
+
+test -f "$DEFAULT_CONF"
+test -f "$ENV_CONF"
+
 NAMESPACE_YAML=$(mktemp ns-XXXX.yaml)
-cat $WORKSPACE/products/$PRODUCT.yaml | envsubst > $NAMESPACE_YAML
+(
+  # Make sure the sourced scripts cannot modify any of our sensitive variables
+  declare -r BUILD_DATE
+  declare -r DU_ARTIFACT
+  declare -r DU_AWS_BUCKET_NAME
+  declare -r DU_NAMESPACE
+  declare -r DU_S3_FOLDER
+  declare -r DU_VERSION
+  declare -r K8S_DEPLOYMENT_ID
+  declare -r PRODUCT
+  . $DEFAULT_CONF
+  . $ENV_CONF
+  cat $WORKSPACE/products/$PRODUCT.yaml | envsubst > $NAMESPACE_YAML
+)
 
 #
 # Check to see if the namespace exists and delete it if it does
