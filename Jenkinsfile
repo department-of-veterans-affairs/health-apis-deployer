@@ -188,9 +188,11 @@ pipeline {
            }
       }
       steps {
-        echo "LANA!!!"
-        notifySlackOfDeployment()
-        saunter('./build.sh')
+        lock("${env.ENVIRONMENT}-deployments") {
+          echo "LANA!!!"
+          notifySlackOfDeployment()
+          saunter('./build.sh')
+        }
       }
     }
   }
