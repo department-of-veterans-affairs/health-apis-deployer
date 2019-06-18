@@ -211,7 +211,7 @@ pipeline {
             currentBuild.result = 'UNSTABLE'
           }
 
-          if (env.PRODUCT != "none") {
+          if (env.PRODUCT != "none" && env.PRODUCT != null) {
             if (notifyOperationsChannel()) {
               sendNotifications('api_operations')
             }
