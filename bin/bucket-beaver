@@ -18,7 +18,7 @@ addApplicationProperties() {
   fi
 
   cp "$DEPLOYMENT_INFO_TEXT" "$DU_DIR/s3"
-  aws s3 cp "$DU_DIR/s3" "s3://$S3_BUCKET/$FOLDER_NAME" --recursive --quiet "$SILENCE"
+  aws s3 cp "$DU_DIR/s3" "s3://$S3_BUCKET/$FOLDER_NAME" --recursive --quiet="$SILENCE"
 }
 
 cleanUpOldProperties() {
@@ -29,7 +29,7 @@ cleanUpOldProperties() {
   fi
 
   echo "Cleaning up deployment folder $FOLDER_NAME in bucket $S3_BUCKET"
-  aws s3 rm "s3://$S3_BUCKET/$FOLDER_NAME" --recursive --quiet "$SILENCE"
+  aws s3 rm "s3://$S3_BUCKET/$FOLDER_NAME" --recursive --quiet="$SILENCE"
 }
 
 #==============================================================================
