@@ -19,7 +19,13 @@ echo "Extracting deployment to $DU_DIR"
 #
 if [ -d $DU_DIR ]; then mv $DU_DIR $DU_DIR.failed; fi
 
-tar xvf $TARGET_FILE
+if [ "${DEBUG}" == true ]
+then
+  tar xvf $TARGET_FILE
+else
+  tar xf $TARGET_FILE
+fi
+
 if [ "$DU_PROPERTY_LEVEL_ENCRYPTION" == true ]
 then
   ryan-secrets decrypt-all --directory $DU_DIR --encryption-passphrase $DU_DECRYPTION_KEY
