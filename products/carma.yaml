@@ -27,5 +27,5 @@ spec:
         paths:
           - path: /(api/)?carma(.*)
             backend:
-              serviceName:
-              servicePort:
+              serviceName: unset
+              servicePort: unset
