@@ -21,10 +21,12 @@ if [ -d $DU_DIR ]; then mv $DU_DIR $DU_DIR.failed; fi
 
 if [ "${DEBUG}" == true ]
 then
-  tar xvf $TARGET_FILE
+  TAR_OPTIONS='xvf'
 else
-  tar xf $TARGET_FILE
+  TAR_OPTIONS='xf'
 fi
+
+tar "$TAR_OPTIONS" $TARGET_FILE
 
 if [ "$DU_PROPERTY_LEVEL_ENCRYPTION" == true ]
 then
