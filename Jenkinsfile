@@ -205,6 +205,12 @@ pipeline {
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
+
+          def unstableStatus = sh returnStatus: true, script: '''[ -f .jenkins_unstable ] && exit 1 ; exit 0'''
+          if (unstableStatus == 1 && currentBuild.result != "FAILURE") {
+            currentBuild.result = 'UNSTABLE'
+          }
+
           if (env.PRODUCT != "none") {
             if (notifyOperationsChannel()) {
               sendNotifications('api_operations')
