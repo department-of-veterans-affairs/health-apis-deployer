@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+if [ "$DEBUG" == true ]; then echo "$@"; fi
