@@ -46,7 +46,7 @@ exit 1
 
 checkVolume() {
   if [ ! -d $DU ]; then usage "Deployment unit volume not found"; fi
-  if [ ! -f deployment.conf ]; then usage "Current directory is not a deployment unit"; fi
+  if [ ! -f /du/deployment.conf ]; then usage "Current directory is not a deployment unit"; fi
   local count=$(find $DU | wc -l)
   if [ "$count" == 1 ]; then usage "Deployment unit appears empty"; fi
 }
