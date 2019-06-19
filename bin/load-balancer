@@ -2,10 +2,6 @@
 
 #set -euo pipefail
 
-debug() {
-  if [ "$DEBUG" == true ]; then echo "$@"; fi
-}
-
 usage() {
 cat<<EOF > /dev/stderr
 $0 <command> [options]
