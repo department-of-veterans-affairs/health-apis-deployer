@@ -162,8 +162,11 @@ pipeline {
            }
       }
       steps {
-        notifySlackOfDeployment()
-        saunter('./build.sh')
+        lock("${env.ENVIRONMENT}-deployments") {
+          echo "Deployments to ${env.ENVIRONMENT} have been locked"
+          notifySlackOfDeployment()
+          saunter('./build.sh')
+        }
       }
     }
     stage('Danger Zone!') {
@@ -185,22 +188,30 @@ pipeline {
            }
       }
       steps {
-        echo "LANA!!!"
-        notifySlackOfDeployment()
-        saunter('./build.sh')
+        lock("${env.ENVIRONMENT}-deployments") {
+          echo "LANA!!!"
+          notifySlackOfDeployment()
+          saunter('./build.sh')
+        }
       }
     }
   }
   post {
     always {
       node('master') {
-        archiveArtifacts artifacts: '**/*-logs.zip', onlyIfSuccessful: false, allowEmptyArchive: true
+        archiveArtifacts artifacts: '**/*-logs.zip,**/status.*.json', onlyIfSuccessful: false, allowEmptyArchive: true
         script {
           def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
           def description = sh returnStdout: true, script: '''[ -f .jenkins/description ] && cat .jenkins/description ; exit 0'''
           currentBuild.description = "${description}"
-          if (env.PRODUCT != "none") {
+
+          def unstableStatus = sh returnStatus: true, script: '''[ -f .jenkins_unstable ] && exit 1 ; exit 0'''
+          if (unstableStatus == 1 && currentBuild.result != "FAILURE") {
+            currentBuild.result = 'UNSTABLE'
+          }
+
+          if (env.PRODUCT != "none" && env.PRODUCT != null) {
             if (notifyOperationsChannel()) {
               sendNotifications('api_operations')
             }

@@ -7,8 +7,9 @@
 #
 IMAGE=vasdvp/deployer-toolkit:latest
 
-[ ! -f deployment.conf ] && echo "Current directory is not a deployment unit" && exit
 [ -z "$ENCRYPTION_PASSPHRASE" -a -n "$DU_CRYPTO_KEY" ] && ENCRYPTION_PASSPHRASE="$DU_CRYPTO_KEY"
 
-docker pull $IMAGE
+
+
+if [ "${PULL:-true}" == true ]; then docker pull $IMAGE > /dev/null; fi
 docker run -v $(pwd):/du -e ENCRYPTION_PASSPHRASE="$ENCRYPTION_PASSPHRASE" --rm $IMAGE $@

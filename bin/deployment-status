@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [ "${DEBUG:-false}" == true ]; then set -x; fi
+
+#
+# Create a JSON file per AZ that includes the deployed
+# artifact label metadata
+#
+
+echo "Collecting deployment status"
+
+AVAILABILITY_ZONES="$(cluster-fox list-availability-zones)"
+cluster-fox copy-kubectl-config
+
+for az in $AVAILABILITY_ZONES
+do
+  echo "Collecting status from $az"
+  cluster-fox kubectl $az -- get ns -o json \
+    | jq  '[.items[].metadata.labels | select( .["deployment-unit"] != null)]' \
+          > status.$az.json
+done
