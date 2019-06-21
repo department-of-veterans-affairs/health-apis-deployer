@@ -321,12 +321,23 @@ disableTargetGroup() {
   local tgName
   tgName=$(tgName) || exit 1
   local targetGroupArn=$(targetGroupArn)
+  local autoscaleGroupName="kubernetes-$CLUSTER_ID$AZ_ABREVIATION-autoscaling"
+
+  local targetGroupCount=$(aws autoscaling describe-load-balancer-target-groups \
+      --auto-scaling-group-name $autoscaleGroupName | grep -oc "$targetGroupArn")
 
   [ -z "$AZ_ABREVIATION" ] && echo "Target Availability Zone Abreviation not set."
-  echo "Detaching $targetGroupArn"
-  aws autoscaling detach-load-balancer-target-groups \
-      --auto-scaling-group-name "kubernetes-$CLUSTER_ID$AZ_ABREVIATION-autoscaling" \
-      --target-group-arns $targetGroupArn
+
+  if [ $targetGroupCount -gt 0 ]
+  then
+      echo "Detaching $targetGroupArn"
+      aws autoscaling detach-load-balancer-target-groups \
+          --auto-scaling-group-name $autoscaleGroupName \
+          --target-group-arns $targetGroupArn
+  else
+    echo "Target Group $targetGroupArn does not exist in autoscaling group $autoscaleGroupName"
+    echo "Skipping target group detachment..."
+  fi
 }
 
 listRules() {
