@@ -27,5 +27,5 @@ spec:
         paths:
           - path: /(api/)?carma(.*)
             backend:
-              serviceName: unset
-              servicePort: unset
+              serviceName: carma-search
+              servicePort: 80
