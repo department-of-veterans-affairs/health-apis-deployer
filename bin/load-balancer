@@ -2,9 +2,6 @@
 
 #set -euo pipefail
 
-set +x
-if [ "${DEBUG}" == true ]; then set -x; fi
-
 usage() {
 cat<<EOF > /dev/stderr
 $0 <command> [options]
@@ -110,6 +107,9 @@ createTargetGroup() {
   tgName=$(tgName) || exit 1
   [ -z "$HEALTH_CHECK_PATH" ] && usage "Health check path not specified"
 
+  matcherHttpCode=${DU_HEALTH_CHECK_STATUS:-'200'}
+  echo "matcherCode: $matcherHttpCode"
+
   if [ -z "$(targetGroupArn)" ]; then
     echo "Creating target group: $tgName"
     aws elbv2 create-target-group \
@@ -125,7 +125,7 @@ createTargetGroup() {
       --health-check-timeout-seconds "$HEALTH_CHECK_TIMEOUT" \
       --healthy-threshold-count "$HEALTH_CHECK_HEALTHY_THRESHOLD" \
       --unhealthy-threshold-count "$HEALTH_CHECK_UNHEALTHY_THRESHOLD" \
-      --matcher "HttpCode=${DU_HEALTH_CHECK_STATUS:-200}" \
+      --matcher "HttpCode=$matcherHttpCode" \
       | tee $WORK/target-group.json
 
     local newTgArn=$(cat $WORK/target-group.json \
