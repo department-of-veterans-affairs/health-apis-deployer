@@ -31,16 +31,20 @@ NAMESPACE_TEST=$(grep "kind: Namespace" $1)
   && echo "Namespace Test Validation Failed. Do NOT include Namespace creation in deployment yamls!" \
   && exit 1
 
+SUPER_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
+if [ $(echo $SUPER_NAMESPACE_TEST | wc -l) != $(echo $SUPER_NAMESPACE_TEST | grep -c $NAMESPACE) ]; then
+ echo "============================================================" \
+ && echo "Namespace Validation Failed. Namespace should only be: $2." \
+ && exit 1
+fi
+
+if [ "$WEAK_STRUCTURE_VALIDATION" = true ]; then echo "Weak Validation is on, be careful!" && exit 0; fi
+
 NAMESPACE_STRUCT=$(grep -E '^.*(kind|metadata|  namespace):' $1)
 echo "$NAMESPACE_STRUCT" | while read line ; do
 
   if [ "$metadata" = true ]; then
     if [[ "$line" == *"namespace"* ]]; then
-      if [ "$(echo "$line" | awk '{ print $2 }')" != "$NAMESPACE" ]; then
-        echo "============================================================" \
-          && echo "Namespace Validation Failed. Namespace should be: $2 but $line was found." \
-          && exit 1
-      fi
       unset metadata
       continue
     else
