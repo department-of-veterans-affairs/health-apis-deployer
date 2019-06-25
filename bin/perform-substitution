@@ -22,7 +22,7 @@ dos2unix -q $(find $DU_DIR -name "*.yaml" -or -name "*.properties" -or -name "*.
 
 for i in $(find $DU_DIR -name "*.yaml" -or -name "*.properties" -or -name "*.yml")
 do
-  echo "Substituting values in ${i/$DU_DIR/}"
+  debug "Substituting values in ${i/$DU_DIR/}"
   FILE_PATH=$i
   FILE_BACKUP="$i.original"
   mv $FILE_PATH $FILE_BACKUP
