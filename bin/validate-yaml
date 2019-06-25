@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+
+set +x
+if [ "${DEBUG}" == true ]; then set -x; fi
+
 usage() {
 cat<<EOF > /dev/stderr
 $0 <FILE> <NAMESPACE>
@@ -17,6 +21,7 @@ exit 1
 
 FILE=$1
 NAMESPACE=$2
+WEAK_STRUCTURE_VALIDATION=${3:-'false'}
 
 [ -z $FILE ] && echo "No deployment.yaml specified." && usage && exit 1
 [ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1
