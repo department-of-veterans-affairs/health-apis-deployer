@@ -122,7 +122,7 @@ createTargetGroup() {
       --health-check-timeout-seconds "$HEALTH_CHECK_TIMEOUT" \
       --healthy-threshold-count "$HEALTH_CHECK_HEALTHY_THRESHOLD" \
       --unhealthy-threshold-count "$HEALTH_CHECK_UNHEALTHY_THRESHOLD" \
-      --matcher "HttpCode=200" \
+      --matcher HttpCode="${DU_HEALTH_CHECK_STATUS:-'200'}" \
       | tee $WORK/target-group.json
 
     local newTgArn=$(cat $WORK/target-group.json \
@@ -399,7 +399,7 @@ ruleHealth() {
 
   [ -z "$RULE_PATH" ] && echo "Rule-path not specified." && exit 1
 
-  echo "ALB $alb"
+  debug "ALB $alb"
   echo "Path $RULE_PATH"
 
   #
@@ -414,8 +414,8 @@ ruleHealth() {
       --query 'TargetHealthDescriptions[*]' \
       | jq -r '.[] | .TargetHealth.State')
 
-  echo $healths
   [ -z "$healths" ] && echo "Can't find target group state" && exit 1
+  echo $healths
 
   for health in $healths
   do
@@ -447,7 +447,7 @@ vpcId() {
   [ -n "$VPC_ID" ] && echo $VPC_ID && return 0
   VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Environment,Values=$VPC_ENV | jq -r .Vpcs[].VpcId)
   [ -z "$VPC_ID" ] && echo "Could not find VPC for environment $VPC_ENV" && exit 1
-  echo "VPC $VPC_ID ($VPC_ENV)"
+  debug "VPC $VPC_ID ($VPC_ENV)"
 }
 CLUSTER_ID=
 HEALTH_CHECK_INTERVAL=5
