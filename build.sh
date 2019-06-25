@@ -72,6 +72,7 @@ declare -x DU_HEALTH_CHECK_PATH
 declare -xA DU_LOAD_BALANCER_RULES # Associative array of priority to path
 declare -x DU_PROPERTY_LEVEL_ENCRYPTION
 declare -x WEAK_STRUCTURE_VALIDATION
+declare -x DU_HEALTH_CHECK_STATUS
 
 . $WORKSPACE/products/$PRODUCT.conf
 test -n "$DU_ARTIFACT"

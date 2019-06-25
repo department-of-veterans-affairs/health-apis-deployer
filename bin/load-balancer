@@ -2,6 +2,9 @@
 
 #set -euo pipefail
 
+set +x
+if [ "${DEBUG}" == true ]; then set -x; fi
+
 usage() {
 cat<<EOF > /dev/stderr
 $0 <command> [options]
