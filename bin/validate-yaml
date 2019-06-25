@@ -37,8 +37,8 @@ if [ $(echo $SUPER_NAMESPACE_TEST | wc -l) != $(echo $SUPER_NAMESPACE_TEST | gre
  && echo "Namespace Validation Failed. Namespace should only be: $2." \
  && exit 1
 fi
-
-if [ "$WEAK_STRUCTURE_VALIDATION" == true ]; then echo "Weak Validation is on, be careful!" && exit 0; fi
+echo "Weak Boy: $WEAK_STRUCTURE_VALIDATION"
+if [ "$WEAK_STRUCTURE_VALIDATION" == 'true' ]; then echo "Weak Validation is on, be careful!" && exit 0; fi
 
 NAMESPACE_STRUCT=$(grep -E '^.*(kind|metadata|  namespace):' $1)
 echo "$NAMESPACE_STRUCT" | while read line ; do
