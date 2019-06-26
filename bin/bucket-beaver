@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-set -euo pipefail
+#set -euo pipefail
 
-debug() {
-  if [ "$DEBUG" == true ]; then echo "$@"; fi
-}
+if [ "$DEBUG" == false ]; then SILENCE='--quiet'; fi
 
 addApplicationProperties() {
-  echo "Creating folder $FOLDER_NAME in bucket $S3_BUCKET for application.properties"
+  echo "Creating folder $FOLDER_NAME in bucket $S3_BUCKET"
   #
   # If the deployment unit hasn't specified s3 contents, we'll create the bucket anyway
   # to make sure that the deployment machinery is a consistent as possible... it always
@@ -19,7 +17,7 @@ addApplicationProperties() {
   fi
 
   cp "$DEPLOYMENT_INFO_TEXT" "$DU_DIR/s3"
-  aws s3 cp "$DU_DIR/s3" "s3://$S3_BUCKET/$FOLDER_NAME" --recursive
+  aws s3 cp "$DU_DIR/s3" "s3://$S3_BUCKET/$FOLDER_NAME" --recursive $SILENCE
 }
 
 cleanUpOldProperties() {
@@ -30,7 +28,7 @@ cleanUpOldProperties() {
   fi
 
   echo "Cleaning up deployment folder $FOLDER_NAME in bucket $S3_BUCKET"
-  aws s3 rm "s3://$S3_BUCKET/$FOLDER_NAME" --recursive
+  aws s3 rm "s3://$S3_BUCKET/$FOLDER_NAME" --recursive $SILENCE
 }
 
 #==============================================================================
