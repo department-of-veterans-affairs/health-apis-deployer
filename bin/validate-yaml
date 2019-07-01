@@ -2,13 +2,15 @@
 
 usage() {
 cat<<EOF > /dev/stderr
-$0 <FILE> <NAMESPACE>
+$0 <FILE> <NAMESPACE> <WEAK_STRUCTURE_VALIDATION>
 
 ARGS:
   <FILE>
     Input .yaml file to validate.
   <NAMESPACE>
     The required namespace to validate.
+  <WEAK_STRUCTURE_VALIDATION>
+    Required boolean to lower structure testing requirements.
 
 EOF
 echo -e "$1" > /dev/stderr
@@ -17,9 +19,11 @@ exit 1
 
 FILE=$1
 NAMESPACE=$2
+WEAK_STRUCTURE_VALIDATION=$3
 
 [ -z $FILE ] && echo "No deployment.yaml specified." && usage && exit 1
 [ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1
+[ -z $WEAK_STRUCTURE_VALIDATION ] && echo "Structure validation type not specified." && usage && exit 1
 
 INGRESS_TEST=$(grep "kind: Ingress" $1)
 [ ! -z "$INGRESS_TEST" ] && echo "============================================================" \
@@ -31,16 +35,20 @@ NAMESPACE_TEST=$(grep "kind: Namespace" $1)
   && echo "Namespace Test Validation Failed. Do NOT include Namespace creation in deployment yamls!" \
   && exit 1
 
+SUPER_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
+if [ $(echo $SUPER_NAMESPACE_TEST | wc -l) != $(echo $SUPER_NAMESPACE_TEST | grep -c $NAMESPACE) ]; then
+ echo "============================================================" \
+ && echo "Namespace Validation Failed. Namespace should only be: $2." \
+ && exit 1
+fi
+
+if [ "$WEAK_STRUCTURE_VALIDATION" == 'true' ]; then echo "Weak yaml validation is on, be careful!" && exit 0; fi
+
 NAMESPACE_STRUCT=$(grep -E '^.*(kind|metadata|  namespace):' $1)
 echo "$NAMESPACE_STRUCT" | while read line ; do
 
   if [ "$metadata" = true ]; then
     if [[ "$line" == *"namespace"* ]]; then
-      if [ "$(echo "$line" | awk '{ print $2 }')" != "$NAMESPACE" ]; then
-        echo "============================================================" \
-          && echo "Namespace Validation Failed. Namespace should be: $2 but $line was found." \
-          && exit 1
-      fi
       unset metadata
       continue
     else

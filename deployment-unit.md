@@ -198,7 +198,8 @@ various situations.
   then a smoke test might simply contain two reads and a health check.
 
 ##### Test container contract
-- Test container will accept one test type argument: `regression-test` or `smoke-test`
+- Test container will support test type arguments: `regression-test` and `smoke-test`
+- Test container will accept one test type argument at a time: `regression-test` or `smoke-test`
 - Test container will be provided the environment variables as listed below
 - Test container shall provide an exit code of `0` to indicate success and any non-zero value
   to indicate failure
