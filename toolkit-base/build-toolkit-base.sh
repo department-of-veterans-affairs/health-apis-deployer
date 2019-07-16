@@ -7,18 +7,7 @@ set -euo pipefail
 
 cd $(dirname "${BASH_SOURCE[0]}")
 
-if [ -f bin/ryan-secrets ]; then rm bin/ryan-secrets; fi
-for tool in ryan-secrets; do
-  cp -r ../bin/$tool bin/$tool
-done
-
-if [ -f bin/cluster-fox ]; then rm bin/cluster-fox; fi
-for tool in cluster-fox; do
-  cp -r ../bin/$tool bin/$tool
-done
-
-if [ -f bin/debug ]; then rm bin/debug; fi
-for tool in debug; do
+for tool in ryan-secrets cluster-fox debug; do
   cp -r ../bin/$tool bin/$tool
 done
 
