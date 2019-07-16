@@ -5,8 +5,7 @@ set -euo pipefail
 # Selectively make some of the deployer's tools available in the toolkit
 #
 
-cd $(dirname "${BASH_SOURCE[0]}")
-
+cd $(dirname "$0")
 for tool in ryan-secrets cluster-fox debug; do
   cp -r ../bin/$tool bin/$tool
 done
