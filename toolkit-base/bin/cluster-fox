@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+listMasters() {
+  assertClusterId
+  aws ec2 describe-instances \
+      --filter "Name=tag:KubernetesRole,Values=master-$CLUSTER_ID" "Name=instance-state-name,Values=running" \
+    | jq -r '.Reservations[].Instances[]| .Placement.AvailabilityZone, .PrivateIpAddress' \
+    | paste -sd ' \n' \
+    | sort
+}
+
+listAvailabilityZones() {
+  listMasters | awk '{printf $1 " "}'
+}
+
+copyKubectlConfigFromMaster() {
+  assertSshKey
+  local az=$1
+  local ip=$2
+  debug "Retrieving configuration for $az from $ip"
+  [ ! -d "$KUBE_DIR" ] && mkdir $KUBE_DIR
+  local config=$KUBE_DIR/$az-config
+  scp -q -o 'StrictHostKeyChecking no' -i "$CLUSTER_SSH_KEY" ec2-user@$ip:~/.kube/config $config
+  echo "$az $ip $config"
+}
+
+copyKubectlConfig() {
+  listMasters | while IFS=' ' read az ip; do copyKubectlConfigFromMaster $az $ip; done
+}
+
+azKubectl() {
+  local az=$1
+  shift
+  local conf=$KUBE_DIR/$az-config
+  if [ ! -f "$conf" ]; then echo "Missing kubectl configuration for $az. See copy-kubectl-config."; exit 1; fi
+  (
+    export HOME=$(dirname $KUBE_DIR)
+    kubectl --kubeconfig="$conf" $@
+  )
+}
+
+#==============================================================================
+usage() {
+cat <<EOF
+$0 <command> [options]
+
+Commands
+  list-availability-zones --cluster-id <id>
+    List master availability zones the cluster is running in.
+  list-masters --cluster-id <id>
+    List master IPs by availability zone
+  copy-kubectl-config --cluster-id <id> --ssh-key <file>
+    Transfer kubectl config files from masters. This is required before kubectl commands.
+  kubectl <az> -- <arg> [arg ... ]
+    Execute a kubectl command against the master of a particular availability zone.
+    The -- is required to separate $(basename $0) arguments from kubectl arguments.
+
+Options:
+ --cluster-id <id> The cluster ID, e.g. f43
+ --ssh-key <file>  Certificate for accessing cluster members via SSH
+
+Example:
+  $0 copy-kubectl-config
+  $0 kubectl us-gov-west-1a -- get pods --all-namespaces
+EOF
+exit 1
+}
+
+assertSet() { if [ -z "$2" ]; then echo "$1 not specified" && exit 1; fi; }
+assertClusterId() { assertSet --cluster-id "${CLUSTER_ID:-}"; }
+assertSshKey() { assertSet --ssh-key "${CLUSTER_SSH_KEY:-}"; }
+
+KUBE_DIR=$WORKSPACE/.kube
+[ -z "$DEBUG" ] && DEBUG=false
+ARGS=$(getopt -n $(basename ${0}) \
+    -l "debug,help,cluster-id:,ssh-key:" \
+    -o "xdh" -- "$@")
+[ $? != 0 ] && usage
+eval set -- "$ARGS"
+while true
+do
+  case "$1" in
+    --cluster-id) CLUSTER_ID="$2";;
+    --ssh-key) CLUSTER_SSH_KEY="$2";;
+    -x|--debug) DEBUG=true; set -x;;
+    -h|--help) usage "halp! what this do?";;
+    --) shift;break;;
+  esac
+  shift;
+done
+
+COMMAND="${1:-}"
+[ -z "$COMMAND" ] && usage "No command specified"
+shift
+
+case $COMMAND in
+  kc|kubectl) azKubectl $@;;
+  list-masters) listMasters;;
+  list-availability-zones) listAvailabilityZones;;
+  copy-kubectl-config) copyKubectlConfig;;
+  *) usage "Unknown command: $COMMAND"
+esac
