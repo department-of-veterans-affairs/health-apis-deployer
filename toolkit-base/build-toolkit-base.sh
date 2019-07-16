@@ -17,5 +17,10 @@ for tool in cluster-fox; do
   cp -r ../bin/$tool bin/$tool
 done
 
+if [ -f bin/debug ]; then rm bin/debug; fi
+for tool in debug; do
+  cp -r ../bin/$tool bin/$tool
+done
+
 docker build -t vasdvp/deployer:latest ..
 docker build --no-cache -t vasdvp/deployer-toolkit-base:latest . -f Dockerfile.toolkit-base
