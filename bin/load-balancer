@@ -25,6 +25,8 @@ COMMANDS
     Delete all rules, except the default, from the ALB.
   rule-health --env <ENV> --cluster-id <cid> --color <color> --rule-path <path>
     Test the health of a rule's target group's targets.
+  list-rules --env <ENV> --color <color> [--unhealthy]
+    List the rules with health status for a specific load balancer
   list-certificates
     List the domains for the available certficates. This can be used
     with the --certificate option.
@@ -370,12 +372,14 @@ listRules() {
         --target-group-arn $tgArn \
         --query 'TargetHealthDescriptions[*]' \
       | jq -r '.[] | .TargetHealth.State' \
-      | awk 'BEGIN {h=0;u=0} /^healthy/ { h++ } /^unhealthy/ {u++} END {print h " " u " " (h+u) }' \
+      | awk 'BEGIN {h=0;u=0;w="OK"} /^healthy/ { h++ } /^unhealthy/ {u++;w="UNHEALTHY"} END {print h " " u " " (h+u) " " w}' \
             >> $WORK/rule.$priority &
   done < $WORK/rules
   wait
-  echo "PRIORITY RULE HEALTHY UNHEALTHY TOTAL" > $WORK/rule.summary
-  cat $WORK/rule.[0-9]* | sort -n >> $WORK/rule.summary
+  echo "PRIORITY RULE HEALTHY UNHEALTHY TOTAL STATUS" > $WORK/rule.summary
+  local filter=.
+  [ "$LIST_UNHEALTHY_RULES_ONLY" == true ] && filter="UNHEALTHY"
+  cat $WORK/rule.[0-9]* | grep $filter | sort -n >> $WORK/rule.summary
   cat $WORK/rule.[0-9]* | awk '{h+=$3;u+=$4;t+=$5} END {print "TOTAL - " h " " u " " t}' >> $WORK/rule.summary
   cat $WORK/rule.summary | column -t
 }
@@ -456,11 +460,13 @@ HEALTH_CHECK_HEALTHY_THRESHOLD=2
 HEALTH_CHECK_UNHEALTHY_THRESHOLD=2
 MIN_PRIORITY=1
 TG_DRAIN_SECONDS=60
+LIST_UNHEALTHY_RULES_ONLY=false
 
 HEALTH_CHECK_OPTIONS="health-check-path:,health-check-interval:,health-check-timeout:,health-check-healthy-threshold:,health-check-unhealthy-threshold"
+LIST_RULES_OPTIONS="unhealthy"
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "product:,cluster-id:,az-abreviation:,color:,tg-drain-seconds:,debug,environment:,help,min-priority:,rule-path:,$HEALTH_CHECK_OPTIONS" \
+    -l "product:,cluster-id:,az-abreviation:,color:,tg-drain-seconds:,debug,environment:,help,min-priority:,rule-path:,$HEALTH_CHECK_OPTIONS,$LIST_RULES_OPTIONS" \
     -o "xh" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
@@ -482,6 +488,7 @@ do
     --min-priority) MIN_PRIORITY="$2";;
     --tg-drain-seconds) TG_DRAIN_SECONDS="$2";;
     --rule-path) RULE_PATH="$2";;
+    --unhealthy) LIST_UNHEALTHY_RULES_ONLY=true;;
     --) shift;break;;
   esac
   shift;
