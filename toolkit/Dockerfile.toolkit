@@ -1,10 +1,5 @@
-FROM vasdvp/deployer:latest
+FROM vasdvp/deployer-toolkit-base:latest
 
-RUN yum install -yqq file
-RUN git clone https://github.com/awslabs/git-secrets.git
-RUN make -C /git-secrets install
-
-ADD bin/ /toolkit/bin/
 ADD entrypoint.sh /toolkit/
 
 VOLUME /du
