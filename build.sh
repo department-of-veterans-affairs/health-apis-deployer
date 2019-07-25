@@ -223,9 +223,10 @@ do
       gather-pod-logs $DU_NAMESPACE $LOG_DIR
       set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "FAILED"
       if [ "$ROLLBACK_ON_TEST_FAILURES" == true ]; then break; fi
+    else
+      set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
     fi
     detach-deployment-unit-from-lb green
-    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
   fi
 
   echo "SUCCESS! $AVAILABILITY_ZONE"
