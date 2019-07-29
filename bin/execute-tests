@@ -19,6 +19,15 @@ test -f "$ENV_CONF"
 . $ENV_CONF
 . $DU_DIR/test.conf
 
+if [ "$SKIP_LOAD_BALANCER" == true ]
+then
+  WORKER_NODE=$(kubectl $AVAILABILITY_ZONE -- \
+    get nodes --selector='!node-role.kubernetes.io/master' \
+    -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}' \
+    | cut -d ' ' -f 1)
+  LOAD_BALANCER="$WORKER_NODE:30443"
+fi
+
 echo "============================================================"
 echo "Running $TEST on $TEST_IMAGE"
 
