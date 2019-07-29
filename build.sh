@@ -31,7 +31,6 @@ JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
 
-
 #
 # Set up the AWS region
 #
@@ -43,6 +42,18 @@ export AWS_DEFAULT_REGION=us-gov-west-1
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
+
+# Save and Source(TM) Custom Environment if exists
+if [ -n $CUSTOM_ENVIRONMENT ]
+then
+  echo $CUSTOM_ENVIRONMENT > $WORKSPACE/environments/custom.conf
+  . "$WORKSPACE/environments/custom.conf"
+  SKIP_LOAD_BALANCER=true
+  ROLLBACK_ON_TEST_FAILURES=false
+else
+  SKIP_LOAD_BALANCER=false
+fi
+
 echo "Using cluster $CLUSTER_ID"
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
@@ -188,13 +199,17 @@ do
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
-  detach-deployment-unit-from-lb blue
-  #
-  # If we are in the danger zone, skip all non-essential deployment steps.
-  #
-  if [ "$DANGER_ZONE" == false ]
+
+  if [ "$SKIP_LOAD_BALANCER" == false ]
   then
-    remove-all-green-routes
+    detach-deployment-unit-from-lb blue
+    #
+    # If we are in the danger zone, skip all non-essential deployment steps.
+    #
+    if [ "$DANGER_ZONE" == false ]
+    then
+      remove-all-green-routes
+    fi
   fi
 
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
@@ -209,8 +224,11 @@ do
   #
   if [ "$DANGER_ZONE" == false ]
   then
-    attach-deployment-unit-to-lb green
-    wait-for-lb green
+    if [ "$SKIP_LOAD_BALANCER" == false ]
+    then
+      attach-deployment-unit-to-lb green
+      wait-for-lb green
+    fi
 
     set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "IN-PROGRESS"
 
@@ -226,12 +244,15 @@ do
     else
       set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
     fi
-    detach-deployment-unit-from-lb green
+    [ "$SKIP_LOAD_BALANCER" == false ] && detach-deployment-unit-from-lb green
   fi
 
   echo "SUCCESS! $AVAILABILITY_ZONE"
-  attach-deployment-unit-to-lb blue
-  wait-for-lb blue
+  if [ "$SKIP_LOAD_BALANCER" == false ]
+  then
+    attach-deployment-unit-to-lb blue
+    wait-for-lb blue
+  fi
 done
 
 if ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
@@ -240,7 +261,10 @@ then
   echo "ERROR: SMOKE TESTS HAVE FAILED"
   echo "$PRODUCT smoke test failure" >> $JENKINS_DESCRIPTION
   TEST_FAILURE=true
-  if [ "$DANGER_ZONE" == false ]; then set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "FAILED"; fi
+  if [ "$DANGER_ZONE" == false ]
+  then
+    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "FAILED"
+  fi
   gather-pod-logs $DU_NAMESPACE $LOG_DIR
 fi
 
@@ -296,13 +320,16 @@ then
   DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fi
 
-if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
-echo "============================================================"
-echo "Blue Load Balancer Rules"
-load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
+if [ "$SKIP_LOAD_BALANCER" == false ]
+then
+  if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
+  echo "============================================================"
 
+  echo "Blue Load Balancer Rules"
+  load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
 
-deployment-status
+  deployment-status
+fi
 
 if [ "$TEST_FAILURE" == true ]
 then
