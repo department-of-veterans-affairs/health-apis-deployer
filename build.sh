@@ -332,12 +332,7 @@ $PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
 in availability zones: $AVAILABILITY_ZONES
 EOF
 
-cat <<EOF > metadata.json
-{
-    defaultClusterID:  $DEFAULT_CLUSTER_ID
-    deployedToClusterID:  $DEPLOYED_CLUSTER_ID
-}
-EOF
+echo "$DEFAULT_CLUSTER_ID $DEPLOYED_CLUSTER_ID" | jq -R 'split(" ")|{defaultClusterID:.[0], deployedToClusterID:.[1]}' > metadata.json
 
 echo "Goodbye."
 exit 0
