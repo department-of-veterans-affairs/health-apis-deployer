@@ -45,11 +45,10 @@ test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 
 # Save and Source(TM) Custom Environment if exists
 # This will overwrite any values set by the <env>.conf
-if [ "$CUSTOM_ENVIRONMENT" != "default" ]
+if [ "$CUSTOM_CLUSTER_ID" != "default" ]
 then
-  echo "CUSTOM_ENVIRONMENT has been set. Skipping load balancer and rollback..."
-  echo -e $CUSTOM_ENVIRONMENT > $WORKSPACE/environments/custom.conf
-  . $WORKSPACE/environments/custom.conf
+  echo "CUSTOM_CLUSTER_ID has been set. Skipping load balancer and rollback..."
+  CLUSTER_ID="$CUSTOM_CLUSTER_ID"
   SKIP_LOAD_BALANCER=true
   ROLLBACK_ON_TEST_FAILURES=false
 else

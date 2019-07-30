@@ -98,7 +98,7 @@ pipeline {
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
     booleanParam(name: 'DANGER_ZONE', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
     string(name: 'DANGER_ZONE_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for DANGER_ZONE." )
-    text(name: 'CUSTOM_ENVIRONMENT', defaultValue: 'default', description: 'Override any preset environment variables by including them in a new-line-separated list')
+    string(name: 'CUSTOM_CLUSTER_ID', defaultValue: 'default', description: 'Override the cluster-id')
   }
   agent none
   triggers {
