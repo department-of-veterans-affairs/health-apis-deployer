@@ -43,7 +43,9 @@ export AWS_DEFAULT_REGION=us-gov-west-1
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
+DEFAULT_CLUSTER_ID=$CLUSTER_ID
 echo "Using cluster $CLUSTER_ID"
+DEPLOYED_CLUSTER_ID=$CLUSTER_ID
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
@@ -328,6 +330,13 @@ fi
 cat <<EOF >> $JENKINS_DESCRIPTION
 $PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
 in availability zones: $AVAILABILITY_ZONES
+EOF
+
+cat <<EOF > metadata.json
+{
+defaultClusterID:  $DEFAULT_CLUSTER_ID
+deployedToClusterID:  $DEPLOYED_CLUSTER_ID
+}
 EOF
 
 echo "Goodbye."
