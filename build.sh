@@ -350,7 +350,7 @@ else
 fi
 
 # If deployment is custom, let's use the clusterId not environment
-if [ "$SKIP_LOAD_BALANCER" == 'true' ]
+if [ "$CUSTOM_CLUSTER_ID" != "default" ]
 then
 cat <<EOF >> $JENKINS_DESCRIPTION
   $PRODUCT deployed to CLUSTER_ID: $CLUSTER_ID ($DU_ARTIFACT $DU_VERSION)
