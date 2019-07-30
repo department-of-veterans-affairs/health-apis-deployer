@@ -49,10 +49,10 @@ if [ "$CUSTOM_CLUSTER_ID" != "default" ]
 then
   echo "CUSTOM_CLUSTER_ID has been set. Skipping load balancer and rollback..."
   CLUSTER_ID="$CUSTOM_CLUSTER_ID"
-  SKIP_LOAD_BALANCER=true
+  declare -x SKIP_LOAD_BALANCER=true
   ROLLBACK_ON_TEST_FAILURES=false
 else
-  SKIP_LOAD_BALANCER=false
+  declare -x SKIP_LOAD_BALANCER=false
 fi
 
 echo "Using cluster $CLUSTER_ID"
