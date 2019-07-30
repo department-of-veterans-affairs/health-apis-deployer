@@ -19,6 +19,7 @@ test -f "$ENV_CONF"
 . $ENV_CONF
 . $DU_DIR/test.conf
 
+# Overwrite LOAD_BALANCER here so we don't have to do it in multiple other places
 if [ "$SKIP_LOAD_BALANCER" == true ]
 then
   WORKER_NODE=$(kubectl $AVAILABILITY_ZONE -- \
@@ -26,6 +27,7 @@ then
     -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}' \
     | cut -d ' ' -f 1)
   LOAD_BALANCER="$WORKER_NODE:30443"
+  echo "SKIP_LOAD_BALANCER='true' -- Using worker node ($LOAD_BALANCER) to test instead..."
 fi
 
 echo "============================================================"

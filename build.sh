@@ -44,10 +44,12 @@ test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
 
 # Save and Source(TM) Custom Environment if exists
+# This will overwrite any values set by the <env>.conf
 if [ -n $CUSTOM_ENVIRONMENT ]
 then
-  echo $CUSTOM_ENVIRONMENT > $WORKSPACE/environments/custom.conf
-  . "$WORKSPACE/environments/custom.conf"
+  echo "CUSTOM_ENVIRONMENT has been set. Skipping load balancer and rollback..."
+  echo -e $CUSTOM_ENVIRONMENT > $WORKSPACE/environments/custom.conf
+  . $WORKSPACE/environments/custom.conf
   SKIP_LOAD_BALANCER=true
   ROLLBACK_ON_TEST_FAILURES=false
 else
@@ -351,11 +353,19 @@ else
   bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
 fi
 
-
+# If deployment is custom, let's use the clusterId not environment
+if [ "$SKIP_LOAD_BALANCER" == 'true' ]
+then
 cat <<EOF >> $JENKINS_DESCRIPTION
-$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
-in availability zones: $AVAILABILITY_ZONES
+  $PRODUCT deployed to CLUSTER_ID: $CLUSTER_ID ($DU_ARTIFACT $DU_VERSION)
+  in availability zones: $AVAILABILITY_ZONES
 EOF
+else
+cat <<EOF >> $JENKINS_DESCRIPTION
+  $PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
+  in availability zones: $AVAILABILITY_ZONES
+EOF
+fi
 
 echo "Goodbye."
 exit 0
