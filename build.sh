@@ -45,7 +45,7 @@ test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 
 # Save and Source(TM) Custom Environment if exists
 # This will overwrite any values set by the <env>.conf
-if [ -n $CUSTOM_ENVIRONMENT ]
+if [ -n "$CUSTOM_ENVIRONMENT" ]
 then
   echo "CUSTOM_ENVIRONMENT has been set. Skipping load balancer and rollback..."
   echo -e $CUSTOM_ENVIRONMENT > $WORKSPACE/environments/custom.conf
