@@ -334,8 +334,8 @@ EOF
 
 cat <<EOF > metadata.json
 {
-defaultClusterID:  $DEFAULT_CLUSTER_ID
-deployedToClusterID:  $DEPLOYED_CLUSTER_ID
+    defaultClusterID:  $DEFAULT_CLUSTER_ID
+    deployedToClusterID:  $DEPLOYED_CLUSTER_ID
 }
 EOF
 
