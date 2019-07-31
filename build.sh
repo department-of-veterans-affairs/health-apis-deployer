@@ -42,7 +42,7 @@ export AWS_DEFAULT_REGION=us-gov-west-1
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
-
+DEFAULT_CLUSTER_ID=$CLUSTER_ID
 # Save and Source(TM) Custom Environment if exists
 # This will overwrite any values set by the <env>.conf
 if [ "$CUSTOM_CLUSTER_ID" != "default" ]
@@ -56,6 +56,7 @@ else
 fi
 
 echo "Using cluster $CLUSTER_ID"
+DEPLOYED_CLUSTER_ID=$CLUSTER_ID
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
@@ -362,6 +363,8 @@ cat <<EOF >> $JENKINS_DESCRIPTION
   in availability zones: $AVAILABILITY_ZONES
 EOF
 fi
+
+echo "$DEFAULT_CLUSTER_ID $DEPLOYED_CLUSTER_ID" | jq -R 'split(" ")|{defaultClusterID:.[0], deployedToClusterID:.[1]}' > metadata.json
 
 echo "Goodbye."
 exit 0
