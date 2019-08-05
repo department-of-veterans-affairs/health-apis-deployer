@@ -22,7 +22,7 @@ test -f "$ENV_CONF"
 # Overwrite LOAD_BALANCER here so we don't have to do it in multiple other places
 if [ "$SKIP_LOAD_BALANCER" == true ]
 then
-  WORKER_NODE=$(kubectl $AVAILABILITY_ZONE -- \
+  WORKER_NODE=$(cluster-fox kubectl $AVAILABILITY_ZONE -- \
     get nodes --selector='!node-role.kubernetes.io/master' \
     -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}' \
     | cut -d ' ' -f 1)
