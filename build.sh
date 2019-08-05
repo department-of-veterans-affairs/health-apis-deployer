@@ -58,6 +58,8 @@ fi
 echo "Using cluster $CLUSTER_ID"
 DEPLOYED_CLUSTER_ID=$CLUSTER_ID
 
+echo "$DEFAULT_CLUSTER_ID $DEPLOYED_CLUSTER_ID" | jq -R 'split(" ")|{defaultClusterID:.[0], deployedToClusterID:.[1]}' > metadata.json
+
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
   deployment-status
@@ -363,8 +365,6 @@ cat <<EOF >> $JENKINS_DESCRIPTION
   in availability zones: $AVAILABILITY_ZONES
 EOF
 fi
-
-echo "$DEFAULT_CLUSTER_ID $DEPLOYED_CLUSTER_ID" | jq -R 'split(" ")|{defaultClusterID:.[0], deployedToClusterID:.[1]}' > metadata.json
 
 echo "Goodbye."
 exit 0
