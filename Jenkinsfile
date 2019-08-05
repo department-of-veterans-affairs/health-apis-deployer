@@ -92,12 +92,13 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
-    choice(name: 'PRODUCT', choices: ['none','carma','community-care','data-query','exemplar','gal','hotline','mock-ee','prometheus','squares','urgent-care'], description: "Install this product")
+    choice(name: 'PRODUCT', choices: ['none','carma','community-care','data-query','exemplar','gal','gal-processor','hotline','mock-ee','prometheus','squares','urgent-care'], description: "Install this product")
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
     booleanParam(name: 'DANGER_ZONE', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
     string(name: 'DANGER_ZONE_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for DANGER_ZONE." )
+    string(name: 'CUSTOM_CLUSTER_ID', defaultValue: 'default', description: 'Override the cluster-id')
   }
   agent none
   triggers {
@@ -199,7 +200,7 @@ pipeline {
   post {
     always {
       node('master') {
-        archiveArtifacts artifacts: '**/*-logs.zip,**/status.*.json', onlyIfSuccessful: false, allowEmptyArchive: true
+        archiveArtifacts artifacts: '**/*-logs.zip,**/status.*.json,**/metadata.json', onlyIfSuccessful: false, allowEmptyArchive: true
         script {
           def buildName = sh returnStdout: true, script: '''[ -f .jenkins/build-name ] && cat .jenkins/build-name ; exit 0'''
           currentBuild.displayName = "#${currentBuild.number} - ${buildName}"

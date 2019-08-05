@@ -31,7 +31,6 @@ JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
 
-
 #
 # Set up the AWS region
 #
@@ -43,7 +42,23 @@ export AWS_DEFAULT_REGION=us-gov-west-1
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
+DEFAULT_CLUSTER_ID=$CLUSTER_ID
+# Save and Source(TM) Custom Environment if exists
+# This will overwrite any values set by the <env>.conf
+if [ "$CUSTOM_CLUSTER_ID" != "default" ]
+then
+  echo "CUSTOM_CLUSTER_ID has been set. Skipping load balancer and rollback..."
+  CLUSTER_ID="$CUSTOM_CLUSTER_ID"
+  declare -x SKIP_LOAD_BALANCER=true
+  ROLLBACK_ON_TEST_FAILURES=false
+else
+  declare -x SKIP_LOAD_BALANCER=false
+fi
+
 echo "Using cluster $CLUSTER_ID"
+DEPLOYED_CLUSTER_ID=$CLUSTER_ID
+
+echo "$DEFAULT_CLUSTER_ID $DEPLOYED_CLUSTER_ID" | jq -R 'split(" ")|{defaultClusterID:.[0], deployedToClusterID:.[1]}' > metadata.json
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
@@ -188,13 +203,17 @@ do
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
-  detach-deployment-unit-from-lb blue
-  #
-  # If we are in the danger zone, skip all non-essential deployment steps.
-  #
-  if [ "$DANGER_ZONE" == false ]
+
+  if [ "$SKIP_LOAD_BALANCER" == false ]
   then
-    remove-all-green-routes
+    detach-deployment-unit-from-lb blue
+    #
+    # If we are in the danger zone, skip all non-essential deployment steps.
+    #
+    if [ "$DANGER_ZONE" == false ]
+    then
+      remove-all-green-routes
+    fi
   fi
 
   apply-namespace-and-ingress $AVAILABILITY_ZONE $DU_DIR
@@ -209,8 +228,11 @@ do
   #
   if [ "$DANGER_ZONE" == false ]
   then
-    attach-deployment-unit-to-lb green
-    wait-for-lb green
+    if [ "$SKIP_LOAD_BALANCER" == false ]
+    then
+      attach-deployment-unit-to-lb green
+      wait-for-lb green
+    fi
 
     set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "IN-PROGRESS"
 
@@ -223,14 +245,18 @@ do
       gather-pod-logs $DU_NAMESPACE $LOG_DIR
       set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "FAILED"
       if [ "$ROLLBACK_ON_TEST_FAILURES" == true ]; then break; fi
+    else
+      set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
     fi
-    detach-deployment-unit-from-lb green
-    set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
+    [ "$SKIP_LOAD_BALANCER" == false ] && detach-deployment-unit-from-lb green
   fi
 
   echo "SUCCESS! $AVAILABILITY_ZONE"
-  attach-deployment-unit-to-lb blue
-  wait-for-lb blue
+  if [ "$SKIP_LOAD_BALANCER" == false ]
+  then
+    attach-deployment-unit-to-lb blue
+    wait-for-lb blue
+  fi
 done
 
 if ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
@@ -295,13 +321,16 @@ then
   DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fi
 
-if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
-echo "============================================================"
-echo "Blue Load Balancer Rules"
-load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
+if [ "$SKIP_LOAD_BALANCER" == false ]
+then
+  if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
+  echo "============================================================"
 
+  echo "Blue Load Balancer Rules"
+  load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
 
-deployment-status
+  deployment-status
+fi
 
 if [ "$TEST_FAILURE" == true ]
 then
@@ -323,11 +352,19 @@ else
   bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
 fi
 
-
+# If deployment is custom, let's use the clusterId not environment
+if [ "$CUSTOM_CLUSTER_ID" != "default" ]
+then
 cat <<EOF >> $JENKINS_DESCRIPTION
-$PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
-in availability zones: $AVAILABILITY_ZONES
+  $PRODUCT deployed to CLUSTER_ID: $CLUSTER_ID ($DU_ARTIFACT $DU_VERSION)
+  in availability zones: $AVAILABILITY_ZONES
 EOF
+else
+cat <<EOF >> $JENKINS_DESCRIPTION
+  $PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
+  in availability zones: $AVAILABILITY_ZONES
+EOF
+fi
 
 echo "Goodbye."
 exit 0
