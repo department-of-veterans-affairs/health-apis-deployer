@@ -30,3 +30,13 @@ spec:
             backend:
               serviceName: cce-kong
               servicePort: 8082
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: cce-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "100m"
+    limits.memory: "3.76G"
