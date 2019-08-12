@@ -245,7 +245,7 @@ do
             podsReady='false'
           fi
         done <<< $(cluster-fox kubectl $AVAILABILITY_ZONE \
-          -- get pods -n $DU_NAMESPACE --no-headers=true | awk '{print $3}')
+          -- get pods -n $DU_NAMESPACE --no-headers=true | awk '{print $2}')
 
         [ "$podsReady" == 'false' ] && echo "Pods not Ready..." && continue
         echo "All pods marked as ready..."
