@@ -238,16 +238,14 @@ do
       do
         sleep 1
         podsReady='true'
-        while read -r podStatus
+        for podStatus in $(cluster-fox kubectl $AVAILABILITY_ZONE -- get pods -n $DU_NAMESPACE --no-headers=true | awk '{print $2}')
         do
           if [ "$(echo "$podStatus" | rev )" != "$podStatus" ]
           then
             podsReady='false'
           fi
-        done <<< $(cluster-fox kubectl $AVAILABILITY_ZONE \
-          -- get pods -n $DU_NAMESPACE --no-headers=true | awk '{print $2}')
-
-        [ "$podsReady" == 'false' ] && echo "Pods not Ready..." && continue
+        done
+        [ "$podsReady" == 'false' ] && echo "Pods not Ready ($DU_NAMESPACE)..." && continue
         echo "All pods marked as ready..."
         echo "sleeping 60"
         sleep 30
