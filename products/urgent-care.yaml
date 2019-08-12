@@ -30,3 +30,13 @@ spec:
             backend:
               serviceName: urgent-care-kong
               servicePort: 8082
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: urgent-care-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "4500m"
+    limits.memory: "12G"
