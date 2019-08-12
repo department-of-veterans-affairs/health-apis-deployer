@@ -238,7 +238,7 @@ do
       do
         sleep 1
         podsReady='true'
-        while -r podStatus
+        while read -r podStatus
         do
           if [ "$(echo "$podStatus" | rev )" != "$podStatus" ]
           then
