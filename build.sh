@@ -248,8 +248,10 @@ do
           -- get pods -n $DU_NAMESPACE --no-headers=true | awk '{print $3}')
 
         [ "$podsReady" == 'false' ] && echo "Pods not Ready..." && continue
+        echo "All pods marked as ready..."
         echo "sleeping 60"
         sleep 30
+        break
       done
       [ "$podsReady" == 'false' ] && echo "Timed out waiting for pods to be ready." && exit 1
     fi
@@ -279,7 +281,7 @@ do
   fi
 done
 
-if ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
+if [ "$SKIP_LOAD_BALANCER" != false ] && ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
 then
   echo "============================================================"
   echo "ERROR: SMOKE TESTS HAVE FAILED"
