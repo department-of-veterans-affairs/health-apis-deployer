@@ -281,7 +281,7 @@ do
   fi
 done
 
-if [ "$SKIP_LOAD_BALANCER" != false ] && ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
+if [ "$SKIP_LOAD_BALANCER" == false ] && ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
 then
   echo "============================================================"
   echo "ERROR: SMOKE TESTS HAVE FAILED"
