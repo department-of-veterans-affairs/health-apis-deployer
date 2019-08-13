@@ -28,3 +28,13 @@ spec:
             backend:
               serviceName: squares-experience
               servicePort: 7001
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: views-squares-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "10000m"
+    limits.memory: "28G"
