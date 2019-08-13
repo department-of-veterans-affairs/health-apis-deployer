@@ -232,6 +232,26 @@ do
     then
       attach-deployment-unit-to-lb green
       wait-for-lb green
+    else
+      timeout=$(($(date +%s) + 300))
+      while [ $(date +%s) -lt $timeout ]
+      do
+        sleep 1
+        podsReady='true'
+        for podStatus in $(cluster-fox kubectl $AVAILABILITY_ZONE -- get pods -n $DU_NAMESPACE --no-headers=true | awk '{print $2}')
+        do
+          if [ "$(echo "$podStatus" | rev )" != "$podStatus" ]
+          then
+            podsReady='false'
+          fi
+        done
+        [ "$podsReady" == 'false' ] && echo "Pods not Ready ($DU_NAMESPACE)..." && continue
+        echo "All pods marked as ready..."
+        echo "sleeping 60"
+        sleep 30
+        break
+      done
+      [ "$podsReady" == 'false' ] && echo "Timed out waiting for pods to be ready." && exit 1
     fi
 
     set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "IN-PROGRESS"
@@ -259,7 +279,7 @@ do
   fi
 done
 
-if ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
+if [ "$SKIP_LOAD_BALANCER" == false ] && ! execute-tests smoke-test "$BLUE_LOAD_BALANCER" all-azs "$DU_DIR" "$LOG_DIR"
 then
   echo "============================================================"
   echo "ERROR: SMOKE TESTS HAVE FAILED"
