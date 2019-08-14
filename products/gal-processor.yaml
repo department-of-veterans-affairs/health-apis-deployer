@@ -25,7 +25,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: */gal-processor/(.*)
+          - path: /gal-processor/(.*)
             backend:
               serviceName: gal-processor
               servicePort: 8082
