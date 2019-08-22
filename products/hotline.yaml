@@ -28,3 +28,13 @@ spec:
             backend:
               serviceName: salesforce
               servicePort: 8091
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: views-hotline-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "7500m"
+    limits.memory: "20G"
