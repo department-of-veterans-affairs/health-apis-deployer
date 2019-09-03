@@ -39,4 +39,4 @@ metadata:
 spec:
   hard:
     limits.cpu: "6000m"
-    limits.memory: "5.5G"
+    limits.memory: "9G"
