@@ -24,7 +24,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(api/)?carma-fms(.*)
+          - path: /carma-fms/v0/(.*)
             backend:
               serviceName: carma-fms-connector
               servicePort: 80
