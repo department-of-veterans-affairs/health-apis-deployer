@@ -30,6 +30,10 @@ spec:
             backend:
               serviceName: cce-kong
               servicePort: 8082
+          - path: /community-care-vaos/(.*)
+            backend:
+              serviceName: community-care-eligibility
+              servicePort: 80
 ---
 apiVersion: v1
 kind: ResourceQuota
