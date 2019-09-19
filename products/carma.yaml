@@ -24,7 +24,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(api/)?carma(.*)
+          - path: /api/carma/(.*)
             backend:
               serviceName: carma-search
               servicePort: 80
