@@ -179,7 +179,7 @@ pipeline {
       input {
        message "I would like to enter the DANGER_ZONE..."
        ok "You may enter!"
-       submitter "bryan.schofield,ian.laflamme,aparcel-va,eclendenning,joshua.hulbert"
+       submitter "ajstein3,aparcel-va,bryan.schofield,ian.laflamme,eclendenning,joshua.hulbert"
       }
       agent {
         dockerfile {
@@ -191,6 +191,7 @@ pipeline {
       steps {
         lock("${env.ENVIRONMENT}-deployments") {
           echo "LANA!!!"
+          echo "https://bit.ly/LDcydg"
           notifySlackOfDeployment()
           saunter('./build.sh')
         }
