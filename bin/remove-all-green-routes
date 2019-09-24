@@ -12,3 +12,5 @@ load-balancer delete-all-rules \
   --cluster-id $CLUSTER_ID \
   --color green \
   --env $VPC_NAME
+
+if [ $? != 0 ]; then echo "GREEN ROUTE REMOVAL FAILED!!! $CLUSTER_ID green load balancer is potentially unstable!" && exit 1; fi
