@@ -15,12 +15,6 @@ def saunter(scriptName) {
     string(
       credentialsId: 'DOCKER_SOURCE_REGISTRY',
       variable: 'DOCKER_SOURCE_REGISTRY'),
-/*    string(
-      credentialsId: 'APP_CONFIG_AWS_ACCESS_KEY_ID',
-      variable: 'AWS_ACCESS_KEY_ID'),
-    string(
-      credentialsId: 'APP_CONFIG_AWS_SECRET_ACCESS_KEY',
-      variable: 'AWS_SECRET_ACCESS_KEY'), */
     string(
       credentialsId: 'CRYPTO_KEY',
       variable: 'CRYPTO_KEY'),
