@@ -6,7 +6,7 @@ set -euo pipefail
 #
 
 cd $(dirname "$0")
-for tool in ryan-secrets cluster-fox debug load-balancer attach-deployment-unit-to-lb detach-deployment-unit-from-lb remove-all-green-routes; do
+for tool in ryan-secrets cluster-fox debug load-balancer attach-deployment-unit-to-lb detach-deployment-unit-from-lb remove-all-green-routes wait-for-lb; do
   cp -r ../bin/$tool bin/$tool
 done
 
