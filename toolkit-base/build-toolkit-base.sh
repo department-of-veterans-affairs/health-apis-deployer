@@ -9,8 +9,8 @@ TOOLS=('ryan-secrets' 'cluster-fox' 'debug' \
  'fetch-deployment-unit' 'extract-deployment-unit' \
  'attach-deployment-unit-to-lb' 'detach-deployment-unit-from-lb' \
  'load-balancer' 'remove-all-green-routes' \
- 'wait-for-lb' 'execute-tests'
-)
+ 'wait-for-lb' 'execute-tests')
+
 cd $(dirname "$0")
 for tool in ${TOOLS[@]}; do
   cp -r ../bin/$tool bin/$tool
