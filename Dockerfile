@@ -1,4 +1,4 @@
-FROM centos:latest
+FROM centos:7
 
 RUN yum update -yqq \
     && yum install -yqq yum-utils \
@@ -17,7 +17,7 @@ RUN curl -skLo /usr/local/bin/jq https://github.com/stedolan/jq/releases/downloa
 #
 # Docker
 #
-RUN yum -y install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+#RUN yum -y install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
 RUN curl -fskLS https://get.docker.com | sh
 
 
