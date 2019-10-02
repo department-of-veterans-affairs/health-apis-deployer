@@ -26,7 +26,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /provider-directory/(.*)
+          - path: /fhir/v0/stu3/?(.*)
             backend:
               serviceName: pd-kong
               servicePort: 8082
