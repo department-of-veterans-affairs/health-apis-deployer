@@ -416,17 +416,38 @@ ruleHealth() {
   local healths=$(aws elbv2 describe-target-health \
       --target-group-arn $tgArn \
       --query 'TargetHealthDescriptions[*]' \
-      | jq -r '.[] | .TargetHealth.State')
+      | jq -r '.[] | .Target.Id, .TargetHealth.State' \
+      | paste -s -d',\n'
 
   [ -z "$healths" ] && echo "Can't find target group state" && exit 1
-  echo $healths
 
-  for health in $healths
+  for target in $healths
   do
-    if [ "$health" != "healthy" ]; then
-      echo "Targets not healthy." && exit 1
+    local targetId=$(echo "$target" | split -d ',' -f1)
+    local targetHealth=$(echo "$target" | split -d ',' -f2)
+
+    if [ "$targetHealth" != "healthy" ]
+    then
+      local health='unhealthy'
     fi
+
+    case $(aws ec2 describe-instances --instance-ids $targetId \
+        | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value') in
+      us-gov-west-1a) local azA+=("$targetHealth");;
+      us-gov-west-1b) local azB+=("$targetHealth");;
+      us-gov-west-1c) local azC+=("$targetHealth");;
+      *) local unknown+=("$targetHealth");;
+    esac
   done
+
+  [ ${#azA[@]} -gt 0 ] && echo "us-gov-west-1a: ${azA[@]}"
+  [ ${#azB[@]} -gt 0 ] && echo "us-gov-west-1b: ${azB[@]}"
+  [ ${#azC[@]} -gt 0 ] && echo "us-gov-west-1c: ${azC[@]}"
+  [ ${#unknown[@]} -gt 0 ] && echo "unknown: ${unknown[@]}"
+
+  if [ "${health:-healthy}" == "unhealthy" ]; then
+    echo "Targets not healthy." && exit 1
+  fi
   echo "All targets are Healthy." && exit 0
 }
 
