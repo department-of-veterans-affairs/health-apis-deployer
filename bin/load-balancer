@@ -423,8 +423,8 @@ ruleHealth() {
 
   for target in $healths
   do
-    local targetId=$(echo $target | split -d ',' -f1)
-    local targetHealth=$(echo $target | split -d ',' -f2)
+    local targetId=$(echo $target | cut -d ',' -f1)
+    local targetHealth=$(echo $target | cut -d ',' -f2)
 
     if [ "$targetHealth" != "healthy" ]
     then
