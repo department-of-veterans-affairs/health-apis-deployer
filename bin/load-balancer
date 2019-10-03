@@ -434,8 +434,6 @@ ruleHealth() {
     local targetAz=$(aws ec2 describe-instances --instance-ids $targetId \
       | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
 
-    echo "$targetId $targetAz $targetHealth"
-
     case $targetAz in
       us-gov-west-1a) azA+=("$targetHealth");;
       us-gov-west-1b) azB+=("$targetHealth");;
@@ -450,9 +448,9 @@ ruleHealth() {
   [ ${#unknown[@]} -gt 0 ] && echo "unknown: ${unknown[@]}"
 
   if [ "${health:-healthy}" == "unhealthy" ]; then
-    echo "Targets not healthy." && exit 1
+    echo "Targets are not healthy." && exit 1
   fi
-  echo "All targets are Healthy." && exit 0
+  echo "All targets are healthy." && exit 1
 }
 
 #
