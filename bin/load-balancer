@@ -436,8 +436,10 @@ ruleHealth() {
     local azC
     local unknown
 
-    case $(aws ec2 describe-instances --instance-ids $targetId \
-        | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value') in
+    local targetAz= $(aws ec2 describe-instances --instance-ids $targetId \
+      | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
+
+    case $targetAz in
       us-gov-west-1a) azA+=("$targetHealth") ;;
       us-gov-west-1b) azB+=("$targetHealth") ;;
       us-gov-west-1c) azC+=("$targetHealth") ;;
