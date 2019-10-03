@@ -431,12 +431,17 @@ ruleHealth() {
       local health='unhealthy'
     fi
 
+    local azA
+    local azB
+    local azC
+    local unknown
+
     case $(aws ec2 describe-instances --instance-ids $targetId \
         | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value') in
-      us-gov-west-1a) local azA+=("$targetHealth");;
-      us-gov-west-1b) local azB+=("$targetHealth");;
-      us-gov-west-1c) local azC+=("$targetHealth");;
-      *) local unknown+=("$targetHealth");;
+      us-gov-west-1a) azA+=("$targetHealth") ;;
+      us-gov-west-1b) azB+=("$targetHealth") ;;
+      us-gov-west-1c) azC+=("$targetHealth") ;;
+      *) unknown+=("$targetHealth");;
     esac
   done
 
