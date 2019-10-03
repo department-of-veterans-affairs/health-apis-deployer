@@ -251,7 +251,10 @@ do
         sleep 30
         break
       done
-      [ "$podsReady" == 'false' ] && echo "Timed out waiting for pods to be ready." && exit 1
+      [ "$podsReady" == 'false' ] \
+        && echo "$PRODUCT timed out waiting for pods to become healthy" >> $JENKINS_DESCRIPTION \
+        && echo "Timed out waiting for pods to be ready." \
+        && exit 1
     fi
 
     set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "IN-PROGRESS"
