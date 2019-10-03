@@ -431,12 +431,7 @@ ruleHealth() {
       local health='unhealthy'
     fi
 
-    local azA=()
-    local azB=()
-    local azC=()
-    local unknown=()
-
-    local targetAz= $(aws ec2 describe-instances --instance-ids $targetId \
+    local targetAz=$(aws ec2 describe-instances --instance-ids $targetId \
       | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
 
     echo "$targetId $targetAz $targetHealth"
