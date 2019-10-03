@@ -423,26 +423,28 @@ ruleHealth() {
 
   for target in $healths
   do
-    local targetId=$(echo "$target" | split -d ',' -f1)
-    local targetHealth=$(echo "$target" | split -d ',' -f2)
+    local targetId=$(echo $target | split -d ',' -f1)
+    local targetHealth=$(echo $target | split -d ',' -f2)
 
     if [ "$targetHealth" != "healthy" ]
     then
       local health='unhealthy'
     fi
 
-    local azA
-    local azB
-    local azC
-    local unknown
+    local azA=()
+    local azB=()
+    local azC=()
+    local unknown=()
 
     local targetAz= $(aws ec2 describe-instances --instance-ids $targetId \
       | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
 
+    echo "$targetId $targetAz $targetHealth"
+
     case $targetAz in
-      us-gov-west-1a) azA+=("$targetHealth") ;;
-      us-gov-west-1b) azB+=("$targetHealth") ;;
-      us-gov-west-1c) azC+=("$targetHealth") ;;
+      us-gov-west-1a) azA+=("$targetHealth");;
+      us-gov-west-1b) azB+=("$targetHealth");;
+      us-gov-west-1c) azC+=("$targetHealth");;
       *) unknown+=("$targetHealth");;
     esac
   done
