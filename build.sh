@@ -26,7 +26,7 @@ export PATH=$WORKSPACE/bin:$PATH
 # Set up a mechanism to communicate job descriptions, etc. so that Jenkins provides more meaningful pages
 #
 JENKINS_DIR=$WORKSPACE/.jenkins
-JENKINS_DESCRIPTION=$JENKINS_DIR/description
+declare -x JENKINS_DESCRIPTION=$JENKINS_DIR/description
 JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
