@@ -450,7 +450,7 @@ ruleHealth() {
   if [ "${health:-healthy}" == "unhealthy" ]; then
     echo "Targets are not healthy." && exit 1
   fi
-  echo "All targets are healthy." && exit 1
+  echo "All targets are healthy." && exit 0
 }
 
 #
