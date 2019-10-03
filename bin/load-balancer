@@ -417,7 +417,7 @@ ruleHealth() {
       --target-group-arn $tgArn \
       --query 'TargetHealthDescriptions[*]' \
       | jq -r '.[] | .Target.Id, .TargetHealth.State' \
-      | paste -s -d',\n'
+      | paste -s -d',\n')
 
   [ -z "$healths" ] && echo "Can't find target group state" && exit 1
 
