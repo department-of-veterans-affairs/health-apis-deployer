@@ -26,7 +26,7 @@ export PATH=$WORKSPACE/bin:$PATH
 # Set up a mechanism to communicate job descriptions, etc. so that Jenkins provides more meaningful pages
 #
 JENKINS_DIR=$WORKSPACE/.jenkins
-JENKINS_DESCRIPTION=$JENKINS_DIR/description
+declare -x JENKINS_DESCRIPTION=$JENKINS_DIR/description
 JENKINS_BUILD_NAME=$JENKINS_DIR/build-name
 [ -d "$JENKINS_DIR" ] && rm -rf "$JENKINS_DIR"
 mkdir "$JENKINS_DIR"
@@ -251,7 +251,10 @@ do
         sleep 30
         break
       done
-      [ "$podsReady" == 'false' ] && echo "Timed out waiting for pods to be ready." && exit 1
+      [ "$podsReady" == 'false' ] \
+        && echo "$PRODUCT timed out waiting for pods to become healthy" >> $JENKINS_DESCRIPTION \
+        && echo "Timed out waiting for pods to be ready." \
+        && exit 1
     fi
 
     set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "IN-PROGRESS"

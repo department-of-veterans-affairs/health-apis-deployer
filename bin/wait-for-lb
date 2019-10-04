@@ -41,5 +41,6 @@ do
   exit 0
 done
 
+echo "$PRODUCT timed out waiting for ($COLOR) load balancer to become healthy" >> $JENKINS_DESCRIPTION
 echo "Timeout waiting for load balancer to become healthy"
 exit 1
