@@ -447,7 +447,13 @@ ruleHealth() {
   [ ${#azC[@]} -gt 0 ] && echo "us-gov-west-1c: ${azC[@]}"
   [ ${#unknown[@]} -gt 0 ] && echo "unknown: ${unknown[@]}"
 
-  if [ $(echo "${azA[@]} ${azB[@]} ${azC[@]} ${unknown[@]}" | sed 's/ /\n/g' | grep -c -v 'healthy') -gt 0 ]; then
+  echo "${azA[@]} ${azB[@]} ${azC[@]} ${unknown[@]}"
+
+  local unhealthy=$(echo "${azA[@]} ${azB[@]} ${azC[@]} ${unknown[@]}" \
+    | sed 's/ /\n/g' \
+    | grep -c -v 'healthy')
+
+  if [ $unhealthy -gt 0 ]; then
     echo "Targets are not healthy." && exit 1
   fi
   echo "All targets are healthy." && exit 0
