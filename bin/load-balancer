@@ -426,11 +426,6 @@ ruleHealth() {
     local targetId=$(echo $target | cut -d ',' -f1)
     local targetHealth=$(echo $target | cut -d ',' -f2)
 
-#    if [ "$targetHealth" != "healthy" ]
-#    then
-#      local health='unhealthy'
-#    fi
-
     local targetAz=$(aws ec2 describe-instances --instance-ids $targetId \
       | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
 
@@ -446,8 +441,6 @@ ruleHealth() {
   [ ${#azB[@]} -gt 0 ] && echo "us-gov-west-1b: ${azB[@]}"
   [ ${#azC[@]} -gt 0 ] && echo "us-gov-west-1c: ${azC[@]}"
   [ ${#unknown[@]} -gt 0 ] && echo "unknown: ${unknown[@]}"
-
-  echo "${azA[@]} ${azB[@]} ${azC[@]} ${unknown[@]}" | sed 's/ /\n/g' | grep .
 
   local unhealthy=$(echo "${azA[@]} ${azB[@]} ${azC[@]} ${unknown[@]}" \
     | sed 's/ /\n/g' \
