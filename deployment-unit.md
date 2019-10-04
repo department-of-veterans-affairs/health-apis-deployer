@@ -100,12 +100,6 @@ also be set.
 > Environment-specific S3 buckets will be used to house deployment-specific folders.
 > The following environment variables will be provided for substitution in your files.
 >
-> `DU_AWS_ACCESS_KEY_ID`
-> The AWS access key ID to access the s3 bucket
->
-> `DU_AWS_SECRET_ACCESS_KEY`
-> The AWS access key secret to access the s3 bucket
->
 > `DU_AWS_BUCKET_NAME`
 > The environment specific bucket name
 >
