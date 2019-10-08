@@ -1,10 +1,10 @@
 FROM centos:7
 
 RUN yum update -yqq \
-    && yum install -yqq yum-utils \
-    && yum install -yqq gettext openssh-clients git \
-    && yum install -yqq zip unzip \
-    && yum install -yqq dos2unix \
+    && yum install -y -q yum-utils \
+    && yum install -y -q gettext openssh-clients git \
+    && yum install -y -q zip unzip \
+    && yum install -y -q dos2unix \
     && yum clean all
 
 #
@@ -45,4 +45,4 @@ RUN curl -fsSL https://get.docker.com | sh
 #
 # Odd... this yum command succeeds down here at the bottom, but fails at the top.
 #
-RUN yum install -yqq openssl
+RUN yum install -y -q openssl
