@@ -64,3 +64,13 @@ spec:
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: data-query-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "7800m"
+    limits.memory: "15G"
