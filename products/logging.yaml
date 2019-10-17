@@ -34,9 +34,9 @@ spec:
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: data-query-resource-quota
+  name: logging-resource-quota
   namespace: $DU_NAMESPACE
 spec:
   hard:
-    limits.cpu: "11500m"
+    limits.cpu: "14500m"
     limits.memory: "14G"
