@@ -30,13 +30,13 @@ spec:
             backend:
               serviceName: kibana
               servicePort: 5601
----
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: data-query-resource-quota
-  namespace: $DU_NAMESPACE
-spec:
-  hard:
-    limits.cpu: "8500m"
-    limits.memory: "11G"
+#---
+#apiVersion: v1
+#kind: ResourceQuota
+#metadata:
+#  name: data-query-resource-quota
+#  namespace: $DU_NAMESPACE
+#spec:
+#  hard:
+#    limits.cpu: "8500m"
+#    limits.memory: "11G"
