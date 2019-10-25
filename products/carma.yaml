@@ -28,3 +28,13 @@ spec:
             backend:
               serviceName: carma-search
               servicePort: 80
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: carma-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "1500m"
+    limits.memory: "7.5G"
