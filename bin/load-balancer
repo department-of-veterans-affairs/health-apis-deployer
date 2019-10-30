@@ -413,6 +413,8 @@ ruleHealth() {
       | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[] , .Actions[].TargetGroupArn' \
       | paste -sd "  \n" | grep -F "$RULE_PATH" | awk '{print $3}' | head -1)
 
+  [ -z "$tgArn" ] && echo "Can't find target group associated to rule: $RULE_PATH" && exit 1
+
   local healths=$(aws elbv2 describe-target-health \
       --target-group-arn $tgArn \
       --query 'TargetHealthDescriptions[*]' \
