@@ -252,7 +252,7 @@ ruleArn() {
     local rulePath=$(echo "$rule" | cut -d ';' -f2)
     # Match Exactly as Strings (should avoid issues with false positives)
     if [ "$rulePath" == "$2" ]; then
-      matchedArn=(echo "$rule" | cut -d ';' -f1)
+      matchedArn=$(echo "$rule" | cut -d ';' -f1)
     fi
   done
 
