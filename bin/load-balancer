@@ -203,6 +203,8 @@ createRule() {
         --conditions Field=path-pattern,Values="$RULE_PATH" \
         --priority $(nextAvailablePriority $listener)
 
+    debug "Found already existing rule ($RULE_PATH). Removing old rule..."
+
     aws elbv2 delete-rule --rule-arn "$ruleArn"
   fi
 }
@@ -240,9 +242,22 @@ nextAvailablePriority() {
 }
 
 ruleArn() {
-  echo $(aws elbv2 describe-rules --listener-arn $1 \
+  local rules=$(aws elbv2 describe-rules --listener-arn $1 \
       | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[]' \
-      | paste -sd " \n" | grep -F "$2" | awk '{print $1}')
+      | paste -sd ";\n")
+
+  local matchedArn=""
+
+  for rule in $rules; do
+    local rulePath=$(echo "$rule" | cut -d ';' -f2)
+    # Match Exactly as Strings (should avoid issues with false positives)
+    if [ "$rulePath" == "$2" ]; then
+      matchedArn=$(echo "$rule" | cut -d ';' -f1)
+    fi
+  done
+
+  # Will return empty string when none match
+  echo "$matchedArn"
 }
 
 deleteRule() {
@@ -412,6 +427,8 @@ ruleHealth() {
   local tgArn=$(aws elbv2 describe-rules --listener-arn $listener \
       | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[] , .Actions[].TargetGroupArn' \
       | paste -sd "  \n" | grep -F "$RULE_PATH" | awk '{print $3}' | head -1)
+
+  [ -z "$tgArn" ] && echo "Can't find target group associated to rule: $RULE_PATH" && exit 1
 
   local healths=$(aws elbv2 describe-target-health \
       --target-group-arn $tgArn \
