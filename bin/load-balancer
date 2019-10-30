@@ -242,9 +242,22 @@ nextAvailablePriority() {
 }
 
 ruleArn() {
-  echo $(aws elbv2 describe-rules --listener-arn $1 \
+  local rules=$(aws elbv2 describe-rules --listener-arn $1 \
       | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[]' \
-      | paste -sd " \n" | grep -F "$2" | awk '{print $1}')
+      | paste -sd ";\n")
+
+  local matchedArn=""
+
+  for rule in $rules; do
+    local rulePath=$(echo "$rule" | cut -d ';' -f2)
+    # Match Exactly as Strings (should avoid issues with false positives)
+    if [ "$rulePath" == "$2" ]; then
+      matchedArn=$(echo "$rule" | cut -d ';' -f1)
+    fi
+  done
+
+  # Will return empty string when none match
+  echo "$matchedArn"
 }
 
 deleteRule() {
