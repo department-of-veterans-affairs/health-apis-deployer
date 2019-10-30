@@ -30,3 +30,13 @@ spec:
             backend:
               serviceName: hello
               servicePort: 80
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: exemplar-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "20m"
+    limits.memory: "50M"
