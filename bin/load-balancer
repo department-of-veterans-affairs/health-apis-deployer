@@ -203,6 +203,8 @@ createRule() {
         --conditions Field=path-pattern,Values="$RULE_PATH" \
         --priority $(nextAvailablePriority $listener)
 
+    debug "Found already existing rule ($RULE_PATH). Removing old rule..."
+
     aws elbv2 delete-rule --rule-arn "$ruleArn"
   fi
 }
