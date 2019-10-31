@@ -26,7 +26,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(.*/bulk/.*)
+          - path: /fhir/v0/(dstu2/bulk/.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
@@ -43,7 +43,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(.*/\$export)
+          - path: /fhir/v0/(dstu2/.*/\$export)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
