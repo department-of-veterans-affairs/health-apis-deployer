@@ -30,24 +30,23 @@ spec:
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
-# Decreasing Places For Error
-#---
-#apiVersion: extensions/v1beta1
-#kind: Ingress
-#metadata:
-#  name: bulk-fhir-ingress
-#  namespace: $DU_NAMESPACE
-#  annotations:
-#    kubernetes.io/ingress.class: nginx
-#    nginx.ingress.kubernetes.io/rewrite-target: /$1
-#spec:
-#  rules:
-#    - http:
-#        paths:
-#          - path: /fhir/v0/(dstu2/.*/\$export)
-#            backend:
-#              serviceName: health-apis-kong
-#              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bulk-fhir-export-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1/$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/(dstu2|stu3|r4)/(.*/\$export)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
