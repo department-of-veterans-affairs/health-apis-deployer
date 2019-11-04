@@ -33,7 +33,7 @@ spec:
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: carma-fms-resource-quota
+  name: dmc-vet-search-resource-quota
   namespace: $DU_NAMESPACE
 spec:
   hard:
