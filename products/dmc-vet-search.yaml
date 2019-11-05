@@ -10,13 +10,13 @@ metadata:
     deployment-date: $BUILD_DATE
     deployment-s3-bucket: $DU_AWS_BUCKET_NAME
     deployment-s3-folder: $DU_S3_FOLDER
-    deployment-app-version: $GAL_PROCESSOR_VERSION
+    deployment-app-version: $DMCS_VERSION
     deployment-test-status: UNTESTED
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: views-gal-processor-ingress
+  name: dmc-vet-search-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -25,17 +25,17 @@ spec:
   rules:
     - http:
         paths:
-          - path: /gal-processor/(.*)
+          - path: /dmc-vet-search/v0/(.*)
             backend:
-              serviceName: gal-processor
-              servicePort: 8082
+              serviceName: dmc-vet-search
+              servicePort: 80
 ---
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: views-gal-processor-resource-quota
+  name: dmc-vet-search-resource-quota
   namespace: $DU_NAMESPACE
 spec:
   hard:
-    limits.cpu: "2000m"
+    limits.cpu: "1800m"
     limits.memory: "6G"
