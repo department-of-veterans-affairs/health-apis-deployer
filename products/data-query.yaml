@@ -13,6 +13,16 @@ metadata:
     deployment-s3-folder: $DU_S3_FOLDER
     deployment-app-version: $DQ_VERSION
     deployment-test-status: UNTESTED
+#---
+#apiVersion: v1
+#kind: ResourceQuota
+#metadata:
+#  name: data-query-resource-quota
+#  namespace: $DU_NAMESPACE
+#spec:
+#  hard:
+#    limits.cpu: "7800m"
+#    limits.memory: "15G"
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -38,7 +48,7 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /argonaut/data-query/$1
+    nginx.ingress.kubernetes.io/rewrite-target: /dstu2/$1
 spec:
   rules:
     - http:
@@ -81,13 +91,3 @@ spec:
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
-#---
-#apiVersion: v1
-#kind: ResourceQuota
-#metadata:
-#  name: data-query-resource-quota
-#  namespace: $DU_NAMESPACE
-#spec:
-#  hard:
-#    limits.cpu: "7800m"
-#    limits.memory: "15G"
