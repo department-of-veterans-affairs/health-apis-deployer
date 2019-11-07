@@ -13,16 +13,6 @@ metadata:
     deployment-s3-folder: $DU_S3_FOLDER
     deployment-app-version: $DQ_VERSION
     deployment-test-status: UNTESTED
-#---
-#apiVersion: v1
-#kind: ResourceQuota
-#metadata:
-#  name: data-query-resource-quota
-#  namespace: $DU_NAMESPACE
-#spec:
-#  hard:
-#    limits.cpu: "7800m"
-#    limits.memory: "15G"
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -31,12 +21,12 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /dstu2/$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/dstu2/(.*)
+          - path: /fhir/v0/dstu2/?(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
@@ -48,12 +38,12 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /dstu2/$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/argonaut/data-query/(.*)
+          - path: /fhir/v0/argonaut/data-query/?(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
@@ -61,16 +51,16 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: fhir-version-agnostic-ingress
+  name: data-query-legacy-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$2$3
+    nginx.ingress.kubernetes.io/rewrite-target: /$1$2
 spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2|argonaut/data-query)/(.well-known|token)(.*)
+          - path: /api/(.well-known|AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|metadata|Observation|openapi.json|Organization|Patient|Practitioner|Procedure)(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
@@ -91,3 +81,13 @@ spec:
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: data-query-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "7800m"
+    limits.memory: "15G"
