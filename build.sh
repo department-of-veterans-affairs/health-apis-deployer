@@ -72,6 +72,21 @@ then
   exit 0
 fi
 
+# Leaving green is only allowed when deploying to a single AZ
+if [ "${LEAVE_GREEN_LOAD_BALANCER:-false}" == true ] \
+  && [ "${AVAILABILITY_ZONES:-all}" != "all" ]; then
+
+  echo "Leaving everything attached to green in $AVAILABILITY_ZONES..."
+  echo "Rollback has been disabled..."
+
+  RULE_ONE=$(echo "${DU_LOAD_BALANCER_RULES[@]}" | awk '{print $1}')
+
+  # If only 3 targets (one AZs worth) is available on blue, don't remove them plz
+  [ $(load-balancer rule-health --env $VPC_NAME --cluster-id $CLUSTER_ID --color blue --rule-path "$RULE_ONE" | wc -w) -gt 3 ]
+    && declare -x LEAVE_ON_GREEN=true
+    && ROLLBACK_ON_TEST_FAILURES=false
+
+fi
 
 #
 # Load configuration. The following variables are expected
@@ -346,7 +361,7 @@ fi
 
 if [ "$SKIP_LOAD_BALANCER" == false ]
 then
-  if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
+  [ "${LEAVE_ON_GREEN:-false}" == false ] && remove-all-green-routes
   echo "============================================================"
 
   echo "Blue Load Balancer Rules"
