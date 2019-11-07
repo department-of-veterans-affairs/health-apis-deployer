@@ -91,7 +91,7 @@ pipeline {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
     choice(name: 'PRODUCT', choices: ['none','bulk-fhir','carma','carma-fms-connector','community-care','data-query','dmc-vet-search','exemplar','gal','gal-processor','hotline','logging','mock-ee', 'mock-vler','monitoring','provider-directory','squares','urgent-care'], description: "Install this product")
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
-    booleanParam(name: 'LEAVE_GREEN_ROUTES', defaultValue: false, description: "Leave the green load balancer attached to the last availability zone modified")
+    booleanParam(name: 'LEAVE_GREEN_LOAD_BALANCER', defaultValue: false, description: "Leave the green load balancer routes and targets attached (only available when deploying to a single AZ).")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
     booleanParam(name: 'DANGER_ZONE', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
     string(name: 'DANGER_ZONE_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for DANGER_ZONE." )
