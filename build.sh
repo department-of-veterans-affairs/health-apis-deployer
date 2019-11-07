@@ -82,10 +82,23 @@ if [ "${LEAVE_GREEN_LOAD_BALANCER:-false}" == true ] \
   RULE_ONE=$(echo "${DU_LOAD_BALANCER_RULES[@]}" | awk '{print $1}')
 
   # If only 3 targets (one AZs worth) is available on blue, don't remove them plz
-  [ $(load-balancer rule-health --env $VPC_NAME --cluster-id $CLUSTER_ID --color blue --rule-path "$RULE_ONE" | wc -w) -gt 3 ]
-    && declare -x LEAVE_ON_GREEN=true
-    && ROLLBACK_ON_TEST_FAILURES=false
+  if [ $(load-balancer rule-health --env $VPC_NAME --cluster-id $CLUSTER_ID --color blue --rule-path "$RULE_ONE" \
+    | sed 's/ /\n/g' \
+    | grep -c -E '^healthy$') -gt 3 ]
+  then
+    declare -x LEAVE_ON_GREEN=true
+    ROLLBACK_ON_TEST_FAILURES=false
+  else
+    # You'll get nothing and like it...
+    echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER: NOT ENOUGH HEALTHY TARGETS"
+    echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER" >> $JENKINS_DESCRIPTION
+    exit 1
+  fi
 
+else
+  echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER: TOO MANY AZs SELECTED"
+  echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER" >> $JENKINS_DESCRIPTION
+  exit 1
 fi
 
 #
