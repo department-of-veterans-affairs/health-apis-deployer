@@ -72,33 +72,35 @@ then
   exit 0
 fi
 
-# Leaving green is only allowed when deploying to a single AZ
-if [ "${LEAVE_GREEN_LOAD_BALANCER:-false}" == true ] \
-  && [ "${AVAILABILITY_ZONES:-all}" != "all" ]; then
 
-  echo "Leaving everything attached to green in $AVAILABILITY_ZONES..."
-  echo "Rollback has been disabled..."
+if [ "${LEAVE_GREEN_LOAD_BALANCER:-false}" == true ]; then
 
+  # Please don't try to put all targets on the green load balancer...
+  # That's never a good idea...
+  [ "${AVAILABILITY_ZONES:-all}" == "all" ] \
+    && echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER: TOO MANY AZs SELECTED" \
+    && echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER" >> $JENKINS_DESCRIPTION \
+    && exit 1
+
+  # If only 3 targets (one AZs worth) is available on blue;
+  # you'll get nothing and like it...
   RULE_ONE=$(echo "${DU_LOAD_BALANCER_RULES[@]}" | awk '{print $1}')
 
-  # If only 3 targets (one AZs worth) is available on blue, don't remove them plz
-  if [ $(load-balancer rule-health --env $VPC_NAME --cluster-id $CLUSTER_ID --color blue --rule-path "$RULE_ONE" \
+  HEALTHY_TARGET_COUNT=$(load-balancer rule-health --env $VPC_NAME --cluster-id $CLUSTER_ID --color blue --rule-path "$RULE_ONE" \
     | sed 's/ /\n/g' \
-    | grep -c -E '^healthy$') -gt 3 ]
+    | grep -c -E '^healthy$')
+
+  if [ $HEALTHY_TARGET_COUNT -gt 3 ]
   then
+    echo "Leaving everything attached to green in $AVAILABILITY_ZONES..."
+    echo "Rollback has been disabled..."
     declare -x LEAVE_ON_GREEN=true
     ROLLBACK_ON_TEST_FAILURES=false
   else
-    # You'll get nothing and like it...
-    echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER: NOT ENOUGH HEALTHY TARGETS"
+    echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER: NOT ENOUGH HEALTHY TARGETS ($HEALTHY_TARGET_COUNT)"
     echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER" >> $JENKINS_DESCRIPTION
     exit 1
   fi
-
-else
-  echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER: TOO MANY AZs SELECTED"
-  echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER" >> $JENKINS_DESCRIPTION
-  exit 1
 fi
 
 #
