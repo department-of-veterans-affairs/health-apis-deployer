@@ -73,13 +73,15 @@ then
 fi
 
 
-if [ "${LEAVE_GREEN_LOAD_BALANCER:-false}" == true ]; then
+LEAVE_ON_GREEN=false
+
+if [ "${DONT_REATTACH_TO_BLUE:-false}" == true ]; then
 
   # Please don't try to put all targets on the green load balancer...
   # That's never a good idea...
   [ "${AVAILABILITY_ZONES:-all}" == "all" ] \
-    && echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER: TOO MANY AZs SELECTED" \
-    && echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER" >> $JENKINS_DESCRIPTION \
+    && echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE: TOO MANY AZs SELECTED" \
+    && echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE" >> $JENKINS_DESCRIPTION \
     && exit 1
 
   # If only 3 targets (one AZs worth) is available on blue;
@@ -96,9 +98,10 @@ if [ "${LEAVE_GREEN_LOAD_BALANCER:-false}" == true ]; then
     echo "Rollback has been disabled..."
     declare -x LEAVE_ON_GREEN=true
     ROLLBACK_ON_TEST_FAILURES=false
+    touch ./.jenkins_unstable
   else
-    echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER: NOT ENOUGH HEALTHY TARGETS ($HEALTHY_TARGET_COUNT)"
-    echo "Failed to meet all criteria for LEAVE_GREEN_LOAD_BALANCER" >> $JENKINS_DESCRIPTION
+    echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE: NOT ENOUGH HEALTHY TARGETS ($HEALTHY_TARGET_COUNT)"
+    echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE" >> $JENKINS_DESCRIPTION
     exit 1
   fi
 fi
@@ -301,7 +304,15 @@ do
     else
       set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
     fi
-    [ "$SKIP_LOAD_BALANCER" == false ] && detach-deployment-unit-from-lb green
+
+    [ "${LEAVE_ON_GREEN:-false}" == true ] \
+      && echo "Leaving Targets attached to green, smoke tests ignored..." \
+      && echo "TESTS_FAILED: ${TEST_FAILURE:-false}" \
+      && exit 0
+
+    [ "$SKIP_LOAD_BALANCER" == false ] \
+      && [ "${LEAVE_ON_GREEN:-false}" == false ] \
+      && detach-deployment-unit-from-lb green
   fi
 
   echo "SUCCESS! $AVAILABILITY_ZONE"
@@ -376,7 +387,7 @@ fi
 
 if [ "$SKIP_LOAD_BALANCER" == false ]
 then
-  [ "${LEAVE_ON_GREEN:-false}" == false ] && remove-all-green-routes
+  [ "${LEAVE_ON_GREEN:false}" == false ] && remove-all-green-routes
   echo "============================================================"
 
   echo "Blue Load Balancer Rules"
