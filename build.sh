@@ -72,7 +72,6 @@ then
   exit 0
 fi
 
-
 #
 # Load configuration. The following variables are expected
 #
@@ -96,6 +95,40 @@ test -n "$DU_NAMESPACE"
 test -n "$DU_DECRYPTION_KEY"
 test -n "$DU_HEALTH_CHECK_PATH"
 test -n "${#DU_LOAD_BALANCER_RULES[@]}"
+
+
+LEAVE_ON_GREEN=false
+
+if [ "${DONT_REATTACH_TO_BLUE:-false}" == true ]; then
+
+  # Please don't try to put all targets on the green load balancer...
+  # That's never a good idea...
+  [ "${AVAILABILITY_ZONES:-all}" == "all" ] \
+    && echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE: TOO MANY AZs SELECTED" \
+    && echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE" >> $JENKINS_DESCRIPTION \
+    && exit 1
+
+  # If only 3 targets (one AZs worth) is available on blue;
+  # you'll get nothing and like it...
+  RULE_ONE=$(echo "${DU_LOAD_BALANCER_RULES[@]}" | awk '{print $1}')
+
+  HEALTHY_TARGET_COUNT=$(load-balancer rule-health --env $VPC_NAME --cluster-id $CLUSTER_ID --color blue --rule-path "$RULE_ONE" \
+    | sed 's/ /\n/g' \
+    | grep -c -E '^healthy$')
+
+  if [ $HEALTHY_TARGET_COUNT -gt 3 ]
+  then
+    echo "Leaving everything attached to green in $AVAILABILITY_ZONES..."
+    echo "Rollback has been disabled..."
+    declare -x LEAVE_ON_GREEN=true
+    ROLLBACK_ON_TEST_FAILURES=false
+    touch ./.jenkins_unstable
+  else
+    echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE: NOT ENOUGH HEALTHY TARGETS ($HEALTHY_TARGET_COUNT)"
+    echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE" >> $JENKINS_DESCRIPTION
+    exit 1
+  fi
+fi
 
 #
 # Here's a sad work around ...
@@ -271,7 +304,15 @@ do
     else
       set-test-label $AVAILABILITY_ZONE $DU_NAMESPACE "PASSED"
     fi
-    [ "$SKIP_LOAD_BALANCER" == false ] && detach-deployment-unit-from-lb green
+
+    [ "${LEAVE_ON_GREEN:-false}" == true ] \
+      && echo "Leaving Targets attached to green, smoke tests ignored..." \
+      && echo "TESTS_FAILED: ${TEST_FAILURE:-false}" \
+      && exit 0
+
+    [ "$SKIP_LOAD_BALANCER" == false ] \
+      && [ "${LEAVE_ON_GREEN:-false}" == false ] \
+      && detach-deployment-unit-from-lb green
   fi
 
   echo "SUCCESS! $AVAILABILITY_ZONE"
@@ -346,7 +387,7 @@ fi
 
 if [ "$SKIP_LOAD_BALANCER" == false ]
 then
-  if [ "$LEAVE_GREEN_ROUTES" == false ]; then remove-all-green-routes; fi
+  [ "${LEAVE_ON_GREEN:-false}" == false ] && remove-all-green-routes
   echo "============================================================"
 
   echo "Blue Load Balancer Rules"
