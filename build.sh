@@ -72,6 +72,30 @@ then
   exit 0
 fi
 
+#
+# Load configuration. The following variables are expected
+#
+test -n "$PRODUCT"
+test -f "$WORKSPACE/products/$PRODUCT.conf"
+test -f "$WORKSPACE/products/$PRODUCT.yaml"
+declare -x DU_ARTIFACT
+declare -x DU_VERSION
+declare -x DU_NAMESPACE
+declare -x DU_DECRYPTION_KEY
+declare -x DU_HEALTH_CHECK_PATH
+declare -xA DU_LOAD_BALANCER_RULES # Associative array of priority to path
+declare -x DU_PROPERTY_LEVEL_ENCRYPTION
+declare -x WEAK_STRUCTURE_VALIDATION
+declare -x DU_HEALTH_CHECK_STATUS
+
+. $WORKSPACE/products/$PRODUCT.conf
+test -n "$DU_ARTIFACT"
+test -n "$DU_VERSION"
+test -n "$DU_NAMESPACE"
+test -n "$DU_DECRYPTION_KEY"
+test -n "$DU_HEALTH_CHECK_PATH"
+test -n "${#DU_LOAD_BALANCER_RULES[@]}"
+
 
 LEAVE_ON_GREEN=false
 
@@ -105,30 +129,6 @@ if [ "${DONT_REATTACH_TO_BLUE:-false}" == true ]; then
     exit 1
   fi
 fi
-
-#
-# Load configuration. The following variables are expected
-#
-test -n "$PRODUCT"
-test -f "$WORKSPACE/products/$PRODUCT.conf"
-test -f "$WORKSPACE/products/$PRODUCT.yaml"
-declare -x DU_ARTIFACT
-declare -x DU_VERSION
-declare -x DU_NAMESPACE
-declare -x DU_DECRYPTION_KEY
-declare -x DU_HEALTH_CHECK_PATH
-declare -xA DU_LOAD_BALANCER_RULES # Associative array of priority to path
-declare -x DU_PROPERTY_LEVEL_ENCRYPTION
-declare -x WEAK_STRUCTURE_VALIDATION
-declare -x DU_HEALTH_CHECK_STATUS
-
-. $WORKSPACE/products/$PRODUCT.conf
-test -n "$DU_ARTIFACT"
-test -n "$DU_VERSION"
-test -n "$DU_NAMESPACE"
-test -n "$DU_DECRYPTION_KEY"
-test -n "$DU_HEALTH_CHECK_PATH"
-test -n "${#DU_LOAD_BALANCER_RULES[@]}"
 
 #
 # Here's a sad work around ...
