@@ -116,8 +116,6 @@ if [ "${DONT_REATTACH_TO_BLUE:-false}" == true ]; then
     | sed 's/ /\n/g' \
     | grep -c -E '^healthy$')
 
-  echo $HEALTHY_TARGET_COUNT
-
   if [ $HEALTHY_TARGET_COUNT -gt 3 ]
   then
     echo "Leaving everything attached to green in $AVAILABILITY_ZONES..."
