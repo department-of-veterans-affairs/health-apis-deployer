@@ -387,7 +387,7 @@ fi
 
 if [ "$SKIP_LOAD_BALANCER" == false ]
 then
-  [ "${LEAVE_ON_GREEN:false}" == false ] && remove-all-green-routes
+  [ "${LEAVE_ON_GREEN:-false}" == false ] && remove-all-green-routes
   echo "============================================================"
 
   echo "Blue Load Balancer Rules"
