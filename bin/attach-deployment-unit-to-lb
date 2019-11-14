@@ -19,6 +19,12 @@ set -euo pipefail
 #
 COLOR=$1
 
+test -n "$COLOR"
+
+[ "${LEAVE_ON_GREEN:-false}" == true ] \
+  && [ "$COLOR" == "blue" ] \
+  && exit 0
+
 #
 # The prefix we use for AZ's is the last character of the string...
 # Example: us-gov-west-1a
@@ -32,7 +38,6 @@ AZ_ABREVIATION=${AVAILABILITY_ZONE: -1}
 . $LOAD_BALANCER_RULES
 
 test -n "$CLUSTER_ID"
-test -n "$COLOR"
 test -n "$DU_HEALTH_CHECK_PATH"
 test -n "${#DU_LOAD_BALANCER_RULES[@]}"
 test -n "$AZ_ABREVIATION"
