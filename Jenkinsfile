@@ -89,7 +89,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
-    choice(name: 'PRODUCT', choices: ['none','bulk-fhir','carma','carma-fms-connector','community-care','data-query','dmc-vet-search','exemplar','gal','gal-processor','hotline','logging','mock-ee', 'mock-vler','monitoring','provider-directory','squares','urgent-care'], description: "Install this product")
+    choice(name: 'PRODUCT', choices: ['none','bulk-fhir','carma','carma-fms-connector','community-care','data-query','dmc-vet-search','email-to-case','exemplar','gal','gal-processor','hotline','logging','mock-ee', 'mock-vler','monitoring','provider-directory','squares','urgent-care'], description: "Install this product")
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'DONT_REATTACH_TO_BLUE', defaultValue: false, description: "Leave the load balancer routes and targets attached to green and dont put them back on blue(only available when deploying to a single AZ).")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
