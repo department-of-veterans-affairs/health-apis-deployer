@@ -40,12 +40,12 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$1$2
 spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/r4/(.*)
+          - path: /fhir/v0/r4/(Coverage|Claim|ExplanationOfBenefits)(.*)
             backend:
               serviceName: claims
               servicePort: 8082

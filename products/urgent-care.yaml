@@ -26,7 +26,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/r4/(.*)
+          - path: /fhir/v0/r4/(CoverageEligibilityResponse.*)
             backend:
               serviceName: urgent-care-kong
               servicePort: 8082
