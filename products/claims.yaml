@@ -45,7 +45,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(r4)/(Claim|ExplanationOfBenefit|Coverage)(?|/)(.*)
+          - path: /fhir/v0/(r4)/(Claim|ExplanationOfBenefit|Coverage)(\?|/)(.*)
             backend:
               serviceName: claims
               servicePort: 8082
