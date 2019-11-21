@@ -14,11 +14,11 @@ metadata:
     deployment-app-version: $CLAIMS_VERSION
     deployment-test-status: UNTESTED
 ---
-  # For health checks along the actuator
+  # For health checks along the actuator and metadata/openapi requests
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: claims-ingress-actuator
+  name: claims-health-and-informational-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -27,7 +27,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /claims/(actuator/.*)
+          - path: /claims/(.*)
             backend:
               serviceName: claims
               servicePort: 8082
@@ -36,16 +36,16 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: claims-ingress
+  name: claims-resources-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$2$3$4
 spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/r4/(Coverage|Claim|ExplanationOfBenefits)(.*)
+          - path: /fhir/v0/(r4)/(Claim|ExplanationOfBenefits|Coverage)(?|/)(.*)
             backend:
               serviceName: claims
               servicePort: 8082
