@@ -49,11 +49,11 @@ spec:
               serviceName: urgent-care-kong
               servicePort: 8082
 ---
-  # For health checks along the actuator and metadata/openapi requests
+  # For Ad Hoc and anything else that needs access to metadata and openapi
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: urgent-care-legacy-ingress
+  name: urgent-care-implementation-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
