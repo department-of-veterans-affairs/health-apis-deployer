@@ -27,4 +27,4 @@ spec:
           - path: /(api/)?watrs(.*)
             backend:
               serviceName: watrs-integration
-##Need to modify              servicePort: 7001
+              servicePort: 7001
