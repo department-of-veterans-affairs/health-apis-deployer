@@ -27,4 +27,4 @@ spec:
           - path: /(api/)?qms(.*)
             backend:
               serviceName: qms-integration
-##Need to modify              servicePort: 7001
+              servicePort: 7001
