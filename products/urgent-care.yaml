@@ -38,8 +38,8 @@ metadata:
   namespace: $DU_NAMESPACE
 spec:
   hard:
-    limits.cpu: "4500m"
-    limits.memory: "12G"
+    limits.cpu: "6000m"
+    limits.memory: "16G"
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
