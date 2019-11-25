@@ -44,7 +44,7 @@ fi
 
 if [ "$WEAK_STRUCTURE_VALIDATION" == 'true' ]; then echo "Weak yaml validation is on, be careful!" && exit 0; fi
 
-NAMESPACE_STRUCT=$(grep -E '^.*(kind|metadata|  namespace):' $1)
+NAMESPACE_STRUCT=$(grep -E '^(kind|metadata|  namespace):' $1)
 echo "$NAMESPACE_STRUCT" | while read line ; do
 
   if [ "$metadata" = true ]; then
