@@ -67,11 +67,11 @@ spec:
               serviceName: urgent-care-kong
               servicePort: 8082
 ---
-  # This is only so that the target groups will continue to be happy as we roll through AZs. Should be removed in future MR updating TG health checks.
+  # This is only so that the target groups will continue to be happy as we roll through AZs. Should be removed in future MR after updating TG health checks.
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: urgent-care-healthy-target-group-ingress
+  name: urgent-care-target-group-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -80,7 +80,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/r4/v0/(.*)
+          - path: /fhir/v0/r4/(actuator/.*)
             backend:
               serviceName: urgent-care-kong
               servicePort: 8082
