@@ -17,7 +17,7 @@ RUN curl -skLo /usr/local/bin/jq https://github.com/stedolan/jq/releases/downloa
 #
 # Docker
 #
-RUN curl -fskLS https://get.docker.com | sh -x
+RUN curl -fskLS https://get.docker.com | sh
 
 
 #
