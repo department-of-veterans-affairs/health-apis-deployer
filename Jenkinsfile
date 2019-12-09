@@ -24,7 +24,7 @@ products["squares"] = "none"
 products["urgent-care"] = "none"
 products["watrs"] = "none"
 
-def productChoices = product.keySet() as List
+def productChoices = products.keySet() as List
 
 
 
