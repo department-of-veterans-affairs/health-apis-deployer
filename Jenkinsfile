@@ -1,30 +1,34 @@
 
-
+/*
+ * The supported products of the pipeline.
+ * Key: product name
+ * Value: List of channels to send slack messages to
+ */
 def products() {
-products = [:]
-products["none"] = ["health_apis_jenkins"]
-products["bulk-fhir"] = ["health_apis_jenkins"]
-products["carma"] = ["health_apis_jenkins"]
-products["carma-fms-connector"] = ["health_apis_jenkins"]
-products["claims"] = ["health_apis_jenkins"]
-products["community-care"] = ["health_apis_jenkins"]
-products["data-query"] = ["health_apis_jenkins"]
-products["dmc-vet-search"] = ["health_apis_jenkins"]
-products["email-to-case"] = ["health_apis_jenkins"]
-products["exemplar"] = ["health_apis_jenkins","shankins"]
-products["gal"] = ["health_apis_jenkins"]
-products["gal-processor"] = ["health_apis_jenkins"]
-products["hotline"] = ["health_apis_jenkins"]
-products["logging"] = ["health_apis_jenkins"]
-products["mock-ee"] = ["health_apis_jenkins"]
-products["mock-vler"] = ["health_apis_jenkins"]
-products["monitoring"] = ["health_apis_jenkins"]
-products["provider-directory"] = ["health_apis_jenkins"]
-products["qms"] = ["health_apis_jenkins"]
-products["squares"] = ["health_apis_jenkins"]
-products["urgent-care"] = ["health_apis_jenkins"]
-products["watrs"] = ["health_apis_jenkins"]
-return products
+  products = [:]
+  products["none"] = ["health_apis_jenkins"]
+  products["bulk-fhir"] = ["health_apis_jenkins","shankins"]
+  products["carma"] = ["health_apis_jenkins"]
+  products["carma-fms-connector"] = ["health_apis_jenkins"]
+  products["claims"] = ["health_apis_jenkins"]
+  products["community-care"] = ["health_apis_jenkins"]
+  products["data-query"] = ["health_apis_jenkins","shankins"]
+  products["dmc-vet-search"] = ["health_apis_jenkins"]
+  products["email-to-case"] = ["health_apis_jenkins"]
+  products["exemplar"] = ["health_apis_jenkins","shankins"]
+  products["gal"] = ["health_apis_jenkins"]
+  products["gal-processor"] = ["health_apis_jenkins"]
+  products["hotline"] = ["health_apis_jenkins"]
+  products["logging"] = ["health_apis_jenkins"]
+  products["mock-ee"] = ["health_apis_jenkins"]
+  products["mock-vler"] = ["health_apis_jenkins"]
+  products["monitoring"] = ["health_apis_jenkins"]
+  products["provider-directory"] = ["health_apis_jenkins"]
+  products["qms"] = ["health_apis_jenkins"]
+  products["squares"] = ["health_apis_jenkins"]
+  products["urgent-care"] = ["health_apis_jenkins"]
+  products["watrs"] = ["health_apis_jenkins"]
+  return products
 }
 
 
