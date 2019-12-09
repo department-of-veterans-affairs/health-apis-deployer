@@ -1,4 +1,32 @@
 
+def products = [:]
+
+products["none"] = "none"
+products["bulk-fhir"] = "none"
+products["carma"] = "none"
+products["carma-fms-connector"] = "none"
+products["claims"] = "none"
+products["community-care"] = "none"
+products["data-query"] = "none"
+products["dmc-vet-search"] = "none"
+products["email-to-case"] = "none"
+products["exemplar"] = "none"
+products["gal"] = "none"
+products["gal-processor"] = "none"
+products["hotline"] = "none"
+products["logging"] = "none"
+products["mock-ee"] = "none"
+products["mock-vler"] = "none"
+products["monitoring"] = "none"
+products["provider-directory"] = "none"
+products["qms"] = "none"
+products["squares"] = "none"
+products["urgent-care"] = "none"
+products["watrs"] = "none"
+
+
+
+
 def saunter(scriptName) {
   withCredentials([
     usernameColonPassword(
@@ -89,7 +117,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
-    choice(name: 'PRODUCT', choices: ['none','bulk-fhir','carma','carma-fms-connector','claims','community-care','data-query','dmc-vet-search','email-to-case','exemplar','gal','gal-processor','hotline','logging','mock-ee', 'mock-vler','monitoring','provider-directory','qms','squares','urgent-care','watrs'], description: "Install this product")
+    choice(name: 'PRODUCT', choices: products.keySet(), description: "Install this product")
     choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
     booleanParam(name: 'DONT_REATTACH_TO_BLUE', defaultValue: false, description: "Leave the load balancer routes and targets attached to green and dont put them back on blue(only available when deploying to a single AZ).")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
