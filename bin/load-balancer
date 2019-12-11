@@ -114,7 +114,7 @@ tgName() {
 targetGroupArn() {
   local tgName
   tgName=$(tgName) || exit 1
-  local cached=$(cachedGet tg-arn-$tgName)
+  local cached=$(cacheGet tg-arn-$tgName)
   [ -n "$cached" ] && echo $cached
   local targetGroupArn=$(aws elbv2 describe-target-groups \
     --names "$tgName" \
