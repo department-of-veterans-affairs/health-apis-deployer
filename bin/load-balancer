@@ -90,7 +90,7 @@ onExit() {
 cacheGet() {
   local name="$1"
   local cache="$WORK/$name"
-  [ -f "$cache" -a $(stat -c %s "$cache") ] && cat $cache
+  [ -f "$cache" -a $(stat -c %s "$cache") -gt 0 ] && cat $cache
 }
 cacheSet() {
   local name="$1"
