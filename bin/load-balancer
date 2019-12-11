@@ -87,6 +87,23 @@ onExit() {
 # Commands
 #
 #============================================================
+cacheGet() {
+  local name="$1"
+  local cache="$WORK/$name"
+  [ -f "$cache" -a $(stat -c %s "$cache") ] && cat $cache
+}
+cacheSet() {
+  local name="$1"
+  local cache="$WORK/$name"
+  local value="$2"
+  echo "$value" > "$cache"
+}
+cacheDelete() {
+  local name="$1"
+  local cache="$WORK/$name"
+  [ -f "$cache" ] && rm "$cache"
+}
+
 tgName() {
   [ -z "$PRODUCT" ] && usage "Product name not specified"
   [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
@@ -97,10 +114,12 @@ tgName() {
 targetGroupArn() {
   local tgName
   tgName=$(tgName) || exit 1
+  local cached=$(cachedGet tg-arn-$tgName)
+  [ -n "$cached" ] && echo $cached
   local targetGroupArn=$(aws elbv2 describe-target-groups \
-  --names "$tgName" \
-  | jq -r '.TargetGroups[].TargetGroupArn')
-
+    --names "$tgName" \
+    | jq -r '.TargetGroups[].TargetGroupArn')
+  cacheSet "tg-arn-$tgName" "$targetGroupArn"
   echo $targetGroupArn
 }
 
@@ -140,7 +159,7 @@ deleteTargetGroup() {
   local tgName
   tgName=$(tgName) || exit 1
   local targetGroupArn=$(targetGroupArn)
-
+  cacheDelete "tg-arn-$tgName"
   echo "Deleting Target Group: $tgName"
   aws elbv2 delete-target-group \
   --target-group-arn $targetGroupArn
@@ -149,6 +168,26 @@ deleteTargetGroup() {
 albName() {
   [ -z "$COLOR" ] && usage "Color not specified"
   echo $COLOR-$ALB_SUFFIX
+}
+
+albArn() {
+  local albName="$1"
+  local cached=$(cacheGet "alb-arn-$albName")
+  [ -n "$cached" ] && echo "$cached"
+  local alb=$(aws elbv2 describe-load-balancers --names $albName \
+    | jq -r .LoadBalancers[].LoadBalancerArn)
+  cacheSet "alb-arn-$albName" "$alb"
+  echo "$alb"
+}
+
+albHttpsListener() {
+  local alb="$1"
+  local cached=$(cacheGet "https-$alb")
+  [ -n "$cached" ] && echo "$cached"
+  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
+    | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  cacheSet "https-$alb" "$listener"
+  echo "$listener"
 }
 
 #
@@ -164,15 +203,13 @@ createRule() {
   #
   local albName
   albName=$(albName) || exit 1
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-                | jq -r .LoadBalancers[].LoadBalancerArn)
+  local alb=$(albArn $albName)
   [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
 
   #
   # Make sure the ALB has an HTTP listener
   #
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  local listener=$(albHttpsListener $alb)
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   echo "Updating HTTPS listener $albName"
