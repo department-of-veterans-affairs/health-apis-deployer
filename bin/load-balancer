@@ -96,18 +96,18 @@ cacheFileName() {
 
 cacheGet() {
   local name="$1"
-  local cache=$(cacheFileName $name)
-  [ -f "$cache" -a $(stat -c %s "$cache") -gt 0 ] && cat "$cache"
+  local cache=$(cacheFileName "$name")
+  [ -f "$cache" ] && [ "$(stat -c %s "$cache")" -gt 0 ] && cat "$cache"
 }
 cacheSet() {
   local name="$1"
-  local cache=$(cacheFileName $name)
+  local cache=$(cacheFileName "$name")
   local value="$2"
   echo "$value" > "$cache"
 }
 cacheDelete() {
   local name="$1"
-  local cache=$(cacheFileName $name)
+  local cache=$(cacheFileName "$name")
   [ -f "$cache" ] && rm "$cache"
 }
 
