@@ -20,12 +20,17 @@ test -n "$VPC_NAME"
 
 echo "Waiting for load balancer to be ready."
 
-checkAllRules() {
+checkTargetGroupHealth() {
+  #
+  # Since all the load balancer rules use the same target group, we only need to check one rule.
+  #
   for rule in "${DU_LOAD_BALANCER_RULES[@]}"
   do
     load-balancer rule-health --env $VPC_NAME --cluster-id $CLUSTER_ID --color $COLOR --rule-path "$rule"
-    [ $? != 0 ] && return 1
+    [ $? == 0 ] && return 0 # Healthy
+    return 1 # No bueno
   done
+  # There are no rules, so healthy
   return 0
 }
 
@@ -34,10 +39,10 @@ timeout=$(($(date +%s) + 300))
 while [ $(date +%s) -lt $timeout ]
 do
   sleep 1
-  checkAllRules
+  checkTargetGroupHealth
   [ $? != 0 ] && continue
-  echo "sleeping 60"
-  sleep 30
+  echo "sleeping 60" # lol
+  sleep 15
   exit 0
 done
 
