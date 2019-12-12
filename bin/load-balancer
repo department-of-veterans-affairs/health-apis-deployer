@@ -335,15 +335,13 @@ deleteAllRules() {
   #
   local albName
   albName=$(albName) || exit 1
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-                | jq -r .LoadBalancers[].LoadBalancerArn)
+  local alb=$(albArn $albName)
   [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
 
   #
   # Make sure the ALB has an HTTP listener
   #
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  local listener=$(albHttpsListener $alb)
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   echo "Updating HTTPS listener $albName"
@@ -354,10 +352,21 @@ deleteAllRules() {
    | jq -r '.Rules[] | .RuleArn , .Priority' \
    | paste -sd " \n" | grep -v default | awk  '{print $1}')
 
+  local pids=()
   for ruleArn in $rulesArns; do
     echo "Deleting: Rule-Arn: $ruleArn"
-    aws elbv2 delete-rule --rule-arn "$ruleArn"
+    aws elbv2 delete-rule --rule-arn "$ruleArn" &
+    pids+=($!)
   done
+
+  local fail=0
+  for pid in ${pids[@]}
+  do
+    wait $pid
+    if [ $? != 0 ]; then fail=$(($fail + 1)); fi
+  done
+
+  if [ $fail != 0 ]; then echo "Failed to delete $fail rules"; exit 1; fi
 }
 
 enableTargetGroup() {
