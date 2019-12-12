@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+cd $(dirname $(readlink -f $0))
+
+grep DU_LOAD_BALANCER_RULES */*conf \
+  | sed 's|^.*/\(.*\).conf.*\[\([0-9]\+\)\]="\(.*\)"|\2 \3 \1|' \
+  | sort -n \
+  | column -t
