@@ -102,8 +102,8 @@ do
     --product "$PRODUCT" \
     --rule-path "$rule" \
     --min-priority "$priority" \
-    --az-abreviation "$AZ_ABREVIATION"
-  > $WORK/$priority 2>&1 &
+    --az-abreviation "$AZ_ABREVIATION" \
+    > $WORK/$priority 2>&1 &
   pids[$priority]=$!
 done
 
@@ -113,7 +113,7 @@ done
 declare -A status
 for priority in ${!pids[@]}
 do
-  wait ${pid[$priority]}
+  wait ${pids[$priority]}
   status[$priority]=$?
 done
 
