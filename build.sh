@@ -395,10 +395,11 @@ then
   [ "${LEAVE_ON_GREEN:-false}" == false ] && remove-all-green-routes
   echo "============================================================"
 
-  echo "Blue Load Balancer Rules"
+  echo "Fetching blue load balancer rules"
   load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue > all-rules 2>&1 &
   ALL_RULES_PID=$!
 
+  echo "Determining deployment status"
   deployment-status > deployment-status 2>&1 &
   DEPLOYMENT_STATUS_PID=$!
 fi
@@ -409,7 +410,7 @@ then
   echo "No previous S3 bucket. Skipping bucket deletion."
 else
   # If we get here, then the build succeeded!!!!! We can delete the old du properties from s3!!!
-  echo "Deleting previous deployments S3 bucket."
+  echo "Deleting previous deployments S3 buckets"
   bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET" > old-buckets 2>&1 &
   OLD_BUCKETS_PID=$!
 fi
@@ -431,6 +432,7 @@ waitForIt() {
   return 0
 }
 
+echo "Waiting for background tasks to complete"
 waitForIt "${ALL_RULES_PID:-}" all-rules
 waitForIt "${DEPLOYMENT_STATUS_PID:-}" deployment-status
 waitForIt "${OLD_BUCKETS_PID:-}" old-buckets
