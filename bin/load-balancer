@@ -234,22 +234,15 @@ createRule() {
   # with a matching path, and remember them. Then create the new rule. Once created,
   # delete old matches.
   #
-  if [ -z "$ruleArn" ]; then
-    aws elbv2 create-rule \
-        --listener-arn $listener \
-        --actions Type=forward,TargetGroupArn=$targetGroupArn \
-        --conditions Field=path-pattern,Values="$RULE_PATH" \
-        --priority $(nextAvailablePriority $listener)
-  else
-    aws elbv2 create-rule \
-        --listener-arn $listener \
-        --actions Type=forward,TargetGroupArn=$targetGroupArn \
-        --conditions Field=path-pattern,Values="$RULE_PATH" \
-        --priority $(nextAvailablePriority $listener)
-
-    debug "Found already existing rule ($RULE_PATH). Removing old rule..."
-
-    aws elbv2 delete-rule --rule-arn "$ruleArn"
+  aws elbv2 create-rule \
+    --listener-arn $listener \
+    --actions Type=forward,TargetGroupArn=$targetGroupArn \
+    --conditions Field=path-pattern,Values="$RULE_PATH" \
+    --priority $(nextAvailablePriority $listener)
+  if [ -n "$ruleArn" ]
+  then
+    echo "Removing old version of rule  $RULE_PATH"
+    aws elbv2 delete-rule --rule-arn "$ruleArn" &
   fi
 }
 
