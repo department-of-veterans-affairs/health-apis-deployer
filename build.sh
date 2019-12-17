@@ -85,9 +85,9 @@ declare -x DU_DECRYPTION_KEY
 declare -x DU_HEALTH_CHECK_PATH
 declare -xA DU_LOAD_BALANCER_RULES # Associative array of priority to path
 declare -x DU_PROPERTY_LEVEL_ENCRYPTION
-declare -x WEAK_STRUCTURE_VALIDATION
 declare -x DU_HEALTH_CHECK_STATUS
 
+declare -x WEAK_STRUCTURE_VALIDATION
 . $WORKSPACE/products/$PRODUCT.conf
 test -n "$DU_ARTIFACT"
 test -n "$DU_VERSION"
@@ -385,17 +385,67 @@ then
   DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fi
 
+
+#============================================================
+#
+# Let's do some post install activities
+#
 if [ "$SKIP_LOAD_BALANCER" == false ]
 then
   [ "${LEAVE_ON_GREEN:-false}" == false ] && remove-all-green-routes
   echo "============================================================"
 
-  echo "Blue Load Balancer Rules"
-  load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue
+  echo "Fetching blue load balancer rules"
+  load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue > all-rules 2>&1 &
+  ALL_RULES_PID=$!
 
-  deployment-status
+  echo "Determining deployment status"
+  deployment-status > deployment-status 2>&1 &
+  DEPLOYMENT_STATUS_PID=$!
 fi
 
+
+if [ -z "${PRIOR_DU_S3_FOLDER:-}" ] || [ -z "${PRIOR_DU_S3_BUCKET:-}" ] || [ "$PRIOR_DU_VERSION" == "not-installed" ]
+then
+  echo "No previous S3 bucket. Skipping bucket deletion."
+else
+  # If we get here, then the build succeeded!!!!! We can delete the old du properties from s3!!!
+  echo "Deleting previous deployments S3 buckets"
+  bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET" > old-buckets 2>&1 &
+  OLD_BUCKETS_PID=$!
+fi
+
+
+BACKGROUND_TASK_FAILURES=0
+waitForIt() {
+  local pid="$1"
+  local log="$2"
+  if [ -z "$pid" ]; then return 0; fi
+  if ! wait $pid
+  then
+    cat $log
+    echo "Background process failed ($log)"
+    BACKGROUND_TASK_FAILURES=$(($BACKGROUND_TASK_FAILURES + 1))
+    return 1
+  fi
+  cat $log
+  return 0
+}
+
+echo "Waiting for background tasks to complete"
+waitForIt "${ALL_RULES_PID:-}" all-rules
+waitForIt "${DEPLOYMENT_STATUS_PID:-}" deployment-status
+waitForIt "${OLD_BUCKETS_PID:-}" old-buckets
+if [ $BACKGROUND_TASK_FAILURES != 0 ]
+then
+  echo "Background tasks failures: $BACKGROUND_TASK_FAILURES"
+  exit 1
+fi
+
+#============================================================
+#
+# How'd we do?
+#
 if [ "$TEST_FAILURE" == true ]
 then
   if [ "$ENVIRONMENT" == "qa" ]
@@ -407,16 +457,12 @@ then
   fi
 fi
 
-if [ -z "${PRIOR_DU_S3_FOLDER:-}" ] || [ -z "${PRIOR_DU_S3_BUCKET:-}" ] || [ "$PRIOR_DU_VERSION" == "not-installed" ]
-then
-  echo "No previous S3 bucket. Skipping bucket deletion."
-else
-  # If we get here, then the build succeeded!!!!! We can delete the old du properties from s3!!!
-  echo "Deleting previous deployments S3 bucket."
-  bucket-beaver clean-up-properties --folder-name "$PRIOR_DU_S3_FOLDER" --bucket-name "$PRIOR_DU_S3_BUCKET"
-fi
 
+
+#============================================================
+#
 # If deployment is custom, let's use the clusterId not environment
+#
 if [ "$CUSTOM_CLUSTER_ID" != "default" ]
 then
 cat <<EOF >> $JENKINS_DESCRIPTION

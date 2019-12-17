@@ -43,6 +43,18 @@ test -n "${#DU_LOAD_BALANCER_RULES[@]}"
 test -n "$AZ_ABREVIATION"
 test -n "$VPC_NAME"
 
+
+#
+# We'll be doing some work in the back ground and will need to keep track of things
+#
+WORK=$(mktemp -p . -d work.XXXX )
+trap onExit EXIT
+onExit() {
+  [ -d $WORK ] && rm -rf $WORK
+}
+
+
+
 echo "============================================================"
 echo "Attaching $PRODUCT to $CLUSTER_ID $COLOR load balancer"
 
@@ -66,8 +78,21 @@ load-balancer enable-target-group \
 if [ $? != 0 ]; then echo "ENABLE TARGET GROUP FAILED!!! $PRODUCT on $CLUSTER_ID $COLOR load balancer is potentially unstable!" && exit 1; fi
 
 
+#
+# We're going to create the rules in the background.
+# Because each rule has a dedicated slot that is separated enough from other rules
+# such that we won't collide when looking for the next available ALB priority number.
+# E.g. if I create rule 10 and 20 at the same time and both already exist, the
+# load-balancer tool will find slots 11 and 21 independently.
+#
+
+#
+# Step 1: Create rules in the background, capturing their output
+#
+declare -A pids
 for priority in ${!DU_LOAD_BALANCER_RULES[@]}
 do
+  taskId="rule-$priority"
   rule="${DU_LOAD_BALANCER_RULES[$priority]}"
   echo "Creating rule $rule with minimum priority $priority"
   load-balancer create-rule \
@@ -77,8 +102,38 @@ do
     --product "$PRODUCT" \
     --rule-path "$rule" \
     --min-priority "$priority" \
-    --az-abreviation "$AZ_ABREVIATION"
-
-  if [ $? != 0 ]; then echo "PRIORITY RULE CREATION FAILED!!! $PRODUCT on $CLUSTER_ID $COLOR is potentially unstable!" && exit 1; fi
-
+    --az-abreviation "$AZ_ABREVIATION" \
+    > $WORK/$priority 2>&1 &
+  pids[$priority]=$!
 done
+
+#
+# Step 2: Wait for each create-rule process to complete, capturing their exit codes
+#
+declare -A status
+for priority in ${!pids[@]}
+do
+  wait ${pids[$priority]}
+  status[$priority]=$?
+done
+
+#
+# Step 3: Verify each status code was good (0) and print the captured output
+#
+failures=0
+for priority in ${!pids[@]}
+do
+  rule="${DU_LOAD_BALANCER_RULES[$priority]}"
+  echo "Created $rule ($priority) with status ${status[$priority]}"
+  cat $WORK/$priority
+  [ "${status[$priority]}" != 0 ] && failures=$(($failures + 1))
+done
+
+#
+# Step 4: Profit
+#
+if [ $failures != 0 ]
+then
+  echo "Failed to create $failures rules! $PRODUCT on $CLUSTER_ID $COLOR is potentially unstable!"
+  exit 1
+fi
