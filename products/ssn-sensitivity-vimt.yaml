@@ -27,7 +27,7 @@ spec:
           - path: /(api/)?(vimt)(.*)
             backend:
               serviceName: ssn-sensitivity-vimt
-              servicePort: 8091
+              servicePort: 8092
 ---
 apiVersion: v1
 kind: ResourceQuota
