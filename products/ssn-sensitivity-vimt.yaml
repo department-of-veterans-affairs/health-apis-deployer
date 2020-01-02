@@ -10,13 +10,13 @@ metadata:
     deployment-date: $BUILD_DATE
     deployment-s3-bucket: $DU_AWS_BUCKET_NAME
     deployment-s3-folder: $DU_S3_FOLDER
-    deployment-app-version: $SALESFORCE_VERSION
+    deployment-app-version: $SSN_SENSITIVITY_VIMT_VERSION
     deployment-test-status: UNTESTED
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: salesforce-ingress
+  name: ssn-sensitivity-vimt-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -24,15 +24,15 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(api/)?(patsr|sfdc)(.*)
+          - path: /(api/)?(vimt)(.*)
             backend:
-              serviceName: salesforce
-              servicePort: 8091
+              serviceName: ssn-sensitivity-vimt
+              servicePort: 8092
 ---
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: views-hotline-resource-quota
+  name: views-ssn-sensitivity-vimt-resource-quota
   namespace: $DU_NAMESPACE
 spec:
   hard:
