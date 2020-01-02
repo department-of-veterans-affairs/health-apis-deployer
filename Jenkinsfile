@@ -27,6 +27,7 @@ def products() {
   products["provider-directory"] = ["health_apis_jenkins"]
   products["qms"] = ["health_apis_jenkins"]
   products["squares"] = ["health_apis_jenkins"]
+  products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["urgent-care"] = ["health_apis_jenkins"]
   products["watrs"] = ["health_apis_jenkins"]
   return products
