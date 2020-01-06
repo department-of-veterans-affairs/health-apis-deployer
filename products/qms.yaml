@@ -24,7 +24,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(api/)?qms(.*)
+          - path: .*/qms/.*
             backend:
               serviceName: qms-integration
               servicePort: 7001
