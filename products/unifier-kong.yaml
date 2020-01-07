@@ -16,7 +16,7 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: unifier-kong-ingress
+  name: unifier-kong-general-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -24,7 +24,23 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(healthz|dstu2|stu3|r4)/.*
+          - path: /unifier*
             backend:
-              serviceName: health-apis-kong
+              serviceName: unifier-kong
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: unifier-kong-informational-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/*/(metadata|.well-known/smart-configuration)
+            backend:
+              serviceName: unifier-kong
               servicePort: 8082
