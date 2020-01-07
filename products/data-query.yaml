@@ -27,19 +27,37 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: data-query-application-ingress
+  name: data-query-fhir-resource-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$1/$2$4
 spec:
   rules:
     - http:
         paths:
-          - path: /(fhir/v0|data-query)/(.*)
+          - path: /fhir/v0/(.*)/(AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|Observation|Organization|Patient|Practitioner|Procedure)(\/|\?)(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: data-query-internal-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /data-query/(.*)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
+
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
