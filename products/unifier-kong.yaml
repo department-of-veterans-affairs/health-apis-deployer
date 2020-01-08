@@ -13,6 +13,7 @@ metadata:
     deployment-app-version: $UNIFIER_VERSION
     deployment-test-status: UNTESTED
 ---
+#For health checks on the kong instance itself, but can be used for other future things
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -20,11 +21,12 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
     - http:
         paths:
-          - path: /unifier*
+          - path: /unifier/(*)
             backend:
               serviceName: unifier-kong
               servicePort: 8082

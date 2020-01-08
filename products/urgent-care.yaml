@@ -62,7 +62,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/r4/(metadata|openapi.*|.well-known/smart-configuration)
+          - path: /fhir/v0/r4/(openapi.*)
             backend:
               serviceName: urgent-care-kong
               servicePort: 8082
