@@ -31,12 +31,12 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1/$2$3$4
+    nginx.ingress.kubernetes.io/rewrite-target: /$1/$2$3
 spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2|stu3|r4)/(metadata|AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|Observation|Organization|Patient|Practitioner|Procedure)(/|\?)(.*)
+          - path: /fhir/v0/(.*)/(metadata|AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|Observation|Organization|Patient|Practitioner|Procedure)(/.*|\?.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
