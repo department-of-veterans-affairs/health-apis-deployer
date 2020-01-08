@@ -70,7 +70,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2|argonaut/data-query)/(.well-known|token)(.*)
+          - path: /fhir/v0/(dstu2|argonaut/data-query)/(token)(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
