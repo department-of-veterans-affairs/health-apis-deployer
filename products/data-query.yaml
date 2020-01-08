@@ -24,6 +24,13 @@ metadata:
 #    limits.cpu: "7800m"
 #    limits.memory: "15G"
 ---
+# If at any point multiple applications can grab similar resource names (i.e. Medication, MedicationOrder, etc.) they will need to be split out into their own ingresses.
+# This will prevent ingresses from eating eachothers requests (see Path Priority below). For now, however, we'll leave the long list of resources to reduce the number of
+# ingresses.
+#
+# Path Priority: In NGINX, regular expressions follow a first match policy. In order to enable more accurate path matching, ingress-nginx first orders the paths by
+# descending length before writing them to the NGINX template as location blocks.
+#
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -36,7 +43,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(.*)/(metadata|AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|Observation|Organization|Patient|Practitioner|Procedure)(\\?.*|/.*)
+          - path: /fhir/v0/(.*)/(metadata|AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|Observation|Organization|Patient|Practitioner|Procedure)(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
