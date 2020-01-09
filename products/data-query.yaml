@@ -24,19 +24,46 @@ metadata:
 #    limits.cpu: "7800m"
 #    limits.memory: "15G"
 ---
+# If at any point multiple applications can grab similar resource names (i.e. Medication, MedicationOrder, etc.) they will need to be split out into their own ingresses.
+# This will prevent ingresses from eating eachothers requests (see Path Priority below). For now, however, we'll leave the long list of resources to reduce the number of
+# ingresses.
+#
+# Path Priority: In NGINX, regular expressions follow a first match policy. In order to enable more accurate path matching, ingress-nginx first orders the paths by
+# descending length before writing them to the NGINX template as location blocks.
+#
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: data-query-dstu2-ingress
+  name: data-query-fhir-resource-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /dstu2/$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$1/$2$3
 spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/dstu2/(.*)
+          - path: /fhir/v0/(dstu2|stu3|r4)/(AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|Observation|Organization|Patient|Practitioner|Procedure)(.*)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
+---
+#
+# This can be deleted after the unifier is working. For now, it must remain, or the above ingress eats all 3 resource versions of the metadata endpoint.
+#
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: data-query-metadata-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/(dstu2/metadata)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
@@ -44,7 +71,24 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: data-query-ingress
+  name: data-query-internal-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /data-query/(.*)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: data-query-argonaut-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -61,24 +105,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: fhir-version-agnostic-ingress
-  namespace: $DU_NAMESPACE
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$2$3
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /fhir/v0/(dstu2|argonaut/data-query)/(.well-known|token)(.*)
-            backend:
-              serviceName: health-apis-kong
-              servicePort: 8082
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: internal-data-query-ingress
+  name: data-query-fhir-agnostic-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -87,7 +114,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /data-query/(.*)
+          - path: /fhir/v0/dstu2/(.well-known/.*|token)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082

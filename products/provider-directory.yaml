@@ -17,7 +17,30 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: pd-ingress
+  name: pd-application-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1/$2$3
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/(dstu2|stu3|r4)/(Endpoint)(.*)
+            backend:
+              serviceName: pd-kong
+              servicePort: 8082
+---
+#
+# This ingress should go away eventually. The current convention being used by data-query and
+# urgent-care is to use an internal base path for accessing the `/actuator` endpoints
+# (i.e. `/provider-directory/actuator/health). The ingress would then become `/provider-directory/(.*)`
+# with the capture group rewrigin and forwarding along the the application.
+#
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pd-actuator-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -26,7 +49,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/stu3/(.*)
+          - path: /fhir/v0/stu3/(actuator/.*|openapi.*)
             backend:
               serviceName: pd-kong
               servicePort: 8082
