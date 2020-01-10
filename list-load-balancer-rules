@@ -24,6 +24,7 @@ declare -A RULES
 while read line
 do
   echo "$line"
+  echo ---
   rule=(${line})
   rule=${rule[0]}
   [ $rule -gt 1000 ] && badRule "$rule" "Rule cannot be greater than 1000"
