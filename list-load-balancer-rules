@@ -26,10 +26,10 @@ while read line
 do
   echo "$line"
   rule=(${line})
-  rule="${rule[0]}"
-  [ "$rule" -gt 1000 ] && badRule "$rule" "Rule cannot be greater than 1000"
-  [ "$rule" -lt 10 ] && badRule "$rule" "Rule cannot be less than 10"
-  [ $(("$rule" % 10)) != 0 ] && badRule "$rule" "Rule must be an increment of 10"
+  rule=${rule[0]}
+  [ $rule -gt 1000 ] && badRule "$rule" "Rule cannot be greater than 1000"
+  [ $rule -lt 10 ] && badRule "$rule" "Rule cannot be less than 10"
+  [ $(($rule % 10)) != 0 ] && badRule "$rule" "Rule must be an increment of 10"
   [ -n "${RULES[$rule]}" ] && badRule "$rule" "Overlaps: with ${RULES[$rule]}"
   RULES[$rule]="$line"
 done <<<$(printRules)
