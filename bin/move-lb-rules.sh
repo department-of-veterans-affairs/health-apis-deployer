@@ -72,7 +72,7 @@ for LINE in "${LB_RULES[@]}"; do
   #Are we in the range
   if (( $PRIORITY >= $MIN )) && (( $PRIORITY <= $MAX )); then
     ((NEW_PRIORITY= $PRIORITY + $DELTA))
-    echo $NEW_PRIORITY
+    sed "${LINE_NUM}s/$PRIORITY/$NEW_PRIORITY/" "$FILE"
   fi
 
 done
