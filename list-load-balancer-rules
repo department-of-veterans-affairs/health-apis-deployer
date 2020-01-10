@@ -2,7 +2,39 @@
 
 cd $(dirname $(readlink -f $0))
 
-grep DU_LOAD_BALANCER_RULES */*conf \
+TMP=$(mktemp)
+onExit() { rm $TMP; }
+trap onExit EXIT
+
+printRules() {
+  grep DU_LOAD_BALANCER_RULES */*conf \
   | sed 's|^.*/\(.*\).conf.*\[\([0-9]\+\)\]="\(.*\)"|\2 \3 \1|' \
-  | sort -n \
-  | column -t
+  | sort -n
+}
+
+badRule() {
+  local rule="$1"
+  local why="$2"
+  echo "ERROR: $rule: $why"
+  echo -n $rule >> $TMP
+}
+
+
+export BAD_RULES=
+declare -A RULES
+printRules | while read line
+do
+  echo "$line"
+  rule=(${line})
+  rule=${rule[0]}
+  [ $rule -gt 1000 ] && badRule "$rule" "Rule cannot be greater than 1000"
+  [ $rule -lt 10 ] && badRule "$rule" "Rule cannot be less than 10"
+  [ $(($rule % 10)) != 0 ] && badRule "$rule" "Rule must be an increment of 10"
+  [ -n "${RULES[$rule]}" ] && badRule "$rule" "Overlaps: with ${RULES[$rule]}"
+  RULES[$rule]="$line"
+done
+
+BAD_RULES=$(cat $TMP)
+[ -n "$BAD_RULES" ] && echo "INVALID RULES: $BAD_RULES" && exit 1
+exit 0
+
