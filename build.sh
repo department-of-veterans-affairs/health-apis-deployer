@@ -69,6 +69,8 @@ then
   echo "Good day, sir."
   echo
   echo "I SAID GOOD DAY, SIR!"
+  list-load-balancer-rules
+  [ $? != 0 ] && exit 1
   exit 0
 fi
 
