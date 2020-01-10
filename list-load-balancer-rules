@@ -13,20 +13,27 @@ printRules() {
   | column -t
 }
 
-BAD_RULES=
+badRule() {
+  local rule="$1"
+  local why="$2"
+  echo "ERROR: $rule: $why"
+  BAD_RULES[$rule]="$why"
+}
+
+declare -A BAD_RULES
 declare -A RULES
 while read line
 do
   echo "$line"
-  rule="${line:0:4}"
-  if [ -n "${RULES[$rule]}" ]
-  then
-    BAD_RULES+="$rule"
-    echo "ERROR: Overlaps: with ${RULES[$rule]}"
-  fi
+  rule="${line:0:5}"
+  rule="${rule// /}"
+  [ "$rule" -gt 1000 ] && badRule "$rule" "Rule cannot be greater than 1000"
+  [ "$rule" -lt 10 ] && badRule "$rule" "Rule cannot be less than 10"
+  [ $(("$rule" % 10)) != 0 ] && badRule "$rule" "Rule must be an increment of 10"
+  [ -n "${RULES[$rule]}" ] && badRule "$rule" "Overlaps: with ${RULES[$rule]}"
   RULES[$rule]="$line"
 done <<<$(printRules)
 
-[ -n "$BAD_RULES" ] && echo "INVALID RULES:" $BAD_RULES && exit 1
+[ "${BAD_RULES[#]}" != 0 ] && echo "INVALID RULES:" ${!BAD_RULES[@]} && exit 1
 exit 0
 
