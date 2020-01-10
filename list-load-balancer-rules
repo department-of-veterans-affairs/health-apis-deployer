@@ -21,7 +21,7 @@ badRule() {
 
 declare -A BAD_RULES
 declare -A RULES
-while read line
+printRules | while read line
 do
   echo "$line"
   echo ---
@@ -32,7 +32,7 @@ do
   [ $(($rule % 10)) != 0 ] && badRule "$rule" "Rule must be an increment of 10"
   [ -n "${RULES[$rule]}" ] && badRule "$rule" "Overlaps: with ${RULES[$rule]}"
   RULES[$rule]="$line"
-done <<<$(printRules)
+done
 
 [ "${BAD_RULES[#]}" != 0 ] && echo "INVALID RULES:" ${!BAD_RULES[@]} && exit 1
 exit 0
