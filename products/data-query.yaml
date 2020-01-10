@@ -48,26 +48,6 @@ spec:
               serviceName: health-apis-kong
               servicePort: 8082
 ---
-#
-# This can be deleted after the unifier is working. For now, it must remain, or the above ingress eats all 3 resource versions of the metadata endpoint.
-#
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: data-query-metadata-ingress
-  namespace: $DU_NAMESPACE
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /fhir/v0/(dstu2/metadata)
-            backend:
-              serviceName: health-apis-kong
-              servicePort: 8082
----
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -114,7 +94,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2|argonaut/data-query)/(.well-known/.*|token)
+          - path: /fhir/v0/(dstu2|argonaut/data-query)/(token)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
