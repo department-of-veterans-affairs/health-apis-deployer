@@ -58,12 +58,12 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /dstu2/$1
 spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2/metadata)
+          - path: /fhir/v0/dstu2/(metadata|openapi.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
