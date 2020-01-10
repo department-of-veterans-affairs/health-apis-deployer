@@ -2,7 +2,31 @@
 
 cd $(dirname $(readlink -f $0))
 
-grep DU_LOAD_BALANCER_RULES */*conf \
+TMP=$(mktemp)
+onExit() { rm $TMP; }
+trap onExit EXIT
+
+printRules() {
+  grep DU_LOAD_BALANCER_RULES */*conf \
   | sed 's|^.*/\(.*\).conf.*\[\([0-9]\+\)\]="\(.*\)"|\2 \3 \1|' \
   | sort -n \
   | column -t
+}
+
+BAD_RULES=
+declare -A RULES
+while read line
+do
+  echo "$line"
+  rule="${line:0:4}"
+  if [ -n "${RULES[$rule]}" ]
+  then
+    BAD_RULES+="$rule"
+    echo "ERROR: Overlaps: with ${RULES[$rule]}"
+  fi
+  RULES[$rule]="$line"
+done <<<$(printRules)
+
+[ -n "$BAD_RULES" ] && echo "INVALID RULES:" $BAD_RULES && exit 1
+exit 0
+
