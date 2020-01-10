@@ -9,22 +9,22 @@ trap onExit EXIT
 printRules() {
   grep DU_LOAD_BALANCER_RULES */*conf \
   | sed 's|^.*/\(.*\).conf.*\[\([0-9]\+\)\]="\(.*\)"|\2 \3 \1|' \
-  | sort -n 
+  | sort -n
 }
 
 badRule() {
   local rule="$1"
   local why="$2"
   echo "ERROR: $rule: $why"
-  BAD_RULES[$rule]="$why"
+  echo -n $rule >> $TMP
 }
 
-declare -A BAD_RULES
+
+export BAD_RULES=
 declare -A RULES
 printRules | while read line
 do
   echo "$line"
-  echo ---
   rule=(${line})
   rule=${rule[0]}
   [ $rule -gt 1000 ] && badRule "$rule" "Rule cannot be greater than 1000"
@@ -34,6 +34,7 @@ do
   RULES[$rule]="$line"
 done
 
-[ "${BAD_RULES[#]}" != 0 ] && echo "INVALID RULES:" ${!BAD_RULES[@]} && exit 1
+BAD_RULES=$(cat $TMP)
+[ -n "$BAD_RULES" ] && echo "INVALID RULES: $BAD_RULES" && exit 1
 exit 0
 
