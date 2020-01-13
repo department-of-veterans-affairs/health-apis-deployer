@@ -16,6 +16,7 @@ def products() {
   products["dmc-vet-search"] = ["health_apis_jenkins"]
   products["email-to-case"] = ["health_apis_jenkins"]
   products["exemplar"] = ["health_apis_jenkins","shankins"]
+  products["fall-risk"] = ["health_apis_jenkins", "shankins"]
   products["gal"] = ["health_apis_jenkins"]
   products["gal-processor"] = ["health_apis_jenkins"]
   products["hotline"] = ["health_apis_jenkins"]
@@ -26,6 +27,7 @@ def products() {
   products["provider-directory"] = ["health_apis_jenkins"]
   products["qms"] = ["health_apis_jenkins"]
   products["squares"] = ["health_apis_jenkins"]
+  products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["urgent-care"] = ["health_apis_jenkins"]
   products["watrs"] = ["health_apis_jenkins"]
   return products
