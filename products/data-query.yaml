@@ -48,6 +48,26 @@ spec:
               serviceName: health-apis-kong
               servicePort: 8082
 ---
+#
+# This serves openapi for dstu2
+#
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: data-query-openapi-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /dstu2/$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/dstu2/(openapi.*)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
+---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
