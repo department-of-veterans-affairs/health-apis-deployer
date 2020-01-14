@@ -24,7 +24,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: (.*)/watrs/(.*)
+          - path: /(.*/)?watrs/(.*)
             backend:
               serviceName: watrs-integration
               servicePort: 7001
