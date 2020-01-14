@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: $DU_NAMESPACE
+  labels:
+    deployment-id: $K8S_DEPLOYMENT_ID
+    deployment-unit: $PRODUCT
+    deployment-unit-artifact: $DU_ARTIFACT
+    deployment-unit-version: $DU_VERSION
+    deployment-date: $BUILD_DATE
+    deployment-s3-bucket: $DU_AWS_BUCKET_NAME
+    deployment-s3-folder: $DU_S3_FOLDER
+    deployment-app-version: $UNIFIER_VERSION
+    deployment-test-status: UNTESTED
+---
+#For health checks on the kong instance itself, but can be used for other future things
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: unifier-kong-general-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /unifier/(.*)
+            backend:
+              serviceName: unifier-kong
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: unifier-kong-informational-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/.*/(metadata|.well-known/smart-configuration)
+            backend:
+              serviceName: unifier-kong
+              servicePort: 8082
