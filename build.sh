@@ -273,7 +273,7 @@ do
       do
         sleep 1
         podsReady='true'
-        for podStatus in $(cluster-fox kubectl $AVAILABILITY_ZONE -- get pods -n $DU_NAMESPACE --no-headers=true | awk '{print $2}')
+        for podStatus in $(cluster-fox kubectl $AVAILABILITY_ZONE -- get pods -n $DU_NAMESPACE --no-headers=true | grep -v 'Completed' | awk '{print $2}')
         do
           if [ "$(echo "$podStatus" | rev )" != "$podStatus" ]
           then
