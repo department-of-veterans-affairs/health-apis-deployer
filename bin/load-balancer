@@ -224,7 +224,6 @@ createRule() {
   echo "Listener: $listener"
 
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule creation" && exit 1
-  echo "Creating Rule Path: $RULE_PATH"
 
   local ruleArn=$(ruleArn $listener "$RULE_PATH")
 
@@ -241,6 +240,8 @@ createRule() {
     --actions Type=forward,TargetGroupArn=$targetGroupArn \
     --conditions Field=path-pattern,Values="$RULE_PATH" \
     --priority $(nextAvailablePriority $listener) > $temp
+
+  echo "Rule Path Created: $RULE_PATH"
 
   [ "${DEBUG:-false}" == "true" ] && cat $temp
 
