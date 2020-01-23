@@ -18,6 +18,8 @@ test -n "$COLOR"
 test -n "$CLUSTER_ID"
 test -n "$VPC_NAME"
 
+
+echo "============================================================"
 echo "Waiting for load balancer to be ready."
 
 checkTargetGroupHealth() {
