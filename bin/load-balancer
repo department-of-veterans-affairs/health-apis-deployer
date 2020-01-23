@@ -228,6 +228,8 @@ createRule() {
 
   local ruleArn=$(ruleArn $listener "$RULE_PATH")
 
+
+  local temp=$(mktemp)
   #
   # If this rule does not exist on the LB, create it
   # Otherwise, we need to prevent downtime. Find any existing rules
@@ -238,7 +240,10 @@ createRule() {
     --listener-arn $listener \
     --actions Type=forward,TargetGroupArn=$targetGroupArn \
     --conditions Field=path-pattern,Values="$RULE_PATH" \
-    --priority $(nextAvailablePriority $listener)
+    --priority $(nextAvailablePriority $listener) > $temp
+
+  [ "${DEBUG:-false}" == "true" ] && cat $temp
+
   if [ -n "$ruleArn" ]
   then
     echo "Removing old version of rule  $RULE_PATH"
