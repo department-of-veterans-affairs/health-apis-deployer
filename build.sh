@@ -240,8 +240,8 @@ do
   # And DU_AUTOMATIC_AVAILABILITY_ZONES is specified for the product,
   # we will only deploy to their request AZs.
   if [ "$DEPLOYMENT_MODE" == "automatic" ] \
-   && [ -z "$DU_AUTOMATIC_AVAILABILITY_ZONES" ] \
-   && [ ! "$AVAILABILITY_ZONE" == *"$DU_AUTOMATIC_AVAILABILITY_ZONES"* ]
+   && [ ! -z "$DU_AUTOMATIC_AVAILABILITY_ZONES" ] \
+   && [ ! "${AVAILABILITY_ZONE:(-1)}"  == *"$DU_AUTOMATIC_AVAILABILITY_ZONES"* ]
   then
    continue
   fi
