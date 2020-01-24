@@ -11,7 +11,6 @@ if [ "${DEBUG}" == true ]; then
   env | sort
 fi
 
-
 #
 # Ensure that we fail fast on any issues.
 #
@@ -60,6 +59,13 @@ DEPLOYED_CLUSTER_ID=$CLUSTER_ID
 
 echo "$DEFAULT_CLUSTER_ID $DEPLOYED_CLUSTER_ID" | jq -R 'split(" ")|{defaultClusterID:.[0], deployedToClusterID:.[1]}' > metadata.json
 
+#
+# List Load-Balancer Rules and check for problems
+#
+LB_RULES=$(mktemp)
+./list-load-balancer-rules > $LB_RULES
+LB_RULES_STATUS=$?
+
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
   deployment-status
@@ -69,10 +75,14 @@ then
   echo "Good day, sir."
   echo
   echo "I SAID GOOD DAY, SIR!"
-  ./list-load-balancer-rules
-  [ $? != 0 ] && exit 1
+  cat $LB_RULES
+  [ $LB_RULES_STATUS != 0 ] && exit 1
   exit 0
 fi
+
+# If at any point we encounter a bad load-balancer rule on a build with a valid product
+# (new or otherwise) fail fast and make the rule discrepancy known.
+[ $LB_RULES_STATUS != 0 ] && cat $LB_RULES && exit 1
 
 #
 # Load configuration. The following variables are expected
