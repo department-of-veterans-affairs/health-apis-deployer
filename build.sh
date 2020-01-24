@@ -243,6 +243,7 @@ do
    && [ ! -z "$DU_AUTOMATIC_AVAILABILITY_ZONES" ] \
    && [ ! "${AVAILABILITY_ZONE:(-1)}"  == *"$DU_AUTOMATIC_AVAILABILITY_ZONES"* ]
   then
+   echo "Automatic Deployments are configured to skip $AVAILABILITY_ZONE"
    continue
   fi
 
