@@ -63,7 +63,8 @@ echo "$DEFAULT_CLUSTER_ID $DEPLOYED_CLUSTER_ID" | jq -R 'split(" ")|{defaultClus
 # List Load-Balancer Rules and check for problems
 #
 LB_RULES=$(mktemp)
-./list-load-balancer-rules > $LB_RULES
+./list-load-balancer-rules
+#> $LB_RULES
 LB_RULES_STATUS=$?
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
