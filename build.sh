@@ -239,7 +239,7 @@ do
   # If we are in automatic deployment mode,
   # And DU_AUTOMATIC_AVAILABILITY_ZONES is specified for the product,
   # we will only deploy to their request AZs.
-  if [ "$DEPLOYMENT_MODE" == "automatic" ] && [ ! -z "$DU_AUTOMATIC_AVAILABILITY_ZONES" ] && ! $(grep -q "${AVAILABILITY_ZONE:(-1)}" <<< "$DU_AUTOMATIC_AVAILABILITY_ZONES")
+  if [ "$DEPLOYMENT_MODE" == "automatic" ] && [ ! -z "${DU_AUTOMATIC_AVAILABILITY_ZONES:-}" ] && ! $(grep -q "${AVAILABILITY_ZONE:(-1)}" <<< "$DU_AUTOMATIC_AVAILABILITY_ZONES")
   then
    echo "Automatic Deployments are configured to skip $AVAILABILITY_ZONE"
    continue
