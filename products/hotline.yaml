@@ -24,7 +24,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(api/)?(patsr|sfdc)(.*)
+          - path: /(api/)?(patsr|sfdc)/(.*)
             backend:
               serviceName: salesforce
               servicePort: 8091
