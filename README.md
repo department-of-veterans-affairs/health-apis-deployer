@@ -1,7 +1,5 @@
 # health-apis-deployer
 
----
-
 ### Goals
 - Enable products an easy to use, automated deployment mechanism into Health APIs Kubernetes 
   environments independent of other products
