@@ -21,8 +21,7 @@ as well as optional configurations for customizing a product deployment. The .ya
 - Kubernetes Ingress definitions
 - *Automatic Deployment configuration
 
-*Most products can be deployed to all known AWS Availability Zones in an environemt. However, if a product needs
-to restict deployments to a single AZ per environment (no redundency), overides are available here.
+*Most products can be deployed to all known AWS Availability Zones in an environemt. However, to control a product's deployment to specific AZs, overide configuration is available. 
 
 
 ### Deployment Unit
