@@ -67,6 +67,10 @@ set +e
 LB_RULES=$(mktemp)
 ./list-load-balancer-rules > $LB_RULES
 LB_RULES_STATUS=$?
+
+INGRESS_RULES=$(mktemp)
+./list-ingress-rules > $INGRESS_RULES
+INGRESS_RULES_STATUS=$?
 set -e
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
@@ -78,14 +82,21 @@ then
   echo "Good day, sir."
   echo
   echo "I SAID GOOD DAY, SIR!"
+  echo "============================================================"
   cat $LB_RULES
-  [ $LB_RULES_STATUS != 0 ] && exit 1
+  echo "============================================================"
+  cat $INGRESS_RULES
+  echo "============================================================"
+  [ $LB_RULES_STATUS != 0 ] \
+    || [ $INGRESS_RULES_STATUS != 0 ] \
+    && exit 1
   exit 0
 fi
 
-# If at any point we encounter a bad load-balancer rule on a build with a valid product
+# If at any point we encounter a bad load-balancer rule or ingress rule  on a build with a valid product
 # (new or otherwise) fail fast and make the rule discrepancy known.
 [ $LB_RULES_STATUS != 0 ] && cat $LB_RULES && exit 1
+[ $INGRESS_RULES_STATUS != 0 ] && cat $INGRESS_RULES && exit 1
 
 #
 # Load configuration. The following variables are expected
