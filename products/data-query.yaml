@@ -54,7 +54,7 @@ spec:
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
-          - path: /fhir/v0/(stu3/r4)/(Patient)(.*)
+          - path: /fhir/v0/(stu3|r4)/(Patient)(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
