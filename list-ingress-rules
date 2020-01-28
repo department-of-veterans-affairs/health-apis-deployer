@@ -32,13 +32,14 @@ while read -r test; do
     # Matches Regex to filter commented lines
     # (example line: 'data-query /fhir/v0/dstu2/Patient/1010101010V666666') 
     #
-    [[ ! "$test" =~ ^[a-z\-]+\ .* ]] && continue
+    [[ "$test" =~ ^# ]] && continue
+    [[ ! "$test" =~ ^[a-z\-]+\ /[^\ ]+ ]] && echo "Invalid Test Format: $test" && exit 1
 
     # The good stuff
     awk -v test="$test" \
       'BEGIN {
          status = 0;
-         matched = "false";
+         isValidIngress = "false";
          split(test, a, " ");
          testAppName = a[1];
          testPath = a[2];
@@ -46,26 +47,25 @@ while read -r test; do
        {
          ingressRuleApp = $3;
          ingressRule = $2;
-         isMatch = match(testPath, ingressRule);
-         if (isMatch != 0) {
+         pathMatch = match(testPath, ingressRule);
+         if (pathMatch != 0) {
            if (ingressRuleApp == testAppName) {
-             matched = "true";
+             isValidIngress = "true";
              #printf "%s matched: %s\n", testPath, ingressRule;
              # SUCCESS!!!
              status = 0;
              exit
-           } else {
-             printf "%s did not match expected application %s. ", testPath, testAppName;
-             printf "Instead found: %s %s\n", ingressRule, ingressRuleApp;
-             # OH NOES! IZ A BAD RULE!!!
-             status = 1;
-             exit
            }
+           printf "%s did not match expected application %s. ", testPath, testAppName;
+           printf "Instead found: %s %s\n", ingressRule, ingressRuleApp;
+           # OH NOES! IZ A BAD RULE!!!
+           status = 1;
+           exit
          }
        }
        END { 
          if (status == 1) { exit 1 }
-         if (matched == "false") {
+         if (isValidIngress == "false") {
            # OH NOES! NO RULES MATCHED!!!
            printf "No matching rules found for %s %s\n", testAppName, testPath;
            exit 1
