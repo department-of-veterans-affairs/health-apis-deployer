@@ -26,5 +26,4 @@ data-query /data-query/datamart/validation
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
-exemplar /hi
 # End of File
