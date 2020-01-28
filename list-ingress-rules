@@ -44,7 +44,7 @@ while read -r test; do
          testAppName = a[1];
          testPath = a[2];
        }
-       {
+       /^[0-9]+ \/[^ ]+ [a-z\-]+$/ {
          ingressRuleApp = $3;
          ingressRule = $2;
          pathMatch = match(testPath, ingressRule);

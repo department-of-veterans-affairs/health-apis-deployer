@@ -24,6 +24,9 @@ data-query /fhir/v0/dstu2/Patient/$validate
 data-query /data-query/internal/bulk/Patient
 data-query /data-query/internal/bulk/Patient/count
 data-query /data-query/datamart/validation
+# Exemplar
+exemplar /hello
+exemplar /hola
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
