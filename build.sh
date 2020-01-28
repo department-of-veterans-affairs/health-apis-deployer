@@ -83,8 +83,10 @@ then
   echo
   echo "I SAID GOOD DAY, SIR!"
   echo "============================================================"
+  echo "Load Balancer Rules:"
   cat $LB_RULES
   echo "============================================================"
+  echo "Ingress Rules:"
   cat $INGRESS_RULES
   echo "============================================================"
   [ $LB_RULES_STATUS != 0 ] \
