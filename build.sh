@@ -70,7 +70,8 @@ LB_RULES_STATUS=$?
 
 INGRESS_RULES=$(mktemp)
 ./list-ingress-rules > $INGRESS_RULES
-INGRESS_RULES_STATUS=$?
+INGRESS_RULES_STATUS=0
+#$?
 set -e
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
