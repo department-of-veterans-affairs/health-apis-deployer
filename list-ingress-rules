@@ -41,13 +41,18 @@ while read -r test; do
          status = 0;
          isValidIngress = "false";
          split(test, a, " ");
+         # Get the App and Test Path
          testAppName = a[1];
          testPath = a[2];
+         # Nginx uses location blocks that ignore query params...
+         # Remove the queryParams to ensure the match is similar to nginxs matching
+         split(testPath, b, "?")
+         locationBlockPathMatcher = b[1];
        }
        /^[0-9]+ \/[^ ]+ [a-z\-]+$/ {
          ingressRuleApp = $3;
          ingressRule = $2;
-         pathMatch = match(testPath, ingressRule);
+         pathMatch = match(locationBlockPathMatcher, ingressRule);
          if (pathMatch != 0) {
            if (ingressRuleApp == testAppName) {
              isValidIngress = "true";
