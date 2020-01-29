@@ -59,12 +59,12 @@ while read -r test; do
              #printf "%s matched: %s\n", testPath, ingressRule;
              # SUCCESS!!!
              status = 0;
-             exit
+           } else {
+             printf "%s did not match expected application %s. ", testPath, testAppName;
+             printf "Instead found: %s %s\n", ingressRule, ingressRuleApp;
+             # OH NOES! IZ A BAD RULE!!!
+             status = 1;
            }
-           printf "%s did not match expected application %s. ", testPath, testAppName;
-           printf "Instead found: %s %s\n", ingressRule, ingressRuleApp;
-           # OH NOES! IZ A BAD RULE!!!
-           status = 1;
            exit
          }
        }
