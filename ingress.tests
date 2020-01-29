@@ -1,6 +1,6 @@
 # Bulk-Fhir
 bulk-fhir /fhir/v0/dstu2/bulk/I2-abc123def4560000
-bulk-fhir /fhir/v0/dstu2/Patient/$export
+#bulk-fhir /fhir/v0/dstu2/Patient/$export
 bulk-fhir /bulk-fhir/internal/publication/any/file/next
 # Data-Query
 data-query /fhir/v0/dstu2/AllergyIntolerance?patient=1010101010V666666
@@ -21,7 +21,7 @@ data-query /fhir/v0/stu3/Location/I2-abc123def4560000
 data-query /fhir/v0/stu3/Organization/I2-abc123def4560000
 data-query /fhir/v0/stu3/Practitioner/I2-abc123def4560000
 data-query /fhir/v0/stu3/PractitionerRole/I2-abc123def4560000
-data-query /fhir/v0/dstu2/Patient/$validate
+#data-query /fhir/v0/dstu2/Patient/$validate
 data-query /data-query/internal/bulk/Patient
 data-query /data-query/internal/bulk/Patient/count
 data-query /data-query/datamart/validation

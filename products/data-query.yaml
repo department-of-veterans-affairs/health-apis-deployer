@@ -43,21 +43,10 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2|stu3|r4)/(AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|Observation|Organization|Patient|Practitioner|PractitionerRole|Procedure)([/?][^$].*|/.validate)
+          - path: /fhir/v0/(dstu2|stu3|r4)/(AllergyIntolerance|Appointment|Condition|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationStatement|Observation|Organization|Patient|Practitioner|PractitionerRole|Procedure)([/?].*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
-          #
-          # This is a sad way to deal with Patient, but is necessary to prevent dq from eating bulk-fhirs /$export requests...
-          #
-#          - path: /fhir/v0/(dstu2)/(Patient)(.*)
-#            backend:
-#              serviceName: health-apis-kong
-#              servicePort: 8082
-#          - path: /fhir/v0/(stu3|r4)/(Patient)(.*)
-#            backend:
-#              serviceName: health-apis-kong
-#              servicePort: 8082
 ---
 #
 # This can be deleted after the unifier is working. For now, it must remain, or the above ingress eats all 3 resource versions of the metadata endpoint.
