@@ -52,6 +52,16 @@ managed together. Furthermore, routes have the potential to break access to othe
 coordinated across all products. The DevOps team provides oversight to ensure that routes do not
 conflict.
 
+##### Scripts Used For Coordinating Routes:
+
+- `list-load-balancer-rules`
+  - Finds all load-balancer rules and ensures no rules overlap or violate the agreed upon method for determining priority
+  - Script is run during deployer upgrades/deployments and will cause a failure 
+- `list-ingress-rules`
+  - Finds all ingress rules, determines priority, and ensures all given routes map to the correct ingress rule (based on application)
+  - Relys on the test paths within the `ingress.tests` file located in the `health-apis-deployer` root directory
+  - Script is run during deployer upgrades/deployments and will cause a failure
+
 ### K8S membership
 Moving applications to the Health APIs k8s cluster is coordinated responsibility between product
 teams and DevOps team.
