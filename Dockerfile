@@ -1,4 +1,4 @@
-FROM centos:7
+FROM vasdvp/health-apis-centos:7
 
 RUN yum update -yqq \
     && yum install -y -q yum-utils \
