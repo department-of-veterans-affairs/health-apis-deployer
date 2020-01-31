@@ -262,15 +262,20 @@ TEST_FAILURE=false
 declare -x AVAILABILITY_ZONE
 for AVAILABILITY_ZONE in $AVAILABILITY_ZONES
 do
+  #
   # If we are in automatic deployment mode,
   # And DU_AUTOMATIC_AVAILABILITY_ZONES is specified for the product,
   # we will only deploy to their request AZs.
+  #
   if [ "$DEPLOYMENT_MODE" == "automatic" ] && [ ! -z "${DU_AUTOMATIC_AVAILABILITY_ZONES:-}" ] && [[ "$DU_AUTOMATIC_AVAILABILITY_ZONES" != *${AVAILABILITY_ZONE: -1}* ]]
   then
    echo "Automatic Deployments are configured to skip $AVAILABILITY_ZONE"
    continue
   fi
-
+  #
+  # Capture deployed AZs for detailed jenkins description. 
+  #
+  DEPLOYED_AVAILABILITY_ZONES="${DEPLOYED_AVAILABILITY_ZONES:-} $AVAILABILITY_ZONE"
 
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
@@ -496,8 +501,6 @@ then
   fi
 fi
 
-
-
 #============================================================
 #
 # If deployment is custom, let's use the clusterId not environment
@@ -511,7 +514,7 @@ EOF
 else
 cat <<EOF >> $JENKINS_DESCRIPTION
   $PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
-  in availability zones: $AVAILABILITY_ZONES
+  in availability zones: $DEPLOYED_AVAILABILITY_ZONES
 EOF
 fi
 
