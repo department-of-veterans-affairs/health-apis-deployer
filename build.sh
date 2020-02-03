@@ -267,13 +267,13 @@ do
   # And DU_AUTOMATIC_AVAILABILITY_ZONES is specified for the product,
   # we will only deploy to their request AZs.
   #
-  if [ "$DEPLOYMENT_MODE" == "automatic" ] && [ ! -z "${DU_AUTOMATIC_AVAILABILITY_ZONES:-}" ] && [[ "$DU_AUTOMATIC_AVAILABILITY_ZONES" != *${AVAILABILITY_ZONE: -1}* ]]
+  if [ "${DEPLOYMENT_MODE:-}" == "automatic" ] && [ ! -z "${DU_AUTOMATIC_AVAILABILITY_ZONES:-}" ] && [[ "$DU_AUTOMATIC_AVAILABILITY_ZONES" != *${AVAILABILITY_ZONE: -1}* ]]
   then
    echo "Automatic Deployments are configured to skip $AVAILABILITY_ZONE"
    continue
   fi
   #
-  # Capture deployed AZs for detailed jenkins description. 
+  # Capture deployed AZs for detailed jenkins description.
   #
   DEPLOYED_AVAILABILITY_ZONES="${DEPLOYED_AVAILABILITY_ZONES:-} $AVAILABILITY_ZONE"
 
