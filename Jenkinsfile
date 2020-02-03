@@ -26,6 +26,7 @@ def products() {
   products["monitoring"] = ["health_apis_jenkins"]
   products["provider-directory"] = ["health_apis_jenkins"]
   products["qms"] = ["health_apis_jenkins"]
+  products["sfdc-mvi-ent"] = ["health_apis_jenkins"]
   products["squares"] = ["health_apis_jenkins"]
   products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["unifier-kong"] = ["health_apis_jenkins"]
@@ -126,8 +127,8 @@ pipeline {
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
     choice(name: 'PRODUCT', choices: products().keySet() as List, description: "Install this product")
-    choice(name: 'AVAILABILITY_ZONES', choices: ['all','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Install into this availability zone")
-    booleanParam(name: 'DONT_REATTACH_TO_BLUE', defaultValue: false, description: "Leave the load balancer routes and targets attached to green and dont put them back on blue(only available when deploying to a single AZ).")
+    choice(name: 'AVAILABILITY_ZONES', choices: ['automatic','us-gov-west-1a','us-gov-west-1b','us-gov-west-1c'], description: "Automatically install to all known AZs, or to the automatic availability zones configured in the DU deployment.conf. Additionally, you may directly install to a chosen AZ.")
+    booleanParam(name: 'DONT_REATTACH_TO_BLUE', defaultValue: false, description: "Leave the load balancer routes and targets attached to green and don't put them back on blue(only available when deploying to a single AZ).")
     booleanParam(name: 'SIMULATE_REGRESSION_TEST_FAILURE', defaultValue: false, description: "Force rollback logic by simulating a test failure.")
     booleanParam(name: 'DANGER_ZONE', defaultValue: false, description: "Perform a build to deploy a DU_VERSION with minimal steps. No testing, or validations.")
     string(name: 'DANGER_ZONE_DU_VERSION', defaultValue: 'default', description: "Manual override of DU_VERSION for DANGER_ZONE." )

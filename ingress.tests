@@ -31,4 +31,14 @@ exemplar /hola
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
+# SFDC MVI Enterprise
+sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
+sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviSearch
+sfdc-mvi-ent /sfdc-mvi-ent/v0/vetSearch
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviNewPerson
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
+sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
 # End of File
