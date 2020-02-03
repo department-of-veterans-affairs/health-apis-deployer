@@ -1,20 +1,27 @@
 # health-apis-deployer
 
-TODO
-- practice roll back
-- add uat
-- encrypt testvars
-- default cpu/mem limits 
-
----
-
-
 ### Goals
 - Enable products an easy to use, automated deployment mechanism into Health APIs Kubernetes 
   environments independent of other products
 - Enable blue/green style deployment
 - Enforce best practices for portable smoke and regression testing
 - Enable known safe rollback behaviors when deployments fail
+
+
+### Products
+The deployer becomes aware of applications via the _products_ folder. Each product contains a product.conf and product.yaml file.The .conf contains important product-specific information necessary for the deployer to install an application,
+as well as optional configurations for customizing a product deployment. The .yaml contains kubernetes ingress rules for the given application. See the _exemplar.conf_ and _exemplar.yaml_ for an example product.
+
+
+- Application's deployment unit artifact and current version
+- Kubernetes Namespace assigned for the application
+- Application's deployment unit decryption key
+- Application Health Check path
+- Load balancer rules with priority
+- Kubernetes Ingress definitions
+- *Automatic Deployment configuration
+
+*Most products can be deployed to all known AWS Availability Zones in an environment. However, to control a product's deployment to specific AZs, overide configuration is available. 
 
 
 ### Deployment Unit
