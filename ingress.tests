@@ -31,4 +31,6 @@ exemplar /hola
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
+# SFDC MVI Enterprise
+sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
 # End of File
