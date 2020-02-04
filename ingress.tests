@@ -25,6 +25,13 @@ data-query /fhir/v0/dstu2/Patient/$validate
 data-query /data-query/internal/bulk/Patient
 data-query /data-query/internal/bulk/Patient/count
 data-query /data-query/datamart/validation
+# DMC VetSearch
+dmc-vet-search /dmc-vet-search/v0/actuator/health
+dmc-vet-search /dmc-vet-search/v0/actuator/info
+dmc-vet-search /dmc-vet-search/v0/mviSearch
+dmc-vet-search /dmc-vet-search/v0/vetSearch
+dmc-vet-search /dmc-vet-search/v0/mviRetrieve
+dmc-vet-search /dmc-vet-search/v0/vetRetrieve
 # Exemplar
 exemplar /hello
 exemplar /hola
