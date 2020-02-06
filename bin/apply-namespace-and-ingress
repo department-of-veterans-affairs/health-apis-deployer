@@ -69,7 +69,7 @@ then
 
     echo "Waiting for pods to terminate..."
     NS_DELETE_TIMEOUT=$(($(date +%s) + 600))
-    while[ $(date +%s) -lt $NS_DELETE_TIMEOUT ]; do
+    while [ $(date +%s) -lt $NS_DELETE_TIMEOUT ]; do
       cluster-fox kubectl $AVAILABILITY_ZONE -- get namespaces $DU_NAMESPACE --no-headers \
 	| awk '{ isTerminating = match($2, "Terminating"); if( isTerminating == 0) { exit 0 } else { exit 1 } }'
       NS_TERMINATED=$?
