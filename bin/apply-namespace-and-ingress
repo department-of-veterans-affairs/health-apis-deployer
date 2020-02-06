@@ -56,7 +56,7 @@ then
     kill -0 $NS_DELETION_PID > /dev/null
     NS_STATUS=$?
     # RIP Namespace: It didn't make us force delete and we appreciate that.
-    [ "$NS_STATUS" == "1" ] && echo "Namespace ($DU_NAMESPACE) Successfully Removed" && continue
+    [ "$NS_STATUS" == "1" ] && echo "Namespace ($DU_NAMESPACE) Successfully Removed" && break
   done
   set -e
 
@@ -75,7 +75,7 @@ then
       cluster-fox kubectl $AVAILABILITY_ZONE -- get namespaces $DU_NAMESPACE --no-headers \
 	| awk '{ isTerminating = match($2, "Terminating"); if( isTerminating == 0) { exit 0 } else { exit 1 } }'
       NS_TERMINATED=$?
-      [ "$NS_TERMINATED" == "0" ] && echo "Pods in namespace ($DU_NAMESPACE) successfully force deleted" && continue
+      [ "$NS_TERMINATED" == "0" ] && echo "Pods in namespace ($DU_NAMESPACE) successfully force deleted" && break
     done
 
     [ "$NS_TERMINATED" != "0" ] && echo "ERROR: Couldn't delete namespace ($DU_NAMESPACE)" && exit 1
