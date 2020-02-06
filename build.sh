@@ -11,7 +11,6 @@ if [ "${DEBUG}" == true ]; then
   env | sort
 fi
 
-
 #
 # Ensure that we fail fast on any issues.
 #
@@ -60,6 +59,20 @@ DEPLOYED_CLUSTER_ID=$CLUSTER_ID
 
 echo "$DEFAULT_CLUSTER_ID $DEPLOYED_CLUSTER_ID" | jq -R 'split(" ")|{defaultClusterID:.[0], deployedToClusterID:.[1]}' > metadata.json
 
+#
+# List Load-Balancer Rules and check for problems
+# Set +e so we don't fail here
+#
+set +e
+LB_RULES=$(mktemp)
+./list-load-balancer-rules > $LB_RULES
+LB_RULES_STATUS=$?
+
+INGRESS_RULES=$(mktemp)
+./list-ingress-rules > $INGRESS_RULES
+INGRESS_RULES_STATUS=$?
+set -e
+
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
   deployment-status
@@ -69,10 +82,23 @@ then
   echo "Good day, sir."
   echo
   echo "I SAID GOOD DAY, SIR!"
-  ./list-load-balancer-rules
-  [ $? != 0 ] && exit 1
+  echo "============================================================"
+  echo "Load Balancer Rules:"
+  cat $LB_RULES
+  echo "============================================================"
+  echo "Ingress Rules:"
+  cat $INGRESS_RULES
+  echo "============================================================"
+  [ $LB_RULES_STATUS != 0 ] \
+    || [ $INGRESS_RULES_STATUS != 0 ] \
+    && exit 1
   exit 0
 fi
+
+# If at any point we encounter a bad load-balancer rule or ingress rule  on a build with a valid product
+# (new or otherwise) fail fast and make the rule discrepancy known.
+[ $LB_RULES_STATUS != 0 ] && cat $LB_RULES && exit 1
+[ $INGRESS_RULES_STATUS != 0 ] && cat $INGRESS_RULES && exit 1
 
 #
 # Load configuration. The following variables are expected
@@ -105,7 +131,7 @@ if [ "${DONT_REATTACH_TO_BLUE:-false}" == true ]; then
 
   # Please don't try to put all targets on the green load balancer...
   # That's never a good idea...
-  [ "${AVAILABILITY_ZONES:-all}" == "all" ] \
+  [ "${AVAILABILITY_ZONES:-automatic}" == "automatic" ] \
     && echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE: TOO MANY AZs SELECTED" \
     && echo "Failed to meet all criteria for DONT_REATTACH_TO_BLUE" >> $JENKINS_DESCRIPTION \
     && exit 1
@@ -193,8 +219,9 @@ archiveLogs() {
 #
 # Determine which Availability Zones to deploy into
 #
-if [ "$AVAILABILITY_ZONES" == "all" ]
+if [ "$AVAILABILITY_ZONES" == "automatic" ]
 then
+  DEPLOYMENT_MODE="automatic"
   echo "Discovering availibility zones"
   AVAILABILITY_ZONES="$(cluster-fox list-availability-zones)"
   test -n "$AVAILABILITY_ZONES"
@@ -235,6 +262,21 @@ TEST_FAILURE=false
 declare -x AVAILABILITY_ZONE
 for AVAILABILITY_ZONE in $AVAILABILITY_ZONES
 do
+  #
+  # If we are in automatic deployment mode,
+  # And DU_AUTOMATIC_AVAILABILITY_ZONES is specified for the product,
+  # we will only deploy to their request AZs.
+  #
+  if [ "${DEPLOYMENT_MODE:-}" == "automatic" ] && [ ! -z "${DU_AUTOMATIC_AVAILABILITY_ZONES:-}" ] && [[ "$DU_AUTOMATIC_AVAILABILITY_ZONES" != *${AVAILABILITY_ZONE: -1}* ]]
+  then
+   echo "Automatic Deployments are configured to skip $AVAILABILITY_ZONE"
+   continue
+  fi
+  #
+  # Capture deployed AZs for detailed jenkins description.
+  #
+  DEPLOYED_AVAILABILITY_ZONES="${DEPLOYED_AVAILABILITY_ZONES:-} $AVAILABILITY_ZONE"
+
   echo "============================================================"
   echo "Updating availability zone $AVAILABILITY_ZONE"
   UPDATED_AVAILABILITY_ZONES="$AVAILABILITY_ZONE $UPDATED_AVAILABILITY_ZONES"
@@ -459,8 +501,6 @@ then
   fi
 fi
 
-
-
 #============================================================
 #
 # If deployment is custom, let's use the clusterId not environment
@@ -474,7 +514,7 @@ EOF
 else
 cat <<EOF >> $JENKINS_DESCRIPTION
   $PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
-  in availability zones: $AVAILABILITY_ZONES
+  in availability zones: $DEPLOYED_AVAILABILITY_ZONES
 EOF
 fi
 

@@ -1,0 +1,51 @@
+# Bulk-Fhir
+bulk-fhir /fhir/v0/dstu2/bulk/I2-abc123def4560000
+bulk-fhir /fhir/v0/dstu2/Patient/$export
+bulk-fhir /bulk-fhir/internal/publication/any/file/next
+# Data-Query
+data-query /fhir/v0/dstu2/AllergyIntolerance?patient=1010101010V666666
+data-query /fhir/v0/dstu2/Appointment/I2-abc123def4560000
+data-query /fhir/v0/dstu2/Condition?patient=1010101010V666666
+data-query /fhir/v0/dstu2/DiagnosticReport?patient=1010101010V666666
+data-query /fhir/v0/dstu2/Encounter/I2-abc123def4560000
+data-query /fhir/v0/dstu2/Immunization?patient=1010101010V666666
+data-query /fhir/v0/dstu2/Medication/I2-abc123def4560000
+data-query /fhir/v0/dstu2/MedicationDispense/I2-abc123def4560000
+data-query /fhir/v0/dstu2/MedicationOrder?patient=1010101010V666666
+data-query /fhir/v0/dstu2/MedicationStatement?patient=1010101010V666666
+data-query /fhir/v0/dstu2/Observation?patient=1010101010V666666
+data-query /fhir/v0/dstu2/Patient/1010101010V666666
+data-query /fhir/v0/dstu2/Practitioner/I2-abc123def4560000
+data-query /fhir/v0/dstu2/Procedure?patient=1010101010V666666
+data-query /fhir/v0/stu3/Location/I2-abc123def4560000
+data-query /fhir/v0/stu3/Organization/I2-abc123def4560000
+data-query /fhir/v0/stu3/Practitioner/I2-abc123def4560000
+data-query /fhir/v0/stu3/PractitionerRole/I2-abc123def4560000
+data-query /fhir/v0/dstu2/Patient/$validate
+data-query /data-query/internal/bulk/Patient
+data-query /data-query/internal/bulk/Patient/count
+data-query /data-query/datamart/validation
+# DMC VetSearch
+dmc-vet-search /dmc-vet-search/v0/actuator/health
+dmc-vet-search /dmc-vet-search/v0/actuator/info
+dmc-vet-search /dmc-vet-search/v0/mviSearch
+dmc-vet-search /dmc-vet-search/v0/vetSearch
+dmc-vet-search /dmc-vet-search/v0/mviRetrieve
+dmc-vet-search /dmc-vet-search/v0/vetRetrieve
+# Exemplar
+exemplar /hello
+exemplar /hola
+# Fall Risk
+fall-risk /fall-risk/assessment?patient=1010101010V666666
+fall-risk /fall-risk/assessment?facility=640&since=123456789
+# SFDC MVI Enterprise
+sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
+sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviSearch
+sfdc-mvi-ent /sfdc-mvi-ent/v0/vetSearch
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviNewPerson
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
+sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
+sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
+# End of File

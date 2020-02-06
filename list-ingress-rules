@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+INGRESSES=$(mktemp)
+TEST_FILE="ingress.tests"
+
+EXIT_STATUS=0
+
+#
+# "ingress-nginx" first orders the paths by descending length
+# Then, it follows a first match policy
+#
+# This script finds all ingress paths and orders them based on the above
+# matching policy.
+#
+
+listRules() {
+  grep -r -o 'path:.*' products/*.yaml \
+    | awk '{ print length($2), $2, product, $1 }' \
+    | sed 's/\(.*\) products\/\(.*\)\.yaml.*/\1\2/' \
+    | sort -nr
+}
+
+# Reorganize Ingresses as 'Priority Rule Application'
+listRules | awk 'BEGIN { i = 1 } { print i" "$2" "$3; i++}' > $INGRESSES
+
+cat $INGRESSES
+
+echo
+
+while read -r test; do
+    #
+    # Matches Regex to filter commented lines
+    # (example line: 'data-query /fhir/v0/dstu2/Patient/1010101010V666666') 
+    #
+    [[ "$test" =~ ^# ]] && continue
+    [[ ! "$test" =~ ^[a-z\-]+\ /[^\ ]+ ]] && echo "Invalid Test Format: $test" && exit 1
+
+    # The good stuff
+    awk -v test="$test" \
+      'BEGIN {
+         status = 0;
+         isValidIngress = "false";
+         split(test, a, " ");
+         # Get the App and Test Path
+         testAppName = a[1];
+         testPath = a[2];
+         # Nginx uses location blocks that ignore query params...
+         # Remove the queryParams to ensure the match is similar to nginxs matching
+         split(testPath, b, "?")
+         locationBlockPathMatcher = b[1];
+       }
+       /^[0-9]+ \/[^ ]+ [a-z\-]+$/ {
+         ingressRuleApp = $3;
+         ingressRule = $2;
+         pathMatch = match(locationBlockPathMatcher, ingressRule);
+         if (pathMatch != 0) {
+           if (ingressRuleApp == testAppName) {
+             isValidIngress = "true";
+             #printf "%s matched: %s\n", testPath, ingressRule;
+             # SUCCESS!!!
+             status = 0;
+           } else {
+             printf "%s did not match expected application %s. ", testPath, testAppName;
+             printf "Instead found: %s %s\n", ingressRule, ingressRuleApp;
+             # OH NOES! IZ A BAD RULE!!!
+             status = 1;
+           }
+           exit
+         }
+       }
+       END { 
+         if (status == 1) { exit 1 }
+         if (isValidIngress == "false") {
+           # OH NOES! NO RULES MATCHED!!!
+           printf "No matching rules found for %s %s\n", testAppName, testPath;
+           exit 1
+         } 
+         exit 0
+       }' $INGRESSES
+    
+  [ "$?" == '1' ] && EXIT_STATUS=1
+done < $TEST_FILE
+
+exit $EXIT_STATUS
+
+
+

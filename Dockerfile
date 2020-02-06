@@ -1,11 +1,20 @@
-FROM centos:7
+FROM vasdvp/health-apis-centos:7
 
 RUN yum update -yqq \
     && yum install -y -q yum-utils \
-    && yum install -y -q gettext openssh-clients git \
+    && yum install -y -q gettext openssh-clients \
     && yum install -y -q zip unzip \
     && yum install -y -q dos2unix \
     && yum clean all
+
+#
+# git
+#
+RUN yum install -y -q https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm  \
+    && yum install -y -q https://rhel7.iuscommunity.org/ius-release.rpm
+RUN yum install -y git216
+
+
 
 #
 # JQ
