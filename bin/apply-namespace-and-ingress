@@ -53,7 +53,7 @@ then
   set +e
   NS_DELETE_TIMEOUT=$(($(date +%s) + 600)) # 10 minutes
   while [ $(date +%s) -lt $NS_DELETE_TIMEOUT ]; do
-    kill -0 $NS_DELETION_PID > /dev/null
+    kill -0 $NS_DELETION_PID > /dev/null 2>&1
     NS_STATUS=$?
     # RIP Namespace: It didn't make us force delete and we appreciate that.
     [ "$NS_STATUS" == "1" ] && echo "Namespace ($DU_NAMESPACE) Successfully Removed" && break
