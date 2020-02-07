@@ -63,7 +63,7 @@ then
   # Stuck Like Glue...
   if [ "$NS_STATUS" != "1" ]; then
     echo "Force Deleting Pods in Namespace ($DU_NAMESPACE)..."
-    BAD_PODS=( $(cluster-fox kubectl $AVAILABILITY_ZONE -- get pods -n dq --no-headers | awk '{ print $1 }') )
+    BAD_PODS=( $(cluster-fox kubectl $AVAILABILITY_ZONE -- get pods -n $DU_NAMESPACE --no-headers | awk '{ print $1 }') )
     for pod in ${BAD_PODS[@]}; do
       echo "Force Deleting Pod: $pod"
       cluster-fox kubectl $AVAILABILITY_ZONE -- delete pods -n $DU_NAMESPACE $pod --force --grace-period=0
