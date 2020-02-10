@@ -26,6 +26,7 @@ def products() {
   products["monitoring"] = ["health_apis_jenkins"]
   products["provider-directory"] = ["health_apis_jenkins"]
   products["qms"] = ["health_apis_jenkins"]
+  products["sfdc-mvi-ent"] = ["health_apis_jenkins"]
   products["squares"] = ["health_apis_jenkins"]
   products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["unifier-kong"] = ["health_apis_jenkins"]
@@ -212,7 +213,7 @@ pipeline {
       input {
        message "I would like to enter the DANGER_ZONE..."
        ok "You may enter!"
-       submitter "ajstein3,aparcel-va,bryan.schofield,evan.clendenning,gabriel.olavarria,ian.laflamme,joshua.hulbert"
+       submitter "aparcel-va,bryan.schofield,evan.clendenning,gabriel.olavarria,ian.laflamme,joshua.hulbert,steven.bair,monica.ramirez"
       }
       agent {
         dockerfile {
