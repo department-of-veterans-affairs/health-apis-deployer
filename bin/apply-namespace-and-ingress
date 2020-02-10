@@ -75,7 +75,7 @@ then
     while [ $(date +%s) -lt $NS_DELETE_TIMEOUT ]; do
       set +e
       NS_TERMINATED=$(cluster-fox kubectl $AVAILABILITY_ZONE -- get namespaces $DU_NAMESPACE --no-headers 2> /dev/null \
-	| awk 'BEGIN { isTerminating = 1 }
+	| awk 'BEGIN { isTerminating = 0 }
                { isTerminating = match($2, "Terminating") } 
                END { if( isTerminating == 0) { print "0" } else { print "1" } }')
       set -e
