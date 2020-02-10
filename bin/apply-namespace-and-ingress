@@ -73,11 +73,11 @@ then
     echo "Waiting for pods to terminate..."
     NS_DELETE_TIMEOUT=$(($(date +%s) + 600))
     while [ $(date +%s) -lt $NS_DELETE_TIMEOUT ]; do
-      echo "Trying to terminate pods..."
+      set +e
       NS_TERMINATED=$(cluster-fox kubectl $AVAILABILITY_ZONE -- get namespaces $DU_NAMESPACE --no-headers \
-	  | awk '{ isTerminating = match($2, "Terminating"); if( isTerminating == 0) { print "0" } else { print "1" } }')
+	| awk '{ isTerminating = match($2, "Terminating"); if( isTerminating == 0) { print "0" } else { print "1" } }')
+      set -e
       [ "$NS_TERMINATED" == "0" ] && echo "Pods in namespace ($DU_NAMESPACE) successfully force deleted" && break
-      echo "Namespace isn't terminated..."
     done
 
     [ "$NS_TERMINATED" != "0" ] && echo "ERROR: Couldn't delete namespace ($DU_NAMESPACE)" && exit 1
