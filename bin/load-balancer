@@ -236,6 +236,10 @@ createRule() {
   # with a matching path, and remember them. Then create the new rule. Once created,
   # delete old matches.
   #
+
+  # To prevent rate-limiting, wait a second
+  sleep 1
+
   aws elbv2 create-rule \
     --listener-arn $listener \
     --actions Type=forward,TargetGroupArn=$targetGroupArn \
