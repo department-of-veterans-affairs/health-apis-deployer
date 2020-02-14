@@ -7,9 +7,8 @@ onExit() {  rm $METADATA_JSON; }
 trap onExit EXIT
 
 
-
-
 ENV=${1:-}
+USER=${2:-}
 if [ -z "${ENV}" ]
 then
   echo "Usage: $(basename $0) <env>"
@@ -18,15 +17,18 @@ then
 fi
 ENV=${ENV/-/_}
 
+[ -n "${USER}" ] && USER=" --user $USER"
+
 clusterId() {
   local when=$1
-  local status=$(curl -s -w "%{http_code}" -o $METADATA_JSON \
+  local status=$(curl -s -w "%{http_code}" -o $METADATA_JSON$USER \
     https://tools.health.dev-developer.va.gov/jenkins/job/department-of-veterans-affairs/job/health-apis-deployer/job/$ENV/$when/artifact/metadata.json)
   if [ "$status" != 200 ]; then return 1; fi
   cat $METADATA_JSON \
     | jq -r '.defaultClusterID'
   return 0
 }
+
 
 if ! clusterId lastBuild
 then
