@@ -42,7 +42,49 @@ EXISTING_NAMESPACE=$(cluster-fox kubectl $AVAILABILITY_ZONE -- get namespace --n
 if [ -n "$EXISTING_NAMESPACE" ]
 then
   echo "Deleting namespace $DU_NAMESPACE from $AVAILABILITY_ZONE"
-  cluster-fox kubectl $AVAILABILITY_ZONE -- delete namespace $DU_NAMESPACE
+  cluster-fox kubectl $AVAILABILITY_ZONE -- delete namespace $DU_NAMESPACE > /dev/null &
+  NS_DELETION_PID=$!
+
+  echo "Waiting for namespace ($DU_NAMESPACE) to delete..."
+
+  # Give the namespace some time to delete before the heart palpatiations start.
+  sleep 10
+
+  set +e
+  NS_DELETE_TIMEOUT=$(($(date +%s) + 600)) # 10 minutes
+  while [ $(date +%s) -lt $NS_DELETE_TIMEOUT ]; do
+    kill -0 $NS_DELETION_PID > /dev/null 2>&1
+    NS_STATUS=$?
+    # RIP Namespace: It didn't make us force delete and we appreciate that.
+    [ "$NS_STATUS" == "1" ] && echo "Namespace ($DU_NAMESPACE) Successfully Removed" && break
+  done
+  set -e
+
+  # Stuck Like Glue...
+  if [ "$NS_STATUS" != "1" ]; then
+    echo "Force Deleting Pods in Namespace ($DU_NAMESPACE)..."
+    BAD_PODS=($(cluster-fox kubectl $AVAILABILITY_ZONE -- get pods -n $DU_NAMESPACE --no-headers | awk '{ print $1 }'))
+    echo "Pods Stuck Terminating: ${BAD_PODS[@]}"
+    for pod in ${BAD_PODS[@]}; do
+      echo "Force Deleting Pod: $pod"
+      cluster-fox kubectl $AVAILABILITY_ZONE -- delete pods -n $DU_NAMESPACE $pod --force --grace-period=0
+    done
+
+    echo "Waiting for pods to terminate..."
+    NS_DELETE_TIMEOUT=$(($(date +%s) + 600))
+    while [ $(date +%s) -lt $NS_DELETE_TIMEOUT ]; do
+      set +e
+      NS_TERMINATED=$(cluster-fox kubectl $AVAILABILITY_ZONE -- get namespaces $DU_NAMESPACE --no-headers 2> /dev/null \
+	| awk 'BEGIN { isTerminating = 0 }
+               { isTerminating = match($2, "Terminating") } 
+               END { if( isTerminating == 0) { print "0" } else { print "1" } }')
+      set -e
+      [ "$NS_TERMINATED" == "0" ] && echo "Pods in namespace ($DU_NAMESPACE) successfully force deleted" && break
+    done
+
+    [ "$NS_TERMINATED" != "0" ] && echo "ERROR: Couldn't delete namespace ($DU_NAMESPACE)" && exit 1
+  fi
+
 fi
 
 echo "Creating namespace $DU_NAMESPACE in $AVAILABILITY_ZONE"
