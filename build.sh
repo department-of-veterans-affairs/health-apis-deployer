@@ -41,7 +41,7 @@ export AWS_DEFAULT_REGION=us-gov-west-1
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
-DEFAULT_CLUSTER_ID=$CLUSTER_ID
+export DEFAULT_CLUSTER_ID=$CLUSTER_ID
 # Save and Source(TM) Custom Environment if exists
 # This will overwrite any values set by the <env>.conf
 if [ "$CUSTOM_CLUSTER_ID" != "default" ]
