@@ -41,7 +41,7 @@ export AWS_DEFAULT_REGION=us-gov-west-1
 test -n "$ENVIRONMENT"
 test -f "$WORKSPACE/environments/$ENVIRONMENT.conf"
 . "$WORKSPACE/environments/$ENVIRONMENT.conf"
-export DEFAULT_CLUSTER_ID=$CLUSTER_ID
+DEFAULT_CLUSTER_ID=$CLUSTER_ID
 # Save and Source(TM) Custom Environment if exists
 # This will overwrite any values set by the <env>.conf
 if [ "$CUSTOM_CLUSTER_ID" != "default" ]
@@ -75,7 +75,7 @@ set -e
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
-  deployment-status
+  deployment-status $DEFAULT_CLUSTER_ID
   echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
   echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
   echo "Building nothing."
@@ -446,7 +446,7 @@ then
 fi
 
 echo "Determining deployment status"
-deployment-status > deployment-status 2>&1 &
+deployment-status $DEFAULT_CLUSTER_ID > deployment-status 2>&1 &
 DEPLOYMENT_STATUS_PID=$!
 
 

@@ -2,6 +2,8 @@
 set -euo pipefail
 if [ "${DEBUG:-false}" == true ]; then set -x; fi
 
+DEFAULT_CLUSTER_ID=$1
+
 #
 # Create a JSON file per AZ that includes the deployed
 # artifact label metadata
