@@ -443,10 +443,11 @@ then
   load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue > all-rules 2>&1 &
   ALL_RULES_PID=$!
 
-  echo "Determining deployment status"
-  deployment-status > deployment-status 2>&1 &
-  DEPLOYMENT_STATUS_PID=$!
 fi
+
+echo "Determining deployment status"
+deployment-status > deployment-status 2>&1 &
+DEPLOYMENT_STATUS_PID=$!
 
 
 if [ -z "${PRIOR_DU_S3_FOLDER:-}" ] || [ -z "${PRIOR_DU_S3_BUCKET:-}" ] || [ "$PRIOR_DU_VERSION" == "not-installed" ]
