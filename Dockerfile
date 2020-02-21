@@ -32,6 +32,7 @@ RUN curl -fskLS https://get.docker.com | sh
 #
 # AWS Command Line Utilities
 #
+ENV PIP_CERT=/etc/pki/ca-trust/source/anchors/VA-Internal-S2-RCA1-v1.cer
 RUN curl -skLo /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
     && python /tmp/get-pip.py \
     && rm /tmp/get-pip.py \
