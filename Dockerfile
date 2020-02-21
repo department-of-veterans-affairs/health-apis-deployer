@@ -1,6 +1,6 @@
 FROM vasdvp/health-apis-centos:7
 
-RUN yum update -yqq \
+RUN yum update -y -q \
     && yum install -y -q yum-utils \
     && yum install -y -q gettext openssh-clients \
     && yum install -y -q zip unzip \
@@ -29,17 +29,6 @@ RUN curl -skLo /usr/local/bin/jq https://github.com/stedolan/jq/releases/downloa
 RUN curl -fskLS https://get.docker.com | sh
 
 
-#
-# AWS Command Line Utilities
-#
-ENV PIP_CERT=/etc/pki/ca-trust/source/anchors/VA-Internal-S2-RCA1-v1.pem
-RUN openssl x509 -in /etc/pki/ca-trust/source/anchors/VA-Internal-S2-RCA1-v1.cer -out $PIP_CERT
-RUN curl -skLo /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
-    && python /tmp/get-pip.py \
-    && rm /tmp/get-pip.py \
-    && pip install --no-cache-dir awscli
-
-
 
 #
 # Kubernetes kubectl
@@ -50,10 +39,17 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$KUBERNET
     && chmod +x ./kubectl \
     &&  mv ./kubectl /usr/local/bin/kubectl
 
-
-RUN curl -fsSL https://get.docker.com | sh
-
 #
 # Odd... this yum command succeeds down here at the bottom, but fails at the top.
 #
 RUN yum install -y -q openssl
+
+#
+# AWS Command Line Utilities
+#
+ENV PIP_CERT=/etc/pki/ca-trust/source/anchors/VA-Internal-S2-RCA1-v1.pem
+RUN openssl x509 -in /etc/pki/ca-trust/source/anchors/VA-Internal-S2-RCA1-v1.cer -inform DER -out $PIP_CERT
+RUN curl -skLo /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
+    && python /tmp/get-pip.py \
+    && rm /tmp/get-pip.py \
+    && pip install --no-cache-dir awscli
