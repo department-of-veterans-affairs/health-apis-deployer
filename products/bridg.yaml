@@ -24,7 +24,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /api/bridg/(.*)
+          - path: /bridg/(.*)
             backend:
               serviceName: bridg-experience
               servicePort: 80
