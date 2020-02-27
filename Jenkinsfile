@@ -10,7 +10,7 @@ def products() {
   products["carma"] = ["health_apis_jenkins"]
   products["carma-fms-connector"] = ["health_apis_jenkins"]
   products["claims"] = ["health_apis_jenkins"]
-  products["community-care"] = ["health_apis_jenkins"]
+  products["community-care"] = ["health_apis_jenkins","shankins"]
   products["data-query"] = ["health_apis_jenkins","shankins"]
   products["dmc-vet-search"] = ["health_apis_jenkins"]
   products["email-to-case"] = ["health_apis_jenkins"]
@@ -20,8 +20,8 @@ def products() {
   products["gal-processor"] = ["health_apis_jenkins"]
   products["hotline"] = ["health_apis_jenkins"]
   products["logging"] = ["health_apis_jenkins"]
-  products["mock-ee"] = ["health_apis_jenkins"]
-  products["mock-vler"] = ["health_apis_jenkins"]
+  products["mock-ee"] = ["health_apis_jenkins","shankins"]
+  products["mock-vler"] = ["health_apis_jenkins","shankins"]
   products["monitoring"] = ["health_apis_jenkins"]
   products["provider-directory"] = ["health_apis_jenkins"]
   products["qms"] = ["health_apis_jenkins"]
@@ -29,7 +29,7 @@ def products() {
   products["squares"] = ["health_apis_jenkins"]
   products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["unifier-kong"] = ["health_apis_jenkins"]
-  products["urgent-care"] = ["health_apis_jenkins"]
+  products["urgent-care"] = ["health_apis_jenkins","shankins"]
   products["watrs"] = ["health_apis_jenkins"]
   return products
 }
