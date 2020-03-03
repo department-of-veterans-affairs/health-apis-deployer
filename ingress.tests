@@ -43,6 +43,9 @@ dmc-vet-search /dmc-vet-search/v0/vetRetrieve
 # Exemplar
 exemplar /hello
 exemplar /hola
+# Facilities CDW
+facilities-cdw /facilities-cdw/mental-health-contact
+facilities-cdw /facilities-cdw/stop-code
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
