@@ -20,7 +20,7 @@ ENV=${ENV/-/_}
 
 whatsDeployed() {
   local when=$1
-  local status=$(curl -s -w "%{http_code}" -o $STATUS_JSON \
+  local status=$(curl -u "$JENKINS_USERNAME_PASSWORD" -s -w "%{http_code}" -o $STATUS_JSON \
     https://tools.health.dev-developer.va.gov/jenkins/job/department-of-veterans-affairs/job/health-apis-deployer/job/$ENV/$when/artifact/status.us-gov-west-1a.json)
   if [ "$status" != 200 ]; then return 1; fi
   cat $STATUS_JSON \
