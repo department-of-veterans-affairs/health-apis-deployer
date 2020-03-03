@@ -141,40 +141,7 @@ pipeline {
     ENVIRONMENT = "${["qa", "uat", "staging", "production", "staging_lab", "lab"].contains(env.BRANCH_NAME) ? env.BRANCH_NAME.replaceAll('_','-') : "qa"}"
   }
   stages {
-    /*
-    * Make sure we're getting into an infinite loop of build, commit, build because we committed.
-    */
-    stage('C-C-C-Combo Breaker!') {
-      agent {
-        dockerfile {
-           registryUrl 'https://index.docker.io/v1/'
-           registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-           args DOCKER_ARGS
-        }
-      }
-      steps {
-        script {
-          /*
-           * If you need the explanation for this, check out the function. Hard enough to explain once.
-           * tl;dr Github web hooks could cause go in an infinite loop.
-           */
-           env.BUILD_MODE = 'build'
-           if (checkBigBen()) {
-             env.BUILD_MODE = 'ignore'
-             /*
-             * OK, this is a janky hack! We don't want this job. We didn't want
-             * it to even start building, so we'll make it commit suicide! Build
-             * numbers will skip, but whatever, that's better than every other
-             * build being cruft.
-             */
-             currentBuild.result = 'NOT_BUILT'
-             currentBuild.rawBuild.delete()
-          }
-        }
-      }
-    }
     stage('Set-up') {
-      when { expression { return env.BUILD_MODE != 'ignore' } }
       steps {
         script {
           for(cause in currentBuild.rawBuild.getCauses()) {
@@ -185,7 +152,6 @@ pipeline {
     }
     stage('Deploy') {
       when {
-        expression { return env.BUILD_MODE != 'ignore' }
         expression { return env.DANGER_ZONE == 'false' }
       }
       agent {
@@ -206,7 +172,6 @@ pipeline {
     stage('Danger Zone!') {
       when {
         beforeInput true
-        expression { return env.BUILD_MODE != 'ignore' }
         expression { return env.DANGER_ZONE == 'true' }
       }
       input {
