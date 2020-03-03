@@ -25,6 +25,14 @@ carma /api/carma/actuator/info
 carma /api/carma/vetSearch
 carma /api/carma/mviSearch
 carma /api/carma/eeSearch
+# Carma FMS
+carma-fms-connector /carma-fms/v0/actuator/info
+carma-fms-connector /carma-fms/v0/actuator/health
+carma-fms-connector /carma-fms/v0/check-salesforce-configuration
+carma-fms-connector /carma-fms/v0/jobs?count=100
+carma-fms-connector /carma-fms/v0/check-specific-payment-run
+carma-fms-connector /carma-fms/v0/import
+carma-fms-connector /carma-fms/v0/export
 # DMC VetSearch
 dmc-vet-search /dmc-vet-search/v0/actuator/health
 dmc-vet-search /dmc-vet-search/v0/actuator/info
