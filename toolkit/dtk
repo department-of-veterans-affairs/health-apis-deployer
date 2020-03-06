@@ -10,6 +10,11 @@ IMAGE=vasdvp/deployer-toolkit:latest
 [ -z "$ENCRYPTION_PASSPHRASE" -a -n "$DU_CRYPTO_KEY" ] && ENCRYPTION_PASSPHRASE="$DU_CRYPTO_KEY"
 
 
+operatingSystem="$(uname -o)"
+case $operatingSystem in
+	Msys) export MSYS_NO_PATHCONV=1;;
+	cygwin|Cygwin) export MSYS_NO_PATHCONV=1;;
+esac
 
 if [ "${PULL:-true}" == true ]; then docker pull $IMAGE > /dev/null; fi
 [ -z "${TERM}" ] && TERM=xterm
