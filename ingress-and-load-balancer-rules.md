@@ -20,7 +20,7 @@ $ ./list-load-balancer-rules
 #### NOTES:
 - Priorites are unique, no two rules may occupy the same priority value (If values will conflict with eachother, both values must change priorities).
 - The `list-load-balancer-rules` script not only prints all load-balancer rules, it validates them and will print a failure reason if something is incorrect. This failure will also cause the deployer to fail a build/upgrade.
-- The `list-load-balancer-rules` script prints in the following format: <priority> <rule> <application-name>
+- The `list-load-balancer-rules` script prints in the following format: `<priority> <rule> <application-name>`
 
 ---
 
@@ -32,7 +32,7 @@ tricky to determine than load-balancer rules.
 
 
 #### To determine if your ingress paths are okay:
-1. Add some of your applications available paths (<application-name> <path>) to the deployers `ingress.tests' file (see example below):
+1. Add some of your applications available paths (`<application-name> <path>`) to the deployers `ingress.tests' file (see example below):
 ```
 # Exemplar
 exemplar /hello
@@ -48,4 +48,4 @@ $ ./list-ingress-rules
 
 #### NOTES:
 - The `list-ingress-rules` script uses the paths in `ingress.tests` to verify that all paths related to a specific application are being consumed by that application's ingress. If the script cannot determine a match or finds that a rule does not match its given application, it will `exit 1` and print the cause, ultimately making the deployer fail.
-- The output of `list-ingress-rules` is as follows: <determined-priority> <rule-text> <application-name> 
+- The output of `list-ingress-rules` is as follows: `<determined-priority> <rule-text> <application-name>`
