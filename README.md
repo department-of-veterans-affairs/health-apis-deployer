@@ -69,6 +69,8 @@ conflict.
   - Relys on the test paths within the `ingress.tests` file located in the `health-apis-deployer` root directory
   - Script is run during deployer upgrades/deployments and will cause a failure
 
+[Read more](ingress-and-load-balancer-rules.md)
+
 ### K8S membership
 Moving applications to the Health APIs k8s cluster is coordinated responsibility between product
 teams and DevOps team.
