@@ -10,7 +10,7 @@ metadata:
     deployment-date: $BUILD_DATE
     deployment-s3-bucket: $DU_AWS_BUCKET_NAME
     deployment-s3-folder: $DU_S3_FOLDER
-    deployment-app-version: $CFC_VERSION
+    deployment-app-version: $CV_VERSION
     deployment-test-status: UNTESTED
 ---
 apiVersion: extensions/v1beta1
@@ -37,5 +37,5 @@ metadata:
   namespace: $DU_NAMESPACE
 spec:
   hard:
-    limits.cpu: "6000m"
+    limits.cpu: "1000m"
     limits.memory: "16G"
