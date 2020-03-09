@@ -25,6 +25,9 @@ carma /api/carma/actuator/info
 carma /api/carma/vetSearch
 carma /api/carma/mviSearch
 carma /api/carma/eeSearch
+# Carma Cdw
+carma-cdw /carma-cdw/v0/actuator/info
+carma-cdw /carma-cdw/v0/actuator/health
 # Carma FMS
 carma-fms-connector /carma-fms/v0/actuator/info
 carma-fms-connector /carma-fms/v0/actuator/health
