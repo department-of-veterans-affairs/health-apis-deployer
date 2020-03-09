@@ -121,7 +121,43 @@ Coordinate with the DevOps team if you need encryption.
 
 >This will be changing to property level encryption. For now, to switch to property level encryption for a DU, add a property in the product.conf to be `DU_PROPERTY_LEVEL_ENCRYPTION=true` and encrypt the confs using `ryan-secrets`. Usage is documented in the script.
 
----
+
+> ##### Defining Resource Requests/Limits
+> **IMPORTANT**: Coordinate with the DevOps team to define resource requests/limits. Avoid copy+paste from another product.
+>
+> Individual pod resource requests/limits for things like CPU and memory will be determined by usage metrics gathered in Prometheus for the deployment. Since usage varies by application, it is necessary to establish how much is needed up-front (requests)for demanding events like app start-up by allowing the app to run limitless in QA, at first. The Devops team will review usage with app owners and work together to establish/negotiate baseline deployment requests/limits.
+
+> Once these are set, the Namespace limits (ResourceQuota) for all deployments of the app will be defined by Devops based on the sum of individual pod limits per deployment in a Namespace and any limit padding necessary to support scaling out additional replicas to meet demand (HorizontalPodAutoscaling).
+
+> Example
+>```
+> health-apis-exemplar-deployment/deployment.yaml
+> ---
+> kind: Deployment
+> metadata:
+>  name: hello
+>  namespace: $NAMESPACE
+> ...
+> resources:
+>  requests:
+>    memory: "10M"
+>    cpu: "1m"
+>  limits:
+>    memory: "50M"
+>    cpu: "10m"
+> ```
+> ```
+> health-apis-deployer/products/exemplar.yaml
+> ---
+> apiVersion: v1
+> kind: ResourceQuota
+> metadata:
+>   name: exemplar-resource-quota
+>   namespace: $DU_NAMESPACE
+> spec:
+>  hard:
+>    limits.cpu: "40m"
+>    limits.memory: "200M"
 
 ### Blue/Green Deployment Process
 
