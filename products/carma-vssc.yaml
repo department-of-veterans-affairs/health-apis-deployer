@@ -37,5 +37,5 @@ metadata:
   namespace: $DU_NAMESPACE
 spec:
   hard:
-    limits.cpu: "1000m"
-    limits.memory: "16G"
+    limits.cpu: "600m"
+    limits.memory: "2G"
