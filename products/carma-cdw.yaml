@@ -1,4 +1,3 @@
-# The carma-cdw yaml
 apiVersion: v1
 kind: Namespace
 metadata:
