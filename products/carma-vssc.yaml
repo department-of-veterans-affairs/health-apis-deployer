@@ -29,14 +29,13 @@ spec:
             backend:
               serviceName: carma-vssc
               servicePort: 80
-              #---
-# Will define after evaluation from DevOps/prometheus
-#apiVersion: v1
-#kind: ResourceQuota
-#metadata:
-#  name: carma-vssc-resource-quota
-#  namespace: $DU_NAMESPACE
-#spec:
-#  hard:
-#    limits.cpu: "600m"
-#    limits.memory: "2G"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: carma-vssc-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "600m"
+    limits.memory: "2G"
