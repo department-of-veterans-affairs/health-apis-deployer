@@ -1,7 +1,13 @@
 # health-apis-deployer
+  + [Goals](#goals)
+  + [Products](#products)
+  + [Deployment Unit](#deployment-unit)
+  + [Routes](#routes)
+  + [K8S membership](#k8s-membership)
+  + [Environments](#environments)
 
 ### Goals
-- Enable products an easy to use, automated deployment mechanism into Health APIs Kubernetes 
+- Enable products an easy to use, automated deployment mechanism into Health APIs Kubernetes
   environments independent of other products
 - Enable blue/green style deployment
 - Enforce best practices for portable smoke and regression testing
@@ -21,7 +27,7 @@ as well as optional configurations for customizing a product deployment. The .ya
 - Kubernetes Ingress definitions
 - *Automatic Deployment configuration
 
-*Most products can be deployed to all known AWS Availability Zones in an environment. However, to control a product's deployment to specific AZs, overide configuration is available. 
+*Most products can be deployed to all known AWS Availability Zones in an environment. However, to control a product's deployment to specific AZs, override configuration is available.
 
 
 ### Deployment Unit
@@ -63,7 +69,7 @@ conflict.
 
 - `list-load-balancer-rules`
   - Finds all load-balancer rules and ensures no rules overlap or violate the agreed upon method for determining priority
-  - Script is run during deployer upgrades/deployments and will cause a failure 
+  - Script is run during deployer upgrades/deployments and will cause a failure
 - `list-ingress-rules`
   - Finds all ingress rules, determines priority, and ensures all given routes map to the correct ingress rule (based on application)
   - Relys on the test paths within the `ingress.tests` file located in the `health-apis-deployer` root directory
@@ -101,6 +107,6 @@ different environments. Deployment unit packages are versioned and managed in Do
 pipeline will promote a specific version along the path outlined above. At any given time,
 different versions of a DU may be deployed in different environments, e.g. version `1.5.1-f4d4274`
 may be deployed to QA, but version `1.4.7-3f461a0` is deployed to production. If testing is
-successful, `1.5.1-f4d4274` will be promoted to higher environments over time. 
+successful, `1.5.1-f4d4274` will be promoted to higher environments over time.
 _Promotion process is not fully designed but will involve version manual interactions to promote
 applications, at least in the initial phase_

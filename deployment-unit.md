@@ -1,5 +1,17 @@
 # Deployment Unit
 
++ [Product Repository Structure](#product-repository-structure)
+  * [Conf files](#conf-files)
+  * [Testvars files](#testvars-files)
+  * [Deployment YAML substitution](#deployment-yaml-substitution)
+  * [S3 Buckets](#s3-buckets)
+  * [Protecting Sensitive Information](#protecting-sensitive-information)
++ [Defining Resource Requests/Limits](#defining-resource-requests-limits)
++ [Blue/Green Deployment Process](#blue-green-deployment-process)
++ [Testing Deployment Units](#testing-deployment-units)
+  * [Regression tests](#regression-tests)
+  * [Smoke tests](#smoke-tests)
+  * [Test container contract](#test-container-contract)
 
 ### Product Repository Structure
 ```
@@ -122,7 +134,7 @@ Coordinate with the DevOps team if you need encryption.
 >This will be changing to property level encryption. For now, to switch to property level encryption for a DU, add a property in the product.conf to be `DU_PROPERTY_LEVEL_ENCRYPTION=true` and encrypt the confs using `ryan-secrets`. Usage is documented in the script.
 
 
-> ##### Defining Resource Requests/Limits
+> ### Defining Resource Requests/Limits
 > **IMPORTANT**: Coordinate with the DevOps team to define resource requests/limits. Avoid copy+paste from another product.
 >
 > Individual pod resource requests/limits for things like CPU and memory will be determined by usage metrics gathered in Prometheus for the deployment. Since usage varies by application, it is necessary to establish how much is needed up-front (requests)for demanding events like app start-up by allowing the app to run limitless in QA, at first. The Devops team will review usage with app owners and work together to establish/negotiate baseline deployment requests/limits.
