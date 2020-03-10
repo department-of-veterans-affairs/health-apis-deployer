@@ -7,9 +7,10 @@
 def products() {
   products = [:]
   products["none"] = ["health_apis_jenkins"]
-  products["carma"] = ["health_apis_jenkins", "arcadian_achievements"]
+  products["carma"] = ["health_apis_jenkins"]
   products["carma-cdw"] = ["health_apis_jenkins", "arcadian_achievements"]
-  products["carma-fms-connector"] = ["health_apis_jenkins", "arcadian_achievements"]
+  products["carma-fms-connector"] = ["health_apis_jenkins"]
+  products["carma-vssc"] = ["vasdvp_jenkins","arcadian_achievements"]
   products["claims"] = ["health_apis_jenkins"]
   products["community-care"] = ["health_apis_jenkins","shankins"]
   products["data-query"] = ["health_apis_jenkins","shankins"]

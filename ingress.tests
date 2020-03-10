@@ -36,6 +36,9 @@ carma-fms-connector /carma-fms/v0/jobs?count=100
 carma-fms-connector /carma-fms/v0/check-specific-payment-run
 carma-fms-connector /carma-fms/v0/import
 carma-fms-connector /carma-fms/v0/export
+# Carma VSSC
+carma-vssc /carma-vssc/v0/actuator/info
+carma-vssc /carma-vssc/v0/actuator/health
 # DMC VetSearch
 dmc-vet-search /dmc-vet-search/v0/actuator/health
 dmc-vet-search /dmc-vet-search/v0/actuator/info
