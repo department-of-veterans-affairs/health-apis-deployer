@@ -11,13 +11,13 @@ metadata:
     deployment-date: $BUILD_DATE
     deployment-s3-bucket: $DU_AWS_BUCKET_NAME
     deployment-s3-folder: $DU_S3_FOLDER
-    deployment-app-version: $FACILITIES_CDW_VERSION
+    deployment-app-version: $FACILITIES_COLLECTOR_VERSION
     deployment-test-status: UNTESTED
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: facilities-cdw-ingress
+  name: facilities-collector-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -26,7 +26,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /facilities-cdw/(.*)
+          - path: /facilities-collector/(.*)
             backend:
-              serviceName: facilities-cdw
+              serviceName: facilities-collector
               servicePort: 8082
