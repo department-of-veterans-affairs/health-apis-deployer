@@ -36,6 +36,9 @@ carma-fms-connector /carma-fms/v0/jobs?count=100
 carma-fms-connector /carma-fms/v0/check-specific-payment-run
 carma-fms-connector /carma-fms/v0/import
 carma-fms-connector /carma-fms/v0/export
+# Carma VSSC
+carma-vssc /carma-vssc/v0/actuator/info
+carma-vssc /carma-vssc/v0/actuator/health
 # DMC VetSearch
 dmc-vet-search /dmc-vet-search/v0/actuator/health
 dmc-vet-search /dmc-vet-search/v0/actuator/info
@@ -46,9 +49,9 @@ dmc-vet-search /dmc-vet-search/v0/vetRetrieve
 # Exemplar
 exemplar /hello
 exemplar /hola
-# Facilities CDW
-facilities-cdw /facilities-cdw/mental-health-contact
-facilities-cdw /facilities-cdw/stop-code
+# Facilities
+facilities /facilities-collector/mental-health-contact
+facilities /facilities-collector/stop-code
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
