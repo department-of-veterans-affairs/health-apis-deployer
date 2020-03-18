@@ -11,7 +11,7 @@ metadata:
     deployment-date: $BUILD_DATE
     deployment-s3-bucket: $DU_AWS_BUCKET_NAME
     deployment-s3-folder: $DU_S3_FOLDER
-    deployment-app-version: $FACILITIES_COLLECTOR_VERSION
+    deployment-app-version: $FACILITIES_VERSION
     deployment-test-status: UNTESTED
 ---
 apiVersion: extensions/v1beta1
@@ -29,4 +29,21 @@ spec:
           - path: /facilities-collector/(.*)
             backend:
               serviceName: facilities-collector
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: facilities-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /(facilities|nearby)(.*)
+            backend:
+              serviceName: facilities
               servicePort: 8082
