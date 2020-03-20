@@ -75,7 +75,7 @@ set -e
 
 if [ -z "${PRODUCT:-}" ] || [ "$PRODUCT" == "none" ]
 then
-  deployment-status
+  deployment-status $DEFAULT_CLUSTER_ID
   echo "Deployer upgrade" >> $JENKINS_BUILD_NAME
   echo "Deployer upgraded. Nothing deployed." >> $JENKINS_DESCRIPTION
   echo "Building nothing."
@@ -443,10 +443,11 @@ then
   load-balancer list-rules --environment $VPC_NAME --cluster-id $CLUSTER_ID --color blue > all-rules 2>&1 &
   ALL_RULES_PID=$!
 
-  echo "Determining deployment status"
-  deployment-status > deployment-status 2>&1 &
-  DEPLOYMENT_STATUS_PID=$!
 fi
+
+echo "Determining deployment status"
+deployment-status $DEFAULT_CLUSTER_ID > deployment-status 2>&1 &
+DEPLOYMENT_STATUS_PID=$!
 
 
 if [ -z "${PRIOR_DU_S3_FOLDER:-}" ] || [ -z "${PRIOR_DU_S3_BUCKET:-}" ] || [ "$PRIOR_DU_VERSION" == "not-installed" ]
