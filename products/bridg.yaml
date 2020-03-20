@@ -30,12 +30,12 @@ spec:
               serviceName: bridg-experience
               servicePort: 80
 ---
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: bridg-resource-quota
-  namespace: $DU_NAMESPACE
-spec:
-  hard:
-    limits.cpu: "2000m"
-    limits.memory: "10G"
+#apiVersion: v1
+#kind: ResourceQuota
+#metadata:
+#  name: bridg-resource-quota
+#  namespace: $DU_NAMESPACE
+#spec:
+#  hard:
+#    limits.cpu: "2000m"
+#    limits.memory: "10G"
