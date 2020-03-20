@@ -20,7 +20,6 @@ data-query /fhir/v0/stu3/PractitionerRole/I2-abc123def4560000
 data-query /fhir/v0/dstu2/Patient/$validate
 data-query /data-query/datamart/validation
 # Bridg
-bridg /bridg
 bridg /bridg/openapi.json
 bridg /bridg/openapi.yaml
 bridg /bridg/actuator/health
