@@ -7,6 +7,7 @@
 def products() {
   products = [:]
   products["none"] = ["health_apis_jenkins"]
+  products["bridg"] = ["health_apis_jenkins"]
   products["carma"] = ["health_apis_jenkins"]
   products["carma-cdw"] = ["health_apis_jenkins", "arcadian_achievements"]
   products["carma-fms-connector"] = ["health_apis_jenkins"]
