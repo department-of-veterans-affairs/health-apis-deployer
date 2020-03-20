@@ -25,7 +25,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /bridg/(.*)
+          - path: /bridg/(openapi.*|actuator|cdsIsAlive|pathwaysIsAlive|mviSearch|eeSearch|vetSearch|allergyRequest|consults|flags|labs|meds|notes|orders|problems|radiologyExams|visit|visit|vitals|additionalSigners|appointments|patientRemarks|sensitivePatient|vistaUsers)(.*)
             backend:
               serviceName: bridg-experience
               servicePort: 80
