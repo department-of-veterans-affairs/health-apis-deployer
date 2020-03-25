@@ -63,3 +63,7 @@ spec:
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
+          - path: /lighthouse-facilities/(.*)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
