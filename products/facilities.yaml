@@ -21,37 +21,36 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
     - http:
         paths:
-          - path: /facilities-collector/(.*)
+          - path: /facilities-collector/.*
             backend:
-              serviceName: facilities-collector
+              serviceName: health-apis-kong
               servicePort: 8082
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: facilities-ingress
+  name: facilities-v0-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1$2
+    nginx.ingress.kubernetes.io/rewrite-target: /v0/$1$2
 spec:
   rules:
     - http:
         paths:
-          - path: /(facilities|nearby)(.*)
+          - path: /va_facilities/v0/(facilities|nearby)(.*)
             backend:
-              serviceName: facilities
+              serviceName: health-apis-kong
               servicePort: 8082
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: internal-lighthouse-facilities-ingress
+  name: internal-facilities-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -60,6 +59,10 @@ spec:
   rules:
     - http:
         paths:
+          - path: /facilities/(.*)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
           - path: /lighthouse-facilities/(.*)
             backend:
               serviceName: health-apis-kong
