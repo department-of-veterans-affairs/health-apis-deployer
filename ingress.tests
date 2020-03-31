@@ -19,12 +19,42 @@ data-query /fhir/v0/stu3/Practitioner/I2-abc123def4560000
 data-query /fhir/v0/stu3/PractitionerRole/I2-abc123def4560000
 data-query /fhir/v0/dstu2/Patient/$validate
 data-query /data-query/datamart/validation
+# Bridg
+bridg /bridg/
+bridg /bridg/openapi.json
+bridg /bridg/openapi.yaml
+bridg /bridg/actuator/health
+bridg /bridg/actuator/info
+bridg /bridg/cdsIsAlive
+bridg /bridg/pathwaysIsAlive
+bridg /bridg/mviSearch
+bridg /bridg/eeSearch
+bridg /bridg/vetSearch
+bridg /bridg/allergyRequest
+bridg /bridg/consults
+bridg /bridg/flags
+bridg /bridg/labs
+bridg /bridg/meds
+bridg /bridg/notes
+bridg /bridg/orders
+bridg /bridg/problems
+bridg /bridg/radiologyExams
+bridg /bridg/visit
+bridg /bridg/vitals
+bridg /bridg/additionalSigners
+bridg /bridg/appointments
+bridg /bridg/patientRemarks
+bridg /bridg/sensitivePatient
+bridg /bridg/vistaUsers
 # Carma
 carma /api/carma/actuator/health
 carma /api/carma/actuator/info
 carma /api/carma/vetSearch
 carma /api/carma/mviSearch
 carma /api/carma/eeSearch
+# Carma Cdw
+carma-cdw /carma-cdw/v0/actuator/info
+carma-cdw /carma-cdw/v0/actuator/health
 # Carma FMS
 carma-fms-connector /carma-fms/v0/actuator/info
 carma-fms-connector /carma-fms/v0/actuator/health
@@ -33,6 +63,9 @@ carma-fms-connector /carma-fms/v0/jobs?count=100
 carma-fms-connector /carma-fms/v0/check-specific-payment-run
 carma-fms-connector /carma-fms/v0/import
 carma-fms-connector /carma-fms/v0/export
+# Carma VSSC
+carma-vssc /carma-vssc/v0/actuator/info
+carma-vssc /carma-vssc/v0/actuator/health
 # DMC VetSearch
 dmc-vet-search /dmc-vet-search/v0/actuator/health
 dmc-vet-search /dmc-vet-search/v0/actuator/info
@@ -43,6 +76,13 @@ dmc-vet-search /dmc-vet-search/v0/vetRetrieve
 # Exemplar
 exemplar /hello
 exemplar /hola
+# Facilities
+facilities /facilities-collector/mental-health-contact
+facilities /facilities-collector/stop-code
+facilities /va_facilities/v0/facilities?lat=1&long=1
+facilities /va_facilities/v0/facilities/all
+facilities /va_facilities/v0/nearby?lat=1&lng=-1
+facilities /facilities/internal/management
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
