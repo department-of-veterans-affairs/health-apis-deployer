@@ -21,6 +21,9 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
 spec:
   rules:
     - http:
@@ -60,10 +63,6 @@ spec:
     - http:
         paths:
           - path: /facilities/(.*)
-            backend:
-              serviceName: health-apis-kong
-              servicePort: 8082
-          - path: /lighthouse-facilities/(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
