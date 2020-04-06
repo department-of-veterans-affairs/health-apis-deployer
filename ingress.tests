@@ -79,10 +79,13 @@ exemplar /hola
 # Facilities
 facilities /facilities-collector/mental-health-contact
 facilities /facilities-collector/stop-code
+facilities /facilities/internal/management
 facilities /va_facilities/v0/facilities?lat=1&long=1
 facilities /va_facilities/v0/facilities/all
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
-facilities /facilities/internal/management
+facilities /services/va_facilities/v0/facilities?lat=1&long=1
+facilities /services/va_facilities/v0/facilities/all
+facilities /services/va_facilities/v0/nearby?lat=1&lng=-1
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
