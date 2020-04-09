@@ -87,7 +87,8 @@ facilities /facilities/internal/management
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
 # Patsr
-patsr /patsr/actuator/health
+patsr /whh-patsr-ent/actuator/health
+patsr /whh-patsr-ent/actuator/info
 # SFDC MVI Enterprise
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
