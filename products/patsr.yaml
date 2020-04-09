@@ -25,7 +25,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /patsr/(.*)
+          - path: /whh-patsr-ent/(.*)
             backend:
               serviceName: patsr-experience
               servicePort: 80
