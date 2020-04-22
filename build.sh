@@ -487,15 +487,6 @@ then
   exit 1
 fi
 
-# Check for repeated rules on the load-balancer
-duplicateRules=($(cat all-rules | awk '{print $2}' | uniq -d))
-if [ "${#duplicateRules[@]}" != "0" ]; then
-  echo -e "Found duplicate rules on the load-balancer:\n${duplicateRules[@]}" \
-    | tee -a $JENKINS_DESCRIPTION
-  echo "Plz do remove and deploy again."
-  touch ./.jenkins_unstable
-fi
-
 #============================================================
 #
 # How'd we do?
@@ -526,6 +517,15 @@ cat <<EOF >> $JENKINS_DESCRIPTION
   $PRODUCT deployed to $ENVIRONMENT ($DU_ARTIFACT $DU_VERSION)
   in availability zones: $DEPLOYED_AVAILABILITY_ZONES
 EOF
+fi
+
+# Check for repeated rules on the load-balancer
+duplicateRules=($(cat all-rules | awk '{print $2}' | uniq -d))
+if [ "${#duplicateRules[@]}" != "0" ]; then
+  echo -e "\n  Found duplicate rules on the load-balancer: ${duplicateRules[@]}" \
+    | tee -a $JENKINS_DESCRIPTION
+  echo "Plz do remove and deploy again."
+  touch ./.jenkins_unstable
 fi
 
 echo "Goodbye."
