@@ -246,7 +246,8 @@ createRule() {
     --conditions Field=path-pattern,Values="$RULE_PATH" \
     --priority $(nextAvailablePriority $listener) > $temp
 
-  [ "${DEBUG:-false}" == "true" ] && cat $temp
+  #[ "${DEBUG:-false}" == "true" ] &&
+  cat $temp
 
   if [ -n "$ruleArn" ]
   then
