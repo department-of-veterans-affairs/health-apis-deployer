@@ -519,5 +519,14 @@ cat <<EOF >> $JENKINS_DESCRIPTION
 EOF
 fi
 
+# Check for repeated rules on the load-balancer
+duplicateRules=($(cat all-rules | awk '{print $2}' | uniq -d))
+if [ "${#duplicateRules[@]}" != "0" ]; then
+  echo -e "\n  Found duplicate rules on the load-balancer: ${duplicateRules[@]}" \
+    | tee -a $JENKINS_DESCRIPTION
+  echo "Plz do remove and deploy again."
+  touch ./.jenkins_unstable
+fi
+
 echo "Goodbye."
 exit 0
