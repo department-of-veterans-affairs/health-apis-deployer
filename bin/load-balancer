@@ -227,7 +227,7 @@ createRule() {
   echo "Creating Rule Path: $RULE_PATH"
 
   local ruleArn=$(ruleArn $listener "$RULE_PATH")
-
+  echo "Found Existing Rule ARN: ${ruleArn:-none}"
 
   local temp=$(mktemp)
   #
@@ -246,7 +246,8 @@ createRule() {
     --conditions Field=path-pattern,Values="$RULE_PATH" \
     --priority $(nextAvailablePriority $listener) > $temp
 
-  [ "${DEBUG:-false}" == "true" ] && cat $temp
+  #[ "${DEBUG:-false}" == "true" ] &&
+  cat $temp
 
   if [ -n "$ruleArn" ]
   then
