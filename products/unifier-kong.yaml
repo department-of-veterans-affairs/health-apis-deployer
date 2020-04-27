@@ -34,6 +34,23 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+  name: unifier-kong-legacy-informational-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1/$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /unifier-test/(fhir/v0/.*)/(metadata|.well-known/smart-configuration)
+            backend:
+              serviceName: unifier-kong
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
   name: unifier-kong-informational-ingress
   namespace: $DU_NAMESPACE
   annotations:
