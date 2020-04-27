@@ -43,7 +43,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /unifier-test/(fhir/v0/.*)/(metadata|.well-known/smart-configuration)
+          - path: /(fhir/v0/.*)/(metadata|.well-known/smart-configuration)
             backend:
               serviceName: unifier-kong
               servicePort: 8082
