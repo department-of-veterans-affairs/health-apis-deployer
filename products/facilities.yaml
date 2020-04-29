@@ -48,10 +48,16 @@ spec:
               serviceName: health-apis-kong
               servicePort: 8082
 ---
+#
+# !!!
+# Once it reaches Kong, this ingress can branch of to multiple facilities applications
+# (facilities or facilities-collector) use caution when editing
+# !!!
+#
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: facilities-metadata-ingress
+  name: facilities-information-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -60,7 +66,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(services/|)va_facilities/(docs/v0/api|metadata)
+          - path: /(services/|)va_facilities/(docs/v0/api|metadata|collector/health)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
