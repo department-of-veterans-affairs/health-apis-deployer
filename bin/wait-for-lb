@@ -37,7 +37,7 @@ checkTargetGroupHealth() {
 }
 
 
-timeout=$(($(date +%s) + 300))
+timeout=$(($(date +%s) + 600))
 while [ $(date +%s) -lt $timeout ]
 do
   sleep 1
