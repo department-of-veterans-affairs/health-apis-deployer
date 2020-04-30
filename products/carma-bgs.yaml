@@ -29,7 +29,7 @@ spec:
             backend:
               serviceName: carma-bgs
               servicePort: 80
----
+#---
 # Will define after evaluation from DevOps/prometheus
 #apiVersion: v1
 #kind: ResourceQuota
