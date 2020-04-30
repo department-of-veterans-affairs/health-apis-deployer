@@ -62,9 +62,11 @@ then
 
   # Stuck Like Glue...
   if [ "$NS_STATUS" != "1" ]; then
+    echo "Pods in namespace $DU_NAMESPACE got stuck in $AVAILABILITY_ZONE..." | tee -a $JENKINS_DESCRIPTION
     echo "Force Deleting Pods in Namespace ($DU_NAMESPACE)..."
     BAD_PODS=($(cluster-fox kubectl $AVAILABILITY_ZONE -- get pods -n $DU_NAMESPACE --no-headers | awk '{ print $1 }'))
     echo "Pods Stuck Terminating: ${BAD_PODS[@]}"
+    [ "${#BAD_PODS[@]}" == "0" ] && echo "Found no pods that can be force deleted..." && exit 1
     for pod in ${BAD_PODS[@]}; do
       echo "Force Deleting Pod: $pod"
       cluster-fox kubectl $AVAILABILITY_ZONE -- delete pods -n $DU_NAMESPACE $pod --force --grace-period=0
