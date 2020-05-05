@@ -49,7 +49,7 @@ spec:
               serviceName: urgent-care-kong
               servicePort: 8082
 ---
-  # For Ad Hoc and anything else that needs access to metadata, openapi, or well known
+# For Ad Hoc and anything else that needs access to openapi
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -62,7 +62,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/r4/(metadata|openapi.*|.well-known/smart-configuration)
+          - path: /fhir/v0/r4/(openapi.*)
             backend:
               serviceName: urgent-care-kong
               servicePort: 8082

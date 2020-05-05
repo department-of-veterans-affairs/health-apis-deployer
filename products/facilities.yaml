@@ -38,29 +38,35 @@ metadata:
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /v0/$1$2
+    nginx.ingress.kubernetes.io/rewrite-target: /v0/$2$3
 spec:
   rules:
     - http:
         paths:
-          - path: /va_facilities/v0/(facilities|nearby)(.*)
+          - path: /(services/|)va_facilities/v0/(facilities|nearby)(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
 ---
+#
+# !!!
+# Once it reaches Kong, this ingress can branch of to multiple facilities applications
+# (facilities or facilities-collector) use caution when editing
+# !!!
+#
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: facilities-openapi-ingress
+  name: facilities-information-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
     - http:
         paths:
-          - path: /va_facilities/(docs/v0/api)
+          - path: /(services/|)va_facilities/(docs/v0/api|metadata|collector/health)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082

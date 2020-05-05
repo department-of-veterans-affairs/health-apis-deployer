@@ -226,8 +226,8 @@ createRule() {
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule creation" && exit 1
   echo "Creating Rule Path: $RULE_PATH"
 
-  local ruleArn=$(ruleArn $listener "$RULE_PATH")
-
+  local ruleArns=$(ruleArn $listener "$RULE_PATH")
+  echo "Found existing rule ARNs: ${ruleArns:-none}"
 
   local temp=$(mktemp)
   #
@@ -246,12 +246,17 @@ createRule() {
     --conditions Field=path-pattern,Values="$RULE_PATH" \
     --priority $(nextAvailablePriority $listener) > $temp
 
-  [ "${DEBUG:-false}" == "true" ] && cat $temp
+  #[ "${DEBUG:-false}" == "true" ] &&
+  cat $temp
 
-  if [ -n "$ruleArn" ]
+  if [ -n "$ruleArns" ]
   then
-    echo "Removing old version of rule  $RULE_PATH"
-    aws elbv2 delete-rule --rule-arn "$ruleArn" &
+    echo "Removing old version of rule $RULE_PATH"
+    for ruleArn in $ruleArns
+    do
+      echo "Deleting rule $ruleArn"
+      aws elbv2 delete-rule --rule-arn "$ruleArn" &
+    done
   fi
 }
 
@@ -288,22 +293,12 @@ nextAvailablePriority() {
 }
 
 ruleArn() {
-  local rules=$(aws elbv2 describe-rules --listener-arn $1 \
-      | jq -r '.Rules[] | .RuleArn , .Conditions[].Values[]' \
-      | paste -sd ";\n")
+  local listenerArn="$1"
+  local path="$2"
 
-  local matchedArn=""
-
-  for rule in $rules; do
-    local rulePath=$(echo "$rule" | cut -d ';' -f2)
-    # Match Exactly as Strings (should avoid issues with false positives)
-    if [ "$rulePath" == "$2" ]; then
-      matchedArn=$(echo "$rule" | cut -d ';' -f1)
-    fi
-  done
-
-  # Will return empty string when none match
-  echo "$matchedArn"
+  # Will echo empty string when none match
+  aws elbv2 describe-rules --listener-arn $listenerArn \
+    | jq -r ".Rules[] | select(.Conditions[].Values[] | contains(\"$path\")) | .RuleArn"
 }
 
 deleteRule() {
@@ -332,10 +327,13 @@ deleteRule() {
   # Find the RULE-ARN for the corresponding RULE_PATH marked for deletion
   #
   [ -z "$RULE_PATH" ] && echo "No Rule-Path specified for rule deletion." && exit 1
-  local ruleArn=$(ruleArn $listener "$RULE_PATH")
+  local ruleArns=$(ruleArn $listener "$RULE_PATH")
 
-  echo "Deleting: Rule-Arn: $ruleArn"
-  aws elbv2 delete-rule --rule-arn "$ruleArn"
+  for ruleArn in $ruleArns
+  do
+    echo "Deleting: Rule-Arn: $ruleArn"
+    aws elbv2 delete-rule --rule-arn "$ruleArn"
+  done
 }
 
 deleteAllRules() {
