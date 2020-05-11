@@ -99,16 +99,16 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
 sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
-# SFDC DMC Debt to Contact
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/disableCron
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/enableCron
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/putDebtsOnQueueByDate
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/putDebtsOnQueueByNumber
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/actuator/jobs
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/actuator/info
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/actuator/health
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-handler/v0/actuator/info
-sfdc-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-handler/v0/actuator/health
+# SF DMC Debt to Contact
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/disableCron
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/enableCron
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/putDebtsOnQueueByDate
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/putDebtsOnQueueByNumber
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/actuator/jobs
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/actuator/info
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-query/v0/actuator/health
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-handler/v0/actuator/info
+sf-dmc-debt-to-contact /sfdc-dmc-debt-to-contact-handler/v0/actuator/health
 # Unifier
 unifier-kong /fhir/v0/dstu2/metadata
 unifier-kong /fhir/v0/dstu2/.well-known/smart-configuration
