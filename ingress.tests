@@ -19,6 +19,8 @@ data-query /fhir/v0/stu3/Practitioner/I2-abc123def4560000
 data-query /fhir/v0/stu3/PractitionerRole/I2-abc123def4560000
 data-query /fhir/v0/dstu2/Patient/$validate
 data-query /data-query/datamart/validation
+data-query /fhir/v0/dstu2/openapi.json
+data-query /fhir/v0/argonaut/data-query/openapi.json
 # Bridg
 bridg /bridg/
 bridg /bridg/openapi.json
@@ -106,4 +108,7 @@ unifier-kong /fhir/v0/r4/metadata
 unifier-kong /fhir/v0/r4/.well-known/smart-configuration
 unifier-kong /fhir/v0/argonaut/data-query/metadata
 unifier-kong /fhir/v0/argonaut/data-query/.well-known/smart-configuration
+# Urgent Care
+urgent-care /fhir/v0/r4/CoverageEligibilityResponse?patient=1010101010V666666
+urgent-care /fhir/v0/r4/openapi.json
 # End of File
