@@ -16,7 +16,7 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: sfdc-dmc-debt-to-contact-query-ingress
+  name: sf-dmc-debt-to-contact-query-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -25,15 +25,15 @@ spec:
   rules:
     - http:
         paths:
-          - path: /sfdc-dmc-debt-to-contact-query/v0/(.*)
+          - path: /sf-dmc-debt-to-contact-query/v0/(.*)
             backend:
-              serviceName: sfdc-dmc-debt-2-contact-query
+              serviceName: sf-dmc-debt-to-contact-query
               servicePort: 80
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: sfdc-dmc-debt-to-contact-handler-ingress
+  name: sf-dmc-debt-to-contact-handler-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -42,7 +42,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /sfdc-dmc-debt-to-contact-handler/v0/(.*)
+          - path: /sf-dmc-debt-to-contact-handler/v0/(.*)
             backend:
-              serviceName: sfdc-dmc-debt-2-contact-handler
+              serviceName: sf-dmc-debt-to-contact-handler
               servicePort: 80
