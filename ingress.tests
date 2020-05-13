@@ -54,6 +54,9 @@ carma /api/carma/actuator/info
 carma /api/carma/vetSearch
 carma /api/carma/mviSearch
 carma /api/carma/eeSearch
+# Carma BGS
+carma-bgs /carma-bgs/v0/actuator/info
+carma-bgs /carma-bgs/v0/actuator/health
 # Carma Cdw
 carma-cdw /carma-cdw/v0/actuator/info
 carma-cdw /carma-cdw/v0/actuator/health
