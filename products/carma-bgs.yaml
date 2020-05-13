@@ -29,14 +29,14 @@ spec:
             backend:
               serviceName: carma-bgs
               servicePort: 80
-#---
+---
 # Will define after evaluation from DevOps/prometheus
-#apiVersion: v1
-#kind: ResourceQuota
-#metadata:
-#  name: carma-bgs-resource-quota
-#  namespace: $DU_NAMESPACE
-#spec:
-#  hard:
-#    limits.cpu: "1300m"
-#    limits.memory: "5G"
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: carma-bgs-resource-quota
+  namespace: $DU_NAMESPACE
+spec:
+  hard:
+    limits.cpu: "1000m"
+    limits.memory: "750M"
