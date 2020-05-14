@@ -104,6 +104,11 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
 sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
+# SF DMC Debt to Contact
+sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/disableCron
+sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/enableCron
+sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/putDebtsOnQueueByDate
+sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/putDebtsOnQueueByNumber
 # Unifier
 unifier-kong /fhir/v0/dstu2/metadata
 unifier-kong /fhir/v0/dstu2/.well-known/smart-configuration
