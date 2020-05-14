@@ -104,11 +104,6 @@ sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/disableCron
 sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/enableCron
 sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/putDebtsOnQueueByDate
 sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/putDebtsOnQueueByNumber
-sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/actuator/jobs
-sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/actuator/info
-sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/actuator/health
-sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-handler/v0/actuator/info
-sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-handler/v0/actuator/health
 # Unifier
 unifier-kong /fhir/v0/dstu2/metadata
 unifier-kong /fhir/v0/dstu2/.well-known/smart-configuration
