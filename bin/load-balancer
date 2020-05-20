@@ -246,15 +246,22 @@ createRule() {
     --conditions Field=path-pattern,Values="$RULE_PATH" \
     --priority $(nextAvailablePriority $listener) > $temp
 
-  [ "${DEBUG:-false}" == "true" ] && cat $temp
-
+  if [ "${DEBUG:-false}" == "true" ]; then
+    cat $temp
+  else
+    print "Created New Rule: "
+    jq --compact-output \
+      '.Rules[] | { ruleArn: .RuleArn, rulePriority: .Priority, rulePaths: .Conditions[].Values }' \
+      $temp
+  fi
+  
   if [ -n "$ruleArns" ]
   then
     echo "Removing old version of rule $RULE_PATH"
     for ruleArn in $ruleArns
     do
-      echo "Deleting rule $ruleArn"
-      aws elbv2 delete-rule --rule-arn "$ruleArn" &
+      echo "Deleting rule $ruleArn"  
+      aws elbv2 delete-rule --rule-arn "$ruleArn"
     done
   fi
 }
