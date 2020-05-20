@@ -249,7 +249,7 @@ createRule() {
   if [ "${DEBUG:-false}" == "true" ]; then
     cat $temp
   else
-    print "Created New Rule: "
+    printf "Created New Rule: "
     jq --compact-output \
       '.Rules[] | { ruleArn: .RuleArn, rulePriority: .Priority, rulePaths: .Conditions[].Values }' \
       $temp
