@@ -261,7 +261,10 @@ createRule() {
     for ruleArn in $ruleArns
     do
       echo "Deleting rule $ruleArn"  
-      aws elbv2 delete-rule --rule-arn "$ruleArn"
+      aws elbv2 delete-rule \
+        --debug \
+        --rule-arn "$ruleArn" \
+        2> >(grep -A 1 "Response body:" | tail +1)
     done
   fi
 }
