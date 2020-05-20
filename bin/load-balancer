@@ -264,7 +264,7 @@ createRule() {
       aws elbv2 delete-rule \
         --debug \
         --rule-arn "$ruleArn" \
-        2> >(grep -A 1 "Response body:" | tail +1)
+        2> >(grep -A 1 "Response body" | tail -1)
     done
   fi
 }
