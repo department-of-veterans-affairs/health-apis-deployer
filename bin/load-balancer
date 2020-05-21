@@ -264,7 +264,7 @@ createRule() {
       aws elbv2 delete-rule \
         --debug \
         --rule-arn "$ruleArn" \
-        2> >(grep -A 1 "Response body" | tail -1 | sed -e "s/b'\(.*\)'/\1/" -e 's/\\n//g')
+        2> >(grep -A 1 "Response body" | tail -1 | sed -e "s/^b'\(.*\)'/\1/" -e 's/\\n//g')
     done
   fi
 }
