@@ -12,7 +12,12 @@ ENV_CONF=$DU_DIR/$ENVIRONMENT.conf
 test -f "$DEFAULT_CONF"
 test -f "$ENV_CONF"
 
+#
+# Make additional variables available for substitution
+#
 declare -rx NAMESPACE=$DU_NAMESPACE
+declare -rx K8S_ENVIRONMENT=$ENVIRONMENT
+
 
 echo "Standardizing Line Endings..."
 dos2unix -q $(find $DU_DIR \

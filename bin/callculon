@@ -9,7 +9,7 @@ test -n $PRODUCT
 test -n $DU_ARTIFACT
 test -n $DU_VERSION
 test -n $K8S_DEPLOYMENT_ID
-test -n $K8S_ENVIRONMENT
+test -n $ENVIRONMENT
 
 
 if [ -z "${WORK:-}" ]
@@ -78,12 +78,12 @@ requireFile() {
 }
 
 callculonArn() {
-  aws lambda get-function --function-name project-$K8S_ENVIRONMENT-callculon | jq -r .Configuration.FunctionArn
+  aws lambda get-function --function-name project-$ENVIRONMENT-callculon | jq -r .Configuration.FunctionArn
 }
 
 nameOf() { jq -r .name $1; }
 cronOf() { jq -r .deployment.cron $1; }
-ruleNameFor() { echo "callculon-$K8S_ENVIRONMENT-$PRODUCT-$1"; }
+ruleNameFor() { echo "callculon-$ENVIRONMENT-$PRODUCT-$1"; }
 
 augment() {
   local configuration=$1
@@ -115,7 +115,7 @@ create() {
     --name $ruleName \
     --schedule-expression "cron($cron)" \
     --tags \
-    Key=Environment,Value=$K8S_ENVIRONMENT \
+    Key=Environment,Value=$ENVIRONMENT \
     Key=Product,Value=$PRODUCT \
     Key=Artifact,Value=$DU_ARTIFACT \
     Key=Version,Value=$DU_VERSION \
