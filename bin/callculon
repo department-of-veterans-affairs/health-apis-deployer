@@ -5,12 +5,20 @@ set -euo pipefail
 # This tool is expecting to run in the context of deployment and as such
 # is assuming that some environment variables are set.
 #
-test -d $WORK
 test -n $PRODUCT
 test -n $DU_ARTIFACT
 test -n $DU_VERSION
 test -n $K8S_DEPLOYMENT_ID
 test -n $K8S_ENVIRONMENT
+
+
+if [ -z "${WORK:-}" ]
+then
+  WORK=$(mktemp -p . -d work.XXXX )
+  deleteWorkOnExit() { rm -f $WORK; }
+  trap deleteWorkOnExit EXIT
+fi
+if [ ! -d $WORK ]; then mkdir -p $WORK; fi
 
 #
 # Globals
