@@ -15,7 +15,7 @@ test -n $ENVIRONMENT
 if [ -z "${WORK:-}" ]
 then
   WORK=$(mktemp -p . -d work.XXXX )
-  deleteWorkOnExit() { rm -f $WORK; }
+  deleteWorkOnExit() { rm -rf $WORK; }
   trap deleteWorkOnExit EXIT
 fi
 if [ ! -d $WORK ]; then mkdir -p $WORK; fi
