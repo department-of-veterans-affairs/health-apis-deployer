@@ -77,8 +77,13 @@ requireFile() {
   if [ ! -f "$file" ]; then usage "File not found: $file"; fi
 }
 
+
+callculonFunction() {
+  echo -n "project-$ENVIRONMENT-callculon"
+}
+
 callculonArn() {
-  aws lambda get-function --function-name project-$ENVIRONMENT-callculon | jq -r .Configuration.FunctionArn
+  aws lambda get-function --function-name $(callculonFunction) | jq -r .Configuration.FunctionArn
 }
 
 nameOf() { jq -r .name $1; }
@@ -121,12 +126,21 @@ create() {
     Key=Version,Value=$DU_VERSION \
     Key=Deployment,Value=$K8S_DEPLOYMENT_ID \
     | tee $out
+  local ruleArn=$(cat $out | jq -r .RuleArn)
 
   local callculonArn=$(callculonArn)
   echo "Targeting Callculon $callculonArn"
   aws events put-targets \
     --rule $ruleName \
     --targets "Id"="callculon","Arn"="$callculonArn","Input"="$(jq -c '.|@json' $augmentedConf)"
+
+  aws lambda add-permission \
+    --function-name $(callculonFunction) \
+    --statement-id $ruleName \
+    --action 'lambda:InvokeFunction' \
+    --principal events.amazonaws.com \
+    --source-arn $ruleArn
+
 }
 
 
@@ -139,11 +153,16 @@ removeRule() {
   echo "Removing rule $name"
   aws events remove-targets --rule $name --ids callculon 
   aws events delete-rule --name $name
+  if ! aws lambda remove-permission --function-name $(callculonFunction) --statement-id $name 
+  then
+    touch ./.jenkins_unstable
+  fi
 }
 
 removeAllForProduct() {
   echo "Removing timers for $PRODUCT"
   for rule in $(eventRulesForProduct); do removeRule $rule; done
+  echo "All rules have been removed"
 }  
 
 main $@
