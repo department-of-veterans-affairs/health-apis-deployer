@@ -5,6 +5,7 @@ DU_DIR=$1
 
 test -n "$DU_DIR"
 test -n "$ENVIRONMENT"
+test -n "$LOAD_BALANCER"
 
 DEFAULT_CONF=$DU_DIR/deployment.conf
 ENV_CONF=$DU_DIR/$ENVIRONMENT.conf
@@ -17,7 +18,7 @@ test -f "$ENV_CONF"
 #
 declare -rx NAMESPACE=$DU_NAMESPACE
 declare -rx K8S_ENVIRONMENT=$ENVIRONMENT
-
+declare -rx K8S_LOAD_BALANCER=$LOAD_BALANCER
 
 echo "Standardizing Line Endings..."
 dos2unix -q $(find $DU_DIR \
