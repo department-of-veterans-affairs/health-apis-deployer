@@ -18,7 +18,6 @@ test -f "$ENV_CONF"
 #
 declare -rx NAMESPACE=$DU_NAMESPACE
 declare -rx K8S_ENVIRONMENT=$ENVIRONMENT
-declare -rx K8S_LOAD_BALANCER=$LOAD_BALANCER
 
 echo "Standardizing Line Endings..."
 dos2unix -q $(find $DU_DIR \
@@ -31,6 +30,7 @@ dos2unix -q $(find $DU_DIR \
 
 . $DEFAULT_CONF
 . $ENV_CONF
+declare -rx K8S_LOAD_BALANCER=$BLUE_LOAD_BALANCER
 
 for i in $(find $DU_DIR \
   -name "*.yaml" \
