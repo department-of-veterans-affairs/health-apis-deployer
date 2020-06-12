@@ -5,7 +5,6 @@ DU_DIR=$1
 
 test -n "$DU_DIR"
 test -n "$ENVIRONMENT"
-test -n "$LOAD_BALANCER"
 
 DEFAULT_CONF=$DU_DIR/deployment.conf
 ENV_CONF=$DU_DIR/$ENVIRONMENT.conf
