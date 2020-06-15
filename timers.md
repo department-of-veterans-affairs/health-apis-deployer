@@ -13,6 +13,10 @@ execution-time substitution via secrets defined using AWS Parameter Store.
 See [Callculon](https://github.com/department-of-veterans-affairs/lighthouse-callculon) on how to
 AWS Parameter Store secrets.
 
+See [an example timer](deployer-tests/timer-deployer.json).
+
+See [AWS Scheduled Event cron expression syntax](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html).
+
 
 ## Problem
 Timers are a reoccurring need of the different products on the platform. 
