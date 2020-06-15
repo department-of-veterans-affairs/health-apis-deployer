@@ -98,7 +98,8 @@ augment() {
     --arg product $PRODUCT \
     --arg version $DU_VERSION \
     --arg id $K8S_DEPLOYMENT_ID \
-   '. * {"deployment": { product: $product, version: $version, id: $id }}' \
+    --arg environment $ENVIRONMENT \
+   '. * {"deployment": { environment: $environment, product: $product, version: $version, id: $id }}' \
    $configuration \
    > $augmented
   echo $augmented
