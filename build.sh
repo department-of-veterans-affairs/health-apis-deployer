@@ -256,6 +256,7 @@ cat $DEPLOYMENT_INFO_TEXT
 export DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 prepare-deployment-unit
 
+callculon remove-all
 
 UPDATED_AVAILABILITY_ZONES=
 TEST_FAILURE=false
@@ -430,6 +431,16 @@ then
 fi
 
 
+#
+# Create timers
+#
+for timer in $(find $DU_DIR -name "timer-*json")
+do
+  callculon create --configuration $timer
+done
+
+
+
 #============================================================
 #
 # Let's do some post install activities
@@ -519,13 +530,16 @@ cat <<EOF >> $JENKINS_DESCRIPTION
 EOF
 fi
 
-# Check for repeated rules on the load-balancer
-duplicateRules=($(cat all-rules | awk '{print $2}' | uniq -d))
-if [ "${#duplicateRules[@]}" != "0" ]; then
-  echo -e "\n  Found duplicate rules on the load-balancer: ${duplicateRules[@]}" \
-    | tee -a $JENKINS_DESCRIPTION
-  echo "Plz do remove and deploy again."
-  touch ./.jenkins_unstable
+
+if [ "$SKIP_LOAD_BALANCER" == false ]; then 
+  # Check for repeated rules on the load-balancer
+  duplicateRules=($(cat all-rules | awk '{print $2}' | uniq -d))
+  if [ "${#duplicateRules[@]}" != "0" ]; then
+    echo -e "\n  Found duplicate rules on the load-balancer: ${duplicateRules[@]}" \
+      | tee -a $JENKINS_DESCRIPTION
+    echo "Plz do remove and deploy again."
+    touch ./.jenkins_unstable
+  fi
 fi
 
 echo "Goodbye."

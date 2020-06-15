@@ -94,7 +94,7 @@ enable substitution in the `deployment.yaml` variables must be exported, e.g.
 > ##### Deployment YAML substitution
 > The `deployment.yaml` will be processed using `envsubst` to provide environment specific
 values to be injected into the yaml. The environment variables from `deployment.conf` and the
-environment specific conf, e.g. `qa.conf` will be set. Additional, the following variables will be
+environment specific conf, e.g. `qa.conf` will be set. Additionally, the following variables will be
 also be set.
 >  
 > `NAMESPACE`  
