@@ -23,7 +23,7 @@ if [ ! -d $WORK ]; then mkdir -p $WORK; fi
 #
 # Globals
 #
-EVENT_TARGET_ROLE_ARN="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
+EVENT_TARGET_ROLE_ARN=$(aws iam get-role --role-name project-jefe-role | jq -r .Role.Arn)
 
 usage() {
 cat << EOF
@@ -72,6 +72,7 @@ require() {
   if [ -z "$value" ]; then usage "Missing --$name parameter"; fi
   echo "$value"
 }
+
 requireFile() {
   local file="$1"
   if [ ! -f "$file" ]; then usage "File not found: $file"; fi
@@ -146,7 +147,7 @@ create() {
 
 
 eventRulesForProduct() {
-  aws events list-rules --name-prefix callculon-qa | jq -r .Rules[].Name 
+  aws events list-rules --name-prefix callculon-$ENVIRONMENT | jq -r .Rules[].Name 
 }
 
 removeRule() {
@@ -157,6 +158,8 @@ removeRule() {
   if ! aws lambda remove-permission --function-name $(callculonFunction) --statement-id $name 
   then
     touch ./.jenkins_unstable
+    echo "Check $(callculonFunction) to ensure there are no dangling event references" \
+      >> ${JENKINS_DESCRIPTION:-callculon-errors.txt}
   fi
 }
 
