@@ -256,6 +256,7 @@ cat $DEPLOYMENT_INFO_TEXT
 export DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 prepare-deployment-unit
 
+callculon remove-all
 
 UPDATED_AVAILABILITY_ZONES=
 TEST_FAILURE=false
@@ -428,6 +429,16 @@ then
   DU_VERSION=$FAILED_DU_VERSION
   DU_DIR=$WORKSPACE/$DU_ARTIFACT-$DU_VERSION
 fi
+
+
+#
+# Create timers
+#
+for timer in $(find $DU_DIR -name "timer-*json")
+do
+  callculon create --configuration $timer
+done
+
 
 
 #============================================================
