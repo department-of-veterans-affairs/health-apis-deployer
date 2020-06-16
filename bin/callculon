@@ -89,6 +89,7 @@ callculonArn() {
 
 nameOf() { jq -r .name $1; }
 cronOf() { jq -r .deployment.cron $1; }
+enabledOf() { jq -r .deployment.enabled $1; }
 ruleNameFor() { echo "callculon-$ENVIRONMENT-$PRODUCT-$1"; }
 
 augment() {
@@ -111,6 +112,12 @@ create() {
   require configuration $configuration
   requireFile $configuration
   echo "Creating timer from $configuration"
+  local enabled=$(enabledOf $configuration)
+  if [ "$enabled" == false ]
+  then
+    echo "Oh. This timer isn't enabled in this environment. Move along. Nothing to see here."
+    return 0
+  fi
   local name=$(nameOf $configuration)
   local cron=$(cronOf $configuration)
   local augmentedConf=$(augment $configuration)

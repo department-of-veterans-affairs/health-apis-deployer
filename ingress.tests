@@ -8,6 +8,7 @@ data-query /fhir/v0/dstu2/Immunization?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Medication/I2-abc123def4560000
 data-query /fhir/v0/dstu2/MedicationDispense/I2-abc123def4560000
 data-query /fhir/v0/dstu2/MedicationOrder?patient=1010101010V666666
+data-query /fhir/v0/dstu2/MedicationRequest?patient=1010101010V666666
 data-query /fhir/v0/dstu2/MedicationStatement?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Observation?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Patient/1010101010V666666
