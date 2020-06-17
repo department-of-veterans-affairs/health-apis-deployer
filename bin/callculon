@@ -55,7 +55,7 @@ main() {
     shift
   done
   if [ "${DEBUG:-false}" == "true" ]; then set -x; fi
- 
+
   [ $# != 1 ] && usage
   local command=$1
 
@@ -154,19 +154,19 @@ create() {
 
 
 eventRulesForProduct() {
-  aws events list-rules --name-prefix callculon-$ENVIRONMENT | jq -r .Rules[].Name 
+  aws events list-rules --name-prefix callculon-$ENVIRONMENT-$PRODUCT- | jq -r .Rules[].Name
 }
 
 removeRule() {
   local name="$1"
   echo "Removing rule $name"
-  aws events remove-targets --rule $name --ids callculon 
+  aws events remove-targets --rule $name --ids callculon
   aws events delete-rule --name $name
-  if ! aws lambda remove-permission --function-name $(callculonFunction) --statement-id $name 
+  if ! aws lambda remove-permission --function-name $(callculonFunction) --statement-id $name
   then
-    touch ./.jenkins_unstable
-    echo "Check $(callculonFunction) to ensure there are no dangling event references" \
-      >> ${JENKINS_DESCRIPTION:-callculon-errors.txt}
+    # touch ./.jenkins_unstable
+    echo "Check $(callculonFunction) to ensure there are no dangling event references"
+    #  >> ${JENKINS_DESCRIPTION:-callculon-errors.txt}
   fi
 }
 
@@ -174,6 +174,6 @@ removeAllForProduct() {
   echo "Removing timers for $PRODUCT"
   for rule in $(eventRulesForProduct); do removeRule $rule; done
   echo "All rules have been removed"
-}  
+}
 
 main $@
