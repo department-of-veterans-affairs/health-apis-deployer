@@ -11,6 +11,9 @@ if [ "${DEBUG}" == true ]; then
   env | sort
 fi
 
+
+export PATH=/deployer:$PATH
+
 #
 # Ensure that we fail fast on any issues.
 #
@@ -23,6 +26,9 @@ ARTIFACT ... $ARTIFACT
 ============================================================
 EOF
 
-/deployer/vpc id-for-environment -e $VPC
+
+vpc id-for-environment -e $VPC
+deployment add-build-info -d "VPC ........ $VPC"
+deployment add-build-info -d "ARTIFACT ........ $ARTIFACT"
 
 echo "kthxby"
