@@ -28,8 +28,11 @@ EOF
 
 
 ENVIRONMENT=$(vpc hyphenize -e "$VPC")
-vpc id-for-environment -e $VPC
+
 deployment add-build-info -d "ENVIRONMENT ... $ENVIRONMENT"
 deployment add-build-info -d "ARTIFACT ...... $ARTIFACT"
+lambda deploy-java \
+  -e $VPC \
+  -a "$ARTIFACT"
 
 echo "kthxby"
