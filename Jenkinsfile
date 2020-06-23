@@ -81,17 +81,19 @@ pipeline {
   }
   post {
     always {
-      script {
-        def buildName = sh returnStdout: true, script: '''[ -f .deployment/build-name ] && cat .deployment/build-name ; exit 0'''
-        currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
-        def description = sh returnStdout: true, script: '''[ -f .deployment/description ] && cat .deployment/description ; exit 0'''
-        currentBuild.description = "${description}"
-        def unstableStatus = sh returnStatus: true, script: '''[ -f .deployment/unstable ] && exit 1 ; exit 0'''
-        if (unstableStatus == 1 && currentBuild.result != 'FAILURE') {
-          currentBuild.result = 'UNSTABLE';
+      node('master') {
+        script {
+          def buildName = sh returnStdout: true, script: '''[ -f .deployment/build-name ] && cat .deployment/build-name ; exit 0'''
+          currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
+          def description = sh returnStdout: true, script: '''[ -f .deployment/description ] && cat .deployment/description ; exit 0'''
+          currentBuild.description = "${description}"
+          def unstableStatus = sh returnStatus: true, script: '''[ -f .deployment/unstable ] && exit 1 ; exit 0'''
+          if (unstableStatus == 1 && currentBuild.result != 'FAILURE') {
+            currentBuild.result = 'UNSTABLE';
+          }
         }
+        archiveArtifacts artifacts: '.deployment/artifacts/**', onlyIfSuccessful: false, allowEmptyArchive: true
       }
-      archiveArtifacts artifacts: '.deployment/artifacts/**', onlyIfSuccessful: false, allowEmptyArchive: true
     }
     failure {
       withCredentials( CREDENTIALS ) {
