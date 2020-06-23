@@ -51,7 +51,7 @@ pipeline {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
     string(name: 'DEPLOYER_VERSION', defaultValue: 'latest', description: 'Version of the deployment machinery')
     choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ], description: "Environment to deploy into")
-    string(name: 'ARTIFACT', description: "Maven coordinates to the Lamba to deploy")
+    string(name: 'ARTIFACT', defaultValue: '', description: "Maven coordinates to the Lamba to deploy")
   }
   agent none
   stages {
