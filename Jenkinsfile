@@ -98,7 +98,7 @@ pipeline {
     failure {
       withCredentials( CREDENTIALS ) {
         script {
-          if (mode == 'release' && !notificationsSent) {
+          if (!notificationsSent) {
             notificationsSent = true;
             sendNotifications( config.slackDestinations )
           }
@@ -108,7 +108,7 @@ pipeline {
     changed {
       withCredentials( CREDENTIALS ) {
         script {
-          if (mode == 'release' && !notificationsSent) {
+          if (!notificationsSent) {
             notificationsSent = true;
             sendNotifications( config.slackDestinations )
           }
