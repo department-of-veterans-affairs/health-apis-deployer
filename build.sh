@@ -17,4 +17,5 @@ fi
 set -euo pipefail
 
 date
+env|sort
 echo "kthxby"
