@@ -32,6 +32,7 @@ ENVIRONMENT=$(vpc hyphenize -e "$VPC")
 
 deployment add-build-info -d "ENVIRONMENT ... $ENVIRONMENT"
 deployment add-build-info -d "ARTIFACT ...... $ARTIFACT"
+deployment add-build-info -d "HANDLER ....... $HANDLER"
 lambda deploy-java \
   -e $VPC \
   -a "$ARTIFACT" \
