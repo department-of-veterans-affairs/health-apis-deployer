@@ -65,6 +65,7 @@ pipeline {
       }
     }
     stage('Deploy') {
+      when { not { environment name: 'ARTIFACT', value: 'NONE' } }
       agent {
         docker {
           registryUrl 'https://index.docker.io/v1/'
