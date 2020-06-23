@@ -108,7 +108,7 @@ pipeline {
     changed {
       withCredentials( CREDENTIALS ) {
         script {
-          if (env.ARTIFACT != 'NONE') {
+          if (env.ARTIFACT != 'NONEx') {
             notificationsSent = true;
             sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
           }
