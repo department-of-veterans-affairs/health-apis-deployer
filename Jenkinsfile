@@ -51,7 +51,8 @@ pipeline {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
     string(name: 'DEPLOYER_VERSION', defaultValue: 'latest', description: 'Version of the deployment machinery')
     choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ], description: "Environment to deploy into")
-    string(name: 'ARTIFACT', defaultValue: 'NONE', description: "Maven coordinates to the Lamba to deploy")
+    string(name: 'ARTIFACT', defaultValue: 'gov.va.api.health:callculon:0.0.5', description: "Maven coordinates to the Lamba to deploy")
+   // string(name: 'ARTIFACT', defaultValue: 'NONE', description: "Maven coordinates to the Lamba to deploy")
   }
   agent none
   stages {

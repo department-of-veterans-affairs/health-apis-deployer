@@ -16,6 +16,13 @@ fi
 #
 set -euo pipefail
 
-date
-env|sort
+cat <<EOF
+============================================================
+VPC ........ $VPC
+ARTIFACT ... $ARTIFACT
+============================================================
+EOF
+
+/deployer/vpc id-for-environment -e $VPC
+
 echo "kthxby"
