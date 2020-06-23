@@ -93,24 +93,11 @@ pipeline {
           }
         }
         archiveArtifacts artifacts: '.deployment/artifacts/**', onlyIfSuccessful: false, allowEmptyArchive: true
-      }
-    }
-    failure {
-      withCredentials( CREDENTIALS ) {
-        script {
-          if (!notificationsSent) {
-            notificationsSent = true;
-            sendNotifications( config.slackDestinations )
-          }
-        }
-      }
-    }
-    changed {
-      withCredentials( CREDENTIALS ) {
-        script {
-          if (env.ARTIFACT != 'NONEx') {
-            notificationsSent = true;
-            sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
+        withCredentials( CREDENTIALS ) {
+          script {
+            if (env.ARTIFACT != 'NONEx') {
+              sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
+            }
           }
         }
       }
