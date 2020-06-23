@@ -108,9 +108,9 @@ pipeline {
     changed {
       withCredentials( CREDENTIALS ) {
         script {
-          if (!notificationsSent) {
+          if (env.ARTIFACT != 'NONE') {
             notificationsSent = true;
-            sendNotifications( config.slackDestinations )
+            sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
           }
         }
       }
