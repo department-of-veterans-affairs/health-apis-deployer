@@ -23,6 +23,7 @@ cat <<EOF
 ============================================================
 VPC ........ $VPC
 ARTIFACT ... $ARTIFACT
+HANDLER .... $HANDLER
 ============================================================
 EOF
 
@@ -33,6 +34,7 @@ deployment add-build-info -d "ENVIRONMENT ... $ENVIRONMENT"
 deployment add-build-info -d "ARTIFACT ...... $ARTIFACT"
 lambda deploy-java \
   -e $VPC \
-  -a "$ARTIFACT"
+  -a "$ARTIFACT" \
+  -h "$HANDLER"
 
 echo "kthxby"
