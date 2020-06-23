@@ -28,7 +28,9 @@ HANDLER .... $HANDLER
 EOF
 
 
-ENVIRONMENT=$(vpc hyphenize -e "$VPC")
+export ENVIRONMENT=$(vpc hyphenize -e "$VPC")
+export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
+
 
 deployment add-build-info -d "ENVIRONMENT ... $ENVIRONMENT"
 deployment add-build-info -d "ARTIFACT ...... $ARTIFACT"
