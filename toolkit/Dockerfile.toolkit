@@ -1,8 +1,0 @@
-FROM vasdvp/deployer-toolkit-base:latest
-
-ADD entrypoint.sh /toolkit/
-
-VOLUME /du
-
-ENTRYPOINT ["/toolkit/entrypoint.sh"]
-CMD ["--help"]

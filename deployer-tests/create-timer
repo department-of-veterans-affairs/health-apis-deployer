@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-cd $(dirname $(readlink -f $0))
-
-export ENVIRONMENT=qa
-export K8S_DEPLOYMENT_ID=000-deployer-timer-0-0-0-000
-export DU_VERSION=0.0.0
-export DU_ARTIFACT=deployer-timer
-export PRODUCT=deployer-test
-../bin/callculon -c timer-deployer.json create
