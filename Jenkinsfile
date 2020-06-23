@@ -66,11 +66,12 @@ pipeline {
     }
     stage('Deploy') {
       agent {
-        dockerfile {
-            registryUrl 'https://index.docker.io/v1/'
-            registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-            args DOCKER_ARGS
-           }
+        docker {
+          registryUrl 'https://index.docker.io/v1/'
+          registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+          image "vasdvp/health-apis-deploy-tools:${env.DEPLOYER_VERSION}"
+          args DOCKER_ARGS
+        }
       }
       steps {
         withCredentials( CREDENTIALS ) {
