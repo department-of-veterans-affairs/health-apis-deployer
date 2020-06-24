@@ -95,6 +95,19 @@ facilities /services/va_facilities/v0/nearby?lat=1&lng=-1
 # Fall Risk
 fall-risk /fall-risk/assessment?patient=1010101010V666666
 fall-risk /fall-risk/assessment?facility=640&since=123456789
+# Patsr
+patsr /whh-patsr-ent/actuator/health
+patsr /whh-patsr-ent/actuator/info
+patsr /whh-patsr-ent/v0/patsrAttachmentCreate
+patsr /whh-patsr-ent/v0/patsrAttachmentRemove
+patsr /whh-patsr-ent/v0/patsrCase
+patsr /whh-patsr-ent/v0/patsrPing
+patsr /whh-patsr-ent/v0/whhAttachmentCreate
+patsr /whh-patsr-ent/v0/whhAttachmentRemove
+patsr /whh-patsr-ent/v0/whhCaseStatus
+patsr /whh-patsr-ent/v0/whhCaseUpdate
+patsr /whh-patsr-ent/v0/whhPing
+patsr /whh-patsr-ent/v0/whhServiceRqst
 # SFDC MVI Enterprise
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
