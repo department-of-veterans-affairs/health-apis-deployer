@@ -28,16 +28,16 @@ HANDLER .... $HANDLER
 EOF
 
 
-export ENVIRONMENT=$(vpc hyphenize -e "$VPC")
+export ENVIRONMENT=
 export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
 
 
-deployment add-build-info -d "ENVIRONMENT ... $ENVIRONMENT"
-deployment add-build-info -d "ARTIFACT ...... $ARTIFACT"
-deployment add-build-info -d "HANDLER ....... $HANDLER"
+deployment add-build-info \
+  -d "ENVIRONMENT ... $(vpc hyphenize -e "$VPC")" \
+  -d "ARTIFACT ...... $ARTIFACT" \
+  -d "HANDLER ....... $HANDLER"
 lambda deploy-java \
   -e $VPC \
   -a "$ARTIFACT" \
   -h "$HANDLER"
 
-echo "kthxby"
