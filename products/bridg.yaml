@@ -29,4 +29,3 @@ spec:
             backend:
               serviceName: bridg-experience
               servicePort: 80
----
