@@ -8,6 +8,7 @@ data-query /fhir/v0/dstu2/Immunization?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Medication/I2-abc123def4560000
 data-query /fhir/v0/dstu2/MedicationDispense/I2-abc123def4560000
 data-query /fhir/v0/dstu2/MedicationOrder?patient=1010101010V666666
+data-query /fhir/v0/dstu2/MedicationRequest?patient=1010101010V666666
 data-query /fhir/v0/dstu2/MedicationStatement?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Observation?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Patient/1010101010V666666
@@ -19,6 +20,8 @@ data-query /fhir/v0/stu3/Practitioner/I2-abc123def4560000
 data-query /fhir/v0/stu3/PractitionerRole/I2-abc123def4560000
 data-query /fhir/v0/dstu2/Patient/$validate
 data-query /data-query/datamart/validation
+data-query /fhir/v0/dstu2/openapi.json
+data-query /fhir/v0/argonaut/data-query/openapi.json
 # Bridg
 bridg /bridg/
 bridg /bridg/openapi.json
@@ -52,6 +55,9 @@ carma /api/carma/actuator/info
 carma /api/carma/vetSearch
 carma /api/carma/mviSearch
 carma /api/carma/eeSearch
+# Carma BGS
+carma-bgs /carma-bgs/v0/actuator/info
+carma-bgs /carma-bgs/v0/actuator/health
 # Carma Cdw
 carma-cdw /carma-cdw/v0/actuator/info
 carma-cdw /carma-cdw/v0/actuator/health
@@ -102,6 +108,13 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
 sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
+# SFDC MPI Message Receiver
+sfdc-mpi-msg-receiver /sfdc-mpi-msg-receiver/v0/ws
+# SF DMC Debt to Contact
+sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/disableCron
+sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/enableCron
+sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/putDebtsOnQueueByDate
+sf-dmc-debt-to-contact /sf-dmc-debt-to-contact-query/v0/putDebtsOnQueueByNumber
 # Unifier
 unifier-kong /fhir/v0/dstu2/metadata
 unifier-kong /fhir/v0/dstu2/.well-known/smart-configuration
@@ -109,4 +122,7 @@ unifier-kong /fhir/v0/r4/metadata
 unifier-kong /fhir/v0/r4/.well-known/smart-configuration
 unifier-kong /fhir/v0/argonaut/data-query/metadata
 unifier-kong /fhir/v0/argonaut/data-query/.well-known/smart-configuration
+# Urgent Care
+urgent-care /fhir/v0/r4/CoverageEligibilityResponse?patient=1010101010V666666
+urgent-care /fhir/v0/r4/openapi.json
 # End of File

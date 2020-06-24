@@ -1,0 +1,179 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# This tool is expecting to run in the context of deployment and as such
+# is assuming that some environment variables are set.
+#
+test -n $PRODUCT
+test -n $DU_ARTIFACT
+test -n $DU_VERSION
+test -n $K8S_DEPLOYMENT_ID
+test -n $ENVIRONMENT
+
+
+if [ -z "${WORK:-}" ]
+then
+  WORK=$(mktemp -p . -d work.XXXX )
+  deleteWorkOnExit() { rm -rf $WORK; }
+  trap deleteWorkOnExit EXIT
+fi
+if [ ! -d $WORK ]; then mkdir -p $WORK; fi
+
+#
+# Globals
+#
+EVENT_TARGET_ROLE_ARN=$(aws iam get-role --role-name project-jefe-role | jq -r .Role.Arn)
+
+usage() {
+cat << EOF
+$0 <command> [options]
+
+Manage Callculon timers for deployment units.
+
+Options
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local configuration
+  local args=$(getopt \
+    -l "debug,configuration:" \
+    -o "c:" -- "$@")
+  if [ $? != 0 ]; then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      -c|--configuration) configuration="$2";;
+      --) shift; break;;
+    esac
+    shift
+  done
+  if [ "${DEBUG:-false}" == "true" ]; then set -x; fi
+
+  [ $# != 1 ] && usage
+  local command=$1
+
+  case $command in
+    create) create ${configuration:-};;
+    remove-all) removeAllForProduct;;
+    *) usage "Unknown command: $command"
+  esac
+}
+
+require() {
+  local name="$1"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Missing --$name parameter"; fi
+  echo "$value"
+}
+
+requireFile() {
+  local file="$1"
+  if [ ! -f "$file" ]; then usage "File not found: $file"; fi
+}
+
+
+callculonFunction() {
+  echo -n "project-$ENVIRONMENT-callculon"
+}
+
+callculonArn() {
+  aws lambda get-function --function-name $(callculonFunction) | jq -r .Configuration.FunctionArn
+}
+
+nameOf() { jq -r .name $1; }
+cronOf() { jq -r .deployment.cron $1; }
+enabledOf() { jq -r .deployment.enabled $1; }
+ruleNameFor() { echo "callculon-$ENVIRONMENT-$PRODUCT-$1"; }
+
+augment() {
+  local configuration=$1
+  local augmented=$WORK/$(basename $configuration).augmented
+  jq \
+    -c \
+    --arg product $PRODUCT \
+    --arg version $DU_VERSION \
+    --arg id $K8S_DEPLOYMENT_ID \
+    --arg environment $ENVIRONMENT \
+   '. * {"deployment": { environment: $environment, product: $product, version: $version, id: $id }}' \
+   $configuration \
+   > $augmented
+  echo $augmented
+}
+
+create() {
+  local configuration=${1:-}
+  require configuration $configuration
+  requireFile $configuration
+  echo "Creating timer from $configuration"
+  local enabled=$(enabledOf $configuration)
+  if [ "$enabled" == false ]
+  then
+    echo "Oh. This timer isn't enabled in this environment. Move along. Nothing to see here."
+    return 0
+  fi
+  local name=$(nameOf $configuration)
+  local cron=$(cronOf $configuration)
+  local augmentedConf=$(augment $configuration)
+  echo "$name with schedule $cron"
+  local ruleName=$(ruleNameFor $name)
+  local out=$WORK/put-rule
+  echo "Creating rule $ruleName"
+  aws events put-rule \
+    --name $ruleName \
+    --schedule-expression "cron($cron)" \
+    --tags \
+    Key=Environment,Value=$ENVIRONMENT \
+    Key=Product,Value=$PRODUCT \
+    Key=Artifact,Value=$DU_ARTIFACT \
+    Key=Version,Value=$DU_VERSION \
+    Key=Deployment,Value=$K8S_DEPLOYMENT_ID \
+    | tee $out
+  local ruleArn=$(cat $out | jq -r .RuleArn)
+
+  local callculonArn=$(callculonArn)
+  echo "Targeting Callculon $callculonArn"
+  aws events put-targets \
+    --rule $ruleName \
+    --targets "Id"="callculon","Arn"="$callculonArn","Input"="$(jq -c '.|@json' $augmentedConf)"
+
+  aws lambda add-permission \
+    --function-name $(callculonFunction) \
+    --statement-id $ruleName \
+    --action 'lambda:InvokeFunction' \
+    --principal events.amazonaws.com \
+    --source-arn $ruleArn
+
+}
+
+
+eventRulesForProduct() {
+  aws events list-rules --name-prefix callculon-$ENVIRONMENT-$PRODUCT- | jq -r .Rules[].Name
+}
+
+removeRule() {
+  local name="$1"
+  echo "Removing rule $name"
+  aws events remove-targets --rule $name --ids callculon
+  aws events delete-rule --name $name
+  if ! aws lambda remove-permission --function-name $(callculonFunction) --statement-id $name
+  then
+    # touch ./.jenkins_unstable
+    echo "Check $(callculonFunction) to ensure there are no dangling event references"
+    #  >> ${JENKINS_DESCRIPTION:-callculon-errors.txt}
+  fi
+}
+
+removeAllForProduct() {
+  echo "Removing timers for $PRODUCT"
+  for rule in $(eventRulesForProduct); do removeRule $rule; done
+  echo "All rules have been removed"
+}
+
+main $@
