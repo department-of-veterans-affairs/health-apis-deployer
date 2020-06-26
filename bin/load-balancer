@@ -180,7 +180,7 @@ albName() {
 albArn() {
   local albName="$1"
   local cached=$(cacheGet "alb-arn-$albName")
-  [ -n "$cached" ] && echo "$cached"
+  [ -n "$cached" ] && echo "$cached" && return
   local alb=$(aws elbv2 describe-load-balancers --names $albName \
     | jq -r .LoadBalancers[].LoadBalancerArn)
   cacheSet "alb-arn-$albName" "$alb"
@@ -190,7 +190,7 @@ albArn() {
 albHttpsListener() {
   local alb="$1"
   local cached=$(cacheGet "https-$alb")
-  [ -n "$cached" ] && echo "$cached"
+  [ -n "$cached" ] && echo "$cached" && return
   local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
   cacheSet "https-$alb" "$listener"
@@ -550,11 +550,12 @@ listEnvironments() {
 VPC_ENV=
 VPC_ID= # automatically set based on VPC_ENV
 vpcId() {
-  local cached=$(cacheGet vpcId)
+  local vpcCache="vpcId-$VPC_ENV"
+  local cached=$(cacheGet $vpcCache)
   [ -n "$cached" ] && echo $cached && return
   local vpcId=$(aws ec2 describe-vpcs --filters Name=tag:Environment,Values=$VPC_ENV | jq -r .Vpcs[].VpcId)
   [ -z "$vpcId" ] && echo "Could not find VPC for environment $VPC_ENV" && exit 1
-  cachSet vpcId "$vpcId"
+  cacheSet $vpcCache $vpcId
   echo $vpcId
 }
 
