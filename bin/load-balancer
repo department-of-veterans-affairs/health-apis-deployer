@@ -111,6 +111,19 @@ cacheDelete() {
   [ -f "$cache" ] && rm "$cache"
 }
 
+vpcId() {
+  local vpcCache="vpcId-$VPC_ENV"
+  local cached=$(cacheGet $vpcCache)
+  if [ -n "$cached" ]; then
+    echo $cached
+  else
+    local vpcId=$(aws ec2 describe-vpcs --filters Name=tag:Environment,Values=$VPC_ENV | jq -r .Vpcs[].VpcId)
+    [ -z "$vpcId" ] && echo "Could not find VPC for environment $VPC_ENV" && exit 1
+    cacheSet $vpcCache $vpcId
+    echo $vpcId
+  fi
+}
+
 tgName() {
   [ -z "$PRODUCT" ] && usage "Product name not specified"
   [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
@@ -548,6 +561,7 @@ ruleHealth() {
   echo "All targets are healthy." && exit 0
 }
 
+#============================================================
 #
 # Utility Commands
 #
@@ -557,27 +571,12 @@ listEnvironments() {
     | jq -r '.Vpcs[].Tags[] | select(.Key == "Environment").Value' \
     | sort
 }
-#============================================================
 
+#============================================================
 #
 # Set some defaults
 #
 #============================================================
-VPC_ENV=
-VPC_ID= # automatically set based on VPC_ENV
-vpcId() {
-  local vpcCache="vpcId-$VPC_ENV"
-  local cached=$(cacheGet $vpcCache)
-  if [ -n "$cached" ]; then
-    echo $cached
-  else
-    local vpcId=$(aws ec2 describe-vpcs --filters Name=tag:Environment,Values=$VPC_ENV | jq -r .Vpcs[].VpcId)
-    [ -z "$vpcId" ] && echo "Could not find VPC for environment $VPC_ENV" && exit 1
-    cacheSet $vpcCache $vpcId
-    echo $vpcId
-  fi
-}
-
 CLUSTER_ID=
 HEALTH_CHECK_INTERVAL=5
 HEALTH_CHECK_TIMEOUT=2
