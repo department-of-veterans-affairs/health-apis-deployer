@@ -133,6 +133,20 @@ targetGroupArn() {
   fi
 }
 
+targetLocation() {
+  local targetId=$1
+  local cacheName=az-target-$targetId
+  local cached=$(cacheGet $cacheName)
+  if [ -n "$cached" ]; then
+    echo $cached
+  else
+    local targetAz=$(aws ec2 describe-instances --instance-ids $targetId \
+      | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
+    cacheSet "$cacheName" "$targetAz"
+    echo $targetAz
+  fi
+}
+
 createTargetGroup() {
   local tgName
   tgName=$(tgName) || exit 1
@@ -508,8 +522,7 @@ ruleHealth() {
     local targetId=$(echo $target | cut -d ',' -f1)
     local targetHealth=$(echo $target | cut -d ',' -f2)
 
-    local targetAz=$(aws ec2 describe-instances --instance-ids $targetId \
-      | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
+    local targetAz=$(targetLocation $targetId)
 
     case $targetAz in
       us-gov-west-1a) azA+=("$targetHealth");;
