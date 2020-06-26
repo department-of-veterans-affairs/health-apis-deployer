@@ -326,8 +326,7 @@ deleteRule() {
   #
   local albName
   albName=$(albName) || exit 1
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-                | jq -r .LoadBalancers[].LoadBalancerArn)
+  local alb=$(albArn $albName)
   [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
 
   #
@@ -434,8 +433,7 @@ listRules() {
   #
   local albName
   albName=$(albName) || exit 1
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-                | jq -r .LoadBalancers[].LoadBalancerArn)
+  local alb=$(albArn $albName)
   [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
 
   #
@@ -476,8 +474,7 @@ ruleHealth() {
   #
   local albName
   albName=$(albName) || exit 1
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-                | jq -r .LoadBalancers[].LoadBalancerArn)
+  local alb=$(albArn $albName)
   [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
 
   #
