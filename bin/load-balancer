@@ -91,7 +91,7 @@ onExit() {
 cacheFileName() {
   local name="$1"
   local hash=$(echo "$name" | md5sum | cut -d ' ' -f 1)
-  echo "$WORK/$hash"
+  echo "$CACHE_DIR/$hash"
 }
 
 cacheGet() {

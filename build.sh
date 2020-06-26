@@ -17,9 +17,11 @@ fi
 set -euo pipefail
 
 #
-# Make our utilities available on the path
+# Make our utilities available on the path and set up the caching mechanism
 #
 export PATH=$WORKSPACE/bin:$PATH
+export CACHE_DIR=$(mktemp -p . -d cache.XXXX )
+
 
 #
 # Set up a mechanism to communicate job descriptions, etc. so that Jenkins provides more meaningful pages
@@ -531,7 +533,7 @@ EOF
 fi
 
 
-if [ "$SKIP_LOAD_BALANCER" == false ]; then 
+if [ "$SKIP_LOAD_BALANCER" == false ]; then
   # Check for repeated rules on the load-balancer
   duplicateRules=($(cat all-rules | awk '{print $2}' | uniq -d))
   if [ "${#duplicateRules[@]}" != "0" ]; then
