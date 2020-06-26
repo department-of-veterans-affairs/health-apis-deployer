@@ -332,8 +332,7 @@ deleteRule() {
   #
   # Make sure the ALB has an HTTP listener
   #
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  local listener=$(albHttpsListener $alb)
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   echo "Updating HTTPS listener $albName"
@@ -439,8 +438,7 @@ listRules() {
   #
   # Make sure the ALB has an HTTP listener
   #
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  local listener=$(albHttpsListener $alb)
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   aws elbv2 describe-rules --listener-arn $listener \
@@ -480,8 +478,7 @@ ruleHealth() {
   #
   # Make sure the ALB has an HTTP listener
   #
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  local listener=$(albHttpsListener $alb)
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   [ -z "$RULE_PATH" ] && echo "Rule-path not specified." && exit 1
