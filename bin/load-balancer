@@ -637,7 +637,7 @@ case $COMMAND in
   list-rules) listRules; exit 0;;
 esac
 
-vpcId
+vpcId > /dev/null
 [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
 
 case $COMMAND in
