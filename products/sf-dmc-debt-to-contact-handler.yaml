@@ -25,7 +25,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /sf-dmc-debt-to-contact-handler/v0/(.*)
+          - path: /sf-d2c-handler/v0/(.*)
             backend:
               serviceName: sf-dmc-debt-to-contact-handler
               servicePort: 80

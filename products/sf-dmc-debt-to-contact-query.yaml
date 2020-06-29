@@ -25,7 +25,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /sf-dmc-debt-to-contact-query/v0/(.*)
+          - path: /sf-d2c-query/v0/(.*)
             backend:
               serviceName: sf-dmc-debt-to-contact-query
               servicePort: 80
