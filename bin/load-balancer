@@ -91,7 +91,7 @@ onExit() {
 cacheFileName() {
   local name="$1"
   local hash=$(echo "$name" | md5sum | cut -d ' ' -f 1)
-  echo "$WORK/$hash"
+  echo "$CACHE_DIR/$hash"
 }
 
 cacheGet() {
@@ -111,6 +111,19 @@ cacheDelete() {
   [ -f "$cache" ] && rm "$cache"
 }
 
+vpcId() {
+  local vpcCache="vpcId-$VPC_ENV"
+  local cached=$(cacheGet $vpcCache)
+  if [ -n "$cached" ]; then
+    echo $cached
+  else
+    local vpcId=$(aws ec2 describe-vpcs --filters Name=tag:Environment,Values=$VPC_ENV | jq -r .Vpcs[].VpcId)
+    [ -z "$vpcId" ] && echo "Could not find VPC for environment $VPC_ENV" && exit 1
+    cacheSet $vpcCache $vpcId
+    echo $vpcId
+  fi
+}
+
 tgName() {
   [ -z "$PRODUCT" ] && usage "Product name not specified"
   [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
@@ -122,12 +135,29 @@ targetGroupArn() {
   local tgName
   tgName=$(tgName) || exit 1
   local cached=$(cacheGet tg-arn-$tgName)
-  [ -n "$cached" ] && echo $cached
-  local targetGroupArn=$(aws elbv2 describe-target-groups \
-    --names "$tgName" \
-    | jq -r '.TargetGroups[].TargetGroupArn')
-  cacheSet "tg-arn-$tgName" "$targetGroupArn"
-  echo $targetGroupArn
+  if [ -n "$cached" ]; then
+    echo $cached
+  else
+    local targetGroupArn=$(aws elbv2 describe-target-groups \
+      --names "$tgName" \
+      | jq -r '.TargetGroups[].TargetGroupArn')
+    cacheSet "tg-arn-$tgName" "$targetGroupArn"
+    echo $targetGroupArn
+  fi
+}
+
+targetLocation() {
+  local targetId=$1
+  local cacheName=az-target-$targetId
+  local cached=$(cacheGet $cacheName)
+  if [ -n "$cached" ]; then
+    echo $cached
+  else
+    local targetAz=$(aws ec2 describe-instances --instance-ids $targetId \
+      | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
+    cacheSet "$cacheName" "$targetAz"
+    echo $targetAz
+  fi
 }
 
 createTargetGroup() {
@@ -180,21 +210,27 @@ albName() {
 albArn() {
   local albName="$1"
   local cached=$(cacheGet "alb-arn-$albName")
-  [ -n "$cached" ] && echo "$cached"
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-    | jq -r .LoadBalancers[].LoadBalancerArn)
-  cacheSet "alb-arn-$albName" "$alb"
-  echo "$alb"
+  if [ -n "$cached" ]; then
+    echo "$cached"
+  else
+    local alb=$(aws elbv2 describe-load-balancers --names $albName \
+      | jq -r .LoadBalancers[].LoadBalancerArn)
+    cacheSet "alb-arn-$albName" "$alb"
+    echo "$alb"
+  fi
 }
 
 albHttpsListener() {
   local alb="$1"
   local cached=$(cacheGet "https-$alb")
-  [ -n "$cached" ] && echo "$cached"
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-    | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
-  cacheSet "https-$alb" "$listener"
-  echo "$listener"
+  if [ -n "$cached" ]; then
+    echo "$cached"
+  else
+    local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
+      | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+    cacheSet "https-$alb" "$listener"
+    echo "$listener"
+  fi
 }
 
 #
@@ -254,13 +290,13 @@ createRule() {
       '.Rules[] | { ruleArn: .RuleArn, rulePriority: .Priority, rulePaths: .Conditions[].Values }' \
       $temp
   fi
-  
+
   if [ -n "$ruleArns" ]
   then
     echo "Removing old version of rule $RULE_PATH"
     for ruleArn in $ruleArns
     do
-      echo "Deleting rule $ruleArn"  
+      echo "Deleting rule $ruleArn"
       aws elbv2 delete-rule \
         --debug \
         --rule-arn "$ruleArn" \
@@ -317,15 +353,13 @@ deleteRule() {
   #
   local albName
   albName=$(albName) || exit 1
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-                | jq -r .LoadBalancers[].LoadBalancerArn)
+  local alb=$(albArn $albName)
   [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
 
   #
   # Make sure the ALB has an HTTP listener
   #
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  local listener=$(albHttpsListener $alb)
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   echo "Updating HTTPS listener $albName"
@@ -425,15 +459,13 @@ listRules() {
   #
   local albName
   albName=$(albName) || exit 1
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-                | jq -r .LoadBalancers[].LoadBalancerArn)
+  local alb=$(albArn $albName)
   [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
 
   #
   # Make sure the ALB has an HTTP listener
   #
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  local listener=$(albHttpsListener $alb)
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   aws elbv2 describe-rules --listener-arn $listener \
@@ -467,15 +499,13 @@ ruleHealth() {
   #
   local albName
   albName=$(albName) || exit 1
-  local alb=$(aws elbv2 describe-load-balancers --names $albName \
-                | jq -r .LoadBalancers[].LoadBalancerArn)
+  local alb=$(albArn $albName)
   [ -z "$alb" ] && echo "No load balancer found for $albName" && exit 1
 
   #
   # Make sure the ALB has an HTTP listener
   #
-  local listener=$(aws elbv2 describe-listeners --load-balancer-arn $alb \
-                     | jq -r '.Listeners[] | select(.Protocol == "HTTPS").ListenerArn')
+  local listener=$(albHttpsListener $alb)
   [ -z "$listener" ] && echo "No HTTPS listener on $albName" && exit 1
 
   [ -z "$RULE_PATH" ] && echo "Rule-path not specified." && exit 1
@@ -505,8 +535,7 @@ ruleHealth() {
     local targetId=$(echo $target | cut -d ',' -f1)
     local targetHealth=$(echo $target | cut -d ',' -f2)
 
-    local targetAz=$(aws ec2 describe-instances --instance-ids $targetId \
-      | jq -r '.Reservations[].Instances[].Tags[] | select(.["Key"] == "KubernetesAvailabilityZone") | .Value')
+    local targetAz=$(targetLocation $targetId)
 
     case $targetAz in
       us-gov-west-1a) azA+=("$targetHealth");;
@@ -532,6 +561,7 @@ ruleHealth() {
   echo "All targets are healthy." && exit 0
 }
 
+#============================================================
 #
 # Utility Commands
 #
@@ -541,20 +571,12 @@ listEnvironments() {
     | jq -r '.Vpcs[].Tags[] | select(.Key == "Environment").Value' \
     | sort
 }
-#============================================================
 
+#============================================================
 #
 # Set some defaults
 #
 #============================================================
-VPC_ENV=
-VPC_ID= # automatically set based on VPC_ENV
-vpcId() {
-  [ -n "$VPC_ID" ] && echo $VPC_ID && return 0
-  VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Environment,Values=$VPC_ENV | jq -r .Vpcs[].VpcId)
-  [ -z "$VPC_ID" ] && echo "Could not find VPC for environment $VPC_ENV" && exit 1
-  debug "VPC $VPC_ID ($VPC_ENV)"
-}
 CLUSTER_ID=
 HEALTH_CHECK_INTERVAL=5
 HEALTH_CHECK_TIMEOUT=2
@@ -614,7 +636,7 @@ case $COMMAND in
   list-rules) listRules; exit 0;;
 esac
 
-vpcId
+vpcId > /dev/null
 [ -z "$CLUSTER_ID" ] && usage "Cluster ID not specified"
 
 case $COMMAND in
