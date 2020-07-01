@@ -69,6 +69,9 @@ carma-fms-connector /carma-fms/v0/jobs?count=100
 carma-fms-connector /carma-fms/v0/check-specific-payment-run
 carma-fms-connector /carma-fms/v0/import
 carma-fms-connector /carma-fms/v0/export
+# Carma MPI Bulk
+carma-mpi-bulk /carma-mpi-bulk/v0/actuator/info
+carma-mpi-bulk /carma-mpi-bulk/v0/actuator/health
 # Carma VSSC
 carma-vssc /carma-vssc/v0/actuator/info
 carma-vssc /carma-vssc/v0/actuator/health
