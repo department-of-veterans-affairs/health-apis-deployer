@@ -25,6 +25,8 @@ WEAK_STRUCTURE_VALIDATION=$3
 [ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1
 [ -z $WEAK_STRUCTURE_VALIDATION ] && echo "Structure validation type not specified." && usage && exit 1
 
+[ "$NAMESPACE" == "default" ] && echo "Default namespace is not valid. Please use a different namespace." && exit 1
+
 INGRESS_TEST=$(grep "kind: Ingress" $1)
 [ ! -z "$INGRESS_TEST" ] && echo "============================================================" \
   && echo "Ingress Validation Failed. Do NOT include ingress rules in deployment yamls!" \
@@ -41,6 +43,16 @@ if [ $(echo $SUPER_NAMESPACE_TEST | wc -l) != $(echo $SUPER_NAMESPACE_TEST | gre
  && echo "Namespace Validation Failed. Namespace should only be: $2." \
  && exit 1
 fi
+
+#TODO needs verification do the default namespace check here.
+DEFAULT_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
+echo "$DEFAULT_NAMESPACE_TEST" | while read line ; do
+  #cut out "namespace:" from the grep
+  #loop through namespace values and check if they are "default" if they are exit 1 otherwise do nothing
+  echo "============================================================" \
+ && echo "Default Namespace Validation Failed. Namespace should never be default" \
+ && exit 1
+done
 
 if [ "$WEAK_STRUCTURE_VALIDATION" == 'true' ]; then echo "Weak yaml validation is on, be careful!" && exit 0; fi
 
