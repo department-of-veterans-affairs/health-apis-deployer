@@ -47,11 +47,12 @@ fi
 #TODO needs verification do the default namespace check here.
 DEFAULT_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
 echo "$DEFAULT_NAMESPACE_TEST" | while read line ; do
-  #cut out "namespace:" from the grep
-  #loop through namespace values and check if they are "default" if they are exit 1 otherwise do nothing
-  echo "============================================================" \
- && echo "Default Namespace Validation Failed. Namespace should never be default" \
- && exit 1
+
+  if [[ $(echo $line | awk -F'namespace: ' '{print $2}') == "default" ]]; then
+    echo "============================================================" \
+      && echo "Default Namespace Validation Failed. Namespace should never be default" \
+      && exit 1
+  fi
 done
 
 if [ "$WEAK_STRUCTURE_VALIDATION" == 'true' ]; then echo "Weak yaml validation is on, be careful!" && exit 0; fi
