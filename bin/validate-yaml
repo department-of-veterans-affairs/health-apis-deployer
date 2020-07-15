@@ -25,8 +25,6 @@ WEAK_STRUCTURE_VALIDATION=$3
 [ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1
 [ -z $WEAK_STRUCTURE_VALIDATION ] && echo "Structure validation type not specified." && usage && exit 1
 
-[ "$NAMESPACE" == "default" ] && echo "Default namespace is not valid. Please use a different namespace." && exit 1
-
 INGRESS_TEST=$(grep "kind: Ingress" $1)
 [ ! -z "$INGRESS_TEST" ] && echo "============================================================" \
   && echo "Ingress Validation Failed. Do NOT include ingress rules in deployment yamls!" \
@@ -40,7 +38,7 @@ NAMESPACE_TEST=$(grep "kind: Namespace" $1)
 SUPER_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
 if [ $(echo $SUPER_NAMESPACE_TEST | wc -l) != $(echo $SUPER_NAMESPACE_TEST | grep -c $NAMESPACE) ]; then
  echo "============================================================" \
- && echo "Namespace Validation Failed. Namespace should only be: $2." \
+ && echo "Namespace Validation Failed. Namespace should only be: $NAMESPACE." \
  && exit 1
 fi
 
