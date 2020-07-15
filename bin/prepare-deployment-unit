@@ -10,4 +10,5 @@ extract-deployment-unit deployment-unit.tar.gz $DU_DIR $DU_DECRYPTION_KEY ${DU_P
 validate-deployment-unit $DU_DIR
 perform-substitution $DU_DIR
 validate-yaml $DU_DIR/deployment.yaml $DU_NAMESPACE ${WEAK_STRUCTURE_VALIDATION:-'false'}
+validate-yaml $WORKSPACE/products/$PRODUCT.yaml $DU_NAMESPACE ${WEAK_STRUCTURE_VALIDATION:-'false'}
 bucket-beaver push-properties --folder-name "$DU_S3_FOLDER" --bucket-name "$DU_AWS_BUCKET_NAME" --du-directory "$DU_DIR"
