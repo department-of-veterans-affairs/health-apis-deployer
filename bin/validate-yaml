@@ -44,7 +44,6 @@ if [ $(echo $SUPER_NAMESPACE_TEST | wc -l) != $(echo $SUPER_NAMESPACE_TEST | gre
  && exit 1
 fi
 
-#TODO needs verification do the default namespace check here.
 DEFAULT_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
 echo "$DEFAULT_NAMESPACE_TEST" | while read line ; do
   temp_namespace_value=$(echo $line | awk -F'namespace: ' '{print $2}')
