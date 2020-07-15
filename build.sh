@@ -122,7 +122,9 @@ declare -x WEAK_STRUCTURE_VALIDATION
 test -n "$DU_ARTIFACT"
 test -n "$DU_VERSION"
 test -n "$DU_NAMESPACE"
-[ "$DU_NAMESPACE" == "default" ] && echo "Default namespace is not valid. Please use a different namespace." && exit 1
+if [ "$DU_NAMESPACE" == "default" ]; then
+  echo "Default namespace is not valid. Please use a different namespace." && exit 1
+fi
 test -n "$DU_DECRYPTION_KEY"
 test -n "$DU_HEALTH_CHECK_PATH"
 test -n "${#DU_LOAD_BALANCER_RULES[@]}"

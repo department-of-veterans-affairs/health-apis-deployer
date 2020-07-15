@@ -46,7 +46,7 @@ DEFAULT_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
 echo "$DEFAULT_NAMESPACE_TEST" | while read line ; do
   temp_namespace_value=$(echo $line | awk -F'namespace: ' '{print $2}')
 
-  if [[ $temp_namespace_value == "default" ]] || [[ $temp_namespace_value == "" ]]; then
+  if [[ "$temp_namespace_value" == "default" ]] || [[ "$temp_namespace_value" == "" ]]; then
     echo "============================================================" \
       && echo "Default Namespace Validation Failed. Namespace should never be blank or default" \
       && exit 1
