@@ -31,38 +31,39 @@ DEPLOYMENT_YAML_VALIDATION=$4
 
 # Only do the ingress and namespace test if we are validating a deployment yaml
 if [ "$DEPLOYMENT_YAML_VALIDATION" == 'true' ]; then
-  INGRESS_TEST=$(grep "kind: Ingress" $1)
+  INGRESS_TEST=$(grep "kind: Ingress" $FILE)
   [ ! -z "$INGRESS_TEST" ] && echo "============================================================" \
     && echo "Ingress Validation Failed. Do NOT include ingress rules in deployment yamls!" \
     && exit 1
 
-  NAMESPACE_TEST=$(grep "kind: Namespace" $1)
+  NAMESPACE_TEST=$(grep "kind: Namespace" $FILE)
   [ ! -z "$NAMESPACE_TEST" ] && echo "============================================================" \
     && echo "Namespace Test Validation Failed. Do NOT include Namespace creation in deployment yamls!" \
     && exit 1
 fi
 
-SUPER_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
-if [ $(echo $SUPER_NAMESPACE_TEST | wc -l) != $(echo $SUPER_NAMESPACE_TEST | grep -c $NAMESPACE) ]; then
+#todo combine two methods below to just check du_namespace
+SUPER_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $FILE)
+if [ "$(echo $SUPER_NAMESPACE_TEST | wc -l)" != "$(echo $SUPER_NAMESPACE_TEST | grep -c $NAMESPACE)" ]; then
  echo "============================================================" \
  && echo "Namespace Validation Failed. Namespace should only be: $NAMESPACE." \
  && exit 1
 fi
 
-DEFAULT_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
+DEFAULT_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $FILE)
 echo "$DEFAULT_NAMESPACE_TEST" | while read line ; do
   temp_namespace_value=$(echo $line | awk -F'namespace: ' '{print $2}')
 
   if [[ "$temp_namespace_value" == "default" ]] || [[ "$temp_namespace_value" == "" ]]; then
     echo "============================================================" \
-      && echo "Default Namespace Validation Failed. Namespace should never be blank or default" \
+      && echo "Default Namespace Validation Failed. Namespace should never be blank or default." \
       && exit 1
   fi
 done
 
 if [ "$WEAK_STRUCTURE_VALIDATION" == 'true' ]; then echo "Weak yaml validation is on, be careful!" && exit 0; fi
 
-NAMESPACE_STRUCT=$(grep -E '^(kind|metadata|  namespace):' $1)
+NAMESPACE_STRUCT=$(grep -E '^(kind|metadata|  namespace):' $FILE)
 echo "$NAMESPACE_STRUCT" | while read line ; do
 
   if [ "$metadata" = true ]; then
