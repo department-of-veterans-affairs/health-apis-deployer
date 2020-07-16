@@ -2,7 +2,7 @@
 
 usage() {
 cat<<EOF > /dev/stderr
-$0 <FILE> <NAMESPACE> <WEAK_STRUCTURE_VALIDATION>
+$0 <FILE> <NAMESPACE> <WEAK_STRUCTURE_VALIDATION> <$DEPLOYMENT_YAML_VALIDATION>
 
 ARGS:
   <FILE>
@@ -11,6 +11,8 @@ ARGS:
     The required namespace to validate.
   <WEAK_STRUCTURE_VALIDATION>
     Required boolean to lower structure testing requirements.
+  <$DEPLOYMENT_YAML_VALIDATION>
+    Required boolean to specify if a deployment yaml is being validated.
 
 EOF
 echo -e "$1" > /dev/stderr
@@ -20,20 +22,25 @@ exit 1
 FILE=$1
 NAMESPACE=$2
 WEAK_STRUCTURE_VALIDATION=$3
+$DEPLOYMENT_YAML_VALIDATION=$4
 
-[ -z $FILE ] && echo "No deployment.yaml specified." && usage && exit 1
+[ -z $FILE ] && echo "No yaml file specified." && usage && exit 1
 [ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1
 [ -z $WEAK_STRUCTURE_VALIDATION ] && echo "Structure validation type not specified." && usage && exit 1
+[ -z $DEPLOYMENT_YAML_VALIDATION ] && echo "Deployment yaml validation type not specified." && usage && exit 1
 
-INGRESS_TEST=$(grep "kind: Ingress" $1)
-[ ! -z "$INGRESS_TEST" ] && echo "============================================================" \
-  && echo "Ingress Validation Failed. Do NOT include ingress rules in deployment yamls!" \
-  && exit 1
+# Only do the ingress and namespace test if we are validating a deployment yaml
+if [ "$DEPLOYMENT_YAML_VALIDATION" == 'true' ]; then
+  INGRESS_TEST=$(grep "kind: Ingress" $1)
+  [ ! -z "$INGRESS_TEST" ] && echo "============================================================" \
+    && echo "Ingress Validation Failed. Do NOT include ingress rules in deployment yamls!" \
+    && exit 1
 
-NAMESPACE_TEST=$(grep "kind: Namespace" $1)
-[ ! -z "$NAMESPACE_TEST" ] && echo "============================================================" \
-  && echo "Namespace Test Validation Failed. Do NOT include Namespace creation in deployment yamls!" \
-  && exit 1
+  NAMESPACE_TEST=$(grep "kind: Namespace" $1)
+  [ ! -z "$NAMESPACE_TEST" ] && echo "============================================================" \
+    && echo "Namespace Test Validation Failed. Do NOT include Namespace creation in deployment yamls!" \
+    && exit 1
+fi
 
 SUPER_NAMESPACE_TEST=$(grep -E '^.*(namespace):' $1)
 if [ $(echo $SUPER_NAMESPACE_TEST | wc -l) != $(echo $SUPER_NAMESPACE_TEST | grep -c $NAMESPACE) ]; then
