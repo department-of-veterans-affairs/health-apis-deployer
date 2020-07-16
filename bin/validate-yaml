@@ -2,7 +2,7 @@
 
 usage() {
 cat<<EOF > /dev/stderr
-$0 <FILE> <NAMESPACE> <WEAK_STRUCTURE_VALIDATION> <$DEPLOYMENT_YAML_VALIDATION>
+$0 <FILE> <NAMESPACE> <WEAK_STRUCTURE_VALIDATION> <DEPLOYMENT_YAML_VALIDATION>
 
 ARGS:
   <FILE>
@@ -11,7 +11,7 @@ ARGS:
     The required namespace to validate.
   <WEAK_STRUCTURE_VALIDATION>
     Required boolean to lower structure testing requirements.
-  <$DEPLOYMENT_YAML_VALIDATION>
+  <DEPLOYMENT_YAML_VALIDATION>
     Required boolean to specify if a deployment yaml is being validated.
 
 EOF
@@ -22,7 +22,7 @@ exit 1
 FILE=$1
 NAMESPACE=$2
 WEAK_STRUCTURE_VALIDATION=$3
-$DEPLOYMENT_YAML_VALIDATION=$4
+DEPLOYMENT_YAML_VALIDATION=$4
 
 [ -z $FILE ] && echo "No yaml file specified." && usage && exit 1
 [ -z $NAMESPACE ] && echo "No namespace specified." && usage && exit 1
