@@ -1,1 +1,0 @@
-FROM vasdvp/health-apis-cluster-tools:latest

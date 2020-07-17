@@ -38,8 +38,15 @@ final CREDENTIALS = [
     variable: 'SLACK_WEBHOOK' )
 ]
 
+def contentOf(file) {
+  if (fileExists(file)) {
+    return readFile(file).trim()
+  }
+  return ''
+}
 
 pipeline {
+  agent none
   options {
     disableConcurrentBuilds()
     buildDiscarder(logRotator(numToKeepStr: '99', artifactNumToKeepStr: '99'))
@@ -50,24 +57,12 @@ pipeline {
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
     string(name: 'DEPLOYER_VERSION', defaultValue: 'latest', description: 'Version of the deployment machinery')
-    choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ], description: "Environment to deploy into")
-    string(name: 'ARTIFACT', defaultValue: 'gov.va.api.health:callculon:0.0.5', description: "Maven coordinates to the Lamba to deploy")
-    string(name: 'HANDLER', defaultValue: 'gov.va.api.lighthouse.callculon.CallculonHandler', description: "The handler to process requests")
-   // string(name: 'ARTIFACT', defaultValue: 'NONE', description: "Maven coordinates to the Lamba to deploy")
+    choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ],
+      description: "Environment to deploy into")
+    string(name: 'PRODUCT', defaultValue: 'exemplar', description: "The product to deploy.")
   }
-  agent none
   stages {
-    stage('Set-up') {
-      steps {
-        script {
-          for(cause in currentBuild.rawBuild.getCauses()) {
-            env['BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()]=cause.getShortDescription()
-          }
-        }
-      }
-    }
-    stage('Deploy') {
-      when { not { environment name: 'ARTIFACT', value: 'NONE' } }
+    stage('Run') {
       agent {
         docker {
           registryUrl 'https://index.docker.io/v1/'
@@ -77,8 +72,18 @@ pipeline {
         }
       }
       steps {
-        withCredentials( CREDENTIALS ) {
-          sh script: './build.sh'
+        script {
+          currentBuild.displayName = "#${currentBuild.number} - ${env.VPC} - in progress"
+          for(cause in currentBuild.rawBuild.getCauses()) {
+            def name='BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()
+            env[name]=cause.getShortDescription()
+          }
+          if ( env.VPC == null ) { env.VPC = "QA" }
+        }
+        lock("deploy-${env.VPC}") {
+          withCredentials( CREDENTIALS ) {
+            sh script: './build.sh'
+          }
         }
       }
     }
@@ -87,21 +92,18 @@ pipeline {
     always {
       node('master') {
         script {
-          def buildName = sh returnStdout: true, script: '''[ -f .deployment/build-name ] && cat .deployment/build-name ; exit 0'''
-          currentBuild.displayName = "#${currentBuild.number} - ${buildName}"
-          def description = sh returnStdout: true, script: '''[ -f .deployment/description ] && cat .deployment/description ; exit 0'''
-          currentBuild.description = "${description}"
-          def unstableStatus = sh returnStatus: true, script: '''[ -f .deployment/unstable ] && exit 1 ; exit 0'''
-          if (unstableStatus == 1 && currentBuild.result != 'FAILURE') {
+          currentBuild.displayName = "#${currentBuild.number} - " + contentOf('.deployment/build-name')
+          currentBuild.description = contentOf('.deployment/description')
+          def unstable = contentOf('.deployment/unstable')
+          if (unstable != '' && currentBuild.result != 'FAILURE') {
             currentBuild.result = 'UNSTABLE';
+            currentBuild.description += "Unstable because: " + unstable
           }
         }
         archiveArtifacts artifacts: '.deployment/artifacts/**', onlyIfSuccessful: false, allowEmptyArchive: true
         withCredentials( CREDENTIALS ) {
           script {
-            if (env.ARTIFACT != 'NONEx') {
-              sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
-            }
+            sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
           }
         }
       }
