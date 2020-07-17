@@ -73,12 +73,12 @@ pipeline {
       }
       steps {
         script {
+          if ( env.VPC == null ) { env.VPC = "QA" }
           currentBuild.displayName = "#${currentBuild.number} - ${env.VPC} - in progress"
           for(cause in currentBuild.rawBuild.getCauses()) {
             def name='BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()
             env[name]=cause.getShortDescription()
           }
-          if ( env.VPC == null ) { env.VPC = "QA" }
         }
         lock("deploy-${env.VPC}") {
           withCredentials( CREDENTIALS ) {
