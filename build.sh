@@ -16,13 +16,13 @@ onExit() {
   STATUS=$?
   if [ $STATUS -ne 0 ]
   then
-    STAGE="$(stage current)"
     deployment add-build-info \
-      -d "Stage \"$STAGE\" failed with status $STATUS"
+      -d "Stage \"$(stage current)\" failed with status $STATUS"
     stage start -s "CRASH AND BURN"
     echo "OH NOES! SOMETHING BORKED!"
     echo "TERMINATING WITH STATUS: $STATUS"
   fi
+  stage end
   exit $STATUS
 }
 trap onExit EXIT
@@ -34,7 +34,17 @@ initialize() {
   if [ -z "${VPC:-}" ]; then VPC=Dev; fi
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
   export BUILD_TIMESTAMP="$(date)"
+  PLUGIN_DIR=plugins
   setDeploymentId
+  discoverPlugins
+}
+
+discoverPlugins() {
+  echo "discovering plugins ..."
+  for plugin in $(find $PLUGIN_DIR -type f -name "[a-z]*")
+  do
+    echo $plugin
+  done
 }
 
 setDeploymentId() {

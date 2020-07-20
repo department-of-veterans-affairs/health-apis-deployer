@@ -58,6 +58,7 @@ main() {
   local command=$1
   case $command in
     current) currentStage "${stateFile}";;
+    end) endStage "${stateFile}";;
     start) startStage "${stateFile}" "${stage}" ;;
     *) usage "Unknown command: $command";;
   esac
@@ -74,13 +75,17 @@ currentStage() {
   if [ -f $stateFile ]; then tail -1 $stateFile; fi
 }
 
+endStage() {
+  local stateFile="$1"
+  current=$(currentStage $stateFile)
+  if [ -n "$current" ]; then banner h1 -m "$current COMPLETED"; fi
+}
 
 startStage() {
   local stateFile="$1" stage="${2:-}" current=
   requireParam "stage" "$stage"
+  endStage "$stateFile"
   stage="${stage^^}"
-  current=$(currentStage $stateFile)
-  if [ -n "$current" ]; then banner h1 -m "$current COMPLETED"; fi
   banner h1 -m "STARTING $stage"
   echo $stage >> $stateFile
 }
