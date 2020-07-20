@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 set +x -euo pipefail
+export PATH=${WORKSPACE:-.}/bin:$PATH
 
+cat <<EOF
+--- TODO ---
+- Default to 'latest' deploy-tools image
+EOF
 
 initialize() {
+  banner h1 -m "Initializing"
   export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
   if [ -z "${VPC:-}" ]; then VPC=Dev; fi
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")

@@ -56,7 +56,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
-    string(name: 'DEPLOYER_VERSION', defaultValue: 'latest', description: 'Version of the deployment machinery')
+    string(name: 'DEPLOYER_VERSION', defaultValue: '14-NR-1.0.47-SNAPSHOT', description: 'Version of the deployment machinery')
     choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ],
       description: "Environment to deploy into")
     string(name: 'PRODUCT', defaultValue: 'exemplar', description: "The product to deploy.")
