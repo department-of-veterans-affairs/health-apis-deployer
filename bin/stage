@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+export PATH=$(dirname $(readlink -f $0)):$PATH
+
 usage() {
 cat >&2 <<EOF
 $0 [options] <command>
 
-Print a banner
+Track deployment stage
 
 Options
 -c, --char <character>
@@ -31,20 +33,19 @@ exit 1
 }
 
 main() {
-  local size=${BANNER_DEFAULT_SIZE:-78} char= message=
+  local stage= stateFile=${STAGE_STATE_FILE:-.stages}
   local args
   if ! args=$(getopt \
-    -l "debug,size:,char:,message:" \
-    -o "s:c:m:" -- "$@")
+    -l "debug,stage:,state-file:" \
+    -o "s:f:" -- "$@")
   then usage; fi
   eval set -- "$args"
   while true
   do
     case "$1" in
       --debug) DEBUG=true;;
-      -c|--char) char="$2";;
-      -s|--size) size="$2";;
-      -m|--message) message="$2";;
+      -s|--stage) stage="$2";;
+      -f|--state-file) stateFile="$2";;
       --) shift; break;;
     esac
     shift
@@ -56,20 +57,34 @@ main() {
   if [ $# != 1 ]; then usage "Command not specified"; fi
   local command=$1
   case $command in
-    print) print "${size}" "${char:--}" "${message:--}";;
-    h1) print "${size}" "${char:-=}" "[  ${message:-}  ]";;
-    h2) print "${size}" "${char:--}" "[  ${message:-}  ]";;
-    file) print "${size}" "${char:--}" "( ${message:-} )";;
+    current) currentStage "${stateFile}";;
+    start) startStage "${stateFile}" "${stage}" ;;
     *) usage "Unknown command: $command";;
   esac
 }
 
-
-print() {
-  local size="$1" char="$2" message="$3"
-  local line=$(eval printf -- \"${char}%.0s\" {1..${size}})
-  printf -- "${char}${char}%s%s\n" "$message" "${line:${#message}}"
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
 }
+
+currentStage() {
+  local stateFile="$1"
+  if [ -f $stateFile ]; then tail -1 $stateFile; fi
+}
+
+
+startStage() {
+  local stateFile="$1" stage="${2:-}" current=
+  requireParam "stage" "$stage"
+  stage="${stage^^}"
+  current=$(currentStage $stateFile)
+  if [ -n "$current" ]; then banner h1 -m "$current COMPLETED"; fi
+  banner h1 -m "STARTING $stage"
+  echo $stage >> $stateFile
+}
+
 
 main "$@"
 exit 0
