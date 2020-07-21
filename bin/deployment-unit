@@ -89,9 +89,11 @@ fetch() {
   nexus fetch -a "$coordinates" -d du.tar.gz
   tar xf du.tar.gz
   local content=$(find -mindepth 1 -maxdepth 1 -type d | head -1)
+  set -x
+  mv $content $(basename $directory)
   local parent=$(dirname $(readlink -fm $directory))
   if [ -d "$parent" ]; then mkdir -p $parent; fi
-  mv $content $directory
+  mv $(basename $directory) $parent
 }
 
 main "$@"
