@@ -82,6 +82,8 @@ fetch() {
   local coordinates="${1:-}" directory="${2:-}"
   requireParam "coordinates" "$coordinates"
   requireParam "directory" "$directory"
+  local parent=$(dirname $(readlink -fm $directory))
+  if [ -d "$parent" ]; then mkdir -p $parent; fi
   echo "Fetching deployment unit"
   local tmpDir=$(mktemp -d -p .)
   RM_ON_EXIT+=($tmpDir)
@@ -92,8 +94,6 @@ fetch() {
   local basename=$(basename $directory)
   mv $content $basename
   set -x
-  local parent=$(dirname $(readlink -fm $directory))
-  if [ -d "$parent" ]; then mkdir -p $parent; fi
   mv $basename $parent
 }
 
