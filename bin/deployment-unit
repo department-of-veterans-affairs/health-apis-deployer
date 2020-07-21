@@ -91,8 +91,7 @@ fetch() {
   local content=$(find -mindepth 1 -maxdepth 1 -type d | head -1)
   local basename=$(basename $directory)
   mv $content $basename
-  find $basename
-  
+  set -x
   local parent=$(dirname $(readlink -fm $directory))
   if [ -d "$parent" ]; then mkdir -p $parent; fi
   mv $basename $parent
