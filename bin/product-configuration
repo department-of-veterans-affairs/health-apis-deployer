@@ -92,7 +92,7 @@ EOF
   cat $fromDir/$product.conf >> $toDir/product.conf
 cat >> $toDir/product.conf <<EOF
 if [ -z "\${DU_GROUP:-}" ]; then DU_GROUP=gov.va.api.health; fi
-if [ -z "\${DU_COORDINATES:-}" ]; then DU_COORDINATES="\$DU_GROUP:\$DU_ARTIFACT:\$DU_VERSION:tar.gz:product"; fi
+if [ -z "\${DU_COORDINATES:-}" ]; then DU_COORDINATES="\$DU_GROUP:\$DU_ARTIFACT:\$DU_VERSION:tar.gz:project"; fi
 EOF
   validateConfiguration $toDir/product.conf
 }
