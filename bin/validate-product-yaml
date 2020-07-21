@@ -17,9 +17,9 @@ FILE=$1
 
 [ -z $FILE ] && echo "No product.yaml specified." && usage && exit 1
 
-DEFAULT_NAMESPACE_TEST=$(grep -E '^.*namespace: *(default)?$' $FILE)
-[ ! -z "$DEFAULT_NAMESPACE_TEST" ] && echo "============================================================" \
-  && echo "Default Namespace Test Failed . Do NOT use the _default_ namespace!" \
+ILLEGAL_NAMESPACE_DECLARATIONS=$(grep -E '^.*namespace: *(default)?$' $FILE)
+[ -n "$ILLEGAL_NAMESPACE_DECLARATIONS" ] && echo "============================================================" \
+  && echo "Illegal namespaces detected. Do NOT use empty, or the default namespace." \
   && exit 1
-  
+
 exit 0
