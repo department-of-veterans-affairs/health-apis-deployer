@@ -92,7 +92,7 @@ EOF
   cat $fromDir/$product.conf >> $toDir/product.conf
 cat >> $toDir/product.conf <<EOF
 if [ -z "\${DU_GROUP:-}" ]; then DU_GROUP=gov.va.api.health; fi
-if [ -z "\${DU_COORDINATES:-}"; then DU_COORDINATES="\$DU_GROUP:\$DU_ARTIFACT:tar.gz:product"; fi
+if [ -z "\${DU_COORDINATES:-}" ; then DU_COORDINATES="\$DU_GROUP:\$DU_ARTIFACT:tar.gz:product"; fi
 EOF
   validateConfiguration $toDir/product.conf
 }
@@ -106,7 +106,11 @@ fail() {
 validateConfiguration() {
   local conf="$1"
   echo "Validating product configuration"
-  source $conf
+  if ! source $conf
+  then
+    echo "Failed to load product configuration"
+    exit 1
+  fi
   if [ -z "$DU_ARTIFACT" ]; then fail "Missing DU_ARTIFACT"; fi
   if [ -z "$DU_VERSION" ]; then fail "Missing DU_VERSION"; fi
   if [ "${INVALID_PRODUCT_CONF:=false}" == "true" ]
