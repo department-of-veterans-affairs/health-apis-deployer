@@ -123,7 +123,7 @@ test -n "$DU_ARTIFACT"
 test -n "$DU_VERSION"
 test -n "$DU_NAMESPACE"
 if [ "$DU_NAMESPACE" == "default" ]; then
-  echo "Default namespace is not valid. Please use a different namespace." && exit 1
+  echo "Default namespace is not allowed. Please use a different namespace." && exit 1
 fi
 test -n "$DU_DECRYPTION_KEY"
 test -n "$DU_HEALTH_CHECK_PATH"

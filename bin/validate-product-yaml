@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+usage() {
+cat<<EOF > /dev/stderr
+$0 <FILE>
+
+ARGS:
+  <FILE>
+    Input product.yaml file to validate.
+
+EOF
+echo -e "$1" > /dev/stderr
+exit 1
+}
+
+FILE=$1
+
+[ -z $FILE ] && echo "No product.yaml specified." && usage && exit 1
+
+DEFAULT_NAMESPACE_TEST=$(grep -E '^.*namespace: *(default)?$' $FILE)
+[ ! -z "DEFAULT_NAMESPACE_TEST"] && echo "============================================================" \
+  && echo "Default Namespace Test Failed . Do NOT use the _default_ namespace!" \
+  && exit 1
