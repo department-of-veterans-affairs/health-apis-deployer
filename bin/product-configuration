@@ -106,19 +106,19 @@ fail() {
 validateConfiguration() {
   local conf="$1"
   echo "Validating product configuration"
-  local magic="${RANDOM}.${RANDOM}"
-  echo "DU_MAGIC_NUMBER=$magic" >> $conf
-  . $conf
-  if [ "$DU_MAGIC_NUMBER" != "$magic" ]
+  if ! (
+      set -euo pipefail
+      . $conf
+      if [ -z "$DU_ARTIFACT" ]; then fail "Missing DU_ARTIFACT"; fi
+      if [ -z "$DU_VERSION" ]; then fail "Missing DU_VERSION"; fi
+      if [ "${INVALID_PRODUCT_CONF:=false}" == "true" ]
+      then
+        echo "Invalid product configuration"
+        exit 1
+      fi
+    )
   then
     echo "Failed to load product configuration"
-    exit 1
-  fi
-  if [ -z "$DU_ARTIFACT" ]; then fail "Missing DU_ARTIFACT"; fi
-  if [ -z "$DU_VERSION" ]; then fail "Missing DU_VERSION"; fi
-  if [ "${INVALID_PRODUCT_CONF:=false}" == "true" ]
-  then
-    echo "Invalid product configuration"
     exit 1
   fi
 }
