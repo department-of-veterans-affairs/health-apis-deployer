@@ -70,7 +70,7 @@ fetchFromGithub() {
   github clone -r health-apis-deployer -d deployer
   cd deployer
   git checkout qa
-  copyConfiguration $product $(readlink -f products) $toDir
+  copyConfiguration $product $(readlink -f products) $dir
 }
 
 copyConfiguration() {
