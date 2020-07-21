@@ -86,6 +86,7 @@ copyConfiguration() {
   if [ ! -d $toDir ]; then mkdir -p $toDir; fi
   cp $fromDir/$product.yaml $toDir/product.yaml
   cat > $toDir/product.conf <<EOF
+set -euo pipefail
 declare -x DU_ARTIFACT
 declare -x DU_VERSION
 EOF
