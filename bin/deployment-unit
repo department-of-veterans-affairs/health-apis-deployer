@@ -33,18 +33,19 @@ exit 1
 }
 
 main() {
-  local forEnvironment=
+  local group= artifact= version= directory=
   local args
   if ! args=$(getopt \
-    -l "debug,for-environment:" \
-    -o "" -- "$@")
+    -l "debug,coordinates:,directory:" \
+    -o "c:d:" -- "$@")
   then usage; fi
   eval set -- "$args"
   while true
   do
     case "$1" in
       --debug) DEBUG=true;;
-      --for-environment) forEnvironment="$2";;
+      -c|--coordinates) coordinates="$2";;
+      -d|--directory) directory="$2";;
       --) shift; break;;
     esac
     shift
@@ -56,7 +57,7 @@ main() {
   if [ $# != 1 ]; then usage "Command not specified"; fi
   local command=$1
   case $command in
-    fetch) fetch "${forEnvironment}";;
+    fetch) fetch "${coordinates}" "${directory}";;
     *) usage "Unknown command: $command";;
   esac
 }
@@ -68,15 +69,16 @@ requireParam() {
 }
 
 
-startStage() {
-  local stateFile="$1" stage="${2:-}" current=
-  requireParam "stage" "$stage"
-  endStage "$stateFile"
-  stage="${stage^^}"
-  banner h1 -m "STARTING $stage"
-  echo $stage >> $stateFile
+fetch() {
+  local coordinates="${1:-}" directory="${2:-}"
+  requireParam "coordinates" "$coordinates"
+  requireParam "directory" "$directory"
+  echo "Fetching deployment unit"
+  if [ ! -d "$directory" ]; then mkdir -p $directory; fi
+  cd $directory
+  nexus fetch -a "$coordinates" -d du.tar.gz
+  tar vxf du.tar.gz
 }
-
 
 main "$@"
 exit 0

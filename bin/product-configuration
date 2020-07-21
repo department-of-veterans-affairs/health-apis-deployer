@@ -58,7 +58,7 @@ main() {
   local command=$1
   case $command in
     fetch) fetch "${environment:-}" "${product:-}" "${directory:-}";;
-    load) load "${directory:-}";;
+    load-script) loadScript "${directory:-}";;
     *) usage "Unknown command: $command";;
   esac
 }
@@ -90,9 +90,12 @@ declare -x DU_ARTIFACT
 declare -x DU_VERSION
 EOF
   cat $fromDir/$product.conf >> $toDir/product.conf
+cat >> $toDir/product.conf <<EOF
+if [ -z "\${DU_GROUP:-}" ]; then DU_GROUP=gov.va.api.health; fi
+if [ -z "\${DU_COORDINATES:-}"; then DU_COORDINATES=\$DU_GROUP:\$DU_ARTIFACT:tar.gz:product
+EOF
   validateConfiguration $toDir/product.conf
 }
-
 
 fail() {
   local msg="$1"
@@ -125,11 +128,12 @@ fetch() {
 }
 
 
-load() {
+loadScript() {
   local dir="${1:-}"
   requireParam "directory" "$dir"
-  local loadScript=$dir/load.sh
-  echo "source $loadScript"
+  local loadScript=$dir/product.conf
+  if [ ! -f $loadScript ]; then echo "$loadScript does not exist" > /dev/stderr; exit 1; fi
+  echo $loadScript
 }
 
 main "$@"
