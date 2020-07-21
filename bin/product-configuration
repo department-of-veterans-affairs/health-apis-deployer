@@ -86,6 +86,8 @@ copyConfiguration() {
   if [ ! -d $toDir ]; then mkdir -p $toDir; fi
   cp $fromDir/$product.yaml $toDir/product.yaml
   cat > $toDir/product.conf <<EOF
+echo Loading product configuration
+set -euo pipefail
 declare -x DU_ARTIFACT
 declare -x DU_VERSION
 EOF
@@ -107,7 +109,6 @@ validateConfiguration() {
   local conf="$1"
   echo "Validating product configuration"
   if ! (
-      set -euo pipefail
       . $conf
       if [ -z "$DU_ARTIFACT" ]; then fail "Missing DU_ARTIFACT"; fi
       if [ -z "$DU_VERSION" ]; then fail "Missing DU_VERSION"; fi
