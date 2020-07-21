@@ -50,7 +50,7 @@ main() {
     case "$1" in
       --debug) DEBUG=true;;
       -c|--credentials) credentials="$2";;
-      -d|--directory) directory="$2";;
+      -d|--directory) dir="$2";;
       -e|--email) email="$2";;
       -o|--organization) org="$2";;
       -r|--repository) repo="$2";;
