@@ -65,7 +65,7 @@ main() {
 RM_ON_EXIT=()
 onExit() {
   status=$?
-  for f in ${RM_ON_EXIT[@]}; do rm -rf $f; done
+  if [ ${#RM_ON_EXIT[@]} -gt 0 ]; then rm -rf ${RM_ON_EXIT[@]}; fi
   exit $status
 }
 trap onExit EXIT
