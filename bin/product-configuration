@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH=$(dirname $(readlink -f $0)):$PATH
+
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Get information about deployment environments
+
+Options
+-e, --environment <env>
+  The environment name, e.g. qa or staging-lab
+
+Commands
+fetch -e <env>
+  Print the environment this environment is promoted from.
+  For example, production is promoted from staging.
+  Root envionrments like "qa" print themselves.
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local environment=
+  local args
+  if ! args=$(getopt \
+    -l "debug,environment:" \
+    -o "e:" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      -e|--environment) environment="$2";;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    fetch) fetch "${environment}";;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+fetchFromGithub() {
+  local tmpDir=$(mktemp -d -P .)
+  trap "rm -rf $tmpDir" EXIT
+  cd $tmpDir
+  github clone -r health-apis-deployer -d deployer
+  cd deployer
+  git checkout qa
+  find products
+}
+
+fetch() {
+  local environment="${1:-}"
+  requireParam "environment" "$environment"
+  case $environment in
+    qa) fetchFromGithub;;
+    *) echo "Unsupported environment: $environment"; exit 1;;
+  esac
+}
+
+
+main "$@"
+exit 0

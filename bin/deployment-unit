@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH=$(dirname $(readlink -f $0)):$PATH
+
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Track deployment stage
+
+Options
+-c, --char <character>
+  The banner character
+-m, --message <text>
+  The banner message
+-s, --size <number>
+  The number of characters or width of the banner
+
+Commands
+print [-c <char>] [-m <text>] [-s <size>]
+  Print a banner specifying all aspects
+h1 -m <text>
+  Print a banner with a Heading 1 style
+h2 -m <text>
+  Print a banner with a Heading 2 style
+file -m <filename>
+  Print a banner with a file content style
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local forEnvironment=
+  local args
+  if ! args=$(getopt \
+    -l "debug,for-environment:" \
+    -o "" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      --for-environment) forEnvironment="$2";;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    fetch) fetch "${forEnvironment}";;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+
+startStage() {
+  local stateFile="$1" stage="${2:-}" current=
+  requireParam "stage" "$stage"
+  endStage "$stateFile"
+  stage="${stage^^}"
+  banner h1 -m "STARTING $stage"
+  echo $stage >> $stateFile
+}
+
+
+main "$@"
+exit 0

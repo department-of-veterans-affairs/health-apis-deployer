@@ -34,6 +34,8 @@ initialize() {
   if [ -z "${VPC:-}" ]; then VPC=Dev; fi
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
   export BUILD_TIMESTAMP="$(date)"
+  export WORK=work
+  export DU_DIR=$WORK/du
   PLUGIN_DIR=plugins
   setDeploymentId
   discoverPlugins
@@ -74,6 +76,8 @@ main() {
   deployment add-build-info \
     -b "$DEPLOYMENT_ID" \
     -d "ENVIRONMENT ... $(vpc hyphenize -e "$VPC")"
+  product-configuration fetch -e $ENVIRONMENT
+  #deployment-unit fetch --for-environment $ENVIRONMENT
 }
 
 initialize

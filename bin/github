@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH=$(dirname $(readlink -f $0)):$PATH
+
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Interact with GitHub
+
+Options
+ -c,--credentials <username:token>
+   The GitHub username and token to use when cloning
+ -d,--directory <name>
+   The directory to clone the repository into, by default it is the repostory name.
+ -e,--email <email>
+   The user email to associate with the repository, by default vasdvp+deployer@gmail.com
+ -o,--organization <org>
+   The GitHub organization, by default department-of-veterans-affairs
+ -r,--repository <repo>
+   The repository name
+ -u,--user <name>
+   The GitHub user name to associate commits to, by default deployer
+
+Commands
+clone -r <repo> [-d <dir>] [-o <org>] [-c <cred>] [-e <email>] [-u <user>]
+  Clone and configure the repository for local, temporary use.
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local org=department-of-veterans-affairs \
+    email=vasdvp+deployer@gmail.com \
+    user=deployer \
+    repo= \
+    credentials="${GITHUB_USERNAME_PASSWORD:-}" \
+    dir= \
+  local args
+  if ! args=$(getopt \
+    -l "debug,credentials:,directory:,email:,organization:,repository:,user:" \
+    -o "c:d:e:o:r:u:" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      -c|--credentials) credentials="$2";;
+      -d|--directory) directory="$2";;
+      -e|--email) email="$2";;
+      -o|--organization) org="$2";;
+      -r|--repository) repo="$2";;
+      -u|--user) user="$2";;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    clone) clone "${credentials}" "${org}" "${repo}" "${dir}" "${email}" "${user}";;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+clone() {
+  local credentials="${1:-}" org="$2" repo="${3:-}" dir="${4:-}" email="$5" user="$6"
+  requireParam "repository" "$repo"
+  requireParamn "credentials" "$credentials"
+  if [ -z "${dir:-}" ]; then dir="$repo"; fi
+  git clone "https://${credentials}@github.com/${org}/${repo}.git" "${dir}"
+  cd "${dir}"
+  git config push.default simple
+  git config --replace-all user.email "${email}"
+  git config --replace-all user.name "${user}"
+}
+
+main "$@"
+exit 0
