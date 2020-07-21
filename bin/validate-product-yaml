@@ -21,3 +21,5 @@ DEFAULT_NAMESPACE_TEST=$(grep -E '^.*namespace: *(default)?$' $FILE)
 [ ! -z "$DEFAULT_NAMESPACE_TEST" ] && echo "============================================================" \
   && echo "Default Namespace Test Failed . Do NOT use the _default_ namespace!" \
   && exit 1
+  
+exit 0
