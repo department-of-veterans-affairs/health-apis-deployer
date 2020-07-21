@@ -86,7 +86,6 @@ copyConfiguration() {
   if [ ! -d $toDir ]; then mkdir -p $toDir; fi
   cp $fromDir/$product.yaml $toDir/product.yaml
   cat > $toDir/product.conf <<EOF
-set -euo pipefail
 declare -x DU_ARTIFACT
 declare -x DU_VERSION
 EOF
@@ -107,10 +106,10 @@ fail() {
 validateConfiguration() {
   local conf="$1"
   echo "Validating product configuration"
+  local magic="${RANDOM}.${RANDOM}"
+  echo "DU_MAGIC_NUMBER=$magic" >> $conf
   . $conf
-  local s=$?
-  echo "loading status: $s"
-  if [ $s -ne 0 ]
+  if [ "$DU_MAGIC_NUMBER" != "$magic" ]
   then
     echo "Failed to load product configuration"
     exit 1
