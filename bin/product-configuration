@@ -60,7 +60,7 @@ requireParam() {
 }
 
 fetchFromGithub() {
-  local tmpDir=$(mktemp -d -P .)
+  local tmpDir=$(mktemp -d -p .)
   trap "rm -rf $tmpDir" EXIT
   cd $tmpDir
   github clone -r health-apis-deployer -d deployer
