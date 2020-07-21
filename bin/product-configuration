@@ -106,7 +106,7 @@ fail() {
 validateConfiguration() {
   local conf="$1"
   echo "Validating product configuration"
-  if ! source $conf
+  if ! . $conf
   then
     echo "Failed to load product configuration"
     exit 1
