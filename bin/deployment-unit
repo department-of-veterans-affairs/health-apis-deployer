@@ -82,7 +82,8 @@ fetch() {
   local coordinates="${1:-}" directory="${2:-}"
   requireParam "coordinates" "$coordinates"
   requireParam "directory" "$directory"
-  local parent=$(dirname $(readlink -fm $directory))
+  directory=$(readlink -fm $directory)
+  local parent=$(dirname $directory)
   if [ -d "$parent" ]; then mkdir -p $parent; fi
   echo "Fetching deployment unit"
   local tmpDir=$(mktemp -d -p .)
@@ -92,9 +93,7 @@ fetch() {
   tar xf du.tar.gz
   local content=$(find -mindepth 1 -maxdepth 1 -type d | head -1)
   local basename=$(basename $directory)
-  mv $content $basename
-  set -x
-  mv $basename $parent
+  mv $content $directory
 }
 
 main "$@"
