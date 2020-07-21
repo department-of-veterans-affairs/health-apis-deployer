@@ -10,22 +10,15 @@ $0 [options] <command>
 Track deployment stage
 
 Options
--c, --char <character>
-  The banner character
--m, --message <text>
-  The banner message
--s, --size <number>
-  The number of characters or width of the banner
 
 Commands
-print [-c <char>] [-m <text>] [-s <size>]
-  Print a banner specifying all aspects
-h1 -m <text>
-  Print a banner with a Heading 1 style
-h2 -m <text>
-  Print a banner with a Heading 2 style
-file -m <filename>
-  Print a banner with a file content style
+current [-f <file>]
+  Print the current stage
+start -s <stage> [-f <file>]
+  Complete the current stage if one exists and start a new one.
+end -s <stage> [-f <file>]
+  Complete the current stage without starting a new one.
+  This should only be used at very end of your program.
 
 ${1:-}
 EOF

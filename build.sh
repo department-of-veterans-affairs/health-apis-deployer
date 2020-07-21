@@ -80,7 +80,7 @@ initDebugMode() {
 }
 
 productConfiguration() {
-  stage "product configuration"
+  stage start "product configuration"
   product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONF_DIR
   source $(product-configuration load-script -d $PRODUCT_CONF_DIR)
   deployment-unit fetch -c $DU_COORDINATES -d $DU_DIR
