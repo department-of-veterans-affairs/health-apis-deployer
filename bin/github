@@ -82,7 +82,7 @@ clone() {
   requireParam "repository" "$repo"
   requireParam "credentials" "$credentials"
   if [ -z "${dir:-}" ]; then dir="$repo"; fi
-  git clone "https://${credentials}@github.com/${org}/${repo}.git" "${dir}"
+  git clone -q "https://${credentials}@github.com/${org}/${repo}.git" "${dir}"
   cd "${dir}"
   git config push.default simple
   git config --replace-all user.email "${email}"

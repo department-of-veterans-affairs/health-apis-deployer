@@ -25,18 +25,20 @@ exit 1
 }
 
 main() {
-  local environment=
+  local environment= product= dir=
   local args
   if ! args=$(getopt \
-    -l "debug,environment:" \
-    -o "e:" -- "$@")
+    -l "debug,environment:,product:,directory:" \
+    -o "e:p:d:" -- "$@")
   then usage; fi
   eval set -- "$args"
   while true
   do
     case "$1" in
       --debug) DEBUG=true;;
+      -d|--directory) directory="$2";;
       -e|--environment) environment="$2";;
+      -p|--product) product="$2";;
       --) shift; break;;
     esac
     shift
@@ -48,7 +50,7 @@ main() {
   if [ $# != 1 ]; then usage "Command not specified"; fi
   local command=$1
   case $command in
-    fetch) fetch "${environment}";;
+    fetch) fetch "${environment:-}" "${product:-}" "${directory:-}";;
     *) usage "Unknown command: $command";;
   esac
 }
@@ -60,20 +62,30 @@ requireParam() {
 }
 
 fetchFromGithub() {
+  local product="$1" dir="$2"
+  echo "Fetching product configuration from GitHub"
   local tmpDir=$(mktemp -d -p .)
   trap "rm -rf $tmpDir" EXIT
   cd $tmpDir
   github clone -r health-apis-deployer -d deployer
   cd deployer
   git checkout qa
-  find products
+  copyConfiguration $product $(readlink -f products) $toDir
+}
+
+copyConfiguration() {
+  local product="$1" fromDir="$2" toDir="$3"
+  if [ ! -d $toDir ]; then mkdir -p $toDir; fi
+  cp $fromDir/$product.conf $fromDir/$product.yaml $toDir
 }
 
 fetch() {
-  local environment="${1:-}"
+  local environment="${1:-}" product="${2:-}" dir="${3:-}"
   requireParam "environment" "$environment"
+  requireParam "product" "$product"
+  requireParam "directory" "$dir"
   case $environment in
-    qa) fetchFromGithub;;
+    qa) fetchFromGithub $product $(readlink -f $dir);;
     *) echo "Unsupported environment: $environment"; exit 1;;
   esac
 }

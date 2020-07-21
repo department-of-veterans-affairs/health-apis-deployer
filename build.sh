@@ -34,11 +34,19 @@ initialize() {
   if [ -z "${VPC:-}" ]; then VPC=Dev; fi
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
   export BUILD_TIMESTAMP="$(date)"
-  export WORK=work
-  export DU_DIR=$WORK/du
+  export WORK=$(emptyDirectory work)
+  export PRODUCT_CONF_DIR=$(emptyDirectory $WORK/product-configuration)
+  export DU_DIR=$(emptyDirectory $WORK/du)
   PLUGIN_DIR=plugins
   setDeploymentId
   discoverPlugins
+}
+
+emptyDirectory() {
+  local d="$1"
+  if [ -d "$d" ]; then rm -rf $d; fi
+  mkdir -p $d
+  echo $d
 }
 
 discoverPlugins() {
@@ -76,7 +84,8 @@ main() {
   deployment add-build-info \
     -b "$DEPLOYMENT_ID" \
     -d "ENVIRONMENT ... $(vpc hyphenize -e "$VPC")"
-  product-configuration fetch -e $ENVIRONMENT
+  product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONF_DIR
+  find $PRODUCT_CONF_DIR
   #deployment-unit fetch --for-environment $ENVIRONMENT
 }
 
