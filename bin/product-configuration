@@ -106,7 +106,10 @@ fail() {
 validateConfiguration() {
   local conf="$1"
   echo "Validating product configuration"
-  if ! . $conf
+  . $conf
+  local s=$?
+  echo "loading status: $s"
+  if [ $s -ne 0 ]
   then
     echo "Failed to load product configuration"
     exit 1
