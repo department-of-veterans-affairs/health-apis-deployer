@@ -93,7 +93,8 @@ fetch() {
   tar xf du.tar.gz
   local content=$(find -mindepth 1 -maxdepth 1 -type d | head -1)
   local basename=$(basename $directory)
-  mv $content $directory
+  mv $content $basename
+  mv $basename $parent
 }
 
 main "$@"
