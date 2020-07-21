@@ -84,8 +84,11 @@ productConfiguration() {
   product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONF_DIR
   . $(product-configuration load-script -d $PRODUCT_CONF_DIR)
   deployment-unit fetch -c $DU_COORDINATES -d $DU_DIR
-  
+
+  echo "PRODUCT CONFIGURATION"
   find $PRODUCT_CONF_DIR
+  echo "DEPLOYMENT UNIT"
+  find $DU_DIR
 }
 
 

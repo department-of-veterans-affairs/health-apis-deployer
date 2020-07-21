@@ -3,6 +3,9 @@ set -euo pipefail
 
 export PATH=$(dirname $(readlink -f $0)):$PATH
 
+
+
+
 usage() {
 cat >&2 <<EOF
 $0 [options] <command>
@@ -63,6 +66,14 @@ main() {
   esac
 }
 
+RM_ON_EXIT=()
+onExit() {
+  status=$?
+  for f in ${RM_ON_EXIT[@]}; do rm -rf $f; done
+  exit $status
+}
+trap onExit EXIT
+
 requireParam() {
   local param="${1}"
   local value="${2:-}"
@@ -73,7 +84,7 @@ fetchFromGithub() {
   local product="$1" dir="$2"
   echo "Fetching product configuration from GitHub"
   local tmpDir=$(mktemp -d -p .)
-  trap "rm -rf $tmpDir" EXIT
+  RM_ON_EXIT+=($tmpDir)
   cd $tmpDir
   github clone -r health-apis-deployer -d deployer
   cd deployer
