@@ -79,14 +79,20 @@ initDebugMode() {
   export DEBUG
 }
 
+productConfiguration() {
+  stage "product configuration"
+  product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONF_DIR
+#  deployment-unit fetch -e $ENVIRONMENT -p $PRODUCT -d $DU_DIR
+  find $PRODUCT_CONF_DIR
+}
+
+
 main() {
   initDebugMode
   deployment add-build-info \
     -b "$DEPLOYMENT_ID" \
     -d "ENVIRONMENT ... $(vpc hyphenize -e "$VPC")"
-  product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONF_DIR
-  find $PRODUCT_CONF_DIR
-  #deployment-unit fetch --for-environment $ENVIRONMENT
+  productConfiguration
 }
 
 initialize

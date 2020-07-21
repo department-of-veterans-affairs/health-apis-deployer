@@ -10,14 +10,21 @@ $0 [options] <command>
 Get information about deployment environments
 
 Options
--e, --environment <env>
+-e, --for-environment <env>
   The environment name, e.g. qa or staging-lab
+-d, --directory <dir>
+  The directory to place configuration into
+-p, --product <name>
+  The product name to fetch configuation for
 
 Commands
-fetch -e <env>
-  Print the environment this environment is promoted from.
-  For example, production is promoted from staging.
-  Root envionrments like "qa" print themselves.
+fetch -e <env> -p <name> -d <dir>
+  Fetch the configuration or this product for this environment
+  and place it in the directory.
+load -d <dir>
+  Generate a command used to load deployment unit environments
+  specific to the product in the given direcory. Evaluate as follows:
+  \$($0 load -d work/product-configuration)
 
 ${1:-}
 EOF
@@ -37,7 +44,7 @@ main() {
     case "$1" in
       --debug) DEBUG=true;;
       -d|--directory) directory="$2";;
-      -e|--environment) environment="$2";;
+      -e|--for-environment) environment="$2";;
       -p|--product) product="$2";;
       --) shift; break;;
     esac
@@ -51,6 +58,7 @@ main() {
   local command=$1
   case $command in
     fetch) fetch "${environment:-}" "${product:-}" "${directory:-}";;
+    load) load "${directory:-}";;
     *) usage "Unknown command: $command";;
   esac
 }
@@ -69,27 +77,60 @@ fetchFromGithub() {
   cd $tmpDir
   github clone -r health-apis-deployer -d deployer
   cd deployer
-  git checkout qa
-  copyConfiguration $product $(readlink -f products) $dir
+  git checkout -q qa
+  copyConfiguration $product $(readlink -fm products) $dir
 }
 
 copyConfiguration() {
   local product="$1" fromDir="$2" toDir="$3"
   if [ ! -d $toDir ]; then mkdir -p $toDir; fi
-  cp $fromDir/$product.conf $fromDir/$product.yaml $toDir
+  cp $fromDir/$product.yaml $toDir/product.yaml
+  cat > $toDir/product.conf <<EOF
+declare -x DU_ARTIFACT
+declare -x DU_VERSION
+EOF
+  cat $fromDir/$product.conf >> $toDir/product.conf
+  validateConfiguration $toDir/product.conf
+}
+
+
+fail() {
+  local msg="$1"
+  echo "$msg"
+  INVALID_PRODUCT_CONF=true
+}
+
+validateConfiguration() {
+  local conf="$1"
+  echo "Validating product configuration"
+  source $conf
+  if [ -z "$DU_ARTIFACT" ]; then fail "Missing DU_ARTIFACT"; fi
+  if [ -z "$DU_VERSION" ]; then fail "Missing DU_VERSION"; fi
+  if [ "${INVALID_PRODUCT_CONF:=false}" == "true" ]
+  then
+    echo "Invalid product configuration"
+    exit 1
+  fi
 }
 
 fetch() {
   local environment="${1:-}" product="${2:-}" dir="${3:-}"
-  requireParam "environment" "$environment"
+  requireParam "for-environment" "$environment"
   requireParam "product" "$product"
   requireParam "directory" "$dir"
   case $environment in
-    qa) fetchFromGithub $product $(readlink -f $dir);;
+    qa) fetchFromGithub $product $(readlink -fm $dir);;
     *) echo "Unsupported environment: $environment"; exit 1;;
   esac
 }
 
+
+load() {
+  local dir="${1:-}"
+  requireParam "directory" "$dir"
+  local loadScript=$dir/load.sh
+  echo "source $loadScript"
+}
 
 main "$@"
 exit 0

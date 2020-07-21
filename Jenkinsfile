@@ -35,7 +35,10 @@ final CREDENTIALS = [
     passwordVariable: 'DOCKER_PASSWORD'),
   string(
     credentialsId: 'SLACK_WEBHOOK',
-    variable: 'SLACK_WEBHOOK' )
+    variable: 'SLACK_WEBHOOK' ),
+  string(
+    credentialsId: 'DEPLOYMENT_CRYPTO_KEY',
+    variable: 'DEPLOYMENT_CRYPTO_KEY')
 ]
 
 def contentOf(file) {

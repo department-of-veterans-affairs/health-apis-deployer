@@ -7,11 +7,12 @@ usage() {
 cat >&2 <<EOF
 $0 [options] <command>
 
-Interact with GitHub
+Interact with GitHub.
 
 Options
  -c,--credentials <username:token>
    The GitHub username and token to use when cloning
+   Environment variable GITHUB_USERNAME_PASSWORD will be used if not specified.
  -d,--directory <name>
    The directory to clone the repository into, by default it is the repostory name.
  -e,--email <email>
