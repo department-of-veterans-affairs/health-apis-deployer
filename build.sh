@@ -101,7 +101,7 @@ productConfiguration() {
 }
 
 initializePlugins() {
-  stage start -s "plugins initialization ..."
+  stage start -s "plugins initialization"
   PLUGINS=()
   for plugin in $(find $PLUGIN_DIR -type f -name "[a-z]*")
   do
