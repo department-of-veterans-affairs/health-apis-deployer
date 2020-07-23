@@ -7,7 +7,7 @@ cat <<EOF
 
 --- TODO ---
 - Default to 'latest' deploy-tools image
-
+- Promotion
 
 EOF
 
@@ -84,10 +84,9 @@ productConfiguration() {
   product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONF_DIR
   . $(product-configuration load-script -d $PRODUCT_CONF_DIR)
   deployment-unit fetch -c $DU_COORDINATES -d $DU_DIR
-
-  echo "PRODUCT CONFIGURATION"
+  banner file -m $PRODUCT_CONF_DIR
   find $PRODUCT_CONF_DIR
-  echo "DEPLOYMENT UNIT"
+  banner file -m $DU_DIR
   find $DU_DIR
 }
 
