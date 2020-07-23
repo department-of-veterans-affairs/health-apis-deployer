@@ -20,6 +20,6 @@ main() {
   exit $?
 }
 
-on-initialize() { return $PLUGIN_ENABLED; }
+on-initialize() { return $PLUGIN_DISABLED; }
 
 _init
