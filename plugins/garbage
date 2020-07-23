@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 . $PLUGIN_LIB
 
-
 main "$@"
-exit 0
+exit 1
