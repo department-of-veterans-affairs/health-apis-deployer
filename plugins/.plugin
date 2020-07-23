@@ -2,7 +2,8 @@
 set -euo pipefail
 
 _init() {
-  PLUGIN_NAME=$(basename $0)
+  PLUGIN_NAME=$(basename $0 | sed 's/[0-9]\+-//')
+  PLUGIN_PRIORITY=100
   PLUGIN_ENABLED=0
   PLUGIN_DISABLED=86
   PLUGIN_SUBSTITUTIONS_FILE=PLUGIN_SUBSTITION_DIR/$PLUGIN_NAME.env
@@ -21,10 +22,12 @@ main() {
 }
 
 # Normal flow
+on-priority() { echo $PLUGIN_PRIORITY; }
 on-initialize() { return $PLUGIN_DISABLED; }
 on-validate() { return 0; }
 on-before-deploy() { return 0; }
 on-undeploy() { return 0; }
+# <-- Future AZ lifecycles here
 on-deploy() { return 0; }
 on-verify-deploy() { return 0; }
 on-after-deploy() { return 0; }

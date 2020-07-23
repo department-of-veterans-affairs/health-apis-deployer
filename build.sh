@@ -103,14 +103,19 @@ productConfiguration() {
 initializePlugins() {
   stage start -s "plugins initialization"
   PLUGINS=()
+  local pluginOrder=$WORK/plugins
   for plugin in $(find $PLUGIN_DIR -type f -name "[a-z]*")
   do
     if $plugin initialize
     then
-      PLUGINS+=( $(basename $plugin) )
+      echo "$($plugin priority) $(basename $plugin)" >> $pluginOrder
     else
       if [ $? != 86 ]; then abort "$plugin failed to initialize"; fi
     fi
+  done
+  for plugin in $(sort -n $pluginOrder|awk '{print $2}')
+  do
+    PLUGINS+=( $(basename $plugin) )
   done
   echo "Enabled plugins: ${PLUGINS[@]}"
 }

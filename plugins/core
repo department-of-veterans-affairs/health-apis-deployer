@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 . $PLUGIN_LIB
+PLUGIN_PRIORITY=0
 
 on-initialize() {
+  #
+  # Add deployment unit configuration to environmental substition
+  # sources as the first items to ensure these are available before
+  # any additional sources
+  #
+  ln -s $DU_DIR/deployment.conf $PLUGIN_SUBSTITION_DIR/01-deployment.conf
+  ln -s $DU_DIR/${ENVIRONMENT}.conf $PLUGIN_SUBSTITION_DIR/02-environment.conf
   return $PLUGIN_ENABLED
 }
 

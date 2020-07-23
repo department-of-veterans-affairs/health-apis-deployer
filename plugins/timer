@@ -2,8 +2,10 @@
 . $PLUGIN_LIB
 
 TIMER_FILES=( $(find $DU_DIR -name "timer-*.json") )
+PLUGIN_PRIORITY=10
 
 on-initialize() {
+
   if [ ${#TIMER_FILES[@]} -eq 0 ]; then return $PLUGIN_DISABLED; fi
   echo "PERFORM SUBSITUTION ON ${TIMER_FILES[@]}"
   return $PLUGIN_ENABLED
