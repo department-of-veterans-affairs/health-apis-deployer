@@ -17,6 +17,7 @@ main() {
   if [ $# != 1 ]; then abort "No command specified"; fi
   LIFECYCLE=$1
   on-$LIFECYCLE
+  exit $?
 }
 
 on-initialize() { return $PLUGIN_ENABLED; }
