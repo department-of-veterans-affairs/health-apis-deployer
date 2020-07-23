@@ -79,6 +79,7 @@ startStage() {
   requireParam "stage" "$stage"
   endStage "$stateFile"
   stage="${stage^^}"
+  echo
   banner h1 -m "STARTING $stage"
   echo $stage >> $stateFile
 }
