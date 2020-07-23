@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 . $PLUGIN_LIB
 
+on-initialize() {
+  return $PLUGIN_ENABLED
+}
 
 main "$@"
 exit 0

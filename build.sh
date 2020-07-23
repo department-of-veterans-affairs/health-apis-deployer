@@ -23,9 +23,24 @@ onExit() {
     echo "TERMINATING WITH STATUS: $STATUS"
   fi
   stage end
+  if [ $STATUS  == 99 ]; then echo ABORTED; fi
   exit $STATUS
 }
 trap onExit EXIT
+
+abort() {
+cat <<EOF
+============================================================
+ABORTING
+
+An unrecoveralble error condition is preventing this deployment.
+
+${1:-}
+============================================================
+EOF
+exit 99
+}
+
 
 #============================================================
 initialize() {
@@ -35,11 +50,12 @@ initialize() {
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
   export BUILD_TIMESTAMP="$(date)"
   export WORK=$(emptyDirectory work)
-  export PRODUCT_CONF_DIR=$(emptyDirectory $WORK/product-configuration)
+  export PRODUCT_CONFIGURATION_DIR=$(emptyDirectory $WORK/product-configuration)
   export DU_DIR=$(emptyDirectory $WORK/du)
   PLUGIN_DIR=plugins
+  export PLUGIN_LIB=$PLUGIN_DIR/.plugin
+  export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
   setDeploymentId
-  discoverPlugins
 }
 
 emptyDirectory() {
@@ -49,13 +65,6 @@ emptyDirectory() {
   echo $d
 }
 
-discoverPlugins() {
-  echo "discovering plugins ..."
-  for plugin in $(find $PLUGIN_DIR -type f -name "[a-z]*")
-  do
-    echo $plugin
-  done
-}
 
 setDeploymentId() {
   local prefix=
@@ -81,15 +90,30 @@ initDebugMode() {
 
 productConfiguration() {
   stage start -s "product configuration"
-  product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONF_DIR
-  . $(product-configuration load-script -d $PRODUCT_CONF_DIR)
+  product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONFIGURATION_DIR
+  . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
   deployment-unit fetch -c $DU_COORDINATES -d $DU_DIR
-  banner file -m $PRODUCT_CONF_DIR
-  find $PRODUCT_CONF_DIR
-  banner file -m $DU_DIR
-  find $DU_DIR
+  if [ $DEBUG == true ]
+  then
+    find $PRODUCT_CONFIGURATION_DIR
+    find $DU_DIR
+  fi
 }
 
+initializePlugins() {
+  stage start -m "plugins initialization ..."
+  PLUGINS=()
+  for plugin in $(find $PLUGIN_DIR -type f -name "[a-z]*")
+  do
+    if $plugin initialize
+    then
+      PLUGINS+=( $(basename $plugin) )
+    else
+      if [ $? != 86 ]; then abort "$plugin failed to initialize"; fi
+    fi
+  done
+  echo "Enabled plugins: ${PLUGINS[@]}"
+}
 
 main() {
   initDebugMode
@@ -97,6 +121,7 @@ main() {
     -b "$DEPLOYMENT_ID" \
     -d "ENVIRONMENT ... $(vpc hyphenize -e "$VPC")"
   productConfiguration
+  initializePlugins
 }
 
 initialize

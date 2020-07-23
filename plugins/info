@@ -1,2 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+. $PLUGIN_LIB
+
+
+main "$@"
+exit 0

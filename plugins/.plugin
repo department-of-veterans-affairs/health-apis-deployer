@@ -1,0 +1,24 @@
+# -*- sh -*-
+set -euo pipefail
+
+_init() {
+  PLUGIN_NAME=$(basename $0)
+  PLUGIN_ENABLED=0
+  PLUGIN_DISABLED=86
+  PLUGIN_SUBSTITUTIONS_FILE=$(PLUGIN_SUBSTITION_DIR/$PLUGIN_NAME.env)
+}
+
+abort() {
+  echo "ABORT: $PLUGIN_NAME: $1" > /dev/stderr
+  exit 1
+}
+
+main() {
+  if [ $# != 1 ]; then abort "No command specified"; fi
+  LIFECYCLE=$1
+  on-$LIFECYCLE
+}
+
+on-initialize() { return $PLUGIN_ENABLED; }
+
+_init
