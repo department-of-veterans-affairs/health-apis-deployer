@@ -107,7 +107,6 @@ initializePlugins() {
   do
     if $plugin initialize
     then
-      echo "$plugin == $?"
       PLUGINS+=( $(basename $plugin) )
     else
       if [ $? != 86 ]; then abort "$plugin failed to initialize"; fi

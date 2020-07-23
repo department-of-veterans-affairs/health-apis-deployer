@@ -20,6 +20,22 @@ main() {
   exit $?
 }
 
+# Normal flow
 on-initialize() { return $PLUGIN_DISABLED; }
+on-validate() { return 0; }
+on-before-deploy() { return 0; }
+on-undeploy() { return 0; }
+on-deploy() { return 0; }
+on-verify-deploy() { return 0; }
+on-after-deploy() { return 0; }
+on-finalize() { return 0; }
+
+# Rollback flow
+on-before-rollback() { return 0; }
+on-rollback() { return 0; }
+on-deploy() { return 0; }
+on-verify-rollback() { return 0; }
+on-after-rollback() { return 0; }
+
 
 _init

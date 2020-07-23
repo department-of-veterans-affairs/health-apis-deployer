@@ -5,6 +5,7 @@ TIMER_FILES=( $(find $DU_DIR -name "timer-*.json") )
 
 on-initialize() {
   if [ ${#TIMER_FILES[@]} -gt 0 ]; then return $PLUGIN_ENABLED; fi
+  echo "PERFORM SUBSITUTION ON ${TIMER_FILES[@]}"
   return $PLUGIN_DISABLED
 }
 
