@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH=$(dirname $(readlink -f $0)):$PATH
+
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Perform environment substitution.
+
+Options
+-e, --environment-directory <path>
+  Path to environment files that will be used for substitution.
+-f, --file <file>
+  The file to substitute
+
+Commands
+rewrite -e <path> -f <file>
+  Rewrite the given file after substituting environment variables
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local envDirectory= file=
+  local args
+  if ! args=$(getopt \
+    -l "debug,environment-directory:,file:" \
+    -o "e:f:" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      -e|--environment-directory) envDirectory="$2";;
+      -f|--file) file="$2";;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    rewrite) rewrite "${envDirectory}" "${file}";;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+rewrite() {
+  local envDirectory="${1:-}" file="${2:-}"
+  requireParam "environment-directory" "$envDirectory"
+  requireParam "file" "$file"
+  local tmpFile=$file.es
+  # Use a subshell to protect this script's environment.
+  (
+    for f in $(find $envDirectory -type f)
+    do
+      . $f
+    done
+    mv $file $tmpFile
+    cat $tmpFile | envsubst > $file
+    rm $tmpFile
+  )
+}
+
+main "$@"
+exit 0

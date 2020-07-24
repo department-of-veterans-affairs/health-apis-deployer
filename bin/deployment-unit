@@ -7,25 +7,17 @@ usage() {
 cat >&2 <<EOF
 $0 [options] <command>
 
-Track deployment stage
+Manage deployment units.
 
 Options
--c, --char <character>
-  The banner character
--m, --message <text>
-  The banner message
--s, --size <number>
-  The number of characters or width of the banner
+-c, --coordinates <maven-coordinates>
+  The Maven coordinates of the deployment unit artifact.
+-d, --directory <path>
+  The location to place the contents of the deployment unit.
 
 Commands
-print [-c <char>] [-m <text>] [-s <size>]
-  Print a banner specifying all aspects
-h1 -m <text>
-  Print a banner with a Heading 1 style
-h2 -m <text>
-  Print a banner with a Heading 2 style
-file -m <filename>
-  Print a banner with a file content style
+fetch -c <coords> -d <path>
+  Fetch and unpack the deployment unit
 
 ${1:-}
 EOF
