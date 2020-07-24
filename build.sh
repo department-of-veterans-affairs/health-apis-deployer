@@ -124,10 +124,8 @@ initializePlugins() {
 
 
 
-isRollingBack() { test -n "${ROLLBACK_STARTED:-}"; }
-}
-
 ROLLBACK_STARTED=
+isRollingBack() { test -n "${ROLLBACK_STARTED:-}"; }
 rollback() {
   if isRollingBack
   then
