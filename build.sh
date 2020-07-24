@@ -180,6 +180,32 @@ recordDeployment() {
     -d $PRODUCT_CONFIGURATION_DIR
 }
 
+
+promote() {
+  if [ "${GIT_BRANCH:-unknown}" != "d2" ]
+  then
+    echo "This branch is not eligible for promotion"
+    return
+  fi
+  local promotesTo=$(environment promotes-to -e $ENVIRONMENT)
+  if [ -z "${promotesTo:-}" ]
+  then
+    echo "Environment $ENVIRONMENT is not eligible for automatic promotion"
+    return
+  fi
+  echo "Promoting to $promotesTo"
+  for vpc in $promotesTo
+  do
+    echo "Promoting to $promotesTo"
+    jenkins build \
+      -u "$PROMOTATRON_USERNAME_PASSWORD" \
+      -o department-of-veterans-affairs \
+      -r health-apis-deployer \
+      -b d2 \
+      -p VPC=$vpc,DEPLOYER_VERSION=$DEPLOYER_VERSION,PRODUCT=$PRODUCT
+  done
+}
+
 goodbye() {
   stage start -s "goodbye"
   local errorCode=0
@@ -196,6 +222,7 @@ goodbye() {
       if [ $state != "complete" ]; then errorCode=1; fi
     done
   fi
+  if [ $errorCode -eq 0 ]; then promote; fi
   echo "Goodbye"
   exit $errorCode
 }

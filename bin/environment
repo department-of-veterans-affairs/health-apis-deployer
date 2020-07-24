@@ -18,6 +18,7 @@ promoted-from -e <env>
   Print the environment this environment is promoted from.
   For example, production is promoted from staging.
   Root envionrments like "qa" print themselves.
+promotes-to -e <env>
 
 ${1:-}
 EOF
@@ -49,6 +50,7 @@ main() {
   local command=$1
   case $command in
     promoted-from) promotedFrom "${environment}";;
+    promotes-to-vpc) promotesToVpc "${environment}";;
     *) usage "Unknown command: $command";;
   esac
 }
@@ -71,6 +73,30 @@ promotedFrom() {
     uat) echo qa;;
     *) usage "Unknown environment: $environment";;
   esac
+}
+
+
+isKnown() {
+  local environment="${1}"
+  case $environment in
+    qa) return;;
+    staging) return;;
+    production) return;;
+    staging-lab) return;;
+    lab) return;;
+    uat) return;;
+    *) echo "Unknown environment: $environment" > /dev/stderr; return 1;;
+  esac
+}
+
+promotesToVpc() {
+  local environment="${1:-}"
+  requireParam "environment" "$environment"
+  isKnown "$environment"
+  if [ $environment == "qa" ]
+  then
+    echo "Staging Staging-Lab"
+  fi
 }
 
 

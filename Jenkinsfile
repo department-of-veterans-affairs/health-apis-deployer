@@ -33,6 +33,9 @@ final CREDENTIALS = [
     credentialsId: 'DOCKER_USERNAME_PASSWORD',
     usernameVariable: 'DOCKER_USERNAME',
     passwordVariable: 'DOCKER_PASSWORD'),
+  usernameColonPassword(
+    credentialsId: 'PROMOTATRON_USERNAME_PASSWORD',
+    variable: 'PROMOTATRON_USERNAME_PASSWORD'),
   string(
     credentialsId: 'SLACK_WEBHOOK',
     variable: 'SLACK_WEBHOOK' ),
