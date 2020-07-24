@@ -89,7 +89,7 @@ fetchFromLowerEnvironment() {
   local s3=$(s3 $lowerEnv $product)
   local tmpDir=$(mktemp -d -p .)
   RM_ON_EXIT+=($tmpDir)
-  aws s3 cp --recursive $s3 $tmpDir
+  aws s3 cp --no-progress --recursive $s3 $tmpDir
   prepareConfiguration $product $tmpDir $dir
 }
 
@@ -189,7 +189,7 @@ save() {
   local saveMe=$dir/saved-items
   for item in $(find $saveMe -type f)
   do
-    aws s3 cp $item $s3/$(basename $item)
+    aws s3 cp --no-progress $item $s3/$(basename $item)
   done
 }
 
