@@ -58,6 +58,7 @@ initialize() {
   export PLUGIN_LIB=$PLUGIN_DIR/.plugin
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
   setDeploymentId
+  echo "Deployment $DEPLOYMENT_ID"
 }
 
 emptyDirectory() {
@@ -66,7 +67,6 @@ emptyDirectory() {
   mkdir -p $d
   readlink -f $d
 }
-
 
 setDeploymentId() {
   local prefix=
@@ -146,7 +146,7 @@ lifecycle() {
   stage start -s "lifecycle $LIFECYCLE"
   for plugin in ${PLUGINS[@]}
   do
-    if ! $PLUGIN_DIR/$plugin $LIFECYCLE
+    if ! $PLUGIN_DIR/$plugin $LIFECYCLE | awk -v plugin=$plugin '{ print "[" plugin "] " $0 }'
     then
       echo "$plugin failed to execute lifecycle $LIFECYCLE"
       rollback

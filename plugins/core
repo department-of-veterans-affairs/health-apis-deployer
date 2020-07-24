@@ -17,7 +17,6 @@ on-initialize() {
   writeBackwardsCompatibilityEnvironment $PLUGIN_SUBSTITION_DIR/03-backwards-compatibility.conf
   ln -s $DU_DIR/deployment.conf $PLUGIN_SUBSTITION_DIR/04-du-deployment.conf
   ln -s $DU_DIR/${ENVIRONMENT}.conf $PLUGIN_SUBSTITION_DIR/05-du-environment.conf
-  find $PLUGIN_SUBSTITION_DIR
   return 0
 }
 
