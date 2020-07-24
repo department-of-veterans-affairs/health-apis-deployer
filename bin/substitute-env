@@ -67,12 +67,12 @@ rewrite() {
   local tmpFile=$file.es
   echo "Rewriting $file"
   cat $file
-  echo ---
-  find -L $envDirectory -type f | sort
-  echo ---
+  echo --- $envDirectory ---
+  ls -la $envDirectory
+  echo -------
   # Use a subshell to protect this script's environment.
   (
-    for f in $(find -L $envDirectory -type f | sort)
+    for f in $(find $envDirectory | sort)
     do
       echo "Loading $f" ; cat $f
       . $f
