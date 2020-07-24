@@ -71,17 +71,17 @@ emptyDirectory() {
 }
 
 setDeploymentId() {
-  local prefix=d2
+  local suffix=d2
   local short=
   if [ "${GIT_BRANCH:-unknown}" != d2]
   then
-    prefix=x
+    suffix=x
   fi
   local commit="${GIT_COMMIT:-0000000}"
-  prefix="${prefix}-${commit:0:7}-"
-  short="${prefix}${commit:0:4}"
-  export DEPLOYMENT_ID="$prefix$ENVIRONMENT-$PRODUCT-$BUILD_NUMBER"
-  export SHORT_DEPLOYMENT_ID="$short${ENVIRONMENT:0:1}${PRODUCT}${BUILD_NUMBER}"
+  suffix="${suffix}-${commit:0:7}"
+  short="${suffix}${commit:0:4}"
+  export DEPLOYMENT_ID="$ENVIRONMENT-$PRODUCT-$BUILD_NUMBER-$suffix"
+  export SHORT_DEPLOYMENT_ID="${ENVIRONMENT:0:1}${PRODUCT}${BUILD_NUMBER}$short"
 }
 
 #============================================================
