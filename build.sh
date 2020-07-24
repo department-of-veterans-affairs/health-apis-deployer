@@ -127,7 +127,7 @@ ROLLBACK_STARTED=
 rollback() {
   if [ -n "${ROLLBACK_STARTED:-}" ]
   then
-    echo "Rollback is in progress"
+    echo "An error has occurred while a rollback is in progress."
     return
   fi
   ROLLBACK_STARTED=$LIFECYCLE
@@ -140,7 +140,7 @@ lifecycle() {
   local force="${2:-false}"
   if [ -n "${ROLLBACK_STARTED:-}" -a "$force" == "false" ]
   then
-    echo "Rollback inprogress, skipping $LIFECYCLE"
+    echo "Rollback in progress, skipping $LIFECYCLE"
     return 0
   fi
   stage start -s "lifecycle $LIFECYCLE"

@@ -68,7 +68,7 @@ rewrite() {
   echo "Rewriting $file"
   cat $file
   echo ---
-  find -L $envDirectory
+  find -L $envDirectory -type f | sort
   echo ---
   # Use a subshell to protect this script's environment.
   (
