@@ -94,7 +94,6 @@ productConfiguration() {
   stage start -s "product configuration"
   product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONFIGURATION_DIR
   . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
-  env | sort
   deployment-unit fetch -c $DU_COORDINATES -d $DU_DIR
   if [ $DEBUG == true ]
   then
@@ -145,6 +144,8 @@ lifecycle() {
     return 0
   fi
   stage start -s "lifecycle $LIFECYCLE"
+  . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
+  env | sort
   for plugin in ${PLUGINS[@]}
   do
     if ! $PLUGIN_DIR/$plugin $LIFECYCLE | awk -v plugin=$plugin '{ print "[" plugin "] " $0 }'
