@@ -64,7 +64,7 @@ emptyDirectory() {
   local d="$1"
   if [ -d "$d" ]; then rm -rf $d; fi
   mkdir -p $d
-  echo $d
+  readlink -f $d
 }
 
 
