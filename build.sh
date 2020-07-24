@@ -73,7 +73,7 @@ emptyDirectory() {
 setDeploymentId() {
   local prefix=
   local short=
-  if [ "${GIT_BRANCH:-unknown}" != master ]
+  if [ "${GIT_BRANCH:-unknown}" != d2]
   then
     local commit="${GIT_COMMIT:-0000000}"
     prefix="x-${commit:0:7}-"
