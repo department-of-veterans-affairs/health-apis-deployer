@@ -119,7 +119,7 @@ build() {
   then
     echo "FAILED TO START BUILD"
     echo "REQUESTED: $buildUrl"
-    echo "RESULT: $result"
+    echo "RESULT: ${result:0:100}"
     exit 1
   fi
   echo "Build requested."
