@@ -94,6 +94,7 @@ productConfiguration() {
   stage start -s "product configuration"
   product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONFIGURATION_DIR
   . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
+  cat $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
   deployment-unit fetch -c $DU_COORDINATES -d $DU_DIR
   if [ $DEBUG == true ]
   then
