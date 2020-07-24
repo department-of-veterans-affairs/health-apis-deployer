@@ -2,6 +2,7 @@
 set +x -euo pipefail
 export PATH=${WORKSPACE:-.}/bin:$PATH
 export BANNER_DEFAULT_SIZE=158
+export STAGE_PREFIX="${VPC:-} ${PRODUCT:-}"
 
 cat <<EOF
 

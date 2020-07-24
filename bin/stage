@@ -80,7 +80,12 @@ startStage() {
   endStage "$stateFile"
   stage="${stage^^}"
   echo
-  banner h1 -m "STARTING $stage"
+  local prefix=
+  if [ -n "${STAGE_PREFIX:-}" ]
+  then
+    prefix="${STAGE_PREFIX^^}: "
+  fi
+  banner h1 -m "${prefix}STARTING $stage"
   echo $stage >> $stateFile
 }
 
