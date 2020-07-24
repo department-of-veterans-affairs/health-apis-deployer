@@ -81,6 +81,18 @@ requireParam() {
   if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
 }
 
+fetchFromLowerEnvironment() {
+  local environment="${1}" product="${2}" dir="${3}"
+  local lowerEnv
+  lowerEnv=$(environment promoted-from -e $environment)
+  echo "Fetching production configuration from lower environment $lowerEnvironment"
+  local s3=$(s3 $lowerEnv $product)
+  local tmpDir=$(mktemp -d -p .)
+  RM_ON_EXIT+=($tmpDir)
+  aws s3 cp --recursive $s3 $tmpDir
+  prepareConfiguration $product $tmpDir $dir
+}
+
 fetchFromGithub() {
   local product="$1" dir="$2"
   echo "Fetching product configuration from GitHub"
@@ -90,10 +102,10 @@ fetchFromGithub() {
   github clone -r health-apis-deployer -d deployer
   cd deployer
   git checkout -q qa
-  copyConfiguration $product $(readlink -fm products) $dir
+  prepareConfiguration $product $(readlink -fm products) $dir
 }
 
-copyConfiguration() {
+prepareConfiguration() {
   local product="$1" fromDir="$2" toDir="$3"
   if [ ! -d $toDir ]; then mkdir -p $toDir; fi
   local saveMe=$toDir/saved-items
@@ -146,12 +158,13 @@ fetch() {
   requireParam "environment" "$environment"
   requireParam "product" "$product"
   requireParam "directory" "$dir"
-  case $environment in
-    qa) fetchFromGithub $product $(readlink -fm $dir);;
-    *) echo "Unsupported environment: $environment"; exit 1;;
-  esac
+  if [ $environment == qa ]
+  then
+    fetchFromGithub $product $(readlink -fm $dir)
+  else
+    fetchFromLowerEnvironment $environment $product $dir
+  fi
 }
-
 
 loadScript() {
   local dir="${1:-}"
