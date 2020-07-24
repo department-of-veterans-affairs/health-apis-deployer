@@ -9,9 +9,10 @@ on-initialize() {
   # any additional sources
   #
   ln -s $ENVIRONMENT_CONFIGURATION $PLUGIN_SUBSTITION_DIR/01-global-environment.conf
-  writeBackwardsCompatibilityEnvironment $PLUGIN_SUBSTITION_DIR/02-backwards-compatibility.conf
-  ln -s $DU_DIR/deployment.conf $PLUGIN_SUBSTITION_DIR/03-du-deployment.conf
-  ln -s $DU_DIR/${ENVIRONMENT}.conf $PLUGIN_SUBSTITION_DIR/04-du-environment.conf
+  ln -s $PRODUCT_CONFIGURATION_DIR/product.conf $PLUGIN_SUBSTITION_DIR/02-product.conf
+  writeBackwardsCompatibilityEnvironment $PLUGIN_SUBSTITION_DIR/04-backwards-compatibility.conf
+  ln -s $DU_DIR/deployment.conf $PLUGIN_SUBSTITION_DIR/05-du-deployment.conf
+  ln -s $DU_DIR/${ENVIRONMENT}.conf $PLUGIN_SUBSTITION_DIR/06-du-environment.conf
   return $PLUGIN_ENABLED
 }
 
