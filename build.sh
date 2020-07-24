@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set +x -euo pipefail
 export PATH=${WORKSPACE:-.}/bin:$PATH
+export BANNER_DEFAULT_SIZE=158
 
 cat <<EOF
 
@@ -182,7 +183,7 @@ goodbye() {
     for lifecycle in ${!LIFECYLE_STATE[@]}
     do
       local state=${LIFECYLE_STATE[$lifecycle]}
-      print "%15s [%s]\n" "$lifecycle" "$state"
+      printf "%15s [%s]\n" "$lifecycle" "$state"
       if [ $state != "complete" ]; then errorCode=1; fi
     done
   fi
