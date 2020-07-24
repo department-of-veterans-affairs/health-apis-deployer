@@ -173,7 +173,7 @@ lifecycle() {
 }
 
 recordDeployment() {
-  stage start -m "save configuration"
+  stage start -s "save configuration"
   product-configuration save \
     -e $ENVIRONMENT \
     -p $PRODUCT \
