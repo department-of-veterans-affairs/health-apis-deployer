@@ -191,7 +191,7 @@ goodbye() {
 }
 
 
-Main() {
+main() {
   initDebugMode
   deployment add-build-info \
     -b "$DEPLOYMENT_ID" \
