@@ -7,7 +7,7 @@ on-initialize() {
   if [ ${#TIMER_FILES[@]} -eq 0 ]; then return $PLUGIN_DISABLED; fi
   for timer in ${TIMER_FILES[@]}
   do
-    substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $file
+    substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $timer
   done
   return $PLUGIN_ENABLED
 }

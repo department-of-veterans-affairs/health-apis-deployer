@@ -65,6 +65,9 @@ rewrite() {
   requireParam "environment-directory" "$envDirectory"
   requireParam "file" "$file"
   local tmpFile=$file.es
+  echo "Rewriting $file"
+  cat $file
+  echo ---
   # Use a subshell to protect this script's environment.
   (
     for f in $(find $envDirectory -type f)
@@ -75,6 +78,7 @@ rewrite() {
     cat $tmpFile | envsubst > $file
     rm $tmpFile
   )
+  cat $file
 }
 
 main "$@"
