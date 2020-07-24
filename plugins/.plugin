@@ -39,8 +39,8 @@ on-finalize() { return 0; }
 
 # Rollback flow
 on-before-rollback() { return 0; }
+# <-- Future AZ rollback lifecycles here
 on-rollback() { return 0; }
-on-deploy() { return 0; }
 on-verify-rollback() { return 0; }
 on-after-rollback() { return 0; }
 

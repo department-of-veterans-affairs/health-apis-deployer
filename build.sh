@@ -123,45 +123,84 @@ initializePlugins() {
 }
 
 
+
+isRollingBack() { test -n "${ROLLBACK_STARTED:-}"; }
+}
+
 ROLLBACK_STARTED=
 rollback() {
-  if [ -n "${ROLLBACK_STARTED:-}" ]
+  if isRollingBack
   then
     echo "An error has occurred while a rollback is in progress."
     return
   fi
   ROLLBACK_STARTED=$LIFECYCLE
+  # Based on the current lifecycle, determine what lifecycles need
+  # to be executed to perform rollack
+  lifecycle before-rollback force
+  lifecycle rollback force
+  lifecycle verify-rollback force
+  lifecycle after-rollback force
   echo TODO ROLLBACK
 }
 
+declare -A LIFECYLE_STATE
 declare -x LIFECYCLE=not-started
 lifecycle() {
   LIFECYCLE="$1"
   local force="${2:-false}"
-  if [ -n "${ROLLBACK_STARTED:-}" -a "$force" == "false" ]
+  if isRollingBack && [ "$force" == "false" ]
   then
     echo "Rollback in progress, skipping $LIFECYCLE"
+    LIFECYLE_STATE[$LIFECYCLE]=skipped
     return 0
   fi
   stage start -s "lifecycle $LIFECYCLE"
+  LIFECYLE_STATE[$LIFECYCLE]=started
   . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
+  local status=complete
   for plugin in ${PLUGINS[@]}
   do
     if ! $PLUGIN_DIR/$plugin $LIFECYCLE | awk -v plugin=$plugin '{ print "[" plugin "] " $0 }'
     then
       echo "$plugin failed to execute lifecycle $LIFECYCLE"
-      rollback
+      LIFECYLE_STATE[$LIFECYCLE]=failed
+      if ! isRollingBack; then rollback; return; fi
     fi
   done
+  LIFECYLE_STATE[$LIFECYCLE]=complete
 }
 
-main() {
+
+
+goodbye() {
+  stage start -s "winddown"
+  local errorCode=0
+  if [ ${#LIFECYLE_STATE[@]} == 0 ]
+  then
+    echo "Lifecycle engine did not engage"
+    errorCode=1
+  else
+    for lifecycle in ${!LIFECYLE_STATE[@]}
+    do
+      local state=${LIFECYLE_STATE[$lifecyle]}
+      print "%15s [%s]\n" "$lifecycle" "$state"
+      if [ $state != "complete" ]; then errorCode=1; fi
+    done
+  fi
+  echo "Goodbye"
+  exit $errorCode
+}
+
+
+Main() {
   initDebugMode
   deployment add-build-info \
     -b "$DEPLOYMENT_ID" \
     -d "ENVIRONMENT ... $(vpc hyphenize -e "$VPC")"
   productConfiguration
   initializePlugins
+
   lifecycle initialize
   lifecycle validate
   lifecycle before-deploy
@@ -170,6 +209,8 @@ main() {
   lifecycle verify-deploy
   lifecycle after-deploy
   lifecycle finalize force
+
+  goodbye
 }
 
 initialize
