@@ -66,21 +66,17 @@ rewrite() {
   requireParam "file" "$file"
   local tmpFile=$file.es
   echo "Rewriting $file"
-  cat $file
-  echo --- $envDirectory ---
-  ls -la $envDirectory
-  echo -------
   # Use a subshell to protect this script's environment.
   (
     for f in $(find -L $envDirectory -type f| sort)
     do
-      echo "Loading $f" ; cat $f
       . $f
     done
     mv $file $tmpFile
     cat $tmpFile | envsubst > $file
     rm $tmpFile
   )
+  banner file -m "$file"
   cat $file
 }
 
