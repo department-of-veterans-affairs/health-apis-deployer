@@ -15,5 +15,16 @@ on-initialize() {
   done
 }
 
+on-undeploy() {
+  callculon remove-all
+}
+
+on-deploy() {
+  for timer in ${TIMER_FILES[@]}
+  do
+    callculon create --configuration $timer
+  done
+}
+
 main "$@"
 exit 1
