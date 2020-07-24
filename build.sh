@@ -187,7 +187,8 @@ promote() {
     echo "This branch is not eligible for promotion"
     return
   fi
-  local promotesTo=$(environment promotes-to -e $ENVIRONMENT)
+  local promotesTo
+  promotesTo=$(environment promotes-to-vpc -e $ENVIRONMENT)
   if [ -z "${promotesTo:-}" ]
   then
     echo "Environment $ENVIRONMENT is not eligible for automatic promotion"
