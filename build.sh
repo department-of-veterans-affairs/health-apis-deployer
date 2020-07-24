@@ -172,7 +172,7 @@ lifecycle() {
 
 
 goodbye() {
-  stage start -s "winddown"
+  stage start -s "goodbye"
   local errorCode=0
   if [ ${#LIFECYLE_STATE[@]} == 0 ]
   then
@@ -181,7 +181,7 @@ goodbye() {
   else
     for lifecycle in ${!LIFECYLE_STATE[@]}
     do
-      local state=${LIFECYLE_STATE[$lifecyle]}
+      local state=${LIFECYLE_STATE[$lifecycle]}
       print "%15s [%s]\n" "$lifecycle" "$state"
       if [ $state != "complete" ]; then errorCode=1; fi
     done
