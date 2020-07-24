@@ -16,11 +16,11 @@ on-initialize() {
 }
 
 on-undeploy() {
+  env | sort
   callculon remove-all
 }
 
 on-deploy() {
-  env | sort
   for timer in ${TIMER_FILES[@]}
   do
     callculon create --configuration $timer
