@@ -8,9 +8,20 @@ on-initialize() {
   # sources as the first items to ensure these are available before
   # any additional sources
   #
-  ln -s $DU_DIR/deployment.conf $PLUGIN_SUBSTITION_DIR/01-deployment.conf
-  ln -s $DU_DIR/${ENVIRONMENT}.conf $PLUGIN_SUBSTITION_DIR/02-environment.conf
+  ln -s $ENVIRONMENT_CONFIGURATION $PLUGIN_SUBSTITION_DIR/01-global-environment.conf
+  writeBackwardsCompatibilityEnvironment $PLUGIN_SUBSTITION_DIR/02-backwards-compatibility.conf
+  ln -s $DU_DIR/deployment.conf $PLUGIN_SUBSTITION_DIR/03-du-deployment.conf
+  ln -s $DU_DIR/${ENVIRONMENT}.conf $PLUGIN_SUBSTITION_DIR/04-du-environment.conf
   return $PLUGIN_ENABLED
+}
+
+writeBackwardsCompatibilityEnvironment() {
+  local file=$1
+  cat > $file <<EOF
+export NAMESPACE=$DU_NAMESPACE
+export K8S_ENVIRONMENT=$ENVIRONMENT
+export K8S_LOAD_BALANCER=$BLUE_LOAD_BALANCER
+EOF
 }
 
 main "$@"

@@ -70,7 +70,7 @@ rewrite() {
   echo ---
   # Use a subshell to protect this script's environment.
   (
-    for f in $(find $envDirectory -type f)
+    for f in $(find $envDirectory -type f | sort)
     do
       . $f
     done
