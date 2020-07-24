@@ -72,7 +72,6 @@ def contentOf(file) {
 pipeline {
   agent none
   options {
-    disableConcurrentBuilds()
     buildDiscarder(logRotator(numToKeepStr: '99', artifactNumToKeepStr: '99'))
     retry(0)
     timeout(time: 1440, unit: 'MINUTES')
