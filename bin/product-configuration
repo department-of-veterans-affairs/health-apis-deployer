@@ -13,7 +13,7 @@ $0 [options] <command>
 Get information about deployment environments
 
 Options
--e, --for-environment <env>
+-e, --environment <env>
   The environment name, e.g. qa or staging-lab
 -d, --directory <dir>
   The directory to place configuration into
@@ -24,10 +24,10 @@ Commands
 fetch -e <env> -p <name> -d <dir>
   Fetch the configuration or this product for this environment
   and place it in the directory.
-load -d <dir>
-  Generate a command used to load deployment unit environments
-  specific to the product in the given direcory. Evaluate as follows:
-  \$($0 load -d work/product-configuration)
+save -e <env> -p <name> -d <dir>
+  Save the configuration to permanent storage location for this environment
+load-script -d <dir>
+  Print the name of a script that can be sourced to load configuration
 
 ${1:-}
 EOF
@@ -47,7 +47,7 @@ main() {
     case "$1" in
       --debug) DEBUG=true;;
       -d|--directory) directory="$2";;
-      -e|--for-environment) environment="$2";;
+      -e|--environment) environment="$2";;
       -p|--product) product="$2";;
       --) shift; break;;
     esac
@@ -61,6 +61,7 @@ main() {
   local command=$1
   case $command in
     fetch) fetch "${environment:-}" "${product:-}" "${directory:-}";;
+    save) save "${environment:-}" "${product:-}" "${directory:-}";;
     load-script) loadScript "${directory:-}";;
     *) usage "Unknown command: $command";;
   esac
@@ -95,6 +96,9 @@ fetchFromGithub() {
 copyConfiguration() {
   local product="$1" fromDir="$2" toDir="$3"
   if [ ! -d $toDir ]; then mkdir -p $toDir; fi
+  local saveMe=$toDir/saved-items
+  mkdir -p $saveMe
+  cp $fromDir/$product.yaml $fromDir/$product.conf $saveMe
   cp $fromDir/$product.yaml $toDir/product.yaml
   cat > $toDir/product.conf <<EOF
 declare -x DU_ARTIFACT
@@ -139,7 +143,7 @@ validateConfiguration() {
 
 fetch() {
   local environment="${1:-}" product="${2:-}" dir="${3:-}"
-  requireParam "for-environment" "$environment"
+  requireParam "environment" "$environment"
   requireParam "product" "$product"
   requireParam "directory" "$dir"
   case $environment in
@@ -155,6 +159,25 @@ loadScript() {
   local loadScript=$dir/product.conf
   if [ ! -f $loadScript ]; then echo "$loadScript does not exist" > /dev/stderr; exit 1; fi
   echo $loadScript
+}
+
+s3() {
+  local environment="${1}" product="${2}"
+  echo "s3://app-config-storage-$environment/product-configuration/$product"
+}
+
+save() {
+  local environment="${1:-}" product="${2:-}" dir="${3:-}"
+  requireParam "environment" "$environment"
+  requireParam "product" "$product"
+  requireParam "directory" "$dir"
+  echo "Saving $environment configuration of $product"
+  local s3=$(s3 $environment $product)
+  local saveMe=$dir/saved-items
+  for item in $(find $saveMe -type f)
+  do
+    aws s3 cp $item $s3/$(basename $item)
+  done
 }
 
 main "$@"

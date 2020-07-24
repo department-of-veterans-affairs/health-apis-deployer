@@ -172,7 +172,13 @@ lifecycle() {
   LIFECYCLE_STATE[$LIFECYCLE]=complete
 }
 
-
+recordDeployment() {
+  stage start -m "save configuration"
+  product-configuration save \
+    -e $ENVIRONMENT \
+    -p $PRODUCT \
+    -d $PRODUCT_CONFIGURATION_DIR
+}
 
 goodbye() {
   stage start -s "goodbye"
@@ -194,7 +200,6 @@ goodbye() {
   exit $errorCode
 }
 
-
 main() {
   initDebugMode
   deployment add-build-info \
@@ -212,6 +217,7 @@ main() {
   lifecycle after-deploy
   lifecycle finalize force
 
+  recordDeployment
   goodbye
 }
 
