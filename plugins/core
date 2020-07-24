@@ -12,7 +12,6 @@ on-initialize() {
   # sources as the first items to ensure these are available before
   # any additional sources
   #
-  set -x
   ln -s $ENVIRONMENT_CONFIGURATION $PLUGIN_SUBSTITION_DIR/01-global-environment.conf
   ln -s $PRODUCT_CONFIGURATION_DIR/product.conf $PLUGIN_SUBSTITION_DIR/02-product.conf
   writeBackwardsCompatibilityEnvironment $PLUGIN_SUBSTITION_DIR/03-backwards-compatibility.conf

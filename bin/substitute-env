@@ -76,8 +76,6 @@ rewrite() {
     cat $tmpFile | envsubst > $file
     rm $tmpFile
   )
-  banner file -m "$file"
-  cat $file
 }
 
 main "$@"
