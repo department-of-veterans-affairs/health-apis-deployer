@@ -85,7 +85,7 @@ fetchFromLowerEnvironment() {
   local environment="${1}" product="${2}" dir="${3}"
   local lowerEnv
   lowerEnv=$(environment promoted-from -e $environment)
-  echo "Fetching production configuration from lower environment $lowerEnvironment"
+  echo "Fetching production configuration from lower environment $lowerEnv"
   local s3=$(s3 $lowerEnv $product)
   local tmpDir=$(mktemp -d -p .)
   RM_ON_EXIT+=($tmpDir)
