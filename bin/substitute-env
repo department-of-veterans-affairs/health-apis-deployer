@@ -72,6 +72,7 @@ rewrite() {
   (
     for f in $(find $envDirectory -type f | sort)
     do
+      echo "Loading $f" ; cat $f
       . $f
     done
     mv $file $tmpFile
