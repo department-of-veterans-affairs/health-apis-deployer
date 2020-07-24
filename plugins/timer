@@ -16,7 +16,6 @@ on-initialize() {
 }
 
 on-undeploy() {
-  env | sort
   callculon remove-all
 }
 

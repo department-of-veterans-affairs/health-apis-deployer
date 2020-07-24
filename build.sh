@@ -145,7 +145,6 @@ lifecycle() {
   fi
   stage start -s "lifecycle $LIFECYCLE"
   . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
-  env | sort
   for plugin in ${PLUGINS[@]}
   do
     if ! $PLUGIN_DIR/$plugin $LIFECYCLE | awk -v plugin=$plugin '{ print "[" plugin "] " $0 }'
