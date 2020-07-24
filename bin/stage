@@ -71,7 +71,7 @@ currentStage() {
 endStage() {
   local stateFile="$1"
   current=$(currentStage $stateFile)
-  if [ -n "$current" ]; then banner h1 -m "$current COMPLETED"; fi
+  if [ -n "$current" ]; then banner h1 -m "COMPLETED $current"; fi
 }
 
 startStage() {

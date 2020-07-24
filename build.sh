@@ -143,19 +143,21 @@ rollback() {
   echo TODO ROLLBACK
 }
 
-declare -A LIFECYLE_STATE
+LIFECYCLE_HISTORY=()
+declare -A LIFECYCLE_STATE
 declare -x LIFECYCLE=not-started
 lifecycle() {
   LIFECYCLE="$1"
+  LIFECYCLE_HISTORY+=( $LIFECYCLE )
   local force="${2:-false}"
   if isRollingBack && [ "$force" == "false" ]
   then
     echo "Rollback in progress, skipping $LIFECYCLE"
-    LIFECYLE_STATE[$LIFECYCLE]=skipped
+    LIFECYCLE_STATE[$LIFECYCLE]=skipped
     return 0
   fi
   stage start -s "lifecycle $LIFECYCLE"
-  LIFECYLE_STATE[$LIFECYCLE]=started
+  LIFECYCLE_STATE[$LIFECYCLE]=started
   . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
   local status=complete
   for plugin in ${PLUGINS[@]}
@@ -163,11 +165,11 @@ lifecycle() {
     if ! $PLUGIN_DIR/$plugin $LIFECYCLE | awk -v plugin=$plugin '{ print "[" plugin "] " $0 }'
     then
       echo "$plugin failed to execute lifecycle $LIFECYCLE"
-      LIFECYLE_STATE[$LIFECYCLE]=failed
+      LIFECYCLE_STATE[$LIFECYCLE]=failed
       if ! isRollingBack; then rollback; return; fi
     fi
   done
-  LIFECYLE_STATE[$LIFECYCLE]=complete
+  LIFECYCLE_STATE[$LIFECYCLE]=complete
 }
 
 
@@ -175,15 +177,16 @@ lifecycle() {
 goodbye() {
   stage start -s "goodbye"
   local errorCode=0
-  if [ ${#LIFECYLE_STATE[@]} == 0 ]
+  if [ ${#LIFECYCLE_STATE[@]} == 0 ]
   then
     echo "Lifecycle engine did not engage"
     errorCode=1
   else
-    for lifecycle in ${!LIFECYLE_STATE[@]}
+    banner h2 -m "Lifecycles"
+    for lifecycle in ${LIFECYCLE_HISTORY[@]}
     do
-      local state=${LIFECYLE_STATE[$lifecycle]}
-      printf "%15s [%s]\n" "$lifecycle" "$state"
+      local state=${LIFECYCLE_STATE[$lifecycle]}
+      printf "%-15s [%s]\n" "$lifecycle" "$state"
       if [ $state != "complete" ]; then errorCode=1; fi
     done
   fi
