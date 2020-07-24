@@ -108,11 +108,11 @@ initializePlugins() {
   local pluginOrder=$WORK/plugins
   for plugin in $(find $PLUGIN_DIR -type f -name "[a-z]*")
   do
-    if $plugin initialize
+    if $plugin activate
     then
       echo "$($plugin priority) $(basename $plugin)" >> $pluginOrder
     else
-      if [ $? != 86 ]; then abort "$plugin failed to initialize"; fi
+      if [ $? != 86 ]; then abort "$plugin failed to activate"; fi
     fi
   done
   for plugin in $(sort -n $pluginOrder|awk '{print $2}')
@@ -122,6 +122,38 @@ initializePlugins() {
   echo "Enabled plugins: ${PLUGINS[@]}"
 }
 
+
+ROLLBACK_STARTED=
+rollback() {
+  if [ -n "${ROLLBACK_STARTED:-}" ]
+  then
+    echo "Rollback is in progress"
+    return
+  fi
+  ROLLBACK_STARTED=$LIFECYCLE
+  echo TODO ROLLBACK
+}
+
+declare -x LIFECYCLE=not-started
+lifecycle() {
+  LIFECYCLE="$1"
+  local force="${2:-false}"
+  if [ -n "${ROLLBACK_STARTED:-}" -a "$force" == "false" ]
+  then
+    echo "Rollback inprogress, skipping $LIFECYCLE"
+    return 0
+  fi
+  stage start -s "lifecycle $LIFECYCLE"
+  for plugin in ${PLUGINS[@]}
+  do
+    if ! $plugin $LIFECYCLE
+    then
+      echo "$plugin failed to execute lifecycle $LIFECYCLE"
+      rollback
+    fi
+  done
+}
+
 main() {
   initDebugMode
   deployment add-build-info \
@@ -129,6 +161,14 @@ main() {
     -d "ENVIRONMENT ... $(vpc hyphenize -e "$VPC")"
   productConfiguration
   initializePlugins
+  lifecycle initialize
+  lifecycle validate
+  lifecycle before-deploy
+  lifecycle undeploy
+  lifecycle deploy
+  lifecycle verify-deploy
+  lifecycle after-deploy
+  lifecycle finalize force
 }
 
 initialize

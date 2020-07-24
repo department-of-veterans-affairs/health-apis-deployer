@@ -3,13 +3,16 @@
 
 TIMER_FILES=( $(find $DU_DIR -name "timer-*.json") )
 
-on-initialize() {
+on-activate() {
   if [ ${#TIMER_FILES[@]} -eq 0 ]; then return $PLUGIN_DISABLED; fi
+  return $PLUGIN_ENABLED
+}
+
+on-initialize() {
   for timer in ${TIMER_FILES[@]}
   do
     substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $timer
   done
-  return $PLUGIN_ENABLED
 }
 
 main "$@"

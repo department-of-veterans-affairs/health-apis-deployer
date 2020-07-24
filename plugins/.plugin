@@ -9,10 +9,13 @@ _init() {
   PLUGIN_SUBSTITUTIONS_FILE=PLUGIN_SUBSTITION_DIR/$PLUGIN_NAME.env
 }
 
+log() { echo "$PLUGIN_NAME: $@"; }
+
 abort() {
-  echo "ABORT: $PLUGIN_NAME: $1" > /dev/stderr
+  log "ABORT: $1" > /dev/stderr
   exit 1
 }
+
 
 main() {
   if [ $# != 1 ]; then abort "No command specified"; fi
@@ -22,8 +25,9 @@ main() {
 }
 
 # Normal flow
-on-initialize() { return $PLUGIN_DISABLED; }
+on-activate() { return $PLUGIN_DISABLED; }
 on-priority() { echo $PLUGIN_PRIORITY; }
+on-initialize() { return 0; }
 on-validate() { return 0; }
 on-before-deploy() { return 0; }
 on-undeploy() { return 0; }
