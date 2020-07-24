@@ -70,7 +70,6 @@ require() {
   local name="$1"
   local value="${2:-}"
   if [ -z "$value" ]; then usage "Missing --$name parameter"; fi
-  echo "$value"
 }
 
 requireFile() {
