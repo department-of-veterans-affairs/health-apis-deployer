@@ -146,7 +146,7 @@ lifecycle() {
   stage start -s "lifecycle $LIFECYCLE"
   for plugin in ${PLUGINS[@]}
   do
-    if ! $plugin $LIFECYCLE
+    if ! $PLUGIN_DIR/$plugin $LIFECYCLE
     then
       echo "$plugin failed to execute lifecycle $LIFECYCLE"
       rollback
