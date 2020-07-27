@@ -96,7 +96,7 @@ pipeline {
           if (env.PRODUCT == null) { env.PRODUCT='none' }
           if (env.VPC == null) { env.VPC='QA' }
           if (env.PRODUCT == 'none') {
-            currentBuild.displayName = "D2 upgrade"
+            currentBuild.displayName = "#${currentBuild.number} - D2 upgrade"
           } else {
             currentBuild.displayName = "#${currentBuild.number} - ${env.VPC} ${env.PRODUCT} - in progress"
           }
