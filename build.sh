@@ -189,6 +189,11 @@ lifecycle() {
 
 recordDeployment() {
   stage start -s "save configuration"
+  if [ "${LIFECYCLE_STATE[verify-deploy]}" != "complete" ]
+  then
+    echo "Deployment has not been verified, skipping."
+    return
+  fi
   product-configuration save \
     -e $ENVIRONMENT \
     -p $PRODUCT \
