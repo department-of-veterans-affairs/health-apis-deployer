@@ -134,8 +134,7 @@ pipeline {
       node('master') {
         script {
           if ( env.PRODUCT != 'none') {
-            currentBuild.displayName = "#${currentBuild.number} - "
-              + contentOf('.deployment/build-name')
+            currentBuild.displayName = "#${currentBuild.number} - " + contentOf('.deployment/build-name')
           }
           currentBuild.description = contentOf('.deployment/description')
           def unstable = contentOf('.deployment/unstable')

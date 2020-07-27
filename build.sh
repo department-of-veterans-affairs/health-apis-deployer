@@ -69,8 +69,6 @@ VPC ............... $VPC
 PRODUCT ........... $PRODUCT
 DEPLOYER_VERSION .. $DEPLOYER_VERSION
 DEBUG ............. $DEBUG
-
-$PATH
 EOF
 }
 
