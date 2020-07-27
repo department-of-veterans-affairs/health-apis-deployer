@@ -218,7 +218,7 @@ promote() {
   local promotedTo=()
   for vpc in ${promotesTo[@]}
   do
-    if [ ! -f $DU_DIR/${ENVIRONMENT.conf} ]
+    if [ ! -f $DU_DIR/${ENVIRONMENT}.conf ]
     then
       echo "Product does not have ${ENVIRONMENT}.conf and not eligible for promotion to $ENVIRONMENT."
       continue
