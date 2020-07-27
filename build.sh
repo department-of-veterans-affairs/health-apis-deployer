@@ -234,8 +234,11 @@ promote() {
       -b d2 \
       -p VPC=$vpc,DEPLOYER_VERSION=$DEPLOYER_VERSION,PRODUCT=$PRODUCT
   done
-  echo "Promoted $PRODUCT to: ${promotedTo[@]}"
-  deployment add-build-info -d "Promoted to ${promotedTo[@]}"
+  if [ ${#promotedTo[@]} -gt 0 ]
+  then
+    echo "Promoted $PRODUCT to: ${promotedTo[@]}"
+    deployment add-build-info -d "Promoted to ${promotedTo[@]}"
+  fi
 }
 
 goodbye() {
