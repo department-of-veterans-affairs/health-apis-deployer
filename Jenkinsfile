@@ -85,8 +85,8 @@ pipeline {
     string(name: 'PRODUCT', defaultValue: 'none', description: "The product to deploy.")
   }
   stages {
-    when { expression {  return env.PRODUCT != 'none' } }
     stage('Run') {
+      when { expression {  return env.PRODUCT != 'none' } }
       agent {
         docker {
           registryUrl 'https://index.docker.io/v1/'
