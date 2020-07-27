@@ -47,8 +47,8 @@ exit 99
 #============================================================
 initialize() {
   stage start -s "Initializing"
+  printParameters
   export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
-  if [ -z "${VPC:-}" ]; then VPC=Dev; fi
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
   export BUILD_TIMESTAMP="$(date)"
   export ENVIRONMENT_CONFIGURATION=$(readlink -f environments/$ENVIRONMENT.conf)
@@ -61,6 +61,17 @@ initialize() {
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
   setDeploymentId
   echo "Deployment $DEPLOYMENT_ID"
+}
+
+printParameters() {
+cat<<EOF
+VPC ............... $VPC
+PRODUCT ........... $PRODUCT
+DEPLOYER_VERSION .. $DEPLOYER_VERSION
+DEBUG ............. $DEBUG
+
+$PATH
+EOF
 }
 
 emptyDirectory() {
