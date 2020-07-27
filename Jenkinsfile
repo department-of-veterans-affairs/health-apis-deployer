@@ -95,7 +95,11 @@ pipeline {
           if (env.DEPLOYER_VERSION == null) { env.DEPLOYER_VERSION='latest' }
           if (env.PRODUCT == null) { env.PRODUCT='none' }
           if (env.VPC == null) { env.VPC='QA' }
-          currentBuild.displayName = "#${currentBuild.number} - ${env.VPC} ${env.PRODUCT} - in progress"
+          if (env.PRODUCT == 'none') {
+            currentBuild.displayName = "D2 upgrade"
+          } else {
+            currentBuild.displayName = "#${currentBuild.number} - ${env.VPC} ${env.PRODUCT} - in progress"
+          }
         }
       }
     }
@@ -128,7 +132,10 @@ pipeline {
     always {
       node('master') {
         script {
-          currentBuild.displayName = "#${currentBuild.number} - " + contentOf('.deployment/build-name')
+          if ( env.PRODUCT != 'none') {
+            currentBuild.displayName = "#${currentBuild.number} - "
+              + contentOf('.deployment/build-name')
+          }
           currentBuild.description = contentOf('.deployment/description')
           def unstable = contentOf('.deployment/unstable')
           if (unstable != '' && currentBuild.result != 'FAILURE') {
