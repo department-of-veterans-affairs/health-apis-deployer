@@ -58,7 +58,7 @@ initialize() {
   export PLUGIN_LIB=$PLUGIN_DIR/.plugin
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
   setDeploymentId
-  echo "Deployment $DEPLOYMENT_ID"
+  echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
 }
 
 printParameters() {
@@ -216,11 +216,13 @@ promote() {
   fi
   echo "Promoting to: ${promotesTo[@]}"
   local promotedTo=()
+  local nextEnvironment
   for vpc in ${promotesTo[@]}
   do
-    if [ ! -f $DU_DIR/${ENVIRONMENT}.conf ]
+    nextEnvironment=$(vpc hyphenize -e $vpc)
+    if [ ! -f $DU_DIR/${nextEnvironment}.conf ]
     then
-      echo "Product does not have ${ENVIRONMENT}.conf and not eligible for promotion to $ENVIRONMENT."
+      echo "Product does not have ${nextEnvironment}.conf and not eligible for promotion to $vpc."
       continue
     fi
     echo "Scheduling promotion to $vpc"
