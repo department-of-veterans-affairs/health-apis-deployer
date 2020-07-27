@@ -78,6 +78,7 @@ pipeline {
     timestamps()
   }
   parameters {
+    // DO NOT TRUST DEFAULT VALUES. THEY ARE NOT ALWAYS SET.
     booleanParam(name: 'DEBUG', defaultValue: false, description: "Enable debugging output")
     string(name: 'DEPLOYER_VERSION', defaultValue: 'latest', description: 'Version of the deployment machinery')
     choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ],
@@ -85,6 +86,17 @@ pipeline {
     string(name: 'PRODUCT', defaultValue: 'none', description: "The product to deploy.")
   }
   stages {
+    stage('Init') {
+      steps {
+        script {
+          // Sometimes these parameters are not defaulted... thanks Jenkins.
+          if (env.DEBUG == null) { env.DEBUG='false' }
+          if (env.DEPLOYER_VERSION == null) { env.DEPLOYER_VERSION='latest' }
+          if (env.PRODUCT == null) { env.PRODUCT='none' }
+          if (env.VPC == null) { env.VPC='QA' }
+        }
+      }
+    }
     stage('Run') {
       when { expression {  return env.PRODUCT != 'none' } }
       agent {
@@ -97,7 +109,6 @@ pipeline {
       }
       steps {
         script {
-          if ( env.VPC == null ) { env.VPC = "QA" }
           currentBuild.displayName = "#${currentBuild.number} - ${env.VPC} ${env.PRODUCT} - in progress"
           for(cause in currentBuild.rawBuild.getCauses()) {
             def name='BUILD_'+cause.class.getSimpleName().replaceAll('(.+?)([A-Z])','$1_$2').toUpperCase()
