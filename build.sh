@@ -73,7 +73,7 @@ emptyDirectory() {
 setDeploymentId() {
   local suffix=d2
   local short=
-  if [ "${GIT_BRANCH:-unknown}" != d2]
+  if [ "${GIT_BRANCH:-unknown}" != d2 ]
   then
     suffix=x
   fi

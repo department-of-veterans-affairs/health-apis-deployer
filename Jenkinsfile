@@ -82,9 +82,10 @@ pipeline {
     string(name: 'DEPLOYER_VERSION', defaultValue: '14-NR-1.0.47-SNAPSHOT', description: 'Version of the deployment machinery')
     choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ],
       description: "Environment to deploy into")
-    string(name: 'PRODUCT', defaultValue: 'exemplar', description: "The product to deploy.")
+    string(name: 'PRODUCT', defaultValue: 'none', description: "The product to deploy.")
   }
   stages {
+    when { expression {  return env.PRODUCT != 'none' } }
     stage('Run') {
       agent {
         docker {
