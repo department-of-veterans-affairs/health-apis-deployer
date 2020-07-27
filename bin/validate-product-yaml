@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+usage() {
+cat<<EOF > /dev/stderr
+$0 <FILE>
+
+ARGS:
+  <FILE>
+    Input product.yaml file to validate.
+
+EOF
+echo -e "$1" > /dev/stderr
+exit 1
+}
+
+FILE=$1
+
+[ -z $FILE ] && echo "No product.yaml specified." && usage && exit 1
+
+ILLEGAL_NAMESPACE_DECLARATIONS=$(grep -E '^.*namespace: *(default)?$' $FILE)
+[ -n "$ILLEGAL_NAMESPACE_DECLARATIONS" ] && echo "============================================================" \
+  && echo "Illegal namespaces detected. Do NOT use empty, or the default namespace." \
+  && exit 1
+
+exit 0
