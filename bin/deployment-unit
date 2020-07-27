@@ -87,6 +87,7 @@ fetch() {
   local basename=$(basename $directory)
   mv $content $basename
   mv $basename $parent
+  ryan-secrets decrypt-all --directory $DU_DIR --encryption-passphrase $DU_DECRYPTION_KEY
 }
 
 main "$@"
