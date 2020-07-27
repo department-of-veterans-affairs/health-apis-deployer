@@ -87,6 +87,7 @@ pipeline {
   }
   stages {
     stage('Init') {
+      agent any
       steps {
         script {
           // Sometimes these parameters are not defaulted... thanks Jenkins.
