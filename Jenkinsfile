@@ -107,6 +107,7 @@ pipeline {
       when { expression {  return env.PRODUCT != 'none' } }
       agent {
         docker {
+          alwaysPull true
           registryUrl 'https://index.docker.io/v1/'
           registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
           image "vasdvp/health-apis-deploy-tools:${env.DEPLOYER_VERSION}"
