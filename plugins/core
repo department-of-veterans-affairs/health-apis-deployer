@@ -20,6 +20,10 @@ on-initialize() {
   return 0
 }
 
+on-validate() {
+  if [ ! -f $DU_DIR/${ENVIRONMENT}.conf ]; then abort "Missing ${ENVIRONMENT}.conf"; fi
+}
+
 writeBackwardsCompatibilityEnvironment() {
   local file=$1
   cat > $file <<EOF
