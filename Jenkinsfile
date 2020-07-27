@@ -150,7 +150,9 @@ pipeline {
         archiveArtifacts artifacts: '.deployment/artifacts/**', onlyIfSuccessful: false, allowEmptyArchive: true
         withCredentials( CREDENTIALS ) {
           script {
-            sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
+            if (env.PRODUCT != 'none') {
+              sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
+            }
           }
         }
       }

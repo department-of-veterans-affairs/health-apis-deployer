@@ -215,9 +215,16 @@ promote() {
     return
   fi
   echo "Promoting to: ${promotesTo[@]}"
+  local promotedTo=()
   for vpc in ${promotesTo[@]}
   do
+    if [ ! -f $DU_DIR/${ENVIRONMENT.conf} ]
+    then
+      echo "Product does not have ${ENVIRONMENT}.conf and not eligible for promotion to $ENVIRONMENT."
+      continue
+    fi
     echo "Scheduling promotion to $vpc"
+    promotedTo+=($vpc)
     jenkins build \
       -u "$PROMOTATRON_USERNAME_PASSWORD" \
       -o department-of-veterans-affairs \
@@ -225,6 +232,8 @@ promote() {
       -b d2 \
       -p VPC=$vpc,DEPLOYER_VERSION=$DEPLOYER_VERSION,PRODUCT=$PRODUCT
   done
+  echo "Promoted $PRODUCT to: ${promotedTo[@]}"
+  deployment add-build-info -d "Promoted to ${promotedTo[@]}"
 }
 
 goodbye() {
