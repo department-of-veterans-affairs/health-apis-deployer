@@ -190,16 +190,16 @@ promote() {
     return
   fi
   local promotesTo
-  promotesTo=$(environment promotes-to-vpc -e $ENVIRONMENT)
-  if [ -z "${promotesTo:-}" ]
+  promotesTo=( $(environment promotes-to-vpc -e $ENVIRONMENT) )
+  if [ "${#promotesTo[@]}" -eq 0 ]
   then
     echo "Environment $ENVIRONMENT is not eligible for automatic promotion"
     return
   fi
-  echo "Promoting to $promotesTo"
-  for vpc in $promotesTo
+  echo "Promoting to: ${promotesTo[@]}"
+  for vpc in ${promotesTo[@]}
   do
-    echo "Promoting to $promotesTo"
+    echo "Scheduling promotion to $vpc"
     jenkins build \
       -u "$PROMOTATRON_USERNAME_PASSWORD" \
       -o department-of-veterans-affairs \
