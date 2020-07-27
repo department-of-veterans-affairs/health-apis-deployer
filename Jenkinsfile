@@ -95,6 +95,10 @@ pipeline {
           if (env.DEPLOYER_VERSION == null) { env.DEPLOYER_VERSION='latest' }
           if (env.PRODUCT == null) { env.PRODUCT='none' }
           if (env.VPC == null) { env.VPC='QA' }
+          if (env.GIT_BRANCH != 'd2') {
+            echo "Forcing QA environment for branch ${env.GIT_BRANCH}"
+            env.VPC='QA'
+          }
           if (env.PRODUCT == 'none') {
             currentBuild.displayName = "#${currentBuild.number} - D2 upgrade"
           } else {
