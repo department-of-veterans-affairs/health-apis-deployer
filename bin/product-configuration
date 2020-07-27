@@ -110,8 +110,7 @@ prepareConfiguration() {
   if [ ! -d $toDir ]; then mkdir -p $toDir; fi
   local saveMe=$toDir/saved-items
   mkdir -p $saveMe
-  cp $fromDir/$product.yaml $fromDir/$product.conf $saveMe
-  cp $fromDir/$product.yaml $toDir/product.yaml
+  cp $fromDir/$product.conf $saveMe
   cat > $toDir/product.conf <<EOF
 declare -x DU_ARTIFACT
 declare -x DU_VERSION
