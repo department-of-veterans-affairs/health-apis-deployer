@@ -18,8 +18,6 @@ onExit() {
   STATUS=$?
   if [ $STATUS -ne 0 ]
   then
-    deployment add-build-info \
-      -d "Stage \"$(stage current)\" failed with status $STATUS"
     stage start -s "CRASH AND BURN"
     echo "OH NOES! SOMETHING BORKED!"
     echo "TERMINATING WITH STATUS: $STATUS"
@@ -106,6 +104,10 @@ productConfiguration() {
   stage start -s "product configuration"
   product-configuration fetch -e $ENVIRONMENT -p $PRODUCT -d $PRODUCT_CONFIGURATION_DIR
   . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
+  deployment add-build-info \
+    -b "$DEPLOYMENT_ID" \
+    -d "Deploy $PRODUCT to $ENVIRONMENT" \
+    -d "$DU_COORDINATES"
   deployment-unit fetch -c $DU_COORDINATES -d $DU_DIR
   if [ $DEBUG == true ]
   then
@@ -144,6 +146,8 @@ rollback() {
     echo "An error has occurred while a rollback is in progress."
     return
   fi
+  deployment add-build-info \
+    -d "Stage \"$(stage current)\" failed and triggered a rollback"
   ROLLBACK_STARTED=$LIFECYCLE
   # Based on the current lifecycle, determine what lifecycles need
   # to be executed to perform rollack
@@ -241,12 +245,8 @@ goodbye() {
 
 main() {
   initDebugMode
-  deployment add-build-info \
-    -b "$DEPLOYMENT_ID" \
-    -d "ENVIRONMENT ... $(vpc hyphenize -e "$VPC")"
   productConfiguration
   initializePlugins
-
   lifecycle initialize
   lifecycle validate
   lifecycle before-deploy
@@ -255,7 +255,6 @@ main() {
   lifecycle verify-deploy
   lifecycle after-deploy
   lifecycle finalize force
-
   recordDeployment
   goodbye
 }
