@@ -99,13 +99,8 @@ facilities /services/va_facilities/v0/facilities/openapi.json
 facilities /services/va_facilities/v0/facilities/vha_000/cms-overlay
 facilities /services/va_facilities/v0/facilities?lat=1&long=1
 facilities /services/va_facilities/v0/nearby?lat=1&lng=-1
-facilities /va_facilities/collection/status
-facilities /va_facilities/collector/health
-facilities /va_facilities/docs/v0/api
 facilities /va_facilities/metadata
 facilities /va_facilities/v0/facilities/all
-facilities /va_facilities/v0/facilities/openapi.json
-facilities /va_facilities/v0/facilities/vha_000/cms-overlay
 facilities /va_facilities/v0/facilities?lat=1&long=1
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
 # Patsr
