@@ -101,7 +101,6 @@ facilities /services/va_facilities/v0/facilities?lat=1&long=1
 facilities /services/va_facilities/v0/nearby?lat=1&lng=-1
 facilities /va_facilities/metadata
 facilities /va_facilities/v0/facilities/all
-facilities /va_facilities/v0/facilities?lat=1&long=1
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
 # Patsr
 patsr /whh-patsr-ent/actuator/health
