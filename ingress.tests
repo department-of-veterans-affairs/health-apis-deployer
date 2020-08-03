@@ -96,9 +96,6 @@ facilities /va_facilities/v0/nearby?lat=1&lng=-1
 facilities /services/va_facilities/v0/facilities?lat=1&long=1
 facilities /services/va_facilities/v0/facilities/all
 facilities /services/va_facilities/v0/nearby?lat=1&lng=-1
-# Fall Risk
-fall-risk /fall-risk/assessment?patient=1010101010V666666
-fall-risk /fall-risk/assessment?facility=640&since=123456789
 # Patsr
 patsr /whh-patsr-ent/actuator/health
 patsr /whh-patsr-ent/actuator/info
