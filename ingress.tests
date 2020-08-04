@@ -125,6 +125,12 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
 sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
+# SFDC MPI Contact Verifier Handler
+sfdc-mpi-contact-verifier-handler /sfdc-mpi-contact-verifier-handler/v0/actuator/health
+sfdc-mpi-contact-verifier-handler /sfdc-mpi-contact-verifier-handler/consumeQueue
+# SFDC MPI Contact Verifier Query 
+sfdc-mpi-contact-verifier-query /sfdc-mpi-contact-verifier-query/v0/actuator/health
+sfdc-mpi-contact-verifier-query /sfdc-mpi-contact-verifier-query/v0/putContactOnQueue
 # SFDC MPI Message Receiver
 sfdc-mpi-msg-receiver /sfdc-mpi-msg-receiver/v0/ws
 # SF DMC Debt to Contact Query
