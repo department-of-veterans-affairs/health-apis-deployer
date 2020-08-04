@@ -127,7 +127,7 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
 sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
 # SFDC MPI Contact Verifier Handler
 sfdc-mpi-contact-verifier-handler /sfdc-mpi-contact-verifier-handler/v0/actuator/health
-sfdc-mpi-contact-verifier-handler /sfdc-mpi-contact-verifier-handler/consumeQueue
+sfdc-mpi-contact-verifier-handler /sfdc-mpi-contact-verifier-handler/v0/consumeQueue
 # SFDC MPI Contact Verifier Query 
 sfdc-mpi-contact-verifier-query /sfdc-mpi-contact-verifier-query/v0/actuator/health
 sfdc-mpi-contact-verifier-query /sfdc-mpi-contact-verifier-query/v0/putContactOnQueue
