@@ -7,7 +7,7 @@ onExit() { rm $TMP; }
 trap onExit EXIT
 
 printRules() {
-  grep DU_LOAD_BALANCER_RULES */*conf \
+  grep -E ^DU_LOAD_BALANCER_RULES products/*conf \
   | sed 's|^.*/\(.*\).conf.*\[\([0-9]\+\)\]="\(.*\)"|\2 \3 \1|' \
   | sort -n
 }

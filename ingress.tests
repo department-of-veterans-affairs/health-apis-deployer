@@ -21,6 +21,7 @@ data-query /fhir/v0/stu3/PractitionerRole/I2-abc123def4560000
 data-query /fhir/v0/dstu2/Patient/$validate
 data-query /data-query/datamart/validation
 data-query /fhir/v0/dstu2/openapi.json
+data-query /fhir/v0/r4/openapi.json
 data-query /fhir/v0/argonaut/data-query/openapi.json
 # Bridg
 bridg /bridg/
@@ -89,15 +90,18 @@ exemplar /hola
 facilities /facilities-collector/mental-health-contact
 facilities /facilities-collector/stop-code
 facilities /facilities/internal/management
-facilities /va_facilities/v0/facilities?lat=1&long=1
+facilities /services/va_facilities/collection/status
+facilities /services/va_facilities/collector/health
+facilities /services/va_facilities/docs/v0/api
+facilities /services/va_facilities/metadata
+facilities /services/va_facilities/v0/facilities/all
+facilities /services/va_facilities/v0/facilities/openapi.json
+facilities /services/va_facilities/v0/facilities/vha_000/cms-overlay
+facilities /services/va_facilities/v0/facilities?lat=1&long=1
+facilities /services/va_facilities/v0/nearby?lat=1&lng=-1
+facilities /va_facilities/metadata
 facilities /va_facilities/v0/facilities/all
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
-facilities /services/va_facilities/v0/facilities?lat=1&long=1
-facilities /services/va_facilities/v0/facilities/all
-facilities /services/va_facilities/v0/nearby?lat=1&lng=-1
-# Fall Risk
-fall-risk /fall-risk/assessment?patient=1010101010V666666
-fall-risk /fall-risk/assessment?facility=640&since=123456789
 # Patsr
 patsr /whh-patsr-ent/actuator/health
 patsr /whh-patsr-ent/actuator/info
@@ -137,7 +141,4 @@ unifier-kong /fhir/v0/r4/metadata
 unifier-kong /fhir/v0/r4/.well-known/smart-configuration
 unifier-kong /fhir/v0/argonaut/data-query/metadata
 unifier-kong /fhir/v0/argonaut/data-query/.well-known/smart-configuration
-# Urgent Care
-urgent-care /fhir/v0/r4/CoverageEligibilityResponse?patient=1010101010V666666
-urgent-care /fhir/v0/r4/openapi.json
 # End of File

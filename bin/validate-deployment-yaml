@@ -6,7 +6,7 @@ $0 <FILE> <NAMESPACE> <WEAK_STRUCTURE_VALIDATION>
 
 ARGS:
   <FILE>
-    Input .yaml file to validate.
+    Input deployment.yaml file to validate.
   <NAMESPACE>
     The required namespace to validate.
   <WEAK_STRUCTURE_VALIDATION>
