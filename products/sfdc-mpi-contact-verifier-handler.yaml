@@ -25,7 +25,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /sfdc-mpi-contact-verifier-handler/v0/(.*)
+          - path: /sf-mpi-con-ver-handler/v0/(.*)
             backend:
               serviceName: sfdc-mpi-contact-verifier-handler
               servicePort: 80
