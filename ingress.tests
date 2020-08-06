@@ -87,9 +87,7 @@ dmc-vet-search /dmc-vet-search/v0/vetRetrieve
 exemplar /hello
 exemplar /hola
 # Facilities
-facilities /facilities-collector/mental-health-contact
-facilities /facilities-collector/stop-code
-facilities /facilities/internal/management
+facilities /facilities/internal
 facilities /services/va_facilities/collection/status
 facilities /services/va_facilities/collector/health
 facilities /services/va_facilities/docs/v0/api
