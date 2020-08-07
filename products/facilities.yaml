@@ -28,7 +28,7 @@ spec:
         paths:
           - path: /(services/|)va_facilities/v0/(facilities|nearby)(.*)
             backend:
-              serviceName: health-apis-kong
+              serviceName: facilities
               servicePort: 8082
 ---
 apiVersion: extensions/v1beta1
@@ -45,7 +45,7 @@ spec:
         paths:
           - path: /(services/|)va_facilities/(docs/v0/api|metadata|collector/health|collection/status)
             backend:
-              serviceName: health-apis-kong
+              serviceName: facilities
               servicePort: 8082
 ---
 apiVersion: extensions/v1beta1
@@ -63,5 +63,5 @@ spec:
         paths:
           - path: /facilities/(.*)
             backend:
-              serviceName: health-apis-kong
+              serviceName: facilities
               servicePort: 8082
