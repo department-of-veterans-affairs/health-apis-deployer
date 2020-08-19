@@ -17,23 +17,6 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: facilities-collector-ingress
-  namespace: $DU_NAMESPACE
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "150"
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /facilities-collector/.*
-            backend:
-              serviceName: health-apis-kong
-              servicePort: 8082
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
   name: facilities-v0-ingress
   namespace: $DU_NAMESPACE
   annotations:
@@ -45,15 +28,9 @@ spec:
         paths:
           - path: /(services/|)va_facilities/v0/(facilities|ids|nearby)(.*)
             backend:
-              serviceName: health-apis-kong
+              serviceName: facilities
               servicePort: 8082
 ---
-#
-# !!!
-# Once it reaches Kong, this ingress can branch of to multiple facilities applications
-# (facilities or facilities-collector) use caution when editing
-# !!!
-#
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -68,13 +45,13 @@ spec:
         paths:
           - path: /(services/|)va_facilities/(docs/v0/api|metadata|collector/health|collection/status)
             backend:
-              serviceName: health-apis-kong
+              serviceName: facilities
               servicePort: 8082
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: internal-facilities-ingress
+  name: facilities-internal-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -86,5 +63,5 @@ spec:
         paths:
           - path: /facilities/(.*)
             backend:
-              serviceName: health-apis-kong
+              serviceName: facilities
               servicePort: 8082

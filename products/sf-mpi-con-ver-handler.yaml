@@ -1,4 +1,3 @@
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -11,13 +10,13 @@ metadata:
     deployment-date: $BUILD_DATE
     deployment-s3-bucket: $DU_AWS_BUCKET_NAME
     deployment-s3-folder: $DU_S3_FOLDER
-    deployment-app-version: $PROMETHEUS_VERSION
+    deployment-app-version: $SFDC_MPI_CONTACT_VERIFIER_HANDLER_VERSION
     deployment-test-status: UNTESTED
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: prometheus-ingress
+  name: sfdc-mpi-contact-verifier-handler-ingress
   namespace: $DU_NAMESPACE
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -26,17 +25,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /prometheus/?(.*)
+          - path: /sf-mpi-con-ver-handler/v0/(.*)
             backend:
-              serviceName: prometheus-service
-              servicePort: 8080
----
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: monitoring-resource-quota
-  namespace: $DU_NAMESPACE
-spec:
-  hard:
-    limits.cpu: "2000m"
-    limits.memory: "26.5G"
+              serviceName: sfdc-mpi-contact-verifier-handler
+              servicePort: 80
