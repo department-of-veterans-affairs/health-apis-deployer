@@ -43,7 +43,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(services/|)va_facilities/v0/(facilities|nearby)(.*)
+          - path: /(services/|)va_facilities/v0/(facilities|ids|nearby)(.*)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
