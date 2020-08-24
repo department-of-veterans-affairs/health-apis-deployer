@@ -84,8 +84,12 @@ dmc-vet-search /dmc-vet-search/v0/vetSearch
 dmc-vet-search /dmc-vet-search/v0/mviRetrieve
 dmc-vet-search /dmc-vet-search/v0/vetRetrieve
 # Exemplar
-exemplar /hello
-exemplar /hola
+exemplar /exemplar/busy/20
+exemplar /exemplar/goodbye/1
+exemplar /exemplar/heal
+exemplar /exemplar/hello/404
+exemplar /exemplar/memory/free
+exemplar /exemplar/poison
 # Facilities
 facilities /facilities/internal
 facilities /services/va_facilities/collection/status
