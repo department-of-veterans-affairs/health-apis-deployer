@@ -5,8 +5,9 @@
   + [Products](#products)
   + [Deployment Unit](#deployment-unit)
   + [Routes](#routes)
-  + [K8S membership](#k8s-membership)
+  + [K8S Membership](#k8s-membership)
   + [Environments](#environments)
+  + [Sunsetting An Application](#sunsetting-an-application)
 
 ### Goals
 - Enable products an easy to use, automated deployment mechanism into Health APIs Kubernetes
@@ -79,7 +80,7 @@ conflict.
 
 [Read more](ingress-and-load-balancer-rules.md)
 
-### K8S membership
+### K8S Membership
 Moving applications to the Health APIs k8s cluster is coordinated responsibility between product
 teams and DevOps team.
 
@@ -112,3 +113,21 @@ may be deployed to QA, but version `1.4.7-3f461a0` is deployed to production. If
 successful, `1.5.1-f4d4274` will be promoted to higher environments over time.
 _Promotion process is not fully designed but will involve version manual interactions to promote
 applications, at least in the initial phase_
+
+### Sunsetting An Application
+When an application is no longer in use, it may be removed from the platform. The process for removal of an application is as follows:
+
+1. [`health-apis-promotatron`](https://github.com/department-of-veterans-affairs/health-apis-promotatron)
+    + Move promotion scripts to the `/attic` directory
+    + Remove the scripts from the `promoters` map in the Jenkinsfile
+2. Platform
+    + If any health checks exist at the platform level (pingdom, statuspage, etc.) they must be removed _first_ before any other action is taken to remove an application
+    + Remove the load-balancer rules in AWS so that traffic is no longer being routed to the application
+    + Remove the applications namespace from all environments it has been deployed to in Kubernetes
+3. [`health-apis-deployer`](https://github.com/department-of-veterans-affairs/health-apis-deployer)
+    + Move the applications `.yaml` and `.conf` files from the `/products` directory to `/attic`
+    + Remove the product's test endpoints from `ingress.tests`
+    + Remove the application from the `products` map in the Jenkinsfile
+4. Application Repostiories 
+    + Archive the product's GitHub repository (or repositories)
+    + Archive the product's deployment-unit GitHub repository
