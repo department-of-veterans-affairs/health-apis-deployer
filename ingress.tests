@@ -1,3 +1,7 @@
+# Auth
+auth /auth/actuator/health
+auth /auth/actuator/info
+auth /auth/hello-world
 # Data-Query
 data-query /fhir/v0/dstu2/AllergyIntolerance?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Appointment/I2-abc123def4560000
@@ -100,10 +104,6 @@ facilities /va_facilities/metadata
 facilities /va_facilities/v0/facilities/all
 facilities /va_facilities/v0/ids?type=health
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
-# Lighthouse Auth
-lighthouse-auth /auth/actuator/health
-lighthouse-auth /auth/actuator/info
-lighthouse-auth /auth/hello-world
 # Patsr
 patsr /whh-patsr-ent/actuator/health
 patsr /whh-patsr-ent/actuator/info
