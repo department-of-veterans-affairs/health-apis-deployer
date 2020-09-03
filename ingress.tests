@@ -100,6 +100,10 @@ facilities /va_facilities/metadata
 facilities /va_facilities/v0/facilities/all
 facilities /va_facilities/v0/ids?type=health
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
+# Lighthouse Auth
+lighthouse-auth /auth/actuator/health
+lighthouse-auth /auth/actuator/info
+lighthouse-auth /auth/hello-world
 # Patsr
 patsr /whh-patsr-ent/actuator/health
 patsr /whh-patsr-ent/actuator/info
