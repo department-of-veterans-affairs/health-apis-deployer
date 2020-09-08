@@ -1,3 +1,7 @@
+# Auth
+auth /auth/actuator/health
+auth /auth/actuator/info
+auth /auth/hello-world
 # Data-Query
 data-query /fhir/v0/dstu2/AllergyIntolerance?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Appointment/I2-abc123def4560000

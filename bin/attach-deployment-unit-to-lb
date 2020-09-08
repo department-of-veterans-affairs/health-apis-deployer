@@ -110,6 +110,7 @@ done
 #
 # Step 2: Wait for each create-rule process to complete, capturing their exit codes
 #
+echo "Waiting for rule creation processes to complete."
 declare -A status
 for priority in ${!pids[@]}
 do
