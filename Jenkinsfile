@@ -24,6 +24,7 @@ def products() {
   products["gal-processor"] = ["health_apis_jenkins"]
   products["hotline"] = ["health_apis_jenkins"]
   products["logging"] = ["health_apis_jenkins"]
+  products["mock-bgs"] = ["health_apis_jenkins","shutupshutupshutup"]
   products["mock-ee"] = ["health_apis_jenkins","shankins"]
   products["monitoring"] = ["health_apis_jenkins"]
   products["patsr"] = ["health_apis_jenkins"]
