@@ -65,6 +65,10 @@ doDecrypt() {
 doGitSecrets() {
   checkVolume
   cd /du
+
+  git secrets --list > /dev/null
+  [ "$?" == "0" ] && return
+  
   echo -e "\033[33;7mInitializing git-secrets on this repo!\033[0m"
   echo -e "\033[33;7mGo to https://github.com/awslabs/git-secrets and make sure git-secrets is installed locally.\033[0m"
   deployment-git-secrets
