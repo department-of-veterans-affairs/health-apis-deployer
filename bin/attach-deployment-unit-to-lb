@@ -135,6 +135,6 @@ done
 #
 if [ $failures != 0 ]
 then
-  echo "Failed to create $failures rules! $PRODUCT on $CLUSTER_ID $COLOR is potentially unstable!"
+  echo "Failed to create $failures rules! $PRODUCT on $CLUSTER_ID $COLOR is potentially unstable!" | tee -a ${JENKINS_DESCRIPTION}
   exit 1
 fi
