@@ -330,8 +330,8 @@ do
         done
         [ "$podsReady" == 'false' ] && echo "Pods not Ready ($DU_NAMESPACE)..." && continue
         echo "All pods marked as ready..."
-        echo "sleeping 60"
-        sleep 30
+        echo "sleeping 120"
+        sleep 120
         break
       done
       [ "$podsReady" == 'false' ] \
