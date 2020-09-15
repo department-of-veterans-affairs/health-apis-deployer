@@ -16,5 +16,5 @@ for tool in ${TOOLS[@]}; do
   cp -r ../bin/$tool bin/$tool
 done
 
-docker build -t vasdvp/deployer:latest ..
+docker build --pull -t vasdvp/deployer:latest ..
 docker build --no-cache -t vasdvp/deployer-toolkit-base:latest . -f Dockerfile.toolkit-base
