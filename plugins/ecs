@@ -11,16 +11,44 @@ on-activate() {
 }
 
 on-initialize() {
-  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_DOCKER_COMPOSE_FILE
+
+
   substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_PARAM_FILE
   echo "TODO: REPLACE DOCKERHUB WITH ECR REFERENCES"
   echo "TODO: ADD LOGGING CONFIGURATION"
 
   banner file -m $ECS_PARAM_FILE
   cat $ECS_PARAM_FILE
+}
+
+
+updateDockerCompose() {
+  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_DOCKER_COMPOSE_FILE
+  local image= org= name= version=
+  for service in $(docker-compose-editor services -i $ECS_DOCKER_COMPOSE_FILE)
+  do
+    echo "Updating $service definition"
+    image=$(docker-compose-editor image -i $ECS_DOCKER_COMPOSE_FILE -s $service)
+    if [[ ! "$image" =~ ([^/]*)/([^:]*):(.*) ]]; then abort "Do not understand image: $image"; fi
+    org="${BASH_REMATCH[1]}"
+    name="${BASH_REMATCH[2]}"
+    tag="${BASH_REMATCH[3]}"
+    if [[ $org != *dkr.ecr.*.amazonaws.com* ]]
+    then
+      local ecrImage
+      ecrImage="$(ecr hostname -n $name)/$name:$tag"
+      echo "Importing $image to $ecrImage"
+      docker pull $image
+      ecr login -n $name
+      docker tag $image $ecrImage
+      docker push $ecrImage
+      docker rmi $image $ecrImage
+    fi
+  done
   banner file -m $ECS_DOCKER_COMPOSE_FILE
   cat $ECS_DOCKER_COMPOSE_FILE
 }
+
 
 
 main "$@"

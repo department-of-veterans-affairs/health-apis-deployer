@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH=$(dirname $(readlink -f $0))/bin:$PATH
+
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Interact with ECR.
+
+Options
+-n, --name <name>
+  The ECR repository name
+-t, --tag <tag>
+  An image tag
+
+Commands
+uri -n <name>
+  Print the URI of the repository.
+hostname -n <name>
+  Print just the hostnane of the repository.
+login -n <name>
+  Perform Docker Login into the ECR repostory.
+image-name -n <name> -t <tag>
+  Print the full image name (including hostname) for the given tag.
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local name= tag=
+  local args
+  if ! args=$(getopt \
+    -l "debug,name:,tag:,most-specific" \
+    -o "mn:t:" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      -n|--name) name="$2";;
+      -t|--tag) tag="$2";;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    hostname)  hostname "$name";;
+    most-specific-tag) mostSpecificTag "$name" "$tag";;
+    image-name) imageName "$name" "$tag";;
+    login) login "$name";;
+    uri) uri "$name";;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+repositories() {
+  cache "ecr-repositories" aws ecr describe-repositories
+}
+
+uri() {
+  local name="${1:-}"
+  requireParam "name" "${name:-}"
+  local uri
+  uri=$(repositories \
+    | jq -r --arg name $name '.repositories[]|select(.repositoryName == $name)|.repositoryUri')
+  if [ -z "${uri:-}" ]; then echo "Repository not found: $name" >&2 ; exit 1; fi
+  echo "$uri"
+}
+
+hostname() {
+  local uri
+  uri=$(uri "${1:-}")
+  echo "${uri%/*}"
+}
+
+
+mostSpecificTag() {
+  local name="${1:-}"
+  local tag="${2:-}"
+  requireParam "name" "${name:-}"
+  requireParam "tag" "${tag:-}"
+  aws ecr describe-images --repository-name $name --image-ids imageTag="$tag" \
+    | jq -r '.imageDetails[].imageTags|sort_by(length) | reverse[0]'
+}
+
+
+imageName() {
+  local uri
+  uri=$(uri "${1:-}")
+  local tag="${2:-}"
+  requireParam "tag" "${tag:-}"
+  echo "$uri:$tag"
+}
+
+#
+# _doLogin is captures accessing AWS and logging in as one action.
+# The function is exported so the cached results contains both operations
+# with out storing the ECR password on disk at any time.
+#
+_doLogin() {
+  local hostname=${1}
+  aws ecr get-login-password | docker login -u AWS --password-stdin $hostname
+}
+export -f _doLogin
+
+login() {
+  local hostname
+  hostname=$(hostname "${1:-}")
+  cache "docker-login-$hostname" _doLogin $hostname
+}
+
+main "$@"
+exit 0
