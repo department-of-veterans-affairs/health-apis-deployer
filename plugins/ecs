@@ -11,7 +11,7 @@ on-activate() {
 }
 
 on-initialize() {
-
+  updateDockerCompose
 
   substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_PARAM_FILE
   echo "TODO: REPLACE DOCKERHUB WITH ECR REFERENCES"
