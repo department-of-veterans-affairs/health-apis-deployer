@@ -5,8 +5,8 @@ ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
 
 on-activate() {
-  if [ ! -f $ECS_DOCKER_COMPOSE_FILE]; then return $PLUGIN_DISABLED; fi
-  if [ ! -f $ECS_PARAM_FILE]; then return $PLUGIN_DISABLED; fi
+  if [ ! -f $ECS_DOCKER_COMPOSE_FILE ]; then return $PLUGIN_DISABLED; fi
+  if [ ! -f $ECS_PARAM_FILE ]; then return $PLUGIN_DISABLED; fi
   return $PLUGIN_ENABLED
 }
 
@@ -21,3 +21,7 @@ on-initialize() {
   banner file -m $ECS_DOCKER_COMPOSE_FILE
   cat $ECS_DOCKER_COMPOSE_FILE
 }
+
+
+main "$@"
+exit 1
