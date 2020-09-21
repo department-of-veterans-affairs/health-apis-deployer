@@ -16,13 +16,13 @@ on-initialize() {
 }
 
 on-undeploy() {
-  callculon remove-all
+echo TODO callculon remove-all
 }
 
 on-deploy() {
   for timer in ${TIMER_FILES[@]}
   do
-    callculon create --configuration $timer
+echo TODO callculon create --configuration $timer
   done
 }
 

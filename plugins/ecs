@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+. $PLUGIN_LIB
+
+ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
+ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
+
+on-activate() {
+  if [ ! -f $ECS_DOCKER_COMPOSE_FILE]; then return $PLUGIN_DISABLED; fi
+  if [ ! -f $ECS_PARAM_FILE]; then return $PLUGIN_DISABLED; fi
+  return $PLUGIN_ENABLED
+}
+
+on-initialize() {
+  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_DOCKER_COMPOSE_FILE
+  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_PARAM_FILE
+  echo "TODO: REPLACE DOCKERHUB WITH ECR REFERENCES"
+  echo "TODO: ADD LOGGING CONFIGURATION"
+
+  banner file -m $ECS_PARAM_FILE
+  cat $ECS_PARAM_FILE
+  banner file -m $ECS_DOCKER_COMPOSE_FILE
+  cat $ECS_DOCKER_COMPOSE_FILE
+}
