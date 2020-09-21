@@ -47,6 +47,7 @@ updateDockerCompose() {
 importToEcr() {
   local image="$1"
   local ecrImage="$2"
+  ecr login -n $name
   if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect $ecrImage > /dev/null
   then
     echo "$image already exists as $ecrImage"
@@ -54,9 +55,8 @@ importToEcr() {
   fi
   echo "Importing $image to $ecrImage"
   docker pull -q $image
-  ecr login -n $name
   docker tag $image $ecrImage
-  docker push -q $ecrImage
+  docker push $ecrImage
   docker rmi $image $ecrImage
 }
 
