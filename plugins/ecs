@@ -38,6 +38,10 @@ updateDockerCompose() {
       local ecrImage
       ecrImage="$(ecr hostname -n $name)/$name:$tag"
       importToEcr "$image" "$ecrImage"
+      docker-compose-editor rewrite \
+        -i $ECS_DOCKER_COMPOSE_FILE \
+        -o $ECS_DOCKER_COMPOSE_FILE \
+        --replace-image "$service:$ecrImage"
     fi
   done
   banner file -m $ECS_DOCKER_COMPOSE_FILE
@@ -50,7 +54,7 @@ importToEcr() {
   ecr login -n $name
   if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect $ecrImage > /dev/null
   then
-    echo "$image already exists as $ecrImage"
+    echo "Image $image already exists as $ecrImage"
     return
   fi
   echo "Importing $image to $ecrImage"
