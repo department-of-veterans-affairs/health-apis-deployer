@@ -12,15 +12,23 @@ on-activate() {
 
 on-initialize() {
   updateDockerCompose
-
-  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_PARAM_FILE
-  echo "TODO: REPLACE DOCKERHUB WITH ECR REFERENCES"
-  echo "TODO: ADD LOGGING CONFIGURATION"
-
-  banner file -m $ECS_PARAM_FILE
-  cat $ECS_PARAM_FILE
+  updateEcsParams
 }
 
+
+updateEcsParams() {
+  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_PARAM_FILE
+  banner file -m $ECS_PARAM_FILE
+
+  ecs-params-editor rewrite \
+    -i $ECS_PARAM_FILE \
+    -o $ECS_PARAM_FILE \
+    --replace-subnets "s1,s2" \
+    --replace-security-groups "g1"
+
+    cat $ECS_PARAM_FILE
+echo "UPDATE NETWORK CONFIGURATION"
+}
 
 updateDockerCompose() {
   substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_DOCKER_COMPOSE_FILE
