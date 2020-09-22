@@ -152,6 +152,10 @@ rewriteSubnets() {
     ".run_params.network_configuration.awsvpc_configuration.subnets" \
     "$json" \
     "$replacement"
+  replaceNode \
+    ".run_params.network_configuration.awsvpc_configuration.assign_public_ip" \
+    "$json" \
+    '{"assign_public_ip":"ENABLED"}'
 }
 
 rewriteSecurityGroups() {
