@@ -164,6 +164,8 @@ rewrite() {
   json=$(toJson "$in")
   if [ -n "${serviceImage:-}" ]; then rewriteImage "$json" "$serviceImage"; fi
 
+  rewriteLogging "$json"
+
   yq -y . $json > $out
 
   if [ $diff == true -a -f $out ]; then (diff -y $in $out | expand) || true; fi
@@ -180,6 +182,23 @@ replaceNode() {
     -n "\$original | $node = (\$replacement|$lastNode)" \
     > $original.tmp
   mv $original.tmp $original
+}
+
+rewriteLogging() {
+  local json="$1"
+  local replacement=$(tmpFile)
+  for service in $(jq -r '.services|keys|join(" ")' $json)
+  do
+    echo $service
+    echo {} \
+      | jq --arg s "$service" \
+      '{logging:{ driver:"awslogs", options:{"awslogs-region":"us-gov-west-1","awslogs-group":$s,"awslogs-stream-prefix":$s }}}' \
+      > $replacement
+    replaceNode \
+      ".services.$service.logging" \
+      "$json" \
+      "$replacement"
+  done
 }
 
 rewriteImage() {
