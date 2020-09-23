@@ -50,6 +50,7 @@ initialize() {
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
   export BUILD_TIMESTAMP="$(date)"
   export ENVIRONMENT_CONFIGURATION=$(readlink -f environments/$ENVIRONMENT.conf)
+  . $(readlink -f environments/all.conf)
   . $ENVIRONMENT_CONFIGURATION
   export WORK=$(emptyDirectory work)
   export PRODUCT_CONFIGURATION_DIR=$(emptyDirectory $WORK/product-configuration)
