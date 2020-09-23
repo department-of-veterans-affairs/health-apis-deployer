@@ -11,6 +11,7 @@ on-activate() {
 }
 
 on-initialize() {
+  env | sort
   updateDockerCompose
   updateEcsParams
 }
