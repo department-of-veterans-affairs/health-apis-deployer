@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Creates the security groups for use for ECS deployments.
+#
+set -euo pipefail
+
+ALLOWED_PORTS=(80 443 8000-8999)
+
+mksg() {
+  local vpcId=$1 env=$2
+  local name=ecs-task-$env-sg
+  local groupId=
+  echo ------------------------------------
+  groupId=$(aws ec2 describe-security-groups \
+     --filters Name=vpc-id,Values=$vpcId Name=group-name,Values=$name \
+    | jq -r .SecurityGroups[].GroupId)
+  if [ -z "$groupId" ]
+  then
+    echo "Creating $name"
+    groupId=$(aws ec2 create-security-group \
+      --vpc-id $vpcId --group-name "$name" --description "Applied to ECS tasks" \
+      | jq -r .GroupId)
+  fi
+  echo "$name is $groupId"
+  
+  for port in ${ALLOWED_PORTS[@]}
+  do
+    echo "Allowing access to port $port"
+    local result=
+    if ! result=$(aws ec2 authorize-security-group-ingress \
+      --group-id $groupId \
+      --protocol tcp \
+      --cidr "0.0.0.0/0" \
+      --port "$port" 2>&1)
+    then
+      echo "$result" | grep -v "InvalidPermission.Duplicate"
+    fi
+  done
+  
+  aws ec2 describe-security-groups --group-ids $groupId --output text
+}
+
+
+
+mksg vpc-903fbbf5 qa
+mksg vpc-d4c965b0 uat
+mksg vpc-0fe7606a lab
+mksg vpc-a538bcc0 staging
+mksg vpc-b1d85fd4 production
+mksg vpc-6f39bd0a staging-lab
+
