@@ -17,14 +17,22 @@ on-initialize() {
 
 
 updateEcsParams() {
+  local subnets securityGroups
+  subnets=$(vpc subnets -e $VPC)
+  securityGroups=$(vpc security-groups -g $ECS_SECURITY_GROUP_NAME -e $VPC)
+  echo "Using subnets $subnets"
+  echo "Using security group $securityGroupName ($securityGroups)"
+  if [ -z "$subnets" ]; then abort "Subnets not found for $VPC"; fi
+  if [ -z "$securityGroups" ]; then abort "Security groups not found for $VPC"; fi
+
   substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_PARAM_FILE
   banner file -m $ECS_PARAM_FILE
 
   ecs-params-editor rewrite \
     -i $ECS_PARAM_FILE \
     -o $ECS_PARAM_FILE \
-    --replace-subnets "s1,s2" \
-    --replace-security-groups "g1"
+    --replace-subnets "$subnets" \
+    --replace-security-groups "$securityGroups"
 
     cat $ECS_PARAM_FILE
 echo "UPDATE NETWORK CONFIGURATION"
