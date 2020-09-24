@@ -19,33 +19,23 @@ on-initialize() {
 updateEcsParams() {
   local subnets securityGroups
   subnets=$(vpc subnets -e $VPC)
-  #
-  # Security groups will need to be created per VPC to allow
-  # traffic to the ports. I think we should designate a port
-  # range 443, 80, 8000-9000?
-  # Otherwise, we'll have to parse the YML and determine what
-  # security group should be and create/destroy it.
-  #
-
   local securityGroupName="ecs-task-${ENVIRONMENT}-sg"
   securityGroups=$(vpc security-groups -g $securityGroupName -e $VPC)
-  
+
   echo "Using subnets $subnets"
   echo "Using security group $securityGroupName ($securityGroups)"
   if [ -z "$subnets" ]; then abort "Subnets not found for $VPC"; fi
   if [ -z "$securityGroups" ]; then abort "Security groups not found for $securityGroupName"; fi
 
   substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_PARAM_FILE
-  banner file -m $ECS_PARAM_FILE
-
   ecs-params-editor rewrite \
     -i $ECS_PARAM_FILE \
     -o $ECS_PARAM_FILE \
     --replace-subnets "$subnets" \
     --replace-security-groups "$securityGroups"
 
-    cat $ECS_PARAM_FILE
-echo "UPDATE NETWORK CONFIGURATION"
+  banner file -m $ECS_PARAM_FILE
+  cat $ECS_PARAM_FILE
 }
 
 updateDockerCompose() {
