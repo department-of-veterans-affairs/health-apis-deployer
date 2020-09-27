@@ -155,7 +155,6 @@ rollback() {
   lifecycle rollback force
   lifecycle verify-rollback force
   lifecycle after-rollback force
-  echo TODO ROLLBACK
 }
 
 LIFECYCLE_HISTORY=()
@@ -189,7 +188,7 @@ lifecycle() {
 
 recordDeployment() {
   stage start -s "save configuration"
-  if [ "${LIFECYCLE_STATE[verify-deploy]}" != "complete" ]
+  if [ "${LIFECYCLE_STATE[verify-blue]}" != "complete" ]
   then
     echo "Deployment has not been verified, skipping."
     return
