@@ -29,12 +29,12 @@ on-activate() { return $PLUGIN_DISABLED; }
 on-priority() { echo $PLUGIN_PRIORITY; }
 on-initialize() { return 0; }
 on-validate() { return 0; }
-on-before-deploy() { return 0; }
-on-undeploy() { return 0; }
-# <-- Future AZ lifecycles here
-on-deploy() { return 0; }
-on-verify-deploy() { return 0; }
-on-after-deploy() { return 0; }
+on-before-deploy-green() { return 0; }
+on-deploy-green() { return 0; }
+on-verify-green() { return 0; }
+on-switch-to-blue() { return 0; }
+on-verify-blue() { return 0; }
+on-after-verify-blue() { return 0; }
 on-finalize() { return 0; }
 
 # Rollback flow

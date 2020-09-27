@@ -268,11 +268,13 @@ main() {
   initializePlugins
   lifecycle initialize
   lifecycle validate
-  lifecycle before-deploy
-  lifecycle undeploy
-  lifecycle deploy
-  lifecycle verify-deploy
-  lifecycle after-deploy
+  lifecycle before-deploy-green
+  lifecycle deploy-green
+  lifecycle verify-green
+  lifecycle switch-to-blue
+  lifecycle verify-blue
+  lifecycle after-verify-blue
+
   lifecycle finalize force
   recordDeployment
   goodbye

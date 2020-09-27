@@ -15,14 +15,11 @@ on-initialize() {
   done
 }
 
-on-undeploy() {
-echo TODO callculon remove-all
-}
-
-on-deploy() {
+on-deploy-green() {
+  echo TODO callculon remove-all
   for timer in ${TIMER_FILES[@]}
   do
-echo TODO callculon create --configuration $timer
+    echo TODO callculon create --configuration $timer
   done
 }
 
