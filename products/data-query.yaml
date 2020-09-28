@@ -102,6 +102,23 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+  name: data-query-etl-status-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/(dstu2|stu3|r4)/(etl-status)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
   name: data-query-fhir-agnostic-ingress
   namespace: $DU_NAMESPACE
   annotations:
@@ -115,3 +132,4 @@ spec:
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
+
