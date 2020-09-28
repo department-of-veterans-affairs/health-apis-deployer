@@ -15,6 +15,31 @@ on-initialize() {
   updateEcsParams
 }
 
+on-validate() {
+  if [ -z "${ECS_EXPOSE_SERVICE:-}" ]
+  then
+    abort "ECS_EXPOSE_SERVICE is not defined in product conf"
+  fi
+  local port=
+  port=docker-compose-editor exposed-port -f $ECS_DOCKER_COMPOSE_FILE -s $ECS_EXPOSE_SERVICE
+  if [ -z "$port" ]
+  then
+    abort "Service $ECS_DOCKER_COMPOSE_FILE does not appear to be mapped to a port"
+  fi
+}
+
+
+on-deploy-green() {
+  return 0
+}
+
+on-switch-to-blue() {
+  return 0
+}
+
+on-switch-to-blue() {
+  return 0
+}
 
 updateEcsParams() {
   local subnets securityGroups
