@@ -11,11 +11,12 @@ on-activate() {
 }
 
 on-initialize() {
+  checkExposedService
   updateDockerCompose
   updateEcsParams
 }
 
-on-validate() {
+checkExposedService() {
   if [ -z "${DU_ECS_EXPOSE_SERVICE:-}" ]
   then
     abort "DU_ECS_EXPOSE_SERVICE is not defined in product conf"
