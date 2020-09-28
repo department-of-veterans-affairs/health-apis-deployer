@@ -16,12 +16,12 @@ on-initialize() {
 }
 
 on-validate() {
-  if [ -z "${ECS_EXPOSE_SERVICE:-}" ]
+  if [ -z "${DU_ECS_EXPOSE_SERVICE:-}" ]
   then
-    abort "ECS_EXPOSE_SERVICE is not defined in product conf"
+    abort "DU_ECS_EXPOSE_SERVICE is not defined in product conf"
   fi
   local port=
-  port=docker-compose-editor exposed-port -f $ECS_DOCKER_COMPOSE_FILE -s $ECS_EXPOSE_SERVICE
+  port=docker-compose-editor exposed-port -f $ECS_DOCKER_COMPOSE_FILE -s $DU_ECS_EXPOSE_SERVICE
   if [ -z "$port" ]
   then
     abort "Service $ECS_DOCKER_COMPOSE_FILE does not appear to be mapped to a port"
