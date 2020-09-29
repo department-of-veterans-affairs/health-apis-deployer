@@ -20,6 +20,7 @@ abort() {
 main() {
   if [ $# != 1 ]; then abort "No command specified"; fi
   LIFECYCLE=$1
+  . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
   on-$LIFECYCLE
   exit $?
 }
