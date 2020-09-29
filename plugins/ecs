@@ -17,9 +17,6 @@ on-initialize() {
 }
 
 checkExposedService() {
-
-DU_DU_ECS_EXPOSE_SERVICE is not exported by 'product-configuration' script
-  
   if [ -z "${DU_ECS_EXPOSE_SERVICE:-}" ]
   then
     abort "DU_ECS_EXPOSE_SERVICE is not defined in product conf"
