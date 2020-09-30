@@ -37,6 +37,7 @@ removeOldTargetGroup() {
   while read arn
   do
     echo "Deleting old target group $arn"
+    aws elbv2 delete-target-group --target-group-arn $arn
   done < <(aws elbv2 describe-target-groups \
     --query "TargetGroups[?starts_with(TargetGroupName,'$(tgPrefix)')].[TargetGroupArn]" \
     --output text \
