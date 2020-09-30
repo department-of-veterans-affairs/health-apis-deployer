@@ -16,6 +16,48 @@ on-initialize() {
   updateEcsParams
 }
 
+on-deploy-green() {
+  local tgArn
+  tgArn=$(createNewTargetGroup)
+  echo "Created target group $tgArn"
+  return 0
+}
+
+on-switch-to-blue() {
+  return 0
+}
+
+on-after-verify-blue() {
+  return 0
+}
+
+createNewTargetGroup() {
+  local targetGroupName="${PRODUCT}-${SHORT_ENVIRONMENT}-${BUILD_NUMBER}-tg"
+  local containerPort= tgArn=
+  containerPort=$(docker-compose-editor exposed-port \
+    --in $ECS_DOCKER_COMPOSE_FILE \
+    --service $DU_ECS_EXPOSE_SERVICE)
+  aws elbv2 create-target-group \
+    --vpc-id $(vpc id-for-environment -e $VPC) \
+    --name $targetGroupName \
+    --port $containerPort \
+    --target-type ip \
+    --protocol HTTP \
+    --health-check-protocol HTTP \
+    --health-check-port traffic-port \
+    --health-check-enabled \
+    --health-check-interval-seconds 30 \
+    --health-check-timeout-seconds 5 \
+    --healthy-threshold-count 3 \
+    --unhealthy-threshold-count 3 \
+    --health-check-path "$DU_HEALTH_CHECK_PATH" \
+    --matcher HttpCode=200 \
+    > $WORK/$targetGroupName
+  tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
+  echo $tgArn
+}
+
+
 checkExposedService() {
   if [ -z "${DU_ECS_EXPOSE_SERVICE:-}" ]
   then
@@ -27,19 +69,6 @@ checkExposedService() {
   then
     abort "Service $ECS_DOCKER_COMPOSE_FILE does not appear to be mapped to a port"
   fi
-}
-
-
-on-deploy-green() {
-  return 0
-}
-
-on-switch-to-blue() {
-  return 0
-}
-
-on-switch-to-blue() {
-  return 0
 }
 
 updateEcsParams() {

@@ -48,6 +48,7 @@ initialize() {
   printParameters
   export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
+  setShortEnvironment
   export BUILD_TIMESTAMP="$(date)"
   export ENVIRONMENT_CONFIGURATION=$(readlink -f environments/$ENVIRONMENT.conf)
   . $ENVIRONMENT_CONFIGURATION
@@ -77,6 +78,14 @@ emptyDirectory() {
   readlink -f $d
 }
 
+setShortEnvironment() {
+  case $ENVIRONMENT in
+    staging-lab) export SHORT_ENVIRONMENT=b;;
+    # qa, staging, production, lab
+    *) export SHORT_ENVIRONMENT=${ENVIRONMENT:0:1};;
+  esac
+}
+
 setDeploymentId() {
   local suffix=d2
   local short=
@@ -87,8 +96,8 @@ setDeploymentId() {
   local commit="${GIT_COMMIT:-0000000}"
   suffix="${suffix}-${commit:0:7}"
   short="${suffix}${commit:0:4}"
-  export DEPLOYMENT_ID="$ENVIRONMENT-$PRODUCT-$BUILD_NUMBER-$suffix"
-  export SHORT_DEPLOYMENT_ID="${ENVIRONMENT:0:1}${PRODUCT}${BUILD_NUMBER}$short"
+  export DEPLOYMENT_ID="$ENVIRONMENT-$BUILD_NUMBER-$suffix-$PRODUCT"
+  export SHORT_DEPLOYMENT_ID="${SHORT_ENVIRONMENT}${BUILD_NUMBER}$short${PRODUCT}"
 }
 
 #============================================================
