@@ -28,12 +28,32 @@ on-switch-to-blue() {
 }
 
 on-after-verify-blue() {
+  removeOldTargetGroup
   return 0
 }
 
+removeOldTargetGroup() {
+  echo "Deleting old target groups"
+  while read arn
+  do
+    echo "Deleting old target group $arn"
+  done < <(aws elbv2 describe-target-groups \
+    --query "TargetGroups[?starts_with(TargetGroupName,'$(tgPrefix)')].[TargetGroupArn]" \
+    --output text \
+    | grep -v "$(tgName)")
+}
+
+tgPrefix() {
+  echo "ecs-${PRODUCT}-${SHORT_ENVIRONMENT}-"
+}
+
+tgName() {
+  echo "$(tgPrefix)${BUILD_NUMBER}-tg"
+}
+
 createNewTargetGroup() {
-  local targetGroupName="${PRODUCT}-${SHORT_ENVIRONMENT}-${BUILD_NUMBER}-tg"
-  local containerPort= tgArn=
+  local targetGroupName= containerPort= tgArn=
+  targetGroupName=$(tgName)
   containerPort=$(docker-compose-editor exposed-port \
     --in $ECS_DOCKER_COMPOSE_FILE \
     --service $DU_ECS_EXPOSE_SERVICE)
