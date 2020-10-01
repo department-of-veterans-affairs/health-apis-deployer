@@ -20,7 +20,7 @@ on-deploy-green() {
   local tgArn
   tgArn=$(createNewTargetGroup)
   echo "Target group $tgArn"
-  replaceAlbRules $GREEN_LOAD_BALANCER $GREEN_LOAD_BALANCER_PORT "$tgArn"
+  replaceAlbRules $GREEN_LOAD_BALANCER_NAME $GREEN_LOAD_BALANCER_PORT "$tgArn"
   return 0
 }
 
