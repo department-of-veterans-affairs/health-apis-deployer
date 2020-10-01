@@ -58,6 +58,9 @@ initialize() {
   PLUGIN_DIR=plugins
   export PLUGIN_LIB=$PLUGIN_DIR/.plugin
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
+  export GREEN_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
+  export BLUE_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
+  echo "TODO USE BLUE ALB INSTEAD OF GREEN"
   setDeploymentId
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
 }
