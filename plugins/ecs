@@ -19,7 +19,8 @@ on-initialize() {
 on-deploy-green() {
   local tgArn
   tgArn=$(createNewTargetGroup)
-  echo "Created target group $tgArn"
+  echo "Target group $tgArn"
+  replaceAlbRules $GREEN_LOAD_BALANCER $GREEN_LOAD_BALANCER_PORT "$tgArn"
   return 0
 }
 
@@ -30,6 +31,30 @@ on-switch-to-blue() {
 on-after-verify-blue() {
   removeOldTargetGroup
   return 0
+}
+
+on-rollback() {
+  echo "TODO Delete new target group"
+  return 0
+}
+
+replaceAlbRules() {
+  local alb=$1
+  local port=$2
+  local tgArn=$3
+  echo "Replacing ALB rules on $alb ($port)"
+  for priority in ${!DU_LOAD_BALANCER_RULES[@]}
+  do
+    local path="${DU_LOAD_BALANCER_RULES[$priority]}"
+    alb replace-rule \
+      --name $alb \
+      --protocol HTTPS \
+      --port $port \
+      --path "$path" \
+      --target-group $tgArn \
+      --min-priority $priority
+  done
+
 }
 
 removeOldTargetGroup() {
