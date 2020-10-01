@@ -222,7 +222,7 @@ listenerArn() {
   requireParam "port" "${port:-}"
   cache "listener-arn-$name-$protocol-$port" \
     aws elbv2 describe-listeners --load-balancer-arn $arn \
-    | jq -r --arg port $port --arg protocol HTTPS \
+    | jq -r --arg port $port --arg protocol $protocol \
     '.Listeners[]|select(.Port == ($port|tonumber) and .Protocol == $protocol)|.ListenerArn'
 }
 
