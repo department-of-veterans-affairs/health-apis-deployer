@@ -257,10 +257,10 @@ replaceRule() {
   listenerArn=$(listenerArn $name $protocol $port)
   requireValue "$listenerArn" "Listener not found"
   local priority=$(nextAvailablePriority $listenerArn $minPriority)
-  echo "Replacing rule on $name ($protocol:$port) #$priority $path -> $targetGroup"
+  echo "Replacing rule on $name ($protocol:$port) #$priority $path"
+  echo "New target: $targetGroup"
   local existingRuleArns
   existingRuleArns=$(ruleArn "$name" "$protocol" "$port" "$path")
-  echo $existingRuleArns
   local results=$(tmpFile)
   aws elbv2 create-rule \
     --listener-arn $listenerArn \
