@@ -63,6 +63,7 @@ initialize() {
   echo "TODO USE BLUE ALB INSTEAD OF GREEN"
   setDeploymentId
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
+  export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
 }
 
 printParameters() {

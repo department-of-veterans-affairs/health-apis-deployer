@@ -25,6 +25,8 @@ Options
 -p,--replace-secret-path <from:to>
   If specified, replace the path element in AWS secret parameter store names
   such that /from/ is replaced with /to/,
+-e,--replace-task-execution-role <arn>
+  If specified, replace the task execution role element with the give role ARN
 --diff
   Print a diff of the before and after parameter files.
 
@@ -38,10 +40,10 @@ exit 1
 }
 
 main() {
-  local args= in= out= subnets= securityGroups= secretPath= diff=false
+  local args= in= out= subnets= securityGroups= secretPath= taskExecutionRole= diff=false
   if ! args=$(getopt \
-    -l "debug,in:,out:,replace-subnets:,replace-security-groups:,replace-secret-path:,diff" \
-    -o "i:o:s:g:p:" -- "$@")
+    -l "debug,in:,out:,replace-subnets:,replace-security-groups:,replace-secret-path:,replace-task-execution-role:,diff" \
+    -o "i:o:s:g:p:e:" -- "$@")
   then usage; fi
   eval set -- "$args"
   while true
@@ -53,6 +55,7 @@ main() {
       -s|--replace-subnets) subnets="$2";;
       -g|--replace-security-groups) securityGroups="$2";;
       -p|--replace-secret-path) secretPath="$2";;
+      -e|--replace-task-execution-role) taskExecutionRole="$2";;
       --diff) diff=true;;
       --) shift; break;;
     esac
@@ -65,7 +68,7 @@ main() {
   if [ $# != 1 ]; then usage "Command not specified"; fi
   local command=$1
   case $command in
-    rewrite)  rewrite "$in" "$out" "$subnets" "$securityGroups" "$secretPath" "$diff";;
+    rewrite)  rewrite "$in" "$out" "$subnets" "$securityGroups" "$secretPath" "$taskExecutionRole" "$diff";;
     *) usage "Unknown command: $command";;
   esac
 }
@@ -102,13 +105,15 @@ rewrite() {
   local subnets="${3:-}"
   local securityGroups="${4:-}"
   local secretPath="${5:-}"
-  local diff="${6:-false}"
+  local taskExecutionRole="${6:-}"
+  local diff="${7:-false}"
   requireFile "in" "$in"
   local json=$(tmpFile)
   yq . $in > $json
   if [ -n "${subnets:-}" ]; then rewriteSubnets "$json" "$subnets"; fi
   if [ -n "${securityGroups:-}" ]; then rewriteSecurityGroups "$json" "$securityGroups"; fi
   if [ -n "${secretPath:-}" ]; then rewriteSecretPath "$json" "$secretPath"; fi
+  if [ -n "${taskExecutionRole:-}" ]; then rewriteTaskExecutionRole "$json" "$taskExecutionRole"; fi
 
   yq -y . $json > $out
 
@@ -126,6 +131,17 @@ replaceNode() {
     -n "\$original | $node = (\$replacement|$lastNode)" \
     > $original.tmp
   mv $original.tmp $original
+}
+
+rewriteTaskExecutionRole() {
+  local json="$1"
+  local role="$2"
+  local replacement=$(tmpFile)
+  echo '{"task_execution_role":"$role"}' > $replacement
+  replaceNode \
+    ".task_definition.task_execution_role" \
+    "$json" \
+    "$replacement"
 }
 
 rewriteSecretPath() {

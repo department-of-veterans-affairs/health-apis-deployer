@@ -129,7 +129,6 @@ createNewTargetGroup() {
   echo $tgArn
 }
 
-
 checkExposedService() {
   if [ -z "${DU_ECS_EXPOSE_SERVICE:-}" ]
   then
@@ -159,7 +158,8 @@ updateEcsParams() {
     -i $ECS_PARAM_FILE \
     -o $ECS_PARAM_FILE \
     --replace-subnets "$subnets" \
-    --replace-security-groups "$securityGroups"
+    --replace-security-groups "$securityGroups" \
+    --replace-task-execution-role "$ECS_TASK_EXECUTION_ROLE"
 
   banner file -m $ECS_PARAM_FILE
   cat $ECS_PARAM_FILE
