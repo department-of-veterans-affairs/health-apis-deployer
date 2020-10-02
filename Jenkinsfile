@@ -118,6 +118,11 @@ pipeline {
           args DOCKER_ARGS
         }
       }
+      environment {
+        DOCKER_CONFIG = "${env.WORKSPACE}/.docker"
+        HOME = "${env.WORKSPACE}"
+        AWS_REGION = "us-gov-west-1"
+      }
       steps {
         script {
           for(cause in currentBuild.rawBuild.getCauses()) {
