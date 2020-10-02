@@ -21,6 +21,7 @@ on-deploy-green() {
   tgArn=$(createNewTargetGroup)
   echo "Target group $tgArn"
   replaceAlbRules $GREEN_LOAD_BALANCER_NAME $GREEN_LOAD_BALANCER_PORT "$tgArn"
+  deployService $tgArn
   return 0
 }
 
@@ -36,6 +37,30 @@ on-after-verify-blue() {
 on-rollback() {
   echo "TODO Delete new target group"
   return 0
+}
+
+deployService() {
+  local tgArn=$1
+  local cluster="lighthouse-${ENVIRONMENT}"
+  ecs-cli \
+    compose \
+    --project-name $projectName \
+    --ecs-params $ECS_PARAM_FILE\
+    --file $ECS_DOCKER_COMPOSE_FILE \
+    service up \
+    --create-log-groups \
+    --cluster $cluster \
+    --launch-type FARGATE \
+    --target-groups $(ecsTargetGroupSpecification "$tgArn")
+}
+
+ecsTargetGroupSpecification() {
+  local tgArn=$1
+  local containerPort
+  containerPort=$(docker-compose-editor exposed-port \
+    --in $ECS_DOCKER_COMPOSE_FILE \
+    --service $DU_ECS_EXPOSE_SERVICE)
+  echo "targetGroupArn=$tgArn,containerName=$DU_ECS_EXPOSE_SERVICE,containerPort=$containerPort"
 }
 
 replaceAlbRules() {
