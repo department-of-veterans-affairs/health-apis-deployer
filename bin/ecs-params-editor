@@ -162,6 +162,13 @@ rewriteSubnets() {
   local subnets="$2"
   local replacement=$(tmpFile)
 
+  # Network mode
+  echo '{"ecs_network_mode":"awsvpc"}' > $replacement
+  replaceNode \
+    ".task_definition.ecs_network_mode" \
+    "$json" \
+    "$replacement"
+
   # Public IP is necessary for target groups and ALB to work properly
   echo '{"assign_public_ip":"ENABLED"}' > $replacement
   replaceNode \
