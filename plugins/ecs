@@ -44,7 +44,7 @@ deployService() {
   local cluster="lighthouse-${ENVIRONMENT}"
   ecs-cli \
     compose \
-    --project-name $projectName \
+    --project-name $DEPLOYMENT_ID \
     --ecs-params $ECS_PARAM_FILE\
     --file $ECS_DOCKER_COMPOSE_FILE \
     service up \
