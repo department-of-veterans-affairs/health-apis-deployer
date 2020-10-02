@@ -137,7 +137,7 @@ rewriteTaskExecutionRole() {
   local json="$1"
   local role="$2"
   local replacement=$(tmpFile)
-  echo '{"task_execution_role":"$role"}' > $replacement
+  echo "{\"task_execution_role\":\"$role\"}" > $replacement
   replaceNode \
     ".task_definition.task_execution_role" \
     "$json" \
