@@ -110,8 +110,7 @@ removeOldTaskDefinition() {
   while read arn
   do
     echo "Deleting old task definition $arn"
-    echo aws ecs deregister-task-definition --task-definition $arn
-    echo TODO DEREGISTER TASK DEFINITION
+    aws ecs deregister-task-definition --task-definition $arn
   done < <(aws ecs list-task-definitions \
     --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]" \
     | jq -r .[] \
@@ -127,8 +126,7 @@ removeOldServices() {
   while read arn
   do
     echo "Deleting old service $arn"
-    echo aws ecs delete-service --cluster $(cluster) --service $arn --force
-    echo TODO DELETE SERVICE
+    aws ecs delete-service --cluster $(cluster) --service $arn --force
   done < <(aws ecs list-services \
     --cluster $(cluster) \
     --query "serviceArns[? contains(@,'$(awsPrefix)')]" \
