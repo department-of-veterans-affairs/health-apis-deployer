@@ -103,6 +103,7 @@ removeOldTargetGroup() {
 
 removeOldTaskDefinition() {
   echo "Deleting old task definitions"
+  
   while read arn
   do
     echo "Deleting old task definition $arn"
@@ -111,7 +112,7 @@ removeOldTaskDefinition() {
   done < <(aws ecs list-task-definitions \
     --no-paginate \
     --output text \
-    --query "taskDefinitionArns[? contains(@,'$(taskDefName)')]" \
+    --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]" \
     | grep -v "$(taskDefName)")
 }
 
@@ -126,7 +127,7 @@ removeOldServices() {
     --no-paginate \
     --output text \
     --cluster $(cluster) \
-    --query "serviceArns[? contains(@,'$(taskDefName)')]" \
+    --query "serviceArns[? contains(@,'$(awsPrefix)')]" \
     | grep -v "$(taskDefName)")
 }
 
