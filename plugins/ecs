@@ -96,14 +96,19 @@ removeOldTargetGroup() {
     echo "Deleting old target group $arn"
     aws elbv2 delete-target-group --target-group-arn $arn
   done < <(aws elbv2 describe-target-groups \
-    --query "TargetGroups[?starts_with(TargetGroupName,'$(awsPrefix)')].[TargetGroupArn]" \
+    --no-paginate \
     --output text \
+    --query "TargetGroups[?starts_with(TargetGroupName,'$(awsPrefix)')].[TargetGroupArn]" \
     | grep -v "$(tgName)")
 }
 
 removeOldTaskDefinition() {
   echo "Deleting old task definitions"
-  
+  aws ecs list-task-definitions \
+    --no-paginate \
+    --output text \
+    --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]"
+  echo ---
   while read arn
   do
     echo "Deleting old task definition $arn"
@@ -118,6 +123,12 @@ removeOldTaskDefinition() {
 
 removeOldServices() {
   echo "Deleting old services"
+  aws ecs list-services \
+    --no-paginate \
+    --output text \
+    --cluster $(cluster) \
+    --query "serviceArns[? contains(@,'$(awsPrefix)')]"
+  echo ---
   while read arn
   do
     echo "Deleting old service $arn"
