@@ -31,6 +31,8 @@ on-switch-to-blue() {
 
 on-after-verify-blue() {
   removeOldTargetGroup
+  removeOldServices
+  removeOldTaskDefinition
   return 0
 }
 
@@ -39,17 +41,21 @@ on-rollback() {
   return 0
 }
 
+
+cluster() {
+  echo "lighthouse-${ENVIRONMENT}"
+}
+
 deployService() {
   local tgArn=$1
-  local cluster="lighthouse-${ENVIRONMENT}"
   ecs-cli \
     compose \
-    --project-name $DEPLOYMENT_ID \
+    --project-name $(taskDefName) \
     --ecs-params $ECS_PARAM_FILE\
     --file $ECS_DOCKER_COMPOSE_FILE \
     service up \
     --create-log-groups \
-    --cluster $cluster \
+    --cluster $(cluster) \
     --launch-type FARGATE \
     --target-groups $(ecsTargetGroupSpecification "$tgArn")
 }
@@ -90,17 +96,50 @@ removeOldTargetGroup() {
     echo "Deleting old target group $arn"
     aws elbv2 delete-target-group --target-group-arn $arn
   done < <(aws elbv2 describe-target-groups \
-    --query "TargetGroups[?starts_with(TargetGroupName,'$(tgPrefix)')].[TargetGroupArn]" \
+    --query "TargetGroups[?starts_with(TargetGroupName,'$(awsPrefix)')].[TargetGroupArn]" \
     --output text \
     | grep -v "$(tgName)")
 }
 
-tgPrefix() {
+removeOldTaskDefinition() {
+  echo "Deleting old task definitions"
+  while read arn
+  do
+    echo "Deleting old task definition $arn"
+    echo aws ecs deregister-task-definition --task-definition $arn
+    echo TODO DEREGISTER TASK DEFINITION
+  done < <(aws ecs list-task-definitions \
+    --no-paginate \
+    --output text \
+    --query "taskDefinitionArns[? contains(@,'$(taskDefName)')]" \
+    | grep -v "$(taskDefName)")
+}
+
+removeOldServices() {
+  echo "Deleting old services"
+  while read arn
+  do
+    echo "Deleting old service $arn"
+    echo aws ecs delete-service --cluster $(cluster) --service $arn --force
+    echo TODO DELETE SERVICE
+  done < <(aws ecs list-services \
+    --no-paginate \
+    --output text \
+    --cluster $(cluster) \
+    --query "serviceArns[? contains(@,'$(taskDefName)')]" \
+    | grep -v "$(taskDefName)")
+}
+
+awsPrefix() {
   echo "ecs-${PRODUCT}-${SHORT_ENVIRONMENT}-"
 }
 
 tgName() {
-  echo "$(tgPrefix)${BUILD_NUMBER}-tg"
+  echo "$(awsPrefix)${BUILD_NUMBER}-tg"
+}
+
+taskDefName() {
+  echo "$(awsPrefix)${BUILD_NUMBER}"
 }
 
 createNewTargetGroup() {
