@@ -105,7 +105,6 @@ removeOldTaskDefinition() {
   echo "Deleting old task definitions"
   aws ecs list-task-definitions \
     --no-paginate \
-    --output text \
     --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]"
   echo ---
   while read arn
@@ -114,15 +113,14 @@ removeOldTaskDefinition() {
     echo aws ecs deregister-task-definition --task-definition $arn
     echo TODO DEREGISTER TASK DEFINITION
   done < <(aws ecs list-task-definitions \
-    --output text \
     --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]" \
+    | jq -r .[] \
     | grep -v "$(taskDefName)")
 }
 
 removeOldServices() {
   echo "Deleting old services"
   aws ecs list-services \
-    --output text \
     --cluster $(cluster) \
     --query "serviceArns[? contains(@,'$(awsPrefix)')]"
   echo ---
@@ -132,9 +130,9 @@ removeOldServices() {
     echo aws ecs delete-service --cluster $(cluster) --service $arn --force
     echo TODO DELETE SERVICE
   done < <(aws ecs list-services \
-    --output text \
     --cluster $(cluster) \
     --query "serviceArns[? contains(@,'$(awsPrefix)')]" \
+    | jq -r .[] \
     | grep -v "$(taskDefName)")
 }
 
