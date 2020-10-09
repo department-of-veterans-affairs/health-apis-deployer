@@ -25,7 +25,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /auth/(.*)
+          - path: /(auth|actuator)/(.*)
             backend:
               serviceName: auth
               servicePort: 8082
