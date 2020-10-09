@@ -17,6 +17,22 @@ metadata:
   apiVersion: extensions/v1beta1
   kind: Ingress
   metadata:
+    name: auth-ingress
+    namespace: $DU_NAMESPACE
+    annotations:
+      kubernetes.io/ingress.class: nginx
+  spec:
+    rules:
+      - http:
+          paths:
+            - path: /auth/(.*)
+              backend:
+                serviceName: auth
+                servicePort: 8082
+---
+  apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
     name: auth-actuator-ingress
     namespace: $DU_NAMESPACE
     annotations:
@@ -30,19 +46,4 @@ metadata:
               backend:
                 serviceName: auth
                 servicePort: 8082
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: auth-ingress
-  namespace: $DU_NAMESPACE
-  annotations:
-    kubernetes.io/ingress.class: nginx
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /auth/(.*)
-            backend:
-              serviceName: auth
-              servicePort: 8082
+
