@@ -29,7 +29,3 @@ spec:
             backend:
               serviceName: auth
               servicePort: 8082
-          - path: /actuator/(.*)
-            backend:
-              serviceName: auth
-              servicePort: 8082
