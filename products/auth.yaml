@@ -29,3 +29,20 @@ spec:
             backend:
               serviceName: auth
               servicePort: 8082
+---
+  apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: auth-actuator-ingress
+    namespace: $DU_NAMESPACE
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+  spec:
+    rules:
+      - http:
+          paths:
+            - path: /auth/actuator/(.*)
+              backend:
+                serviceName: auth
+                servicePort: 8082
