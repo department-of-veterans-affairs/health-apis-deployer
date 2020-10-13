@@ -14,36 +14,36 @@ metadata:
     deployment-app-version: $AUTH_VERSION
     deployment-test-status: UNTESTED
 ---
-  apiVersion: extensions/v1beta1
-  kind: Ingress
-  metadata:
-    name: auth-ingress
-    namespace: $DU_NAMESPACE
-    annotations:
-      kubernetes.io/ingress.class: nginx
-  spec:
-    rules:
-      - http:
-          paths:
-            - path: /auth/
-              backend:
-                serviceName: auth
-                servicePort: 8082
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: auth-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /auth/
+            backend:
+              serviceName: auth
+              servicePort: 8082
 ---
-  apiVersion: extensions/v1beta1
-  kind: Ingress
-  metadata:
-    name: auth-actuator-ingress
-    namespace: $DU_NAMESPACE
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/rewrite-target: /actuator/$1
-  spec:
-    rules:
-      - http:
-          paths:
-            - path: /auth/actuator/(.*)
-              backend:
-                serviceName: auth
-                servicePort: 8082
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: auth-actuator-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /actuator/$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /auth/actuator/(.*)
+            backend:
+              serviceName: auth
+              servicePort: 8082
 
