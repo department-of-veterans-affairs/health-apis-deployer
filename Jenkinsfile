@@ -26,6 +26,7 @@ def products() {
   products["logging"] = ["health_apis_jenkins"]
   products["mock-bgs"] = ["health_apis_jenkins","shutupshutupshutup"]
   products["mock-ee"] = ["health_apis_jenkins","shankins"]
+  products["mock-emis"] = ["health_apis_jenkins","shutupshutupshutup"]
   products["monitoring"] = ["health_apis_jenkins"]
   products["patient-generated-data"] = ["health_apis_jenkins","shankins"]
   products["patsr"] = ["health_apis_jenkins"]
