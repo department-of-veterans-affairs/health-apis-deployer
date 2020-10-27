@@ -125,6 +125,9 @@ facilities /va_facilities/metadata
 facilities /va_facilities/v0/facilities/all
 facilities /va_facilities/v0/ids?type=health
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
+# Nurse Triage
+nurse-triage /nt-ent/actuator/health
+nurse-triage /nt-ent/actuator/info
 # Patient Generated Data
 patient-generated-data /patient-generated-data/actuator/health
 patient-generated-data /pgd/v0/r4/Observation?patient=1010101010V666666
