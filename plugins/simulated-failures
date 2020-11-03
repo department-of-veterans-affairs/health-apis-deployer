@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+. $PLUGIN_LIB
+
+simulateFailure() {
+  if [ "${SIMULATED_FAILURE_ON_LIFECYCLE:-none}" == "${LIFECYLE:-}" ]
+  then
+    echo "SIMULATING FAILURE ON LIFECYLE: ${LIFECYCLE:-}"
+    return 1
+  fi
+  return 0
+}
+
+on-activate() {
+  if [ -z "${SIMULATED_FAILURE_ON_LIFECYCLE:-}" ]; then return $PLUGIN_DISABLED; fi
+  simulateFailure
+  return $PLUGIN_ENABLED
+}
+on-priority() { echo 999; }
+on-initialize() { simulateFailure; }
+on-validate() { simulateFailure; }
+on-before-deploy-green() { simulateFailure; }
+on-deploy-green() { simulateFailure; }
+on-verify-green() { simulateFailure; }
+on-switch-to-blue() { simulateFailure; }
+on-verify-blue() { simulateFailure; }
+on-after-verify-blue() { simulateFailure; }
+on-finalize() { simulateFailure; }
+
+# Rollback flow
+on-before-rollback() { simulateFailure; }
+on-rollback() { simulateFailure; }
+on-verify-rollback() { simulateFailure; }
+on-after-rollback() { simulateFailure; }

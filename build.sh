@@ -174,7 +174,7 @@ LIFECYCLE_HISTORY=()
 declare -A LIFECYCLE_STATE
 declare -x LIFECYCLE=not-started
 lifecycle() {
-  LIFECYCLE="$1"
+  export LIFECYCLE="$1"
   LIFECYCLE_HISTORY+=( $LIFECYCLE )
   local force="${2:-false}"
   if isRollingBack && [ "$force" == "false" ]
