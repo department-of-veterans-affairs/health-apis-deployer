@@ -2,7 +2,7 @@
 . $PLUGIN_LIB
 
 simulateFailure() {
-  if [ "${SIMULATED_FAILURE_ON_LIFECYCLE:-none}" == "${LIFECYLE:-}" ]
+  if [ "${SIMULATED_FAILURE:-none}" == "${LIFECYLE:-}" ]
   then
     echo "SIMULATING FAILURE ON LIFECYLE: ${LIFECYCLE:-}"
     return 1
@@ -11,7 +11,7 @@ simulateFailure() {
 }
 
 on-activate() {
-  if [ -z "${SIMULATED_FAILURE_ON_LIFECYCLE:-}" ]; then return $PLUGIN_DISABLED; fi
+  if [ -z "${SIMULATED_FAILURE:-}" ]; then return $PLUGIN_DISABLED; fi
   simulateFailure
   return $PLUGIN_ENABLED
 }
