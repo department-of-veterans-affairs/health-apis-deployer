@@ -19,7 +19,7 @@ on-initialize() {
 on-deploy-green() {
   local tgArn
   tgArn=$(createNewTargetGroup)
-  save "new-tg-arn" "$argArn"
+  save "new-tg-arn" "$tgArn"
   echo "Target group $tgArn"
   replaceAlbRules $GREEN_LOAD_BALANCER_NAME $GREEN_LOAD_BALANCER_PORT "$tgArn"
   deployService $tgArn
