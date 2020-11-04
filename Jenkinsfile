@@ -66,6 +66,7 @@ def contentOf(file) {
   if (fileExists(file)) {
     return readFile(file).trim()
   }
+  echo "File ${file} does not exist"
   return ''
 }
 
