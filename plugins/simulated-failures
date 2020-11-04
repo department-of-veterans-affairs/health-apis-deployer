@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 . $PLUGIN_LIB
 
+PLUGIN_PRIORITY=999
+
 simulateFailure() {
   if [ "${SIMULATED_FAILURE:-none}" == "${LIFECYLE:-}" ]
   then
@@ -16,7 +18,6 @@ on-activate() {
   simulateFailure
   return $PLUGIN_ENABLED
 }
-on-priority() { echo 999; }
 on-initialize() { simulateFailure; }
 on-validate() { simulateFailure; }
 on-before-deploy-green() { simulateFailure; }
