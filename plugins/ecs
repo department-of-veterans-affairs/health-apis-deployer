@@ -87,7 +87,13 @@ replaceAlbRules() {
       --name $alb \
       --protocol HTTP \
       --port $port \
-      --path "$path"
+      --path "$path" \
+      | jq -r '[.RuleArn,.Priority]|join(" ")' \
+      | tee -a $WORK/existing.rules
+  done
+  for priority in ${!DU_LOAD_BALANCER_RULES[@]}
+  do
+    local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     alb replace-rule \
       --name $alb \
       --protocol HTTP \
