@@ -89,6 +89,7 @@ main() {
     rule-summary) ruleSummary "$name" "$protocol" "$port";;
     listener-arn) listenerArn "$name" "$protocol" "$port";;
     rule-arn) ruleArn "$name" "$protocol" "$port" "$path";;
+    rule-details) ruleDetails "$name" "$protocol" "$port" "$path";;
     replace-rule) replaceRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority";;
     *) usage "Unknown command: $command";;
   esac
@@ -239,6 +240,22 @@ ruleArn() {
     | jq -r --arg path "$path" \
     '.Rules[]|select(.Conditions[].Values[] | select(. == $path))|.RuleArn'
 }
+
+
+ruleDetails() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local path="${4:-}"
+  requireParam "path" "$path"
+  local listenerArn=
+  listenerArn=$(listenerArn "$name" "$protocol" "$port")
+  requireValue "$listenerArn" "Listener not found"
+  rulesForListenerArn "$listenerArn" \
+    | jq -r --arg path "$path" \
+    '.Rules[]|select(.Conditions[].Values[] | select(. == $path))'
+}
+
 
 rulesForListenerArn() {
   local listenerArn="$1"
