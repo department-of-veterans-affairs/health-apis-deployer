@@ -140,7 +140,7 @@ pipeline {
               sh script: './build.sh'
             }
           }
-        finally {
+        } finally {
         // ---- here
         script {
           if ( env.PRODUCT != 'none') {
