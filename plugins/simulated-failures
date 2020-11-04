@@ -11,7 +11,8 @@ simulateFailure() {
 }
 
 on-activate() {
-  if [ -z "${SIMULATED_FAILURE:-}" ]; then return $PLUGIN_DISABLED; fi
+  echo "Simulated failure: ${SIMULATED_FAILURE:-}"
+  if [ "${SIMULATED_FAILURE:-none}" == "none" ]; then return $PLUGIN_DISABLED; fi
   simulateFailure
   return $PLUGIN_ENABLED
 }
