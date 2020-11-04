@@ -137,7 +137,6 @@ initializePlugins() {
   do
     if $plugin activate
     then
-      echo "Activating $plugin"
       local priority
       priority="$($plugin priority)"
       if [ -z "${priority:-}" ]
@@ -148,7 +147,6 @@ initializePlugins() {
       echo "$priority $(basename $plugin)" >> $pluginOrder
     else
       if [ $? != 86 ]; then abort "$plugin failed to activate"; fi
-      echo "Disabling $plugin"
     fi
   done
   cat $pluginOrder
@@ -157,7 +155,6 @@ initializePlugins() {
     PLUGINS+=( $(basename $plugin) )
   done
   echo "Enabled plugins: ${PLUGINS[@]}"
-  exit 1
 }
 
 
