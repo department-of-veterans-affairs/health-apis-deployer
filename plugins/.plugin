@@ -2,6 +2,7 @@
 set -euo pipefail
 
 _init() {
+  if [ "${DEBUG:-false}" == true ]; then set -x; fi
   PLUGIN_NAME=$(basename $0 | sed 's/[0-9]\+-//')
   PLUGIN_PRIORITY=100 # lower number is executed sooner
   PLUGIN_ENABLED=0
@@ -9,13 +10,11 @@ _init() {
   PLUGIN_SUBSTITUTIONS_FILE=PLUGIN_SUBSTITION_DIR/$PLUGIN_NAME.env
 }
 
-
 abort() {
   deployment add-build-info -d "$1"
   echo "ABORT: $1"
   exit 1
 }
-
 
 main() {
   if [ $# != 1 ]; then abort "No command specified"; fi
