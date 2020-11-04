@@ -133,14 +133,12 @@ pipeline {
             env[name]=cause.getShortDescription()
           }
         }
-        try {
-          lock("deploy-${env.VPC}") {
-            withCredentials( CREDENTIALS ) {
-              sh script: './build.sh'
-            }
+        lock("deploy-${env.VPC}") {
+          withCredentials( CREDENTIALS ) {
+            catchError { sh script: './build.sh' }
           }
-        } finally {
-//    stash(name: "deployment", includes: ".deployment/**", allowEmpty: true)
+        }
+        //    stash(name: "deployment", includes: ".deployment/**", allowEmpty: true)
         // ---- here
         script {
           if ( env.PRODUCT != 'none') {
@@ -154,7 +152,6 @@ pipeline {
           }
         }
         // ---- here
-        }
       }
     }
   }
