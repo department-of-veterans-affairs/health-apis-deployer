@@ -82,6 +82,12 @@ replaceAlbRules() {
   do
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     echo "TODO UPDATED ALB LISTENERS TO USE HTTPS AND THEN ADJUST HERE"
+    banner h2 -m "EXISTING RULE DETAILS"
+    alb rule-details \
+      --name $alb \
+      --protocol HTTP \
+      --port $port \
+      --path "$path"
     alb replace-rule \
       --name $alb \
       --protocol HTTP \
