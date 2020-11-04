@@ -71,11 +71,13 @@ def contentOf(file) {
 }
 
 pipeline {
+  agent none
   options {
     buildDiscarder(logRotator(numToKeepStr: '99', artifactNumToKeepStr: '99'))
     retry(0)
     timeout(time: 1440, unit: 'MINUTES')
     timestamps()
+    stash(name: "deployment", includes: ".deployment/**", allowEmpty: true)
   }
   parameters {
     // DO NOT TRUST DEFAULT VALUES. THEY ARE NOT ALWAYS SET.
@@ -87,17 +89,9 @@ pipeline {
     choice(name: 'SIMULATED_FAILURE', choices: [ "none","activate","initialize","validate","before-deploy-green","deploy-green","verify-green","switch-to-blue","verify-blue","after-verify-blue","finalize","before-rollback","rollback","verify-rollback","after-rollback" ],
       description: "Environment to deploy into")
   }
-  agent {
-    docker {
-      alwaysPull true
-      registryUrl 'https://index.docker.io/v1/'
-      registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
-      image "vasdvp/health-apis-deploy-tools:${env.DEPLOYER_VERSION}"
-      args DOCKER_ARGS
-    }
-  }
   stages {
     stage('Init') {
+      agent any
       steps {
         script {
           // Sometimes these parameters are not defaulted... thanks Jenkins.
@@ -119,6 +113,15 @@ pipeline {
     }
     stage('Run') {
       when { expression {  return env.PRODUCT != 'none' } }
+      agent {
+        docker {
+          alwaysPull true
+          registryUrl 'https://index.docker.io/v1/'
+          registryCredentialsId 'DOCKER_USERNAME_PASSWORD'
+          image "vasdvp/health-apis-deploy-tools:${env.DEPLOYER_VERSION}"
+          args DOCKER_ARGS
+        }
+      }
       environment {
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker"
         HOME = "${env.WORKSPACE}"
@@ -131,17 +134,14 @@ pipeline {
             env[name]=cause.getShortDescription()
           }
         }
-        lock("deploy-${env.VPC}") {
-          withCredentials( CREDENTIALS ) {
-            sh script: './build.sh'
+        try {
+          lock("deploy-${env.VPC}") {
+            withCredentials( CREDENTIALS ) {
+              sh script: './build.sh'
+            }
           }
-        }
-      }
-    }
-  }
-  post {
-    always {
-//      node('master') {
+        finally {
+        // ---- here
         script {
           if ( env.PRODUCT != 'none') {
             currentBuild.displayName = "#${currentBuild.number} - " + contentOf('.deployment/build-name')
@@ -153,6 +153,14 @@ pipeline {
             currentBuild.description += "Unstable because: " + unstable
           }
         }
+        // ---- here
+        }
+      }
+    }
+  }
+  post {
+    always {
+      node('master') {
         archiveArtifacts artifacts: '.deployment/artifacts/**', onlyIfSuccessful: false, allowEmptyArchive: true
         withCredentials( CREDENTIALS ) {
           script {
@@ -161,7 +169,7 @@ pipeline {
             }
           }
         }
-//      }
+      }
     }
   }
 }
