@@ -16,6 +16,9 @@ EOF
 #============================================================
 onExit() {
   STATUS=$?
+  banner h2 -m "Deployment"
+  cat $DEPLOYMENT_BUILD_NAME_FILE
+  cat $DEPLOYMENT_DESCRIPTION_FILE
   if [ $STATUS -ne 0 ]
   then
     stage start -s "CRASH AND BURN"

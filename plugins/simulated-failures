@@ -2,10 +2,10 @@
 . $PLUGIN_LIB
 
 simulateFailure() {
-  echo "Simulating failure on ${SIMULATED_FAILURE:-none}, currently on ${LIFECYCLE}"
   if [ "${SIMULATED_FAILURE:-none}" == "${LIFECYCLE}" ]
   then
     echo "SIMULATING FAILURE ON LIFECYLE: ${LIFECYCLE}"
+    deployment add-build-info -d "Simulated failure on ${LIFECYCLE}"
     return 1
   fi
   return 0
