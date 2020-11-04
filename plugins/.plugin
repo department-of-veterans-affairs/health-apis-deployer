@@ -16,6 +16,19 @@ abort() {
   exit 1
 }
 
+save() {
+  local name="$1"
+  local vaue="$2"
+  echo -n "$value" > "$WORK/$PLUGIN_NAME.$name"
+}
+
+recall() {
+  local name="$1"
+  local file="$WORK/$PLUGIN_NAME.$name"
+  if [ ! -f "$file" ]; then abort "cannot recall $name, it was not saved"; fi
+  cat $file
+}
+
 main() {
   if [ $# != 1 ]; then abort "No command specified"; fi
   export LIFECYCLE=$1

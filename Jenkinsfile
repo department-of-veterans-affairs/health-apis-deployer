@@ -138,8 +138,6 @@ pipeline {
             catchError { sh script: './build.sh' }
           }
         }
-        //    stash(name: "deployment", includes: ".deployment/**", allowEmpty: true)
-        // ---- here
         script {
           if ( env.PRODUCT != 'none') {
             currentBuild.displayName = "#${currentBuild.number} - " + contentOf('.deployment/build-name')
@@ -151,7 +149,6 @@ pipeline {
             currentBuild.description += "Unstable because: " + unstable
           }
         }
-        // ---- here
       }
     }
   }
