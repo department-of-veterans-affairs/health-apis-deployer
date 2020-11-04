@@ -137,9 +137,11 @@ initializePlugins() {
   do
     if $plugin activate
     then
+      echo "Activating $plugin"
       echo "$($plugin priority) $(basename $plugin)" >> $pluginOrder
     else
       if [ $? != 86 ]; then abort "$plugin failed to activate"; fi
+      echo "Disabling $plugin"
     fi
   done
   for plugin in $(sort -n $pluginOrder|awk '{print $2}')
