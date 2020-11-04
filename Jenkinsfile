@@ -84,6 +84,8 @@ pipeline {
     choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ],
       description: "Environment to deploy into")
     string(name: 'PRODUCT', defaultValue: 'none', description: "The product to deploy.")
+    choice(name: 'SIMULATED_FAILURE_ON_LIFECYCLE', choices: [ "none","activate","initialize","validate","before-deploy-green","deploy-green","verify-green","switch-to-blue","verify-blue","after-verify-blue","finalize","before-rollback","rollback","verify-rollback","after-rollback" ],
+      description: "Environment to deploy into")
   }
   stages {
     stage('Init') {
