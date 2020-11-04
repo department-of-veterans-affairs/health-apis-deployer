@@ -18,7 +18,7 @@ abort() {
 
 save() {
   local name="$1"
-  local vaue="$2"
+  local value="$2"
   echo -n "$value" > "$WORK/$PLUGIN_NAME.$name"
 }
 
