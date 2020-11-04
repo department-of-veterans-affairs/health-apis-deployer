@@ -138,9 +138,14 @@ initializePlugins() {
     if $plugin activate
     then
       echo "Activating $plugin"
-      $plugin priority
-      echo "TODO DELETE ME: $?"
-      echo "$($plugin priority) $(basename $plugin)" >> $pluginOrder
+      local priority
+      priority="$($plugin priority)"
+      if [ -z "${priority:-}" ]
+      then
+        DEBUG=true $plugin priority
+        abort "Failed to determine plugin priority"
+      fi
+      echo "$priority $(basename $plugin)" >> $pluginOrder
     else
       if [ $? != 86 ]; then abort "$plugin failed to activate"; fi
       echo "Disabling $plugin"
