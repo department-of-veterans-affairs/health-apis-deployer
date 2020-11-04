@@ -31,3 +31,6 @@ on-before-rollback() { simulateFailure; }
 on-rollback() { simulateFailure; }
 on-verify-rollback() { simulateFailure; }
 on-after-rollback() { simulateFailure; }
+
+main "$@"
+exit 1
