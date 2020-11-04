@@ -149,7 +149,6 @@ initializePlugins() {
       if [ $? != 86 ]; then abort "$plugin failed to activate"; fi
     fi
   done
-  cat $pluginOrder
   for plugin in $(sort -n $pluginOrder|awk '{print $2}')
   do
     PLUGINS+=( $(basename $plugin) )

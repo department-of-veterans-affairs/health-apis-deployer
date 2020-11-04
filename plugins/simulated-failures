@@ -2,6 +2,7 @@
 . $PLUGIN_LIB
 
 simulateFailure() {
+  echo "Simulating failure on ${SIMULATED_FAILURE:-none}, currently on ${LIFECYLE:-}"
   if [ "${SIMULATED_FAILURE:-none}" == "${LIFECYLE:-}" ]
   then
     echo "SIMULATING FAILURE ON LIFECYLE: ${LIFECYCLE:-}"
@@ -16,7 +17,10 @@ on-activate() {
   return $PLUGIN_ENABLED
 }
 on-priority() { echo 999; }
-on-initialize() { simulateFailure; }
+on-initialize() {
+  echo "Simulating failure on $SIMULATED_FAILURE"
+  simulateFailure
+}
 on-validate() { simulateFailure; }
 on-before-deploy-green() { simulateFailure; }
 on-deploy-green() { simulateFailure; }
