@@ -77,7 +77,6 @@ pipeline {
     retry(0)
     timeout(time: 1440, unit: 'MINUTES')
     timestamps()
-    stash(name: "deployment", includes: ".deployment/**", allowEmpty: true)
   }
   parameters {
     // DO NOT TRUST DEFAULT VALUES. THEY ARE NOT ALWAYS SET.
@@ -141,6 +140,7 @@ pipeline {
             }
           }
         } finally {
+//    stash(name: "deployment", includes: ".deployment/**", allowEmpty: true)
         // ---- here
         script {
           if ( env.PRODUCT != 'none') {
