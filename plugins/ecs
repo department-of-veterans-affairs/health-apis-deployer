@@ -149,7 +149,7 @@ addAlbRulesOnBlue() {
     done < $WORK/ecs-existing-rules
     if [ -n "$priorities" ]
     then
-      if ! aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text > $ECS_DEBUG
+      if ! aws elbv2 set-rule-priorities --rule-priorities $priorities --output text > $ECS_DEBUG
       then
         cat $ECS_DEBUG
         return 1
@@ -302,7 +302,7 @@ rollbackOldRules() {
       priorities+="RuleArn=$arn,Priority=$priority "
       echo "Moving $arn back to slot $priority"
     done < $WORK/ecs-existing-rules
-    if ! aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text > $ECS_DEBUG
+    if ! aws elbv2 set-rule-priorities --rule-priorities $priorities --output text > $ECS_DEBUG
     then
       echo "FAILED TO ROLLBACK RULES"
       cat $ECS_DEBUG
