@@ -38,13 +38,16 @@ on-switch-to-blue() {
 
 on-after-verify-blue() {
   removeOldRules
-  removeOldTargetGroup
-  removeOldServices
+  removeTargetGroup old
+  removeServices old
   removeOldTaskDefinition
   return 0
 }
 
 on-rollback() {
+  rollbackOldRules
+  removeTargetGroup new
+  removeServices new
   echo "TODO Delete new target group"
   return 0
 }
@@ -137,7 +140,7 @@ addAlbRulesOnBlue() {
       then
         maxPriority=$(($maxPriority + 1))
         priorities+="RuleArn=$arn,Priority=$maxPriority "
-        echo "Moving $arn to slot $maxPriority"
+        echo "Moving $arn from slot $priority to $maxPriority"
       fi
     done < $WORK/existing.rules
     if [ -n "$priorities" ]
@@ -172,29 +175,44 @@ removeOldRules() {
   fi
 }
 
-removeOldTargetGroup() {
-  echo "Deleting old target groups"
+removeTargetGroup() {
+  local who=$1
+  case $who in
+    old) local opt="-v";;
+    new) local opt="";;
+    *) abort "must be 'old' or 'new'";;
+  esac
+  echo "Deleting $who target groups"
   while read arn
   do
-    echo "Deleting old target group $arn"
+    echo "Deleting $who target group $arn"
     aws elbv2 delete-target-group --target-group-arn $arn
   done < <(aws elbv2 describe-target-groups \
     --output text \
     --query "TargetGroups[?starts_with(TargetGroupName,'$(awsPrefix)')].[TargetGroupArn]" \
-    | grep -v "$(tgName)")
+    | grep $opt "$(tgName)")
 }
 
-removeOldTaskDefinition() {
-  echo "Deleting old task definitions"
-  aws ecs list-task-definitions \
-    --no-paginate \
-    --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]"
-  echo ---
+removeTaskDefinition() {
+  local who=$1
+  case $who in
+    old) local opt="-v";;
+    new) local opt="";;
+    *) abort "must be 'old' or 'new'";;
+  esac
+  echo "Deleting $who task definitions"
+  if [ "${DEBUG:-}" == "true" ]
+  then
+    echo "Current task definitions"
+    aws ecs list-task-definitions \
+      --no-paginate \
+      --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]"
+  fi
   echo "Task definitions" > $ECS_DEBUG
   local failed=false
   while read arn
   do
-    echo "Deleting old task definition $arn"
+    echo "Deleting $who task definition $arn"
     if ! aws ecs deregister-task-definition --task-definition $arn --output text >> $ECS_DEBUG
     then
       failed=true
@@ -202,7 +220,7 @@ removeOldTaskDefinition() {
   done < <(aws ecs list-task-definitions \
     --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]" \
     | jq -r .[] \
-    | grep -v "$(taskDefName)")
+    | grep $opt "$(taskDefName)")
   if [ $failed != false ]
   then
     cat $ECS_DEBUG
@@ -211,16 +229,25 @@ removeOldTaskDefinition() {
 }
 
 removeOldServices() {
-  echo "Deleting old services"
-  aws ecs list-services \
-    --cluster $(cluster) \
-    --query "serviceArns[? contains(@,'$(awsPrefix)')]"
-  echo ---
+  local who=$1
+  case $who in
+    old) local opt="-v";;
+    new) local opt="";;
+    *) abort "must be 'old' or 'new'";;
+  esac
+  echo "Deleting $who services"
+  if [ "${DEBUG:-}" == true ]
+  then
+    echo "Current services"
+    aws ecs list-services \
+      --cluster $(cluster) \
+      --query "serviceArns[? contains(@,'$(awsPrefix)')]"
+  fi
   local failed=false
   echo "Services" > $ECS_DEBUG
   while read arn
   do
-    echo "Deleting old service $arn"
+    echo "Deleting $who service $arn"
     if ! aws ecs delete-service --cluster $(cluster) --service $arn --force --output text >> $ECS_DEBUG
     then
       failed=true
@@ -229,11 +256,30 @@ removeOldServices() {
     --cluster $(cluster) \
     --query "serviceArns[? contains(@,'$(awsPrefix)')]" \
     | jq -r .[] \
-    | grep -v "$(taskDefName)")
+    | grep $opt "$(taskDefName)")
   if [ $failed != false ]
   then
     cat $ECS_DEBUG
     return 1
+  fi
+}
+
+rollbackOldRules() {
+  echo "Rolling back rule changes"
+  if [ -f $WORK/existing.rules ]
+  then
+    echo "Reprioritizing old rules"
+    local priorities
+    while read arn priority
+    do
+      priorities+="RuleArn=$arn,Priority=$priority "
+      echo "Moving $arn back to slot $priority"
+    done < $WORK/existing.rules
+    if ! aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text > $ECS_DEBUG
+    then
+      cat $ECS_DEBUG
+      return 1
+    fi
   fi
 }
 
@@ -307,9 +353,9 @@ updateEcsParams() {
     --replace-security-groups "$securityGroups" \
     --replace-task-execution-role "$ECS_TASK_EXECUTION_ROLE"
 
-  banner file -m $ECS_PARAM_FILE
+  banner file -m $(basename $ECS_PARAM_FILE)
   cat $ECS_PARAM_FILE
-  banner file -m $ECS_PARAM_FILE
+  banner file -m eof
 }
 
 updateDockerCompose() {
@@ -334,9 +380,9 @@ updateDockerCompose() {
         --replace-image "$service:$ecrImage"
     fi
   done
-  banner file -m $ECS_DOCKER_COMPOSE_FILE
+  banner file -m $(basename $ECS_DOCKER_COMPOSE_FILE)
   cat $ECS_DOCKER_COMPOSE_FILE
-  banner file -m $ECS_DOCKER_COMPOSE_FILE
+  banner file -m eof
 }
 
 importToEcr() {
