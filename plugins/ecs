@@ -36,6 +36,7 @@ on-switch-to-blue() {
 }
 
 on-after-verify-blue() {
+  removeOldRules
   removeOldTargetGroup
   removeOldServices
   removeOldTaskDefinition
@@ -140,7 +141,7 @@ addAlbRulesOnBlue() {
     done < $WORK/existing.rules
     if [ -n "$priorities" ]
     then
-      aws elbv2 set-rule-priorities --rule-priorities "$priorities"
+      aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text
     fi
   fi
 }
@@ -149,8 +150,6 @@ removeOldRules() {
   if [ -f $WORK/existing.rules ]
   then
     echo "Deleting old rules"
-    local offset=2000
-    local priorities
     while read arn priority
     do
       aws elbv2 delete-rule --rule-arn $arn
