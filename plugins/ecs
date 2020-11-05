@@ -158,11 +158,12 @@ addAlbRulesOnBlue() {
 removeOldRules() {
   if [ -f $WORK/existing.rules ]
   then
-    echo "Deleting old rules"
+    echo "Deleting old rules..."
     echo "Rules" > $ECS_DEBUG
     local failed=false
     while read arn priority
     do
+      echo "Deleting $arn"
       if ! aws elbv2 delete-rule --rule-arn $arn >> $ECS_DEBUG
       then
         failed=true
@@ -183,10 +184,10 @@ removeTargetGroup() {
     new) local opt="";;
     *) abort "must be 'old' or 'new'";;
   esac
-  echo "Deleting $who target groups"
+  echo "Deleting $who target groups..."
   while read arn
   do
-    echo "Deleting $who target group $arn"
+    echo "Deleting $arn"
     aws elbv2 delete-target-group --target-group-arn $arn
   done < <(aws elbv2 describe-target-groups \
     --output text \
@@ -201,7 +202,7 @@ removeTaskDefinition() {
     new) local opt="";;
     *) abort "must be 'old' or 'new'";;
   esac
-  echo "Deleting $who task definitions"
+  echo "Deleting $who task definitions..."
   if [ "${DEBUG:-}" == "true" ]
   then
     echo "Current task definitions"
@@ -213,7 +214,7 @@ removeTaskDefinition() {
   local failed=false
   while read arn
   do
-    echo "Deleting $who task definition $arn"
+    echo "Deleting $arn"
     if ! aws ecs deregister-task-definition --task-definition $arn --output text >> $ECS_DEBUG
     then
       failed=true
@@ -236,7 +237,7 @@ removeServices() {
     new) local opt="";;
     *) abort "must be 'old' or 'new'";;
   esac
-  echo "Deleting $who services"
+  echo "Deleting $who services..."
   if [ "${DEBUG:-}" == true ]
   then
     echo "Current services"
@@ -248,7 +249,7 @@ removeServices() {
   echo "Services" > $ECS_DEBUG
   while read arn
   do
-    echo "Deleting $who service $arn"
+    echo "Deleting $arn"
     if ! aws ecs delete-service --cluster $(cluster) --service $arn --force --output text >> $ECS_DEBUG
     then
       failed=true
@@ -266,7 +267,7 @@ removeServices() {
 }
 
 rollbackOldRules() {
-  echo "Rolling back rule changes"
+  echo "Rolling back rule changes..."
   if [ -f $WORK/existing.rules ]
   then
     echo "Reprioritizing old rules"

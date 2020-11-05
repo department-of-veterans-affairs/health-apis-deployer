@@ -116,7 +116,9 @@ imageName() {
 #
 _doLogin() {
   local hostname=${1}
-  aws ecr get-login-password | docker login -u AWS --password-stdin $hostname
+  aws ecr get-login-password \
+    | docker login -u AWS --password-stdin $hostname 2>&1 \
+    | grep -vE '(Your password|Configure a credential helper|docs.docker.com)'
 }
 export -f _doLogin
 
