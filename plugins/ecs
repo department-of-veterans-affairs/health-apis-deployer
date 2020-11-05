@@ -137,6 +137,7 @@ addAlbRulesOnBlue() {
   if [ -f $WORK/ecs-existing-rules ]
   then
     echo "Deprioritizing old rules"
+    alb rule-summary -n $alb --port $port --protocol $LOAD_BALANCER_PROTOCOL
     local maxPriority
     maxPriority=$(alb rule-summary -n $alb --port $port --protocol $LOAD_BALANCER_PROTOCOL \
       | awk 'BEGIN {max=2000} /^[0-9]/ {if ($1 > max) max=$1} END {print max}')

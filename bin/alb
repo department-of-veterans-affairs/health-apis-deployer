@@ -208,6 +208,11 @@ ruleSummary() {
   done < $work/rules
   wait
   echo "PRIORITY RULE HEALTHY UNHEALTHY TOTAL STATUS" > $work/rule.summary
+  if [ "$(wc -l $work/rules)" == 0 ]
+  then
+    echo "TOTAL    -    0       0         0"
+    return
+  fi
   local filter=.
   [ "${LIST_UNHEALTHY_RULES_ONLY:-false}" == true ] && filter="UNHEALTHY"
   cat $work/rule.[0-9]* | grep $filter | sort -n >> $work/rule.summary
