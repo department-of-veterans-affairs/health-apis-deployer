@@ -184,6 +184,8 @@ removeOldRules() {
 removeNewRules() {
   if [ -f $WORK/ecs-added-rules ]
   then
+    echo ------------------------
+    cat $WORK/ecs-added-rules
     echo "Deleting new rules..."
     echo "Rules" > $ECS_DEBUG
     local failed=false
