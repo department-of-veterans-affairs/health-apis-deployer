@@ -275,7 +275,7 @@ goodbye() {
     for lifecycle in ${LIFECYCLE_HISTORY[@]}
     do
       local state=${LIFECYCLE_STATE[$lifecycle]}
-      printf "%-15s [%s]\n" "$lifecycle" "$state"
+      printf "%-20s [%s]\n" "$lifecycle" "$state"
       if [ $state != "complete" ]; then errorCode=1; fi
     done
   fi
