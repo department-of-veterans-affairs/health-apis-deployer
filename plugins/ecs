@@ -13,7 +13,6 @@ on-activate() {
 }
 
 on-initialize() {
-  alb rule-summary -n $BLUE_LOAD_BALANCER_NAME --port $BLUE_LOAD_BALANCER_PORT --protocol $LOAD_BALANCER_PROTOCOL --debug
   checkExposedService
   updateDockerCompose
   updateEcsParams
@@ -151,7 +150,7 @@ addAlbRulesOnBlue() {
         echo "Moving $arn from slot $priority to $maxPriority"
       fi
     done < $WORK/ecs-existing-rules
-    if [ -n "$priorities" ]
+    if [ -n "${priorities:-}" ]
     then
       if ! aws elbv2 set-rule-priorities --rule-priorities $priorities --output text 2>&1 > $ECS_DEBUG
       then
