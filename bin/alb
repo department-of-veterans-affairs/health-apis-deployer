@@ -304,7 +304,7 @@ replaceRule() {
 }
 
 printCreatedRule() {
-  local file="$1"
+  local results="$1"
   if [ "${DEBUG:-false}" == "true" ]; then
     cat $results
   else
