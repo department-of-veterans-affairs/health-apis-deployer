@@ -284,8 +284,8 @@ addRule() {
     --listener-arn $listenerArn \
     --actions Type=forward,TargetGroupArn=$targetGroup \
     --conditions Field=path-pattern,Values="$path" \
-    --priority $priority > $results
-  printCreatedRule $results
+    --priority $priority > $output
+  printCreatedRule $output
 }
 
 replaceRule() {
