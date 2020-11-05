@@ -122,19 +122,20 @@ addAlbRulesOnBlue() {
       --min-priority $priority
   done
 
-  banner h2 -m "RULES"
-  alb rule-summary -n $alb --port $port --protocol $ALB_PROTOCOL
- 
   if [ -f $WORK/existing.rules ]
   then
     echo "Deprioritizing old rules"
-    local offset=2000
+    local maxPriority
+    maxPriority=$(alb rule-summary -n $alb --port $port --protocol $ALB_PROTOCOL \
+      | awk 'BEGIN {max=2000} /^[0-9]/ {if ($1 > max) max=$1} END {print max}')
     local priorities
     while read arn priority
     do
-      if [ "$priority" -lt "$offset" ]
+      if [ "$priority" -lt 2000 ]
       then
-        priorities+="RuleArn=$arn,Priority=$(($priority + $offset)) "
+        maxPriority=$(($maxPriority + 1))
+        priorities+="RuleArn=$arn,Priority=$maxPriority "
+        echo "Moving $arn to slot $maxPriority"
       fi
     done < $WORK/existing.rules
     if [ -n "$priorities" ]
