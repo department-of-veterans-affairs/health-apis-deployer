@@ -122,6 +122,9 @@ addAlbRulesOnBlue() {
       --min-priority $priority
   done
 
+  banner h2 -m "RULES"
+  alb rule-summary -n $alb --port $port --protocol $ALB_PROTOCOL
+ 
   if [ -f $WORK/existing.rules ]
   then
     echo "Deprioritizing old rules"
@@ -129,9 +132,15 @@ addAlbRulesOnBlue() {
     local priorities
     while read arn priority
     do
-      priorities+="RuleArn=$arn,Priority=$(($priority + $offset)) "
+      if [ "$priority" -lt "$offset" ]
+      then
+        priorities+="RuleArn=$arn,Priority=$(($priority + $offset)) "
+      fi
     done < $WORK/existing.rules
-    aws elbv2 set-rule-priorities --rule-priorities "$priorities"
+    if [ -n "$priorities" ]
+    then
+      aws elbv2 set-rule-priorities --rule-priorities "$priorities"
+    fi
   fi
 }
 
