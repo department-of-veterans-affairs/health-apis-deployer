@@ -6,10 +6,19 @@ export STAGE_PREFIX="${VPC:-} ${PRODUCT:-}"
 
 cat <<EOF
 
-
---- TODO ---
+************************************************************
+*                                                          *
+*                           TODO                           *
+*                                                          *
+************************************************************
 - Default to 'latest' deploy-tools image
+- Move tools in bin to deploy-tools image
 - Promotion
+- Test support
+- Update qa configuration to use blue/green albs, ports, https
+  - renable blue ALB name in initialize() below
+- Re-enable timer plugin
+************************************************************
 
 EOF
 
@@ -62,8 +71,8 @@ initialize() {
   export PLUGIN_LIB=$PLUGIN_DIR/.plugin
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
   export GREEN_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
+  # TODO export BLUE_LOAD_BALANCER_NAME=blue-${ENVIRONMENT}-kubernetes
   export BLUE_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
-  echo "TODO USE BLUE ALB INSTEAD OF GREEN"
   setDeploymentId
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
   export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
@@ -295,7 +304,7 @@ main() {
   lifecycle verify-green
   lifecycle switch-to-blue
   lifecycle verify-blue
-  lifecycle after-verify-blue
+  lifecycle after-verify-blue force
 
   lifecycle finalize force
   recordDeployment

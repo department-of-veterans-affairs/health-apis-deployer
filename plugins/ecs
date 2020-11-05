@@ -4,11 +4,9 @@ set -euo pipefail
 
 ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
-ALB_PROTOCOL=HTTP
 ECS_DEBUG=$WORK/ecs.debug
 
 on-activate() {
-  echo "TODO SET HTTP PROTOCOL TO HTTPS"
   if [ ! -f $ECS_DOCKER_COMPOSE_FILE ]; then return $PLUGIN_DISABLED; fi
   if [ ! -f $ECS_PARAM_FILE ]; then return $PLUGIN_DISABLED; fi
   return $PLUGIN_ENABLED
@@ -94,7 +92,7 @@ replaceAlbRulesOnGreen() {
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     alb replace-rule \
       --name $alb \
-      --protocol $ALB_PROTOCOL \
+      --protocol $LOAD_BALANCER_PROTOCOL \
       --port $port \
       --path "$path" \
       --target-group $tgArn \
@@ -104,7 +102,6 @@ replaceAlbRulesOnGreen() {
 
   done
 }
-
 
 addAlbRulesOnBlue() {
   local alb=$1
@@ -116,7 +113,7 @@ addAlbRulesOnBlue() {
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     alb rule-details \
       --name $alb \
-      --protocol $ALB_PROTOCOL \
+      --protocol $LOAD_BALANCER_PROTOCOL \
       --port $port \
       --path "$path" \
       | jq -r '[.RuleArn,.Priority]|join(" ")' \
@@ -128,7 +125,7 @@ addAlbRulesOnBlue() {
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     alb add-rule \
       --name $alb \
-      --protocol $ALB_PROTOCOL \
+      --protocol $LOAD_BALANCER_PROTOCOL \
       --port $port \
       --path "$path" \
       --target-group $tgArn \
@@ -141,7 +138,7 @@ addAlbRulesOnBlue() {
   then
     echo "Deprioritizing old rules"
     local maxPriority
-    maxPriority=$(alb rule-summary -n $alb --port $port --protocol $ALB_PROTOCOL \
+    maxPriority=$(alb rule-summary -n $alb --port $port --protocol $LOAD_BALANCER_PROTOCOL \
       | awk 'BEGIN {max=2000} /^[0-9]/ {if ($1 > max) max=$1} END {print max}')
     local priorities
     while read arn priority

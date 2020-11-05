@@ -5,7 +5,8 @@ TIMER_FILES=( $(find $DU_DIR -name "timer-*.json") )
 
 on-activate() {
   if [ ${#TIMER_FILES[@]} -eq 0 ]; then return $PLUGIN_DISABLED; fi
-  return $PLUGIN_ENABLED
+  # TODO return $PLUGIN_ENABLED
+  echo "TODO ALLOW PLUGIN TO ACTIVATE"; return $PLUGIN_DISABLED
 }
 
 on-initialize() {
@@ -16,10 +17,10 @@ on-initialize() {
 }
 
 on-deploy-green() {
-  echo TODO callculon remove-all
+  callculon remove-all
   for timer in ${TIMER_FILES[@]}
   do
-    echo TODO callculon create --configuration $timer
+    callculon create --configuration $timer
   done
 }
 
