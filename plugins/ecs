@@ -4,6 +4,7 @@
 ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
 ALB_PROTOCOL=HTTP
+ECS_DEBUG=$WORK/ecs.debug
 
 on-activate() {
   echo "TODO SET HTTP PROTOCOL TO HTTPS"
@@ -109,7 +110,7 @@ addAlbRulesOnBlue() {
       --port $port \
       --path "$path" \
       | jq -r '[.RuleArn,.Priority]|join(" ")' \
-      | tee -a $WORK/existing.rules
+      >> $WORK/existing.rules
   done
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
@@ -141,7 +142,11 @@ addAlbRulesOnBlue() {
     done < $WORK/existing.rules
     if [ -n "$priorities" ]
     then
-      aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text
+      if ! aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text > $ECS_DEBUG
+      then
+        cat $ECS_DEBUG
+        return 1
+      fi
     fi
   fi
 }
@@ -150,10 +155,20 @@ removeOldRules() {
   if [ -f $WORK/existing.rules ]
   then
     echo "Deleting old rules"
+    echo "Rules" > $ECS_DEBUG
+    local failed=false
     while read arn priority
     do
-      aws elbv2 delete-rule --rule-arn $arn
+      if ! aws elbv2 delete-rule --rule-arn $arn >> $ECS_DEBUG
+      then
+        failed=true
+      fi
     done < $WORK/existing.rules
+    if [ $failed != false ]
+    then
+      cat $ECS_DEBUG
+      return 1
+    fi
   fi
 }
 
@@ -175,14 +190,24 @@ removeOldTaskDefinition() {
     --no-paginate \
     --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]"
   echo ---
+  echo "Task definitions" > $ECS_DEBUG
+  local failed=false
   while read arn
   do
     echo "Deleting old task definition $arn"
-    aws ecs deregister-task-definition --task-definition $arn --output text
+    if ! aws ecs deregister-task-definition --task-definition $arn --output text >> $ECS_DEBUG
+    then
+      failed=true
+    fi
   done < <(aws ecs list-task-definitions \
     --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]" \
     | jq -r .[] \
     | grep -v "$(taskDefName)")
+  if [ $failed != false ]
+  then
+    cat $ECS_DEBUG
+    return 1
+  fi
 }
 
 removeOldServices() {
@@ -191,15 +216,25 @@ removeOldServices() {
     --cluster $(cluster) \
     --query "serviceArns[? contains(@,'$(awsPrefix)')]"
   echo ---
+  local failed=false
+  echo "Services" > $ECS_DEBUG
   while read arn
   do
     echo "Deleting old service $arn"
-    aws ecs delete-service --cluster $(cluster) --service $arn --force --output text
+    if ! aws ecs delete-service --cluster $(cluster) --service $arn --force --output text >> $ECS_DEBUG
+    then
+      failed=true
+    fi
   done < <(aws ecs list-services \
     --cluster $(cluster) \
     --query "serviceArns[? contains(@,'$(awsPrefix)')]" \
     | jq -r .[] \
     | grep -v "$(taskDefName)")
+  if [ $failed != false ]
+  then
+    cat $ECS_DEBUG
+    return 1
+  fi
 }
 
 awsPrefix() {
@@ -274,6 +309,7 @@ updateEcsParams() {
 
   banner file -m $ECS_PARAM_FILE
   cat $ECS_PARAM_FILE
+  banner file -m $ECS_PARAM_FILE
 }
 
 updateDockerCompose() {
@@ -300,6 +336,7 @@ updateDockerCompose() {
   done
   banner file -m $ECS_DOCKER_COMPOSE_FILE
   cat $ECS_DOCKER_COMPOSE_FILE
+  banner file -m $ECS_DOCKER_COMPOSE_FILE
 }
 
 importToEcr() {
