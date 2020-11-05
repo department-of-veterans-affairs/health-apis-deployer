@@ -55,10 +55,10 @@ exit 1
 }
 
 main() {
-  local name= protocol= port= path= targetGroup= minPriority=1 wait=
+  local name= protocol= port= path= targetGroup= minPriority=1 wait= output=
   local args
   if ! args=$(getopt \
-    -l "debug,name:,protocol:,port:,path:,target-group:,min-priority:,wait:" \
+    -l "debug,name:,protocol:,port:,path:,target-group:,min-priority:,wait:,output:" \
     -o "n:" -- "$@")
   then usage; fi
   eval set -- "$args"
@@ -72,6 +72,7 @@ main() {
       --path) path="$2";;
       --target-group) targetGroup="$2";;
       --min-priority) minPriority="$2";;
+      --output) output="$2";;
       --wait) wait="$2";;
       --) shift; break;;
     esac
@@ -90,8 +91,8 @@ main() {
     listener-arn) listenerArn "$name" "$protocol" "$port";;
     rule-arn) ruleArn "$name" "$protocol" "$port" "$path";;
     rule-details) ruleDetails "$name" "$protocol" "$port" "$path";;
-    replace-rule) replaceRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority";;
-    add-rule) addRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority";;
+    replace-rule) replaceRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority" "$output";;
+    add-rule) addRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority" "$output";;
     *) usage "Unknown command: $command";;
   esac
 }
@@ -127,7 +128,6 @@ arn() {
     | jq -r '.LoadBalancers[].LoadBalancerArn'
 }
 
-
 ruleHealth() {
   local name="${1:-}"
   local protocol="${2:-}"
@@ -154,6 +154,7 @@ ruleHealth() {
   echo "Timed out waiting for healthy rule on $name ($protocol:$port) $path"
   return 1
 }
+
 checkRuleHealth() {
   targetGroupArn="$1"
   local healths=
@@ -270,6 +271,7 @@ addRule() {
   local path="${4:-}"
   local targetGroup="${5:-}"
   local minPriority="${6:-1}"
+  local output="${7:-}"
   requireParam "target-group" "$targetGroup"
   local listenerArn=
   listenerArn=$(listenerArn $name $protocol $port)
@@ -277,7 +279,7 @@ addRule() {
   local priority=$(nextAvailablePriority $listenerArn $minPriority)
   echo "Adding rule on $name ($protocol:$port) #$priority $path"
   echo "Target: $targetGroup"
-  local results=$(tmpFile)
+  if [ -z "${output:-}" ]; then output=$(tmpFile); fi
   aws elbv2 create-rule \
     --listener-arn $listenerArn \
     --actions Type=forward,TargetGroupArn=$targetGroup \
@@ -293,10 +295,11 @@ replaceRule() {
   local path="${4:-}"
   local targetGroup="${5:-}"
   local minPriority="${6:-1}"
+  local output="${7:-}"
   echo "Replacing rule on $name ($protocol:$port) $path"
   local existingRuleArns
   existingRuleArns=$(ruleArn "$name" "$protocol" "$port" "$path")
-  addRule "$name" "$protocol" "$port" "$path" "${targetGroup:-}" "$minPriority"
+  addRule "$name" "$protocol" "$port" "$path" "${targetGroup:-}" "$minPriority" "${output:-}"
   deleteRules $existingRuleArns
 }
 

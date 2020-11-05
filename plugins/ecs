@@ -46,10 +46,10 @@ on-after-verify-blue() {
 
 on-rollback() {
   rollbackOldRules
+  removeNewRules
   removeTargetGroup new
   removeServices new
   removeTaskDefinition new
-  echo "TODO Delete new target group"
   return 0
 }
 
@@ -114,8 +114,9 @@ addAlbRulesOnBlue() {
       --port $port \
       --path "$path" \
       | jq -r '[.RuleArn,.Priority]|join(" ")' \
-      >> $WORK/existing.rules
+      >> $WORK/ecs-existing-rules
   done
+
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
@@ -125,10 +126,12 @@ addAlbRulesOnBlue() {
       --port $port \
       --path "$path" \
       --target-group $tgArn \
-      --min-priority $priority
+      --min-priority $priority \
+      --output $WORK/ecs-added-rule
+    jq -r '.Rules[].RuleArn' $WORK/ecs-added-rule >> $WORK/ecs-added-rules
   done
 
-  if [ -f $WORK/existing.rules ]
+  if [ -f $WORK/ecs-existing-rules ]
   then
     echo "Deprioritizing old rules"
     local maxPriority
@@ -143,7 +146,7 @@ addAlbRulesOnBlue() {
         priorities+="RuleArn=$arn,Priority=$maxPriority "
         echo "Moving $arn from slot $priority to $maxPriority"
       fi
-    done < $WORK/existing.rules
+    done < $WORK/ecs-existing-rules
     if [ -n "$priorities" ]
     then
       if ! aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text > $ECS_DEBUG
@@ -156,7 +159,7 @@ addAlbRulesOnBlue() {
 }
 
 removeOldRules() {
-  if [ -f $WORK/existing.rules ]
+  if [ -f $WORK/ecs-existing-rules ]
   then
     echo "Deleting old rules..."
     echo "Rules" > $ECS_DEBUG
@@ -168,7 +171,29 @@ removeOldRules() {
       then
         failed=true
       fi
-    done < $WORK/existing.rules
+    done < $WORK/ecs-existing-rules
+    if [ $failed != false ]
+    then
+      cat $ECS_DEBUG
+      return 1
+    fi
+  fi
+}
+
+removeNewRules() {
+  if [ -f $WORK/ecs-added-rules ]
+  then
+    echo "Deleting new rules..."
+    echo "Rules" > $ECS_DEBUG
+    local failed=false
+    while read arn
+    do
+      echo "Deleting $arn"
+      if ! aws elbv2 delete-rule --rule-arn $arn >> $ECS_DEBUG
+      then
+        failed=true
+      fi
+    done < $WORK/ecs-added-rules
     if [ $failed != false ]
     then
       cat $ECS_DEBUG
@@ -268,7 +293,7 @@ removeServices() {
 
 rollbackOldRules() {
   echo "Rolling back rule changes..."
-  if [ -f $WORK/existing.rules ]
+  if [ -f $WORK/ecs-existing-rules ]
   then
     echo "Reprioritizing old rules"
     local priorities
@@ -276,8 +301,7 @@ rollbackOldRules() {
     do
       priorities+="RuleArn=$arn,Priority=$priority "
       echo "Moving $arn back to slot $priority"
-    done < $WORK/existing.rules
-    echo "$priorities"
+    done < $WORK/ecs-existing-rules
     if ! aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text > $ECS_DEBUG
     then
       echo "FAILED TO ROLLBACK RULES"
