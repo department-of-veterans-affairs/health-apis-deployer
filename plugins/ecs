@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 . $PLUGIN_LIB
+set -euo pipefail
 
 ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
@@ -195,7 +196,7 @@ removeNewRules() {
       fi
     done < $WORK/ecs-added-rules
     cat $ECS_DEBUG
-    if [ $failed != false -o "${DEBUG:-}" == true]
+    if [ $failed != false -o "${DEBUG:-}" == true ]
     then
       cat $ECS_DEBUG
       return 1
