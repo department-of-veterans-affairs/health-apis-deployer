@@ -150,7 +150,7 @@ addAlbRulesOnBlue() {
     done < $WORK/ecs-existing-rules
     if [ -n "$priorities" ]
     then
-      if ! aws elbv2 set-rule-priorities --rule-priorities $priorities --output text > $ECS_DEBUG
+      if ! aws elbv2 set-rule-priorities --rule-priorities $priorities --output text 2>&1 > $ECS_DEBUG
       then
         cat $ECS_DEBUG
         return 1
@@ -168,7 +168,7 @@ removeOldRules() {
     while read arn priority
     do
       echo "Deleting $arn"
-      if ! aws elbv2 delete-rule --rule-arn $arn >> $ECS_DEBUG
+      if ! aws elbv2 delete-rule --rule-arn $arn 2>&1 >> $ECS_DEBUG
       then
         failed=true
       fi
@@ -184,19 +184,18 @@ removeOldRules() {
 removeNewRules() {
   if [ -f $WORK/ecs-added-rules ]
   then
-    echo ------------------------
-    cat $WORK/ecs-added-rules
     echo "Deleting new rules..."
     echo "Rules" > $ECS_DEBUG
     local failed=false
     while read arn
     do
       echo "Deleting $arn"
-      if ! aws elbv2 delete-rule --rule-arn $arn >> $ECS_DEBUG
+      if ! aws elbv2 delete-rule --rule-arn $arn 2>&1 | tee -a $ECS_DEBUG
       then
         failed=true
       fi
     done < $WORK/ecs-added-rules
+    echo @@@@@@@@@@@@@@@@@@@@@
     cat $ECS_DEBUG
     if [ $failed != false -o "${DEBUG:-}" == true ]
     then
@@ -215,14 +214,26 @@ removeTargetGroup() {
     *) abort "must be 'old' or 'new'";;
   esac
   echo "Deleting $who target groups..."
+  echo "Target groups" > $ECS_DEBUG
+  local failed=false
   while read arn
   do
     echo "Deleting $arn"
-    aws elbv2 delete-target-group --target-group-arn $arn
+    if ! aws elbv2 delete-target-group --target-group-arn $arn 2>&1 >> $ECS_DEBUG
+    then
+      failed=true
+    fi
   done < <(aws elbv2 describe-target-groups \
     --output text \
     --query "TargetGroups[?starts_with(TargetGroupName,'$(awsPrefix)')].[TargetGroupArn]" \
     | grep $opt "$(tgName)")
+  echo @@@@@@@@@@@@@@@@@@@@@
+  cat $ECS_DEBUG
+  if [ $failed != false -o "${DEBUG:-}" == true ]
+  then
+    cat $ECS_DEBUG
+    return 1
+  fi
 }
 
 removeTaskDefinition() {
@@ -245,7 +256,7 @@ removeTaskDefinition() {
   while read arn
   do
     echo "Deleting $arn"
-    if ! aws ecs deregister-task-definition --task-definition $arn --output text >> $ECS_DEBUG
+    if ! aws ecs deregister-task-definition --task-definition $arn --output text 2>&1 >> $ECS_DEBUG
     then
       failed=true
     fi
@@ -280,7 +291,7 @@ removeServices() {
   while read arn
   do
     echo "Deleting $arn"
-    if ! aws ecs delete-service --cluster $(cluster) --service $arn --force --output text >> $ECS_DEBUG
+    if ! aws ecs delete-service --cluster $(cluster) --service $arn --force --output text 2>&1 >> $ECS_DEBUG
     then
       failed=true
     fi
@@ -307,7 +318,7 @@ rollbackOldRules() {
       priorities+="RuleArn=$arn,Priority=$priority "
       echo "Moving $arn back to slot $priority"
     done < $WORK/ecs-existing-rules
-    if ! aws elbv2 set-rule-priorities --rule-priorities $priorities --output text > $ECS_DEBUG
+    if ! aws elbv2 set-rule-priorities --rule-priorities $priorities --output text 2>&1 > $ECS_DEBUG
     then
       echo "FAILED TO ROLLBACK RULES"
       cat $ECS_DEBUG
