@@ -42,12 +42,14 @@ on-after-verify-blue() {
   removeTargetGroup old
   removeServices old
   removeTaskDefinition old
+  removeNewRules green
   return 0
 }
 
 on-rollback() {
   rollbackOldRules
-  removeNewRules
+  removeNewRules blue
+  removeNewRules green
   removeTargetGroup new
   removeServices new
   removeTaskDefinition new
@@ -96,7 +98,10 @@ replaceAlbRulesOnGreen() {
       --port $port \
       --path "$path" \
       --target-group $tgArn \
-      --min-priority $priority
+      --min-priority $priority \
+      --output $WORK/ecs-green-rule
+    jq -r '.Rules[].RuleArn' $WORK/ecs-green-rule >> $WORK/ecs-green-rules
+
   done
 }
 
@@ -128,8 +133,8 @@ addAlbRulesOnBlue() {
       --path "$path" \
       --target-group $tgArn \
       --min-priority $priority \
-      --output $WORK/ecs-added-rule
-    jq -r '.Rules[].RuleArn' $WORK/ecs-added-rule >> $WORK/ecs-added-rules
+      --output $WORK/ecs-blue-rule
+    jq -r '.Rules[].RuleArn' $WORK/ecs-blue-rule >> $WORK/ecs-blue-rules
   done
 
   if [ -f $WORK/ecs-existing-rules ]
@@ -182,9 +187,10 @@ removeOldRules() {
 }
 
 removeNewRules() {
-  if [ -f $WORK/ecs-added-rules ]
+  local color="$1"
+  if [ -f $WORK/ecs-$color-rules ]
   then
-    echo "Deleting new rules..."
+    echo "Deleting new $color rules..."
     echo "Rules" > $ECS_DEBUG
     local failed=false
     while read arn
@@ -194,7 +200,7 @@ removeNewRules() {
       then
         failed=true
       fi
-    done < $WORK/ecs-added-rules
+    done < $WORK/ecs-$color-rules
     echo @@@@@@@@@@@@@@@@@@@@@
     cat $ECS_DEBUG
     if [ $failed != false -o "${DEBUG:-}" == true ]
