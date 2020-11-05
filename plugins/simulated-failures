@@ -4,15 +4,16 @@
 simulateFailure() {
   if [ "${SIMULATED_FAILURE:-none}" == "${LIFECYCLE}" ]
   then
-    echo "SIMULATING FAILURE ON LIFECYLE: ${LIFECYCLE}"
+    banner print -c '✖︎' -m " SIMULATING FAILURE "
     deployment add-build-info -d "Simulated failure on ${LIFECYCLE}"
+    cat $WORKSPACE/shanky.txt
     return 1
   fi
   return 0
 }
 on-activate() {
-  echo "Simulated failure: ${SIMULATED_FAILURE:-}"
   if [ "${SIMULATED_FAILURE:-none}" == "none" ]; then return $PLUGIN_DISABLED; fi
+  echo "Simulating build failure during ${SIMULATED_FAILURE} lifecycle"
   simulateFailure
   return $PLUGIN_ENABLED
 }
