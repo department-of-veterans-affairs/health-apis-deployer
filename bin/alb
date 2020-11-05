@@ -208,7 +208,7 @@ ruleSummary() {
   done < $work/rules
   wait
   echo "PRIORITY RULE HEALTHY UNHEALTHY TOTAL STATUS" > $work/rule.summary
-  if [ "$(wc -l $work/rules)" == 0 ]
+  if [ "$(cat $work/rules | wc -l)" == 0 ]
   then
     echo "TOTAL    -    0       0         0"
     return
