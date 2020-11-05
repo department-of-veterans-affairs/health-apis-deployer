@@ -40,7 +40,7 @@ on-after-verify-blue() {
   removeOldRules
   removeTargetGroup old
   removeServices old
-  removeOldTaskDefinition
+  removeTaskDefinition old
   return 0
 }
 
@@ -48,6 +48,7 @@ on-rollback() {
   rollbackOldRules
   removeTargetGroup new
   removeServices new
+  removeTaskDefinition new
   echo "TODO Delete new target group"
   return 0
 }
