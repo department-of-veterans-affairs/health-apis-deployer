@@ -4,9 +4,9 @@
 ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
 ALB_PROTOCOL=HTTP
-echo "TODO SET HTTP PROTOCOL TO HTTPS"
 
 on-activate() {
+  echo "TODO SET HTTP PROTOCOL TO HTTPS"
   if [ ! -f $ECS_DOCKER_COMPOSE_FILE ]; then return $PLUGIN_DISABLED; fi
   if [ ! -f $ECS_PARAM_FILE ]; then return $PLUGIN_DISABLED; fi
   return $PLUGIN_ENABLED
