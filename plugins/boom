@@ -18,10 +18,7 @@ on-activate() {
   return $PLUGIN_ENABLED
 }
 on-priority() { echo 999; }
-on-initialize() {
-  echo "Simulating failure on $SIMULATED_FAILURE"
-  simulateFailure
-}
+on-initialize() { simulateFailure; }
 on-validate() { simulateFailure; }
 on-before-deploy-green() { simulateFailure; }
 on-deploy-green() { simulateFailure; }
