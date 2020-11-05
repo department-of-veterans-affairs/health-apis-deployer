@@ -91,6 +91,7 @@ main() {
     rule-arn) ruleArn "$name" "$protocol" "$port" "$path";;
     rule-details) ruleDetails "$name" "$protocol" "$port" "$path";;
     replace-rule) replaceRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority";;
+    add-rule) addRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority";;
     *) usage "Unknown command: $command";;
   esac
 }
@@ -262,7 +263,7 @@ rulesForListenerArn() {
   cache "rules-$listenerArn" aws elbv2 describe-rules --listener-arn $listenerArn
 }
 
-replaceRule() {
+addRule() {
   local name="${1:-}"
   local protocol="${2:-}"
   local port="${3:-}"
@@ -274,10 +275,8 @@ replaceRule() {
   listenerArn=$(listenerArn $name $protocol $port)
   requireValue "$listenerArn" "Listener not found"
   local priority=$(nextAvailablePriority $listenerArn $minPriority)
-  echo "Replacing rule on $name ($protocol:$port) #$priority $path"
-  echo "New target: $targetGroup"
-  local existingRuleArns
-  existingRuleArns=$(ruleArn "$name" "$protocol" "$port" "$path")
+  echo "Adding rule on $name ($protocol:$port) #$priority $path"
+  echo "Target: $targetGroup"
   local results=$(tmpFile)
   aws elbv2 create-rule \
     --listener-arn $listenerArn \
@@ -285,6 +284,19 @@ replaceRule() {
     --conditions Field=path-pattern,Values="$path" \
     --priority $priority > $results
   printCreatedRule $results
+}
+
+replaceRule() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local path="${4:-}"
+  local targetGroup="${5:-}"
+  local minPriority="${6:-1}"
+  echo "Replacing rule on $name ($protocol:$port) $path"
+  local existingRuleArns
+  existingRuleArns=$(ruleArn "$name" "$protocol" "$port" "$path")
+  addRule "$name" "$protocol" "$port" "$path" "${targetGroup:-}" "$minPriority"
   deleteRules $existingRuleArns
 }
 

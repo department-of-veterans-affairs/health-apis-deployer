@@ -3,6 +3,8 @@
 
 ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
+ALB_PROTOCOL=HTTP
+echo "TODO SET HTTP PROTOCOL TO HTTPS"
 
 on-activate() {
   if [ ! -f $ECS_DOCKER_COMPOSE_FILE ]; then return $PLUGIN_DISABLED; fi
@@ -73,7 +75,7 @@ ecsTargetGroupSpecification() {
   echo "targetGroupArn=$tgArn,containerName=$DU_ECS_EXPOSE_SERVICE,containerPort=$containerPort"
 }
 
-replaceAlbRules() {
+replaceAlbRulesOnGreen() {
   local alb=$1
   local port=$2
   local tgArn=$3
@@ -81,11 +83,28 @@ replaceAlbRules() {
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
-    echo "TODO UPDATED ALB LISTENERS TO USE HTTPS AND THEN ADJUST HERE"
-    banner h2 -m "EXISTING RULE DETAILS"
+    alb replace-rule \
+      --name $alb \
+      --protocol $ALB_PROTOCOL \
+      --port $port \
+      --path "$path" \
+      --target-group $tgArn \
+      --min-priority $priority
+  done
+}
+
+
+addAlbRulesOnBlue() {
+  local alb=$1
+  local port=$2
+  local tgArn=$3
+  echo "Adding ALB rules on $alb ($port)"
+  for priority in ${!DU_LOAD_BALANCER_RULES[@]}
+  do
+    local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     alb rule-details \
       --name $alb \
-      --protocol HTTP \
+      --protocol $ALB_PROTOCOL \
       --port $port \
       --path "$path" \
       | jq -r '[.RuleArn,.Priority]|join(" ")' \
@@ -94,15 +113,39 @@ replaceAlbRules() {
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
-    alb replace-rule \
+    alb add-rule \
       --name $alb \
-      --protocol HTTP \
+      --protocol $ALB_PROTOCOL \
       --port $port \
       --path "$path" \
       --target-group $tgArn \
       --min-priority $priority
   done
 
+  if [ -f $WORK/existing.rules ]
+  then
+    echo "Deprioritizing old rules"
+    local offset=2000
+    local priorities
+    while read arn priority
+    do
+      priorities+="RuleArn=$arn,Priority=$(($priority + $offset)) "
+    done < $WORK/existing.rules
+    aws elbv2 set-rule-priorities --rule-priorities "$priorities"
+  fi
+}
+
+removeOldRules() {
+  if [ -f $WORK/existing.rules ]
+  then
+    echo "Deleting old rules"
+    local offset=2000
+    local priorities
+    while read arn priority
+    do
+      aws elbv2 delete-rule --rule-arn $arn
+    done < $WORK/existing.rules
+  fi
 }
 
 removeOldTargetGroup() {
