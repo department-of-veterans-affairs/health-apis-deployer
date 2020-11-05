@@ -201,8 +201,6 @@ removeNewRules() {
         failed=true
       fi
     done < $WORK/ecs-$color-rules
-    echo @@@@@@@@@@@@@@@@@@@@@
-    cat $ECS_DEBUG
     if [ $failed != false -o "${DEBUG:-}" == true ]
     then
       cat $ECS_DEBUG
@@ -233,8 +231,6 @@ removeTargetGroup() {
     --output text \
     --query "TargetGroups[?starts_with(TargetGroupName,'$(awsPrefix)')].[TargetGroupArn]" \
     | grep $opt "$(tgName)")
-  echo @@@@@@@@@@@@@@@@@@@@@
-  cat $ECS_DEBUG
   if [ $failed != false -o "${DEBUG:-}" == true ]
   then
     cat $ECS_DEBUG
