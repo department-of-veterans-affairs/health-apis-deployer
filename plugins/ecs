@@ -194,12 +194,14 @@ removeNewRules() {
         failed=true
       fi
     done < $WORK/ecs-added-rules
-    if [ $failed != false ]
+    cat $ECS_DEBUG
+    if [ $failed != false -o "${DEBUG:-}" == true]
     then
       cat $ECS_DEBUG
       return 1
     fi
   fi
+  sleep 2
 }
 
 removeTargetGroup() {
