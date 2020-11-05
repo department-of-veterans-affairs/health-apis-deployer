@@ -228,7 +228,7 @@ removeTaskDefinition() {
   fi
 }
 
-removeOldServices() {
+removeServices() {
   local who=$1
   case $who in
     old) local opt="-v";;
@@ -275,8 +275,10 @@ rollbackOldRules() {
       priorities+="RuleArn=$arn,Priority=$priority "
       echo "Moving $arn back to slot $priority"
     done < $WORK/existing.rules
+    echo "$priorities"
     if ! aws elbv2 set-rule-priorities --rule-priorities "$priorities" --output text > $ECS_DEBUG
     then
+      echo "FAILED TO ROLLBACK RULES"
       cat $ECS_DEBUG
       return 1
     fi
