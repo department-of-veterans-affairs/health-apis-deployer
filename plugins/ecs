@@ -85,6 +85,7 @@ deployService() {
     --target-groups $(ecsTargetGroupSpecification "$tgArn")
 
   echo "Waiting for service to deploy..."
+  local wait=180
   local timeout=$(($(date +%s) + $wait))
   while [ $(date +%s) -lt $timeout ]
   do
