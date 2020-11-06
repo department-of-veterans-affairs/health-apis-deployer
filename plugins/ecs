@@ -29,6 +29,10 @@ on-deploy-green() {
     $GREEN_LOAD_BALANCER_PORT \
     "$tgArn"
   deployService $tgArn
+  waitToBeHealthy \
+    $GREEN_LOAD_BALANCER_PROTOCOL \
+    $GREEN_LOAD_BALANCER_NAME \
+    $GREEN_LOAD_BALANCER_PORT \
   return 0
 }
 
@@ -88,6 +92,22 @@ ecsTargetGroupSpecification() {
     --in $ECS_DOCKER_COMPOSE_FILE \
     --service $DU_ECS_EXPOSE_SERVICE)
   echo "targetGroupArn=$tgArn,containerName=$DU_ECS_EXPOSE_SERVICE,containerPort=$containerPort"
+}
+
+
+waitToBeHealthy() {
+  local protocol=$1
+  local alb=$2
+  local port=$3
+  for path in ${DU_LOAD_BALANCER_RULES[@]}
+  do
+    alb rule-health \
+      --name $alb \
+      --protocol $protocol \
+      --port $port \
+      --path "$path" \
+      --wait 180
+  done
 }
 
 replaceAlbRulesOnGreen() {
