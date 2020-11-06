@@ -83,6 +83,20 @@ deployService() {
     --cluster $(cluster) \
     --launch-type FARGATE \
     --target-groups $(ecsTargetGroupSpecification "$tgArn")
+
+  echo "Waiting for service to deploy..."
+  local timeout=$(($(date +%s) + $wait))
+  while [ $(date +%s) -lt $timeout ]
+  do
+    if ecs-cli ps --cluster $(cluster) --desired-status RUNNING \
+      | grep HEALTHY \
+      | grep "$(taskDefName)"
+    then
+      return 1
+    fi
+    sleep 10
+  done
+  abort "Timeout waiting for healthy ECS service"
 }
 
 ecsTargetGroupSpecification() {
