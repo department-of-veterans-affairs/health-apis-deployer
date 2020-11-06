@@ -18,7 +18,7 @@ on-validate() {
 on-verify-green() {
   executeTests \
     regression-test \
-    "$LOAD_BALANCER_PROTOCOL" \
+    "$GREEN_LOAD_BALANCER_PROTOCOL" \
     "$GREEN_LOAD_BALANCER" \
     "$GREEN_LOAD_BALANCER_PORT"
 }
