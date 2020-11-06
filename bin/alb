@@ -67,7 +67,7 @@ main() {
     case "$1" in
       --debug) DEBUG=true;;
       -n|--name) name="$2";;
-      --protocol) protocol="$2";;
+      --protocol) protocol="${2^^}";;
       --port) port="$2";;
       --path) path="$2";;
       --target-group) targetGroup="$2";;

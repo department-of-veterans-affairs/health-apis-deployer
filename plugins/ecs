@@ -23,7 +23,11 @@ on-deploy-green() {
   tgArn=$(createNewTargetGroup)
   save "new-tg-arn" "$tgArn"
   echo "Target group $tgArn"
-  replaceAlbRulesOnGreen $GREEN_LOAD_BALANCER_NAME $GREEN_LOAD_BALANCER_PORT "$tgArn"
+  replaceAlbRulesOnGreen \
+    $GREEN_LOAD_BALANCER_PROTOCOL \
+    $GREEN_LOAD_BALANCER_NAME \
+    $GREEN_LOAD_BALANCER_PORT \
+    "$tgArn"
   deployService $tgArn
   return 0
 }
@@ -31,7 +35,11 @@ on-deploy-green() {
 on-switch-to-blue() {
   local tgArn
   tgArn=$(recall "new-tg-arn")
-  addAlbRulesOnBlue $BLUE_LOAD_BALANCER_NAME $BLUE_LOAD_BALANCER_PORT "$tgArn"
+  addAlbRulesOnBlue \
+    $BLUE_LOAD_BALANCER_PROTOCOL \
+    $BLUE_LOAD_BALANCER_NAME \
+    $BLUE_LOAD_BALANCER_PORT \
+    "$tgArn"
   return 0
 }
 
@@ -83,16 +91,17 @@ ecsTargetGroupSpecification() {
 }
 
 replaceAlbRulesOnGreen() {
-  local alb=$1
-  local port=$2
-  local tgArn=$3
-  echo "Replacing ALB rules on $alb ($port)"
+  local protocol=$1
+  local alb=$2
+  local port=$3
+  local tgArn=$4
+  echo "Replacing ALB rules on ${protocol}://${alb}:${port}"
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     alb replace-rule \
       --name $alb \
-      --protocol $LOAD_BALANCER_PROTOCOL \
+      --protocol $protocol \
       --port $port \
       --path "$path" \
       --target-group $tgArn \
@@ -104,16 +113,17 @@ replaceAlbRulesOnGreen() {
 }
 
 addAlbRulesOnBlue() {
-  local alb=$1
-  local port=$2
-  local tgArn=$3
-  echo "Adding ALB rules on $alb ($port)"
+  local protocol=$1
+  local alb=$2
+  local port=$3
+  local tgArn=$4
+  echo "Adding ALB rules on ${protocol}://${alb}:${port}"
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     alb rule-details \
       --name $alb \
-      --protocol $LOAD_BALANCER_PROTOCOL \
+      --protocol $protocol \
       --port $port \
       --path "$path" \
       | jq -r '[.RuleArn,.Priority]|join(" ")' \
@@ -125,7 +135,7 @@ addAlbRulesOnBlue() {
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
     alb add-rule \
       --name $alb \
-      --protocol $LOAD_BALANCER_PROTOCOL \
+      --protocol $protocol \
       --port $port \
       --path "$path" \
       --target-group $tgArn \
@@ -138,7 +148,7 @@ addAlbRulesOnBlue() {
   then
     echo "Deprioritizing old rules"
     local maxPriority
-    maxPriority=$(alb rule-summary -n $alb --port $port --protocol $LOAD_BALANCER_PROTOCOL \
+    maxPriority=$(alb rule-summary -n $alb --port $port --protocol $protocol \
       | awk 'BEGIN {max=2000} /^[0-9]/ {if ($1 > max) max=$1} END {print max}')
     local priorities
     while read arn priority
