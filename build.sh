@@ -171,12 +171,20 @@ initializePlugins() {
 
 
 
+ROLLBACK_POSSIBLE=true
 ROLLBACK_STARTED=
 isRollingBack() { test -n "${ROLLBACK_STARTED:-}"; }
 rollback() {
   if isRollingBack
   then
     echo "An error has occurred while a rollback is in progress."
+    return
+  fi
+  if [ $ROLLBACK_POSSIBLE == false ]
+  then
+    echo "Rollback is no longer possible."
+    deployment add-build-info \
+      -u "Stage \"$(stage current)\" requested a rollback after the point of no return"
     return
   fi
   deployment add-build-info \
@@ -305,7 +313,8 @@ main() {
   lifecycle verify-green
   lifecycle switch-to-blue
   lifecycle verify-blue
-  lifecycle after-verify-blue force
+  ROLLBACK_POSSIBLE=false
+  lifecycle after-verify-blue
 
   lifecycle finalize force
   recordDeployment

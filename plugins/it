@@ -35,7 +35,7 @@ executeTests() {
   local host=$3
   local port=$4
   loadTestConf
-  banner h1 -m "${suite} on ${protocol,,}://${host}:${port}"
+  banner h2 -m "${suite} on ${protocol,,}://${host}:${port}"
   echo "Using $TEST_IMAGE"
   # Support legacy K8S_ environment variables
   # Along with new DEPLOYMENT_ variables
@@ -48,18 +48,18 @@ executeTests() {
     --env K8S_LOAD_BALANCER=$host \
     --env DEPLOYMENT_ENVIRONMENT=$ENVIRONMENT \
     --env DEPLOYMENT_ID=$DEPLOYMENT_ID \
-    --env DEPLOYMNENT_TEST_PROTOCOL=$protocol \
-    --env DEPLOYMNENT_TEST_HOST=$host \
-    --env DEPLOYMNENT_TEST_PORT=$port \
+    --env DEPLOYMENT_TEST_PROTOCOL=$protocol \
+    --env DEPLOYMENT_TEST_HOST=$host \
+    --env DEPLOYMENT_TEST_PORT=$port \
     --env EXIT_STATUS=1 \
     $TEST_IMAGE \
     $suite \
     | tee $LOG_DIR/$suite.log
   then
-    banner h1 -m "FAILED"
+    banner h2 -m "FAILED"
     abort "Test failures"
   fi
-  banner h1 -m "SUCCESS"
+  banner h2 -m "SUCCESS"
 }
 
 main "$@"
