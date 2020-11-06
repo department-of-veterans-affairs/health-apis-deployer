@@ -57,7 +57,7 @@ executeTests() {
     | tee $LOG_DIR/$suite.log
   then
     banner h2 -m "FAILED"
-    abort "Test failures"
+    abort "Failed: $suite"
   fi
   banner h2 -m "SUCCESS"
 }
