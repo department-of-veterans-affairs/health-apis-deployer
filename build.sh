@@ -14,6 +14,7 @@ cat <<EOF
 - Default to 'latest' deploy-tools image
 - Move tools in bin to deploy-tools image
 - Promotion
+  - Remove additional d2-ecs check
 - Test support
 - Update qa configuration to use blue/green albs, ports, https
   - renable blue ALB name in initialize() below
@@ -242,7 +243,7 @@ recordDeployment() {
 
 
 promote() {
-  if [ "${GIT_BRANCH:-unknown}" != "d2" ]
+  if [ "${GIT_BRANCH:-unknown}" != "d2" -o "${GIT_BRANCH:-unknown}" != "d2-ecs" ]
   then
     echo "This branch is not eligible for promotion"
     return
