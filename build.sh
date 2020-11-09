@@ -334,5 +334,5 @@ main() {
 }
 
 initialize
-main 2>&1
+main 2>&1 | tee .deployment/artifacts/deploy.log
 exit 0
