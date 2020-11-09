@@ -275,13 +275,14 @@ promote() {
       -u "$PROMOTATRON_USERNAME_PASSWORD" \
       -o department-of-veterans-affairs \
       -r health-apis-deployer \
-      -b d2 \
+      -b "${GIT_BRANCH}" \
       -p VPC=$vpc,DEPLOYER_VERSION=$DEPLOYER_VERSION,PRODUCT=$PRODUCT
   done
   if [ ${#promotedTo[@]} -gt 0 ]
   then
-    echo "Promoted $PRODUCT to: ${promotedTo[@]}"
-    deployment add-build-info -d "Promoted to ${promotedTo[@]}"
+    local msg="Promoted $PRODUCT to: ${promotedTo[@]}"
+    echo "$msg"
+    deployment add-build-info -d "$msg"
   fi
 }
 
