@@ -109,7 +109,6 @@ ecsTargetGroupSpecification() {
   echo "targetGroupArn=$tgArn,containerName=$DU_ECS_EXPOSE_SERVICE,containerPort=$containerPort"
 }
 
-
 waitToBeHealthy() {
   local protocol=$1
   local alb=$2

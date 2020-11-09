@@ -41,25 +41,7 @@ final CREDENTIALS = [
     variable: 'SLACK_WEBHOOK' ),
   string(
     credentialsId: 'DEPLOYMENT_CRYPTO_KEY',
-    variable: 'DEPLOYMENT_CRYPTO_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_QA_SSH_KEY',
-    variable: 'KUBERNETES_QA_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_UAT_SSH_KEY',
-    variable: 'KUBERNETES_UAT_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_STAGING_SSH_KEY',
-    variable: 'KUBERNETES_STAGING_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_PRODUCTION_SSH_KEY',
-    variable: 'KUBERNETES_PRODUCTION_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_STAGING_LAB_SSH_KEY',
-    variable: 'KUBERNETES_STAGING_LAB_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_LAB_SSH_KEY',
-    variable: 'KUBERNETES_LAB_SSH_KEY')
+    variable: 'DEPLOYMENT_CRYPTO_KEY')
 ]
 
 def contentOf(file) {

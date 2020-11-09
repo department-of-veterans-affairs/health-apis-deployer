@@ -19,6 +19,7 @@ cat <<EOF
 - Update qa configuration to use blue/green albs, ports, https
   - renable blue ALB name in initialize() below
 - Re-enable timer plugin
+- S3 support
 ************************************************************
 
 EOF

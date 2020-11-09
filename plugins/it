@@ -15,6 +15,11 @@ on-validate() {
   return 0;
 }
 
+on-initialize() {
+  echo "Pulling test image $TEST_IMAGE"
+  docker pull -q $TEST_IMAGE
+}
+
 on-verify-green() {
   executeTests \
     regression-test \
