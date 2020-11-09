@@ -244,7 +244,6 @@ recordDeployment() {
 
 
 promote() {
-  set -x
   echo "Promoting..."
   if [ "${GIT_BRANCH:-unknown}" != "d2" -a "${GIT_BRANCH:-unknown}" != "d2-ecs" ]
   then
@@ -311,7 +310,7 @@ goodbye() {
       errorCode=1
     fi
   fi
-  echo "Goodbye"
+  echo "Goodbye (status $errorCode)"
   exit $errorCode
 }
 
