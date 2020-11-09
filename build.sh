@@ -244,7 +244,7 @@ recordDeployment() {
 
 
 promote() {
-  if [ "${GIT_BRANCH:-unknown}" != "d2" -o "${GIT_BRANCH:-unknown}" != "d2-ecs" ]
+  if [ "${GIT_BRANCH:-unknown}" != "d2" -a "${GIT_BRANCH:-unknown}" != "d2-ecs" ]
   then
     echo "This branch is not eligible for promotion"
     return

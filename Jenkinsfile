@@ -80,7 +80,7 @@ pipeline {
           if (env.DEPLOYER_VERSION == null) { env.DEPLOYER_VERSION='mvn-3.6-jdk-14' }
           if (env.PRODUCT == null) { env.PRODUCT='none' }
           if (env.VPC == null) { env.VPC='QA' }
-          if (env.GIT_BRANCH != 'd2') {
+          if (env.GIT_BRANCH != 'd2' && env.GIT_BRANCH != 'd2-ecs') {
             echo "Forcing QA environment for branch ${env.GIT_BRANCH}"
             env.VPC='QA'
           }
