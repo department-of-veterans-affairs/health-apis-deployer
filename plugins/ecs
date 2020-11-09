@@ -48,7 +48,6 @@ on-switch-to-blue() {
 }
 
 on-after-verify-blue() {
-  set -x
   removeOldRules
   removeTargetGroup old
   removeServices old
