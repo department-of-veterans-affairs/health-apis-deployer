@@ -9,7 +9,8 @@ on-activate() {
 
 on-initialize() {
   echo "Logging into Dockerhub"
-  echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" 2>&1 \
+  echo "$DOCKER_PASSWORD" \
+    | docker login -u "$DOCKER_USERNAME" --password-stdin 2>&1 \
     | grep -vE '(Your password|Configure a credential helper|docs.docker.com)'
 }
 
