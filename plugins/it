@@ -16,6 +16,7 @@ on-validate() {
 }
 
 on-initialize() {
+  loadTestConf
   echo "Pulling test image $TEST_IMAGE"
   docker pull -q $TEST_IMAGE
 }
