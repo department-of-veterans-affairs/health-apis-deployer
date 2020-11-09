@@ -117,7 +117,7 @@ pipeline {
         }
         lock("deploy-${env.VPC}") {
           withCredentials( CREDENTIALS ) {
-            catchError { sh script: './build.sh|tee .deployment/artifacts/deploy.log' }
+            catchError { sh script: './build.sh' }
           }
         }
         script {
