@@ -244,6 +244,8 @@ recordDeployment() {
 
 
 promote() {
+  set -x
+  echo "Promoting..."
   if [ "${GIT_BRANCH:-unknown}" != "d2" -a "${GIT_BRANCH:-unknown}" != "d2-ecs" ]
   then
     echo "This branch is not eligible for promotion"
@@ -299,7 +301,15 @@ goodbye() {
       if [ $state != "complete" ]; then errorCode=1; fi
     done
   fi
-  if [ $errorCode -eq 0 ]; then promote; fi
+  if [ $errorCode -eq 0 ]
+  then
+    if ! promote
+    then
+      echo "Failed to promote deployment"
+      deployment add-build-info -d "Failed to promote deployment"
+      errorCode=1
+    fi
+  fi
   echo "Goodbye"
   exit $errorCode
 }
