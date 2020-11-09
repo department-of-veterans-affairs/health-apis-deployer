@@ -316,6 +316,7 @@ main() {
   lifecycle switch-to-blue
   lifecycle verify-blue
   ROLLBACK_POSSIBLE=false
+  export DEBUG=true; set -x
   lifecycle after-verify-blue
 
   lifecycle finalize force
