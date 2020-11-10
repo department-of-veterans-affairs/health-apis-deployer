@@ -117,7 +117,7 @@ pipeline {
         }
         lock("deploy-${env.VPC}") {
           withCredentials( CREDENTIALS ) {
-            catchError { sh script: 'date && ./build.sh && date' }
+            catchError { sh script: './build.sh | grep -E .' }
           }
         }
         script {
