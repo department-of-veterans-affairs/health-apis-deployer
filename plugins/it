@@ -57,7 +57,7 @@ executeTests() {
     --env DEPLOYMENT_TEST_PROTOCOL=$protocol \
     --env DEPLOYMENT_TEST_HOST=$host \
     --env DEPLOYMENT_TEST_PORT=$port \
-    --env EXIT_STATUS=1 \
+    --env DEPLOYMENT_PRODUCT=$PRODUCT \
     $TEST_IMAGE \
     $suite \
     | tee $LOG_DIR/$suite.log
