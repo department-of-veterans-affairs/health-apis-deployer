@@ -38,7 +38,7 @@ onExit() {
   fi
   stage end
   if [ $STATUS  == 99 ]; then echo ABORTED; fi
-  echo | tee $WORK/for-reason-jenkins-is-truncating-output
+  echo "Status $STATUS"
   exit $STATUS
 }
 trap onExit EXIT
