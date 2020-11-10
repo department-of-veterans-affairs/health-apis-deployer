@@ -75,8 +75,7 @@ initialize() {
   export PLUGIN_LIB=$PLUGIN_DIR/.plugin
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
   export GREEN_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
-  # TODO export BLUE_LOAD_BALANCER_NAME=blue-${ENVIRONMENT}-kubernetes
-  export BLUE_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
+  export BLUE_LOAD_BALANCER_NAME=blue-${ENVIRONMENT}-kubernetes
   setDeploymentId
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
   export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
