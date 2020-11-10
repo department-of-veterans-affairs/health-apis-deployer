@@ -39,6 +39,7 @@ on-deploy-green() {
 on-switch-to-blue() {
   local tgArn
   tgArn=$(recall "new-tg-arn")
+  removeNewRules green
   addAlbRulesOnBlue \
     $BLUE_LOAD_BALANCER_PROTOCOL \
     $BLUE_LOAD_BALANCER_NAME \
@@ -52,7 +53,6 @@ on-after-verify-blue() {
   removeTargetGroup old
   removeServices old
   removeTaskDefinition old
-  removeNewRules green
   return 0
 }
 
