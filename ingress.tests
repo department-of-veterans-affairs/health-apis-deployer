@@ -125,6 +125,8 @@ facilities /va_facilities/metadata
 facilities /va_facilities/v0/facilities/all
 facilities /va_facilities/v0/ids?type=health
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
+# Insurance
+insurance /insurance/actuator/health
 # Nurse Triage
 nurse-triage /nt-ent/actuator/health
 nurse-triage /nt-ent/actuator/info
@@ -145,6 +147,8 @@ patsr /whh-patsr-ent/v0/whhCaseStatus
 patsr /whh-patsr-ent/v0/whhCaseUpdate
 patsr /whh-patsr-ent/v0/whhPing
 patsr /whh-patsr-ent/v0/whhServiceRqst
+# Scheduling
+scheduling /scheduling/actuator/health
 # SFDC MVI Enterprise
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
@@ -158,7 +162,7 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
 # SFDC MPI Contact Verifier Handler
 sf-mpi-con-ver-handler /sf-mpi-con-ver-handler/v0/actuator/health
 sf-mpi-con-ver-handler /sf-mpi-con-ver-handler/v0/consumeQueue
-# SFDC MPI Contact Verifier Query 
+# SFDC MPI Contact Verifier Query
 sf-mpi-con-ver-query /sf-mpi-con-ver-query/v0/actuator/health
 sf-mpi-con-ver-query /sf-mpi-con-ver-query/v0/putContactOnQueue
 # SFDC MPI Message Receiver
