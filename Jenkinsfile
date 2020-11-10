@@ -117,7 +117,7 @@ pipeline {
         }
         lock("deploy-${env.VPC}") {
           withCredentials( CREDENTIALS ) {
-            catchError { sh script: './build.sh | grep -E .' }
+            catchError { sh script: 'set -eo pipefail ; ./build.sh | grep --line-buffered -E ^' }
           }
         }
         script {
