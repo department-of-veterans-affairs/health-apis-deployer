@@ -11,13 +11,7 @@ cat <<EOF
 *                           TODO                           *
 *                                                          *
 ************************************************************
-- Default to 'latest' deploy-tools image
 - Move tools in bin to deploy-tools image
-- Promotion
-  - Remove additional d2-ecs check
-- Test support
-- Update qa configuration to use blue/green albs, ports, https
-  - renable blue ALB name in initialize() below
 - Re-enable timer plugin
 - S3 support
 ************************************************************

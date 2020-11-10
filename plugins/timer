@@ -5,8 +5,7 @@ TIMER_FILES=( $(find $DU_DIR -name "timer-*.json") )
 
 on-activate() {
   if [ ${#TIMER_FILES[@]} -eq 0 ]; then return $PLUGIN_DISABLED; fi
-  # TODO return $PLUGIN_ENABLED
-  echo "TODO ALLOW PLUGIN TO ACTIVATE"; return $PLUGIN_DISABLED
+  return $PLUGIN_ENABLED
 }
 
 on-initialize() {
