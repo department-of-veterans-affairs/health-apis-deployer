@@ -67,6 +67,8 @@ pipeline {
     choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ],
       description: "Environment to deploy into")
     string(name: 'PRODUCT', defaultValue: 'none', description: "The product to deploy.")
+    choice(name: 'PROMOTION', choices: ["auto", "none" ],
+      description: "Environment to deploy into")
     choice(name: 'SIMULATED_FAILURE', choices: [ "none","activate","initialize","validate","before-deploy-green","deploy-green","verify-green","switch-to-blue","verify-blue","after-verify-blue","finalize","before-rollback","rollback","verify-rollback","after-rollback" ],
       description: "Environment to deploy into")
   }
@@ -79,6 +81,7 @@ pipeline {
           if (env.DEBUG == null) { env.DEBUG='false' }
           if (env.DEPLOYER_VERSION == null) { env.DEPLOYER_VERSION='mvn-3.6-jdk-14' }
           if (env.PRODUCT == null) { env.PRODUCT='none' }
+          if (env.PROMOTION == null) { env.PROMOTION='auto' }
           if (env.VPC == null) { env.VPC='QA' }
           if (env.GIT_BRANCH != 'd2' && env.GIT_BRANCH != 'd2-ecs') {
             echo "Forcing QA environment for branch ${env.GIT_BRANCH}"

@@ -245,6 +245,11 @@ recordDeployment() {
 
 
 promote() {
+  if [ "${PROMOTION:-auto}" == "none" ]
+  then
+    echo "Promotion disabled"
+    return
+  fi
   echo "Promoting..."
   if [ "${GIT_BRANCH:-unknown}" != "d2" -a "${GIT_BRANCH:-unknown}" != "d2-ecs" ]
   then
