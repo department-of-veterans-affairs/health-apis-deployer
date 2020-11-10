@@ -118,7 +118,7 @@ pipeline {
             env[name]=cause.getShortDescription()
           }
         }
-        lock("deploy-${env.VPC}") {
+        lock("${env.ENVIRONMENT}-deployments") {
           withCredentials( CREDENTIALS ) {
             catchError { sh script: 'set -eo pipefail ; ./build.sh | grep --line-buffered -E ^' }
           }

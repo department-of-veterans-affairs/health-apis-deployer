@@ -129,7 +129,7 @@ replaceAlbRulesOnGreen() {
   local alb=$2
   local port=$3
   local tgArn=$4
-  echo "Replacing ALB rules on ${protocol}://${alb}:${port}"
+  echo "Replacing ALB rules on ${alb} for ${protocol} protocol on port ${port}"
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
@@ -151,7 +151,7 @@ addAlbRulesOnBlue() {
   local alb=$2
   local port=$3
   local tgArn=$4
-  echo "Adding ALB rules on ${protocol}://${alb}:${port}"
+  echo "Adding ALB rules on ${alb} for ${protocol} protocol on port ${port}"
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
     local path="${DU_LOAD_BALANCER_RULES[$priority]}"
