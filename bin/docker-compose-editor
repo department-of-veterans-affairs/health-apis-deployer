@@ -103,7 +103,7 @@ requireFile() {
 requireServiceNode() {
   local json="$1"
   local service="$2"
-  if [ "$(jq ".services.$service" $json)" == "null" ]
+  if [ "$(jq ".services.\"$service\"" $json)" == "null" ]
   then
     echo "Service does not exist: $service"
     exit 1
@@ -133,7 +133,7 @@ exposedPort() {
   local json
   json=$(toJson "$in")
   requireServiceNode "$json" "$service"
-  jq -r ".services.$service.ports[]" $json | cut -d : -f 1 | paste -sd ,
+  jq -r ".services.\"$service\".ports[]" $json | cut -d : -f 1 | paste -sd ,
 }
 
 imageVersion() {
@@ -151,7 +151,7 @@ image() {
   local json
   json=$(toJson "$in")
   requireServiceNode "$json" "$service"
-  jq -r ".services.$service.image" $json
+  jq -r ".services.\"$service\".image" $json
 }
 
 rewrite() {
@@ -195,7 +195,7 @@ rewriteLogging() {
       '{logging:{ driver:"awslogs", options:{"awslogs-region":"us-gov-west-1","awslogs-group":$s,"awslogs-stream-prefix":$s }}}' \
       > $replacement
     replaceNode \
-      ".services.$service.logging" \
+      ".services.\"$service\".logging" \
       "$json" \
       "$replacement"
   done
@@ -220,7 +220,7 @@ rewriteImage() {
       | jq -R '{image:.}' \
       > $replacement
     replaceNode \
-      ".services.$service.image" \
+      ".services.\"$service\".image" \
       "$json" \
       "$replacement"
   done
