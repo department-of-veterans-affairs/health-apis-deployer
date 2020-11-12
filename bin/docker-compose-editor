@@ -196,8 +196,8 @@ rewriteLogging() {
   do
     echo $service
     echo {} \
-      | jq --arg s "$service" \
-      '{logging:{ driver:"awslogs", options:{"awslogs-region":"us-gov-west-1","awslogs-group":$logGroupPrefix-$s,"awslogs-stream-prefix":$s }}}' \
+      | jq --arg s "$service" --arg g "$logGroupPrefix-$service" \
+      '{logging:{ driver:"awslogs", options:{"awslogs-region":"us-gov-west-1","awslogs-group":$g,"awslogs-stream-prefix":$s }}}' \
       > $replacement
     replaceNode \
       ".services.\"$service\".logging" \
