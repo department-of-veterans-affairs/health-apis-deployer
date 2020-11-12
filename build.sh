@@ -12,8 +12,8 @@ cat <<EOF
 *                                                          *
 ************************************************************
 - Move tools in bin to deploy-tools image
-- Re-enable timer plugin
 - S3 support
+- Graceful failure for unknown product
 ************************************************************
 
 EOF
@@ -22,8 +22,8 @@ EOF
 onExit() {
   STATUS=$?
   banner h2 -m "Deployment"
-  if ! cat .deployment/build-name; then echo "No build name"; fi
-  if ! cat .deployment/description; then echo "No build description"; fi
+  if ! cat .deployment/build-name 2>/dev/null; then echo "No build name"; fi
+  if ! cat .deployment/description 2>/dev/null; then echo "No build description"; fi
   if [ $STATUS -ne 0 ]
   then
     stage start -s "CRASH AND BURN"
