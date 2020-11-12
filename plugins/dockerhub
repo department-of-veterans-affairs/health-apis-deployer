@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+. $PLUGIN_LIB
+
+on-activate() {
+  if [ -z "${DOCKER_USERNAME:-}" ]; then return $PLUGIN_DISABLED; fi
+  if [ -z "${DOCKER_PASSWORD:-}" ]; then return $PLUGIN_DISABLED; fi
+  return $PLUGIN_ENABLED
+}
+
+on-initialize() {
+  echo "Logging into Dockerhub"
+  echo "$DOCKER_PASSWORD" \
+    | docker login -u "$DOCKER_USERNAME" --password-stdin 2>&1 \
+    | grep -vE '(Your password|Configure a credential helper|docs.docker.com)'
+}
+
+on-priority() { echo "50"; }
+
+main "$@"
+exit 1

@@ -41,31 +41,14 @@ final CREDENTIALS = [
     variable: 'SLACK_WEBHOOK' ),
   string(
     credentialsId: 'DEPLOYMENT_CRYPTO_KEY',
-    variable: 'DEPLOYMENT_CRYPTO_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_QA_SSH_KEY',
-    variable: 'KUBERNETES_QA_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_UAT_SSH_KEY',
-    variable: 'KUBERNETES_UAT_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_STAGING_SSH_KEY',
-    variable: 'KUBERNETES_STAGING_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_PRODUCTION_SSH_KEY',
-    variable: 'KUBERNETES_PRODUCTION_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_STAGING_LAB_SSH_KEY',
-    variable: 'KUBERNETES_STAGING_LAB_SSH_KEY'),
-  file(
-    credentialsId: 'KUBERNETES_LAB_SSH_KEY',
-    variable: 'KUBERNETES_LAB_SSH_KEY')
+    variable: 'DEPLOYMENT_CRYPTO_KEY')
 ]
 
 def contentOf(file) {
   if (fileExists(file)) {
     return readFile(file).trim()
   }
+  echo "File ${file} does not exist"
   return ''
 }
 
@@ -84,6 +67,10 @@ pipeline {
     choice(name: 'VPC', choices: ["QA", "UAT", "Staging", "Production", "Staging-Lab", "Lab" ],
       description: "Environment to deploy into")
     string(name: 'PRODUCT', defaultValue: 'none', description: "The product to deploy.")
+    choice(name: 'PROMOTION', choices: ["auto", "none" ],
+      description: "Environment to deploy into")
+    choice(name: 'SIMULATED_FAILURE', choices: [ "none","activate","initialize","validate","before-deploy-green","deploy-green","verify-green","switch-to-blue","verify-blue","after-verify-blue","finalize","before-rollback","rollback","verify-rollback","after-rollback" ],
+      description: "Environment to deploy into")
   }
   stages {
     stage('Init') {
@@ -92,10 +79,11 @@ pipeline {
         script {
           // Sometimes these parameters are not defaulted... thanks Jenkins.
           if (env.DEBUG == null) { env.DEBUG='false' }
-          if (env.DEPLOYER_VERSION == null) { env.DEPLOYER_VERSION='latest' }
+          if (env.DEPLOYER_VERSION == null) { env.DEPLOYER_VERSION='mvn-3.6-jdk-14' }
           if (env.PRODUCT == null) { env.PRODUCT='none' }
+          if (env.PROMOTION == null) { env.PROMOTION='auto' }
           if (env.VPC == null) { env.VPC='QA' }
-          if (env.GIT_BRANCH != 'd2') {
+          if (env.GIT_BRANCH != 'd2' && env.GIT_BRANCH != 'd2-ecs') {
             echo "Forcing QA environment for branch ${env.GIT_BRANCH}"
             env.VPC='QA'
           }
@@ -118,6 +106,11 @@ pipeline {
           args DOCKER_ARGS
         }
       }
+      environment {
+        DOCKER_CONFIG = "${env.WORKSPACE}/.docker"
+        HOME = "${env.WORKSPACE}"
+        AWS_REGION = "us-gov-west-1"
+      }
       steps {
         script {
           for(cause in currentBuild.rawBuild.getCauses()) {
@@ -125,17 +118,11 @@ pipeline {
             env[name]=cause.getShortDescription()
           }
         }
-        lock("deploy-${env.VPC}") {
+        lock("${env.VPC.toLowerCase()}-deployments") {
           withCredentials( CREDENTIALS ) {
-            sh script: './build.sh'
+            catchError { sh script: 'set -eo pipefail ; ./build.sh | grep --line-buffered -E ^' }
           }
         }
-      }
-    }
-  }
-  post {
-    always {
-      node('master') {
         script {
           if ( env.PRODUCT != 'none') {
             currentBuild.displayName = "#${currentBuild.number} - " + contentOf('.deployment/build-name')
@@ -147,6 +134,12 @@ pipeline {
             currentBuild.description += "Unstable because: " + unstable
           }
         }
+      }
+    }
+  }
+  post {
+    always {
+      node('master') {
         archiveArtifacts artifacts: '.deployment/artifacts/**', onlyIfSuccessful: false, allowEmptyArchive: true
         withCredentials( CREDENTIALS ) {
           script {

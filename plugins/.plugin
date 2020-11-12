@@ -2,13 +2,13 @@
 set -euo pipefail
 
 _init() {
+  if [ "${DEBUG:-false}" == true ]; then set -x; fi
   PLUGIN_NAME=$(basename $0 | sed 's/[0-9]\+-//')
   PLUGIN_PRIORITY=100 # lower number is executed sooner
   PLUGIN_ENABLED=0
   PLUGIN_DISABLED=86
-  PLUGIN_SUBSTITUTIONS_FILE=PLUGIN_SUBSTITION_DIR/$PLUGIN_NAME.env
+  PLUGIN_SUBSTITUTIONS_FILE=$PLUGIN_SUBSTITION_DIR/$PLUGIN_NAME.env
 }
-
 
 abort() {
   deployment add-build-info -d "$1"
@@ -16,10 +16,23 @@ abort() {
   exit 1
 }
 
+save() {
+  local name="$1"
+  local value="$2"
+  echo -n "$value" > "$WORK/$PLUGIN_NAME.$name"
+}
+
+recall() {
+  local name="$1"
+  local file="$WORK/$PLUGIN_NAME.$name"
+  if [ ! -f "$file" ]; then abort "cannot recall $name, it was not saved"; fi
+  cat $file
+}
 
 main() {
   if [ $# != 1 ]; then abort "No command specified"; fi
-  LIFECYCLE=$1
+  export LIFECYCLE=$1
+  . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
   on-$LIFECYCLE
   exit $?
 }
@@ -29,17 +42,16 @@ on-activate() { return $PLUGIN_DISABLED; }
 on-priority() { echo $PLUGIN_PRIORITY; }
 on-initialize() { return 0; }
 on-validate() { return 0; }
-on-before-deploy() { return 0; }
-on-undeploy() { return 0; }
-# <-- Future AZ lifecycles here
-on-deploy() { return 0; }
-on-verify-deploy() { return 0; }
-on-after-deploy() { return 0; }
+on-before-deploy-green() { return 0; }
+on-deploy-green() { return 0; }
+on-verify-green() { return 0; }
+on-switch-to-blue() { return 0; }
+on-verify-blue() { return 0; }
+on-after-verify-blue() { return 0; }
 on-finalize() { return 0; }
 
 # Rollback flow
 on-before-rollback() { return 0; }
-# <-- Future AZ rollback lifecycles here
 on-rollback() { return 0; }
 on-verify-rollback() { return 0; }
 on-after-rollback() { return 0; }

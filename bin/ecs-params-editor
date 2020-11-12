@@ -1,0 +1,204 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH=$(dirname $(readlink -f $0))/bin:$PATH
+
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Modify ECS parameter file `ecs-params.yml`.
+Supports
+- replacing subnets
+- replacing security groups
+- updating environments path components of secrets
+
+Options
+-i, --in <file>
+  The ECS parameter yaml file to read.
+-o, --out <file>
+  The ECS parameter yaml file to write. If omitted, changes will printed to stdout.
+-s,--replace-subnets <subnet,subnet,subnet...>
+  If specified, replace all subnets with the specifed CSV list.
+-g,--replace-security-groups <group,group,group,...>
+  If specified, replace all security groups with the specified CSV list.
+-p,--replace-secret-path <from:to>
+  If specified, replace the path element in AWS secret parameter store names
+  such that /from/ is replaced with /to/,
+-e,--replace-task-execution-role <arn>
+  If specified, replace the task execution role element with the give role ARN
+--diff
+  Print a diff of the before and after parameter files.
+
+Commands
+rewrite -i <file> [-o <file>] [-s <csv>] [-g <csv>] [-p <from:to>] [--diff]
+  Rewrite the given parameter file.
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local args= in= out= subnets= securityGroups= secretPath= taskExecutionRole= diff=false
+  if ! args=$(getopt \
+    -l "debug,in:,out:,replace-subnets:,replace-security-groups:,replace-secret-path:,replace-task-execution-role:,diff" \
+    -o "i:o:s:g:p:e:" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      -i|--in) in="$2";;
+      -o|--out) out="$2";;
+      -s|--replace-subnets) subnets="$2";;
+      -g|--replace-security-groups) securityGroups="$2";;
+      -p|--replace-secret-path) secretPath="$2";;
+      -e|--replace-task-execution-role) taskExecutionRole="$2";;
+      --diff) diff=true;;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    rewrite)  rewrite "$in" "$out" "$subnets" "$securityGroups" "$secretPath" "$taskExecutionRole" "$diff";;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+DELETE_FILES=()
+onExit() {
+  if [ "${#DELETE_FILES[@]}" -gt 0 ]; then rm ${DELETE_FILE[@]}; fi
+}
+trap onExit EXIT
+
+tmpFile() {
+  local f=$(mktemp)
+  DELETE_FILES+=( $f )
+  echo $f
+}
+
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+requireFile() {
+  local param="${1}"
+  local value="${2:-}"
+  requireParam "$param" "$value"
+  if [ ! -f "$value" ]; then usage "Parameter: $param, file does not exist: $value"; fi
+}
+
+rewrite() {
+  local in="${1:-}"
+  local out="${2:-/dev/stdout}"
+  local subnets="${3:-}"
+  local securityGroups="${4:-}"
+  local secretPath="${5:-}"
+  local taskExecutionRole="${6:-}"
+  local diff="${7:-false}"
+  requireFile "in" "$in"
+  local json=$(tmpFile)
+  yq . $in > $json
+  if [ -n "${subnets:-}" ]; then rewriteSubnets "$json" "$subnets"; fi
+  if [ -n "${securityGroups:-}" ]; then rewriteSecurityGroups "$json" "$securityGroups"; fi
+  if [ -n "${secretPath:-}" ]; then rewriteSecretPath "$json" "$secretPath"; fi
+  if [ -n "${taskExecutionRole:-}" ]; then rewriteTaskExecutionRole "$json" "$taskExecutionRole"; fi
+
+  yq -y . $json > $out
+
+  if [ $diff == true -a -f $out ]; then (diff -y $in $out | expand) || true; fi
+}
+
+replaceNode() {
+  local node="$1"
+  local original="$2"
+  local replacement="$3"
+  local lastNode=".${node##*.}"
+  jq \
+    --argfile original $original \
+    --argfile replacement $replacement \
+    -n "\$original | $node = (\$replacement|$lastNode)" \
+    > $original.tmp
+  mv $original.tmp $original
+}
+
+rewriteTaskExecutionRole() {
+  local json="$1"
+  local role="$2"
+  local replacement=$(tmpFile)
+  echo "{\"task_execution_role\":\"$role\"}" > $replacement
+  replaceNode \
+    ".task_definition.task_execution_role" \
+    "$json" \
+    "$replacement"
+}
+
+rewriteSecretPath() {
+  local json="$1"
+  local path="$2"
+  local from="${path%:*}"
+  local to="${path#*:}"
+  # Extact the /dev/ portion and replace with /staging/ from the following line
+  #             ^ from                         ^ to
+  #
+  #             "value_from": "/wcst/dev/rds/connection-details",
+  #
+  sed -i "s|^\( \+\\\"value_from\\\": \\\".*\)\(/$from/\)\(.*\)|\1/$to/\3|" $json
+}
+
+rewriteSubnets() {
+  local json="$1"
+  local subnets="$2"
+  local replacement=$(tmpFile)
+
+  # Network mode
+  echo '{"ecs_network_mode":"awsvpc"}' > $replacement
+  replaceNode \
+    ".task_definition.ecs_network_mode" \
+    "$json" \
+    "$replacement"
+
+  # Public IP is necessary for target groups and ALB to work properly
+  echo '{"assign_public_ip":"ENABLED"}' > $replacement
+  replaceNode \
+    ".run_params.network_configuration.awsvpc_configuration.assign_public_ip" \
+    "$json" \
+    "$replacement"
+
+  # Subnets
+  echo "$subnets" \
+    | jq -R 'split(",")|{subnets:.}' \
+    > $replacement
+  replaceNode \
+    ".run_params.network_configuration.awsvpc_configuration.subnets" \
+    "$json" \
+    "$replacement"
+}
+
+rewriteSecurityGroups() {
+  local json="$1"
+  local securityGroups="$2"
+  local replacement=$(tmpFile)
+  echo "$securityGroups" \
+    | jq -R 'split(",")|{security_groups: .}' \
+    > $replacement
+  replaceNode \
+    ".run_params.network_configuration.awsvpc_configuration.security_groups" \
+    "$json" \
+    "$replacement"
+}
+
+
+main "$@"
+exit 0

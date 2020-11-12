@@ -15,11 +15,8 @@ on-initialize() {
   done
 }
 
-on-undeploy() {
+on-deploy-green() {
   callculon remove-all
-}
-
-on-deploy() {
   for timer in ${TIMER_FILES[@]}
   do
     callculon create --configuration $timer

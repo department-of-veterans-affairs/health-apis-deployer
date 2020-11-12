@@ -27,7 +27,7 @@ on-validate() {
 writeBackwardsCompatibilityEnvironment() {
   local file=$1
   cat > $file <<EOF
-export NAMESPACE=\$DU_NAMESPACE
+export NAMESPACE=\${DU_NAMESPACE:-none}
 export K8S_ENVIRONMENT=\$ENVIRONMENT
 export K8S_LOAD_BALANCER=\$BLUE_LOAD_BALANCER
 EOF

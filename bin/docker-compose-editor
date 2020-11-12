@@ -1,0 +1,230 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH=$(dirname $(readlink -f $0))/bin:$PATH
+
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Modify Docker compose file.
+Supports
+- replacing image
+
+Options
+-i, --in <file>
+  The docker compose yaml file to read.
+-o, --out <file>
+  The docker compose yaml file to write. If omitted, changes will printed to stdout.
+-I,--replace-image <service:image>
+  If specified, replace the image value.
+  This option is repeatable.
+--diff
+  Print a diff of the before and after parameter files.
+-s,--service <name>
+  The name of service to operate on
+
+Commands
+exposed-port -f <file> -s <service>
+  Print the port number as CSV this service is exposed on
+image-version -f <file> -s <service>
+  Print the version of the image for this service
+rewrite -i <file> [-o <file>] [-I <image>] [--diff]
+  Rewrite the given docker compose file.
+services -i <file>
+  List the services defined in the file.
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local args= in= out= serviceImage= diff=false service=
+  if ! args=$(getopt \
+    -l "debug,in:,out:,replace-image:,diff,service:" \
+    -o "i:o:I:s:" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      -i|--in) in="$2";;
+      -o|--out) out="$2";;
+      -I|--replace-image) serviceImage+=" $2";;
+      -s|--service) service="$2";;
+      --diff) diff=true;;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    rewrite)  rewrite "$in" "$out" "$serviceImage" "$diff";;
+    exposed-port) exposedPort "$in" "$service";;
+    image-version) imageVersion "$in" "$service";;
+    services) services "$in";;
+    image) image "$in" "$service";;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+DELETE_FILES=()
+onExit() {
+  if [ "${#DELETE_FILES[@]}" -gt 0 ]; then rm ${DELETE_FILE[@]}; fi
+}
+trap onExit EXIT
+
+tmpFile() {
+  local f=$(mktemp)
+  DELETE_FILES+=( $f )
+  echo $f
+}
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+requireFile() {
+  local param="${1}"
+  local value="${2:-}"
+  requireParam "$param" "$value"
+  if [ ! -f "$value" ]; then usage "Parameter: $param, file does not exist: $value"; fi
+}
+
+requireServiceNode() {
+  local json="$1"
+  local service="$2"
+  if [ "$(jq ".services.$service" $json)" == "null" ]
+  then
+    echo "Service does not exist: $service"
+    exit 1
+  fi
+}
+
+
+toJson() {
+  local json=$(tmpFile)
+  yq . $in > $json
+  echo "$json"
+}
+
+services() {
+  local in="${1:-}"
+  requireFile "in" "$in"
+  local json
+  json=$(toJson "$in")
+  jq -r '.services|keys|join(" ")' $json
+}
+
+exposedPort() {
+  local in="${1:-}"
+  local service="${2:-}"
+  requireFile "in" "$in"
+  requireParam "service" "$service"
+  local json
+  json=$(toJson "$in")
+  requireServiceNode "$json" "$service"
+  jq -r ".services.$service.ports[]" $json | cut -d : -f 1 | paste -sd ,
+}
+
+imageVersion() {
+  local in="${1:-}"
+  local service="${2:-}"
+  image "$in" "$service" | sed 's/.*://'
+}
+
+
+image() {
+  local in="${1:-}"
+  local service="${2:-}"
+  requireFile "in" "$in"
+  requireParam "service" "$service"
+  local json
+  json=$(toJson "$in")
+  requireServiceNode "$json" "$service"
+  jq -r ".services.$service.image" $json
+}
+
+rewrite() {
+  local in="${1:-}"
+  local out="${2:-/dev/stdout}"
+  local serviceImage="${3:-}"
+  local diff="${4:-false}"
+  requireFile "in" "$in"
+  local json
+  json=$(toJson "$in")
+  if [ -n "${serviceImage:-}" ]; then rewriteImage "$json" "$serviceImage"; fi
+
+  rewriteLogging "$json"
+
+  yq -y . $json > $out
+
+  if [ $diff == true -a -f $out ]; then (diff -y $in $out | expand) || true; fi
+}
+
+replaceNode() {
+  local node="$1"
+  local original="$2"
+  local replacement="$3"
+  local lastNode=".${node##*.}"
+  jq \
+    --argfile original $original \
+    --argfile replacement $replacement \
+    -n "\$original | $node = (\$replacement|$lastNode)" \
+    > $original.tmp
+  mv $original.tmp $original
+}
+
+rewriteLogging() {
+  local json="$1"
+  local replacement=$(tmpFile)
+  for service in $(jq -r '.services|keys|join(" ")' $json)
+  do
+    echo $service
+    echo {} \
+      | jq --arg s "$service" \
+      '{logging:{ driver:"awslogs", options:{"awslogs-region":"us-gov-west-1","awslogs-group":$s,"awslogs-stream-prefix":$s }}}' \
+      > $replacement
+    replaceNode \
+      ".services.$service.logging" \
+      "$json" \
+      "$replacement"
+  done
+}
+
+rewriteImage() {
+  local json="$1"
+  local serviceImages="$2"
+  local replacement=$(tmpFile)
+
+  for serviceImage in $serviceImages
+  do
+    local service=${serviceImage%%:*}
+    local image=${serviceImage#*:}
+    if [ -z "$service" -o -z "$image" -o "$service" == "$image" ]
+    then
+      usage "Invalid service image value: $serviceImage"
+    fi
+    requireServiceNode "$json" "$service"
+
+    echo "$image" \
+      | jq -R '{image:.}' \
+      > $replacement
+    replaceNode \
+      ".services.$service.image" \
+      "$json" \
+      "$replacement"
+  done
+}
+
+main "$@"
+exit 0

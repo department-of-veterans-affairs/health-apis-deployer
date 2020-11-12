@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+. $PLUGIN_LIB
+
+IT_CONF=$DU_DIR/test.conf
+IT_TEST_VARS=$DU_DIR/$ENVIRONMENT.testvars
+
+on-activate() {
+  if [ ! -f $IT_CONF ]; then return $PLUGIN_DISABLED; fi
+  return $PLUGIN_ENABLED
+}
+
+on-validate() {
+  loadTestConf
+  if [ ! -f $IT_TEST_VARS ]; then abort "Missing $DU_DIR/$ENVIRONMENT.testvars"; fi
+  return 0;
+}
+
+on-initialize() {
+  loadTestConf
+  echo "Pulling test image $TEST_IMAGE"
+  docker pull -q $TEST_IMAGE
+}
+
+on-verify-green() {
+  executeTests \
+    regression-test \
+    "$GREEN_LOAD_BALANCER_PROTOCOL" \
+    "$GREEN_LOAD_BALANCER" \
+    "$GREEN_LOAD_BALANCER_PORT"
+}
+
+
+loadTestConf() {
+  . $IT_CONF
+  if [ -z "${TEST_IMAGE:-}" ]; then abort "TEST_IMAGE not defined in $IT_CONF"; fi
+}
+
+executeTests() {
+  local suite=$1
+  local protocol=$2
+  local host=$3
+  local port=$4
+  loadTestConf
+  banner h2 -m "${suite} on ${protocol,,}://${host}:${port}"
+  echo "Using $TEST_IMAGE"
+  # Support legacy K8S_ environment variables
+  # Along with new DEPLOYMENT_ variables
+  if ! docker run \
+    --rm \
+    --network host \
+    --env-file $IT_TEST_VARS \
+    --env K8S_ENVIRONMENT=$ENVIRONMENT \
+    --env K8S_DEPLOYMENT_ID=$DEPLOYMENT_ID \
+    --env K8S_LOAD_BALANCER=$host \
+    --env DEPLOYMENT_ENVIRONMENT=$ENVIRONMENT \
+    --env DEPLOYMENT_ID=$DEPLOYMENT_ID \
+    --env DEPLOYMENT_TEST_PROTOCOL=$protocol \
+    --env DEPLOYMENT_TEST_HOST=$host \
+    --env DEPLOYMENT_TEST_PORT=$port \
+    --env DEPLOYMENT_PRODUCT=$PRODUCT \
+    $TEST_IMAGE \
+    $suite \
+    | tee $LOG_DIR/$suite.log
+  then
+    banner h2 -m "FAILED"
+    abort "Failed: $suite"
+  fi
+  banner h2 -m "SUCCESS"
+}
+
+main "$@"
+exit 1

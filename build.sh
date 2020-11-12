@@ -6,16 +6,24 @@ export STAGE_PREFIX="${VPC:-} ${PRODUCT:-}"
 
 cat <<EOF
 
-
---- TODO ---
-- Default to 'latest' deploy-tools image
-- Promotion
+************************************************************
+*                                                          *
+*                           TODO                           *
+*                                                          *
+************************************************************
+- Move tools in bin to deploy-tools image
+- Re-enable timer plugin
+- S3 support
+************************************************************
 
 EOF
 
 #============================================================
 onExit() {
   STATUS=$?
+  banner h2 -m "Deployment"
+  if ! cat .deployment/build-name; then echo "No build name"; fi
+  if ! cat .deployment/description; then echo "No build description"; fi
   if [ $STATUS -ne 0 ]
   then
     stage start -s "CRASH AND BURN"
@@ -24,6 +32,7 @@ onExit() {
   fi
   stage end
   if [ $STATUS  == 99 ]; then echo ABORTED; fi
+  echo "Status $STATUS"
   exit $STATUS
 }
 trap onExit EXIT
@@ -48,17 +57,22 @@ initialize() {
   printParameters
   export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
+  setShortEnvironment
   export BUILD_TIMESTAMP="$(date)"
   export ENVIRONMENT_CONFIGURATION=$(readlink -f environments/$ENVIRONMENT.conf)
   . $ENVIRONMENT_CONFIGURATION
   export WORK=$(emptyDirectory work)
   export PRODUCT_CONFIGURATION_DIR=$(emptyDirectory $WORK/product-configuration)
   export DU_DIR=$(emptyDirectory $WORK/du)
+  export LOG_DIR=$(emptyDirectory $WORK/logs)
   PLUGIN_DIR=plugins
   export PLUGIN_LIB=$PLUGIN_DIR/.plugin
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
+  export GREEN_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
+  export BLUE_LOAD_BALANCER_NAME=blue-${ENVIRONMENT}-kubernetes
   setDeploymentId
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
+  export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
 }
 
 printParameters() {
@@ -77,6 +91,14 @@ emptyDirectory() {
   readlink -f $d
 }
 
+setShortEnvironment() {
+  case $ENVIRONMENT in
+    staging-lab) export SHORT_ENVIRONMENT=b;;
+    # qa, staging, production, lab
+    *) export SHORT_ENVIRONMENT=${ENVIRONMENT:0:1};;
+  esac
+}
+
 setDeploymentId() {
   local suffix=d2
   local short=
@@ -87,8 +109,8 @@ setDeploymentId() {
   local commit="${GIT_COMMIT:-0000000}"
   suffix="${suffix}-${commit:0:7}"
   short="${suffix}${commit:0:4}"
-  export DEPLOYMENT_ID="$ENVIRONMENT-$PRODUCT-$BUILD_NUMBER-$suffix"
-  export SHORT_DEPLOYMENT_ID="${ENVIRONMENT:0:1}${PRODUCT}${BUILD_NUMBER}$short"
+  export DEPLOYMENT_ID="$ENVIRONMENT-$BUILD_NUMBER-$suffix-$PRODUCT"
+  export SHORT_DEPLOYMENT_ID="${SHORT_ENVIRONMENT}${BUILD_NUMBER}$short${PRODUCT}"
 }
 
 #============================================================
@@ -124,7 +146,14 @@ initializePlugins() {
   do
     if $plugin activate
     then
-      echo "$($plugin priority) $(basename $plugin)" >> $pluginOrder
+      local priority
+      priority="$($plugin priority)"
+      if [ -z "${priority:-}" ]
+      then
+        DEBUG=true $plugin priority
+        abort "Failed to determine plugin priority"
+      fi
+      echo "$priority $(basename $plugin)" >> $pluginOrder
     else
       if [ $? != 86 ]; then abort "$plugin failed to activate"; fi
     fi
@@ -138,12 +167,20 @@ initializePlugins() {
 
 
 
+ROLLBACK_POSSIBLE=true
 ROLLBACK_STARTED=
 isRollingBack() { test -n "${ROLLBACK_STARTED:-}"; }
 rollback() {
   if isRollingBack
   then
     echo "An error has occurred while a rollback is in progress."
+    return
+  fi
+  if [ $ROLLBACK_POSSIBLE == false ]
+  then
+    echo "Rollback is no longer possible."
+    deployment add-build-info \
+      -u "Stage \"$(stage current)\" requested a rollback after the point of no return"
     return
   fi
   deployment add-build-info \
@@ -155,7 +192,6 @@ rollback() {
   lifecycle rollback force
   lifecycle verify-rollback force
   lifecycle after-rollback force
-  echo TODO ROLLBACK
 }
 
 LIFECYCLE_HISTORY=()
@@ -189,7 +225,7 @@ lifecycle() {
 
 recordDeployment() {
   stage start -s "save configuration"
-  if [ "${LIFECYCLE_STATE[verify-deploy]}" != "complete" ]
+  if [ "${LIFECYCLE_STATE[verify-blue]}" != "complete" ]
   then
     echo "Deployment has not been verified, skipping."
     return
@@ -202,7 +238,13 @@ recordDeployment() {
 
 
 promote() {
-  if [ "${GIT_BRANCH:-unknown}" != "d2" ]
+  if [ "${PROMOTION:-auto}" == "none" ]
+  then
+    echo "Promotion disabled"
+    return
+  fi
+  echo "Promoting..."
+  if [ "${GIT_BRANCH:-unknown}" != "d2" -a "${GIT_BRANCH:-unknown}" != "d2-ecs" ]
   then
     echo "This branch is not eligible for promotion"
     return
@@ -231,13 +273,14 @@ promote() {
       -u "$PROMOTATRON_USERNAME_PASSWORD" \
       -o department-of-veterans-affairs \
       -r health-apis-deployer \
-      -b d2 \
+      -b "${GIT_BRANCH}" \
       -p VPC=$vpc,DEPLOYER_VERSION=$DEPLOYER_VERSION,PRODUCT=$PRODUCT
   done
   if [ ${#promotedTo[@]} -gt 0 ]
   then
-    echo "Promoted $PRODUCT to: ${promotedTo[@]}"
-    deployment add-build-info -d "Promoted to ${promotedTo[@]}"
+    local msg="Promoted $PRODUCT to: ${promotedTo[@]}"
+    echo "$msg"
+    deployment add-build-info -d "$msg"
   fi
 }
 
@@ -253,12 +296,20 @@ goodbye() {
     for lifecycle in ${LIFECYCLE_HISTORY[@]}
     do
       local state=${LIFECYCLE_STATE[$lifecycle]}
-      printf "%-15s [%s]\n" "$lifecycle" "$state"
+      printf "%-20s [%s]\n" "$lifecycle" "$state"
       if [ $state != "complete" ]; then errorCode=1; fi
     done
   fi
-  if [ $errorCode -eq 0 ]; then promote; fi
-  echo "Goodbye"
+  if [ $errorCode -eq 0 ]
+  then
+    if ! promote
+    then
+      echo "Failed to promote deployment"
+      deployment add-build-info -d "Failed to promote deployment"
+      errorCode=1
+    fi
+  fi
+  echo "Goodbye (status $errorCode)"
   exit $errorCode
 }
 
@@ -268,11 +319,14 @@ main() {
   initializePlugins
   lifecycle initialize
   lifecycle validate
-  lifecycle before-deploy
-  lifecycle undeploy
-  lifecycle deploy
-  lifecycle verify-deploy
-  lifecycle after-deploy
+  lifecycle before-deploy-green
+  lifecycle deploy-green
+  lifecycle verify-green
+  lifecycle switch-to-blue
+  lifecycle verify-blue
+  ROLLBACK_POSSIBLE=false
+  lifecycle after-verify-blue
+
   lifecycle finalize force
   recordDeployment
   goodbye

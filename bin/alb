@@ -1,0 +1,378 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export CACHE_NAME="alb"
+export CACHE_EXPIRATION="1 minute"
+export PATH=$(dirname $(readlink -f $0))/bin:$PATH
+
+ORGINAL_COMMAND_LINE="$@"
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Interact with ALBs.
+
+Options
+-n, --name <name>
+  The ALB name
+--port <number>
+  The listener port number
+--protocol <name>
+  The listener protocol, typically HTTP or HTTPS.
+--path <url-path>
+  The URL path on the ALB, e.g. '/api/*'
+--target-group <target-group-arn>
+  The ARN of the target group to apply to rule
+--min-priority <number>
+  The minimum rule priority. If not specified, 1 is assumed.
+
+
+Commands
+arn -n <name>
+  Print the ARN for the ALB
+listener-arn -n <name> --port <n> --protocol <p>
+  Print the ARN for the listener on the ALB for the given port and protocol.
+rule-arn -n <name> --port <n> --protocol <p> --path <path>
+  Print the ARN for rule on the listener on the ALB for the given port and protocol.
+replace-rule -n <name> --port <n> --protocol <p> --path <path> \
+            --target-group <arn> [-min-priority <n>]
+  Create a new rule for the load balancer, replacing any existing rules for the same path.
+  The rule will be placed on the listener for the given protocol and port and will
+  target the given target group. If a minimum priority is specified, the priority of the rule
+  will be at least that number. A free slot will be chosen. For example, if rules already
+  exist with priorty 10, 11, and 14, and a new rule is being added with a minumum priority of 10.
+  It will be placed at 12.
+rule-health -n <name> --port <n> --protocol <p> --path <path>
+  Print the health of one rule
+rule-summary -n <name> --port <n> --protocol <p>
+  Print a summary of rules
+
+$ORGINAL_COMMAND_LINE
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local name= protocol= port= path= targetGroup= minPriority=1 wait= output=
+  local args
+  if ! args=$(getopt \
+    -l "debug,name:,protocol:,port:,path:,target-group:,min-priority:,wait:,output:" \
+    -o "n:" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      -n|--name) name="$2";;
+      --protocol) protocol="${2^^}";;
+      --port) port="$2";;
+      --path) path="$2";;
+      --target-group) targetGroup="$2";;
+      --min-priority) minPriority="$2";;
+      --output) output="$2";;
+      --wait) wait="$2";;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    arn) arn "$name";;
+    rule-health) ruleHealth "$name" "$protocol" "$port" "$path" "$wait";;
+    rule-summary) ruleSummary "$name" "$protocol" "$port";;
+    listener-arn) listenerArn "$name" "$protocol" "$port";;
+    rule-arn) ruleArn "$name" "$protocol" "$port" "$path";;
+    rule-details) ruleDetails "$name" "$protocol" "$port" "$path";;
+    replace-rule) replaceRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority" "$output";;
+    add-rule) addRule "$name" "$protocol" "$port" "$path" "$targetGroup" "$minPriority" "$output";;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+DELETE_FILES=()
+onExit() {
+  if [ "${#DELETE_FILES[@]}" -gt 0 ]; then rm -rf ${DELETE_FILE[@]}; fi
+}
+trap onExit EXIT
+
+tmpFile() {
+  local f=$(mktemp $@)
+  DELETE_FILES+=( $f )
+  echo $f
+}
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+requireValue() {
+  local value="${1:-}"
+  local message="$2"
+  if [ -z "$value" ]; then echo "$message"; exit 1; fi
+}
+
+arn() {
+  local name="${1:-}"
+  requireParam "name" "${name:-}"
+  cache "alb-$name" aws elbv2 describe-load-balancers --names $name \
+    | jq -r '.LoadBalancers[].LoadBalancerArn'
+}
+
+ruleHealth() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local path="${4:-}"
+  local wait="${5:-}"
+  local listenerArn=
+  listenerArn=$(listenerArn "$name" "$protocol" "$port")
+  requireValue "$listenerArn" "Listener not found"
+  local targetGroupArn=
+  targetGroupArn=$(rulesForListenerArn "$listenerArn" \
+    | jq -r --arg path "$path" \
+    '.Rules[]|select(.Conditions[].Values[] | select(. == $path))|.Actions[]|select(.Type=="forward")|.ForwardConfig.TargetGroups[].TargetGroupArn')
+  requireValue "$targetGroupArn" "Did not find target group for rule for path $path"
+
+  if [ -z "${wait:-}" ]; then checkRuleHealth "$targetGroupArn"; return 0; fi
+
+  local timeout=$(($(date +%s) + $wait))
+  while [ $(date +%s) -lt $timeout ]
+  do
+    if checkRuleHealth "$targetGroupArn"; then return 0; fi
+    sleep 10
+  done
+  echo "Timed out waiting for healthy rule on $name ($protocol:$port) $path"
+  return 1
+}
+
+checkRuleHealth() {
+  targetGroupArn="$1"
+  local healths=
+  healths=$(aws elbv2 describe-target-health \
+    --target-group-arn $targetGroupArn \
+    --query 'TargetHealthDescriptions[*]' \
+    | jq -r '.[] | [ .Target.Id, .TargetHealth.State ]|join(" ")')
+  requireValue "$healths" "Could not determine target group health"
+
+  local good=()
+  local bad=()
+  for targetHealth in "$healths"
+  do
+    local target=${targetHealth// */}
+    local health=${targetHealth//* /}
+    if [ "$health" == "healthy" ]
+    then
+      good+=($target)
+    else
+      bad+=($target)
+    fi
+  done
+  if [ ${#good[@]} -gt 0 ]; then echo "Healthy targets: ${#good[@]} (${good[@]})"; fi
+  if [ ${#bad[@]} -gt 0 ]; then echo "Unhealthy targets: ${#bad[@]} (${bad[@]})"; fi
+  return ${#bad[@]}
+}
+
+ruleSummary() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local listenerArn=
+  listenerArn=$(listenerArn "$name" "$protocol" "$port")
+  requireValue "$listenerArn" "Listener not found"
+  local work=$(tmpFile -d)
+  rulesForListenerArn "$listenerArn" \
+    | jq -r '.Rules[]| select(.Actions[0].Type == "forward") | .Priority, .Conditions[].Values[], .Actions[].TargetGroupArn' \
+    > $work/rules
+
+  while read priority
+  do
+    read path
+    read tgArn
+    echo -n "$priority $path " > $work/rule.$priority
+    aws elbv2 describe-target-health \
+        --target-group-arn $tgArn \
+        --query 'TargetHealthDescriptions[*]' \
+      | jq -r '.[] | .TargetHealth.State' \
+      | awk 'BEGIN {h=0;u=0;w="OK"} /^healthy/ { h++ } /^unhealthy/ {u++;w="UNHEALTHY"} END {print h " " u " " (h+u) " " w}' \
+      >> $work/rule.$priority &
+  done < $work/rules
+  wait
+  echo "PRIORITY RULE HEALTHY UNHEALTHY TOTAL STATUS" > $work/rule.summary
+  if [ "$(cat $work/rules | wc -l)" == 0 ]
+  then
+    echo "TOTAL    -    0       0         0"
+    return
+  fi
+  local filter=.
+  [ "${LIST_UNHEALTHY_RULES_ONLY:-false}" == true ] && filter="UNHEALTHY"
+  cat $work/rule.[0-9]* | grep $filter | sort -n >> $work/rule.summary
+  cat $work/rule.[0-9]* | awk '{h+=$3;u+=$4;t+=$5} END {print "TOTAL - " h " " u " " t}' >> $work/rule.summary
+  cat $work/rule.summary | column -t
+}
+
+listenerArn() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local arn=
+  arn=$(arn $name)
+  requireParam "protocol" "${protocol:-}"
+  requireParam "port" "${port:-}"
+  cache "listener-arn-$name-$protocol-$port" \
+    aws elbv2 describe-listeners --load-balancer-arn $arn \
+    | jq -r --arg port $port --arg protocol $protocol \
+    '.Listeners[]|select(.Port == ($port|tonumber) and .Protocol == $protocol)|.ListenerArn'
+}
+
+ruleArn() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local path="${4:-}"
+  requireParam "path" "$path"
+  local listenerArn=
+  listenerArn=$(listenerArn "$name" "$protocol" "$port")
+  requireValue "$listenerArn" "Listener not found"
+  rulesForListenerArn "$listenerArn" \
+    | jq -r --arg path "$path" \
+    '.Rules[]|select(.Conditions[].Values[] | select(. == $path))|.RuleArn'
+}
+
+
+ruleDetails() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local path="${4:-}"
+  requireParam "path" "$path"
+  local listenerArn=
+  listenerArn=$(listenerArn "$name" "$protocol" "$port")
+  requireValue "$listenerArn" "Listener not found"
+  rulesForListenerArn "$listenerArn" \
+    | jq -r --arg path "$path" \
+    '.Rules[]|select(.Conditions[].Values[] | select(. == $path))'
+}
+
+
+rulesForListenerArn() {
+  local listenerArn="$1"
+  cache "rules-$listenerArn" aws elbv2 describe-rules --listener-arn $listenerArn
+}
+
+addRule() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local path="${4:-}"
+  local targetGroup="${5:-}"
+  local minPriority="${6:-1}"
+  local output="${7:-}"
+  requireParam "target-group" "$targetGroup"
+  local listenerArn=
+  listenerArn=$(listenerArn $name $protocol $port)
+  requireValue "$listenerArn" "Listener not found"
+  local priority=$(nextAvailablePriority $listenerArn $minPriority)
+  echo "Adding rule on $name ($protocol:$port) #$priority $path"
+  echo "Target: $targetGroup"
+  if [ -z "${output:-}" ]; then output=$(tmpFile); fi
+  aws elbv2 create-rule \
+    --listener-arn $listenerArn \
+    --actions Type=forward,TargetGroupArn=$targetGroup \
+    --conditions Field=path-pattern,Values="$path" \
+    --priority $priority > $output
+  printCreatedRule $output
+}
+
+replaceRule() {
+  local name="${1:-}"
+  local protocol="${2:-}"
+  local port="${3:-}"
+  local path="${4:-}"
+  local targetGroup="${5:-}"
+  local minPriority="${6:-1}"
+  local output="${7:-}"
+  echo "Replacing rule on $name ($protocol:$port) $path"
+  local existingRuleArns
+  existingRuleArns=$(ruleArn "$name" "$protocol" "$port" "$path")
+  addRule "$name" "$protocol" "$port" "$path" "${targetGroup:-}" "$minPriority" "${output:-}"
+  deleteRules $existingRuleArns
+}
+
+printCreatedRule() {
+  local results="$1"
+  if [ "${DEBUG:-false}" == "true" ]; then
+    cat $results
+  else
+    printf "Created rule: "
+    jq --compact-output \
+      '.Rules[] | { ruleArn: .RuleArn, rulePriority: .Priority, rulePaths: .Conditions[].Values }' \
+      $results
+  fi
+}
+
+nextAvailablePriority() {
+  #
+  # Listeners require priority to be a value less than 50000.
+  # Rules can have gaps in priority and we'll have to find them if they exist.
+  # If no gap exists, then we'll append one
+  #
+  local listener=$1
+  local minPriority=${2:-1}
+  local out=$(tmpFile)
+  #
+  # Rules are sensitive to being created in quick succession, we want to make sure
+  # we are looking at these fresh.
+  #
+  CACHE_SKIP=true rulesForListenerArn "$listenerArn" \
+    | jq -r '.Rules[].Priority' \
+    | sed 's/default/1/' \
+    | sort -n \
+    | awk -v min=$minPriority '$1 >= min { print } END { print min-1 }' \
+    | sort -nu \
+    > $out
+  #
+  # Find any gaps in the priority list, use the first one if found
+  #
+  local gap=$(seq $minPriority $(tail -1 $out) \
+    | diff - $out \
+    | grep -m 1 '<' \
+    | sed 's/[^0-9]//g')
+  if [ -n "$gap" ]; then echo $gap; return; fi
+  #
+  # If no gap is found, use the next in sequence
+  #
+  local last=$(tail -1 $out)
+  echo $(($last + 1))
+}
+
+deleteRules() {
+  if [ $# -eq 0 ]; then echo "No rules to delete"; return; fi
+  local result=
+  for ruleArn in $@
+  do
+    echo "Deleting rule $ruleArn ..."
+    result=$(aws elbv2 delete-rule \
+      --debug \
+      --rule-arn "$ruleArn" \
+      2> >(grep -A 1 "Response body" | tail -1 | sed -e "s/^b'\(.*\)'/\1/" -e 's/\\n//g' -e 's/> *</></g'))
+    if [[ "$result" == *"<DeleteRuleResult/>"* ]]
+    then
+      echo "Deleted"
+    else
+      echo "$result"
+    fi
+  done
+}
+
+main "$@"
+exit 0
