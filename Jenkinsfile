@@ -68,9 +68,9 @@ pipeline {
       description: "Environment to deploy into")
     string(name: 'PRODUCT', defaultValue: 'none', description: "The product to deploy.")
     choice(name: 'PROMOTION', choices: ["auto", "none" ],
-      description: "Environment to deploy into")
+      description: "Build promotion")
     choice(name: 'SIMULATED_FAILURE', choices: [ "none","activate","initialize","validate","before-deploy-green","deploy-green","verify-green","switch-to-blue","verify-blue","after-verify-blue","finalize","before-rollback","rollback","verify-rollback","after-rollback" ],
-      description: "Environment to deploy into")
+      description: "Simulate failure in this lifecycle")
   }
   stages {
     stage('Init') {
