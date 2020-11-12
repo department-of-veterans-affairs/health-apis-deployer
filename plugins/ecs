@@ -464,11 +464,13 @@ updateDockerCompose() {
       docker-compose-editor rewrite \
         -i $ECS_DOCKER_COMPOSE_FILE \
         -o $ECS_DOCKER_COMPOSE_FILE \
+        --log-group-prefix $ENVIRONMENT \
         --replace-image "$service:$ecrImage"
     else
       docker-compose-editor rewrite \
         -i $ECS_DOCKER_COMPOSE_FILE \
-        -o $ECS_DOCKER_COMPOSE_FILE
+        -o $ECS_DOCKER_COMPOSE_FILE \
+        --log-group-prefix $ENVIRONMENT
     fi
   done
   banner file -m $(basename $ECS_DOCKER_COMPOSE_FILE)
