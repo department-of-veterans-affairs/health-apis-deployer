@@ -106,12 +106,17 @@ setAutoscaleValues() {
     minCapacity=1
     maxCapacity=3
   fi
-
+  echo OMG WHAT IS GOIING ONM NEEB MOR GALRIC
+  cat $ENVIRONMENT_CONFIGURATION
+  env | sort
+  
   if [ -z "${AUTOSCALE_CPU:-}" ]; then AUTOSCALE_CPU=$cpu; fi
   if [ -z "${AUTOSCALE_OUT_COOLDOWN:-}" ]; then AUTOSCALE_OUT_COOLDOWN=$outCooldown; fi
   if [ -z "${AUTOSCALE_IN_COOLDOWN:-}" ]; then AUTOSCALE_IN_COOLDOWN=$inCooldown; fi
   if [ -z "${AUTOSCALE_MIN_CAPACITY:-}" ]; then AUTOSCALE_MIN_CAPACITY=$minCapacity; fi
   if [ -z "${AUTOSCALE_MAX_CAPACITY:-}" ]; then AUTOSCALE_MAX_CAPACITY=$maxCapacity; fi
+
+  env | sort
 }
 
 configureAutoscaling() {
