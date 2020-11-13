@@ -4,7 +4,7 @@
 - [Product Repository Structure](#product-repository-structure)
   - [Conf files](#conf-files)
   - [Testvars files](#testvars-files)
-  - [Deployment YAML substitution](#deployment-yaml-substitution)
+  - [Substitution for Configuration Files](#substitution-for-configuration-files)
   - [S3 Buckets](#s3-buckets)
   - [Protecting Sensitive Information](#protecting-sensitive-information)
 - [Blue/Green Deployment Process](#bluegreen-deployment-process)
