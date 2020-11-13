@@ -4,7 +4,6 @@ set -euo pipefail
 
 ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
-ECS_AUTOSCALE_FILE=$DU_DIR/ecs/autoscale.conf
 ECS_DEBUG=$WORK/ecs.debug
 
 on-activate() {
@@ -89,27 +88,30 @@ deployService() {
 }
 
 setAutoscaleValues() {
+  local cpu outCooldown inCooldown minCapacity maxCapacity
+  # Determine defaults based on SLA or not
   if [ "${IS_SLA:-false}" == true ]
   then
     # SLA environment
-    AUTOSCALE_CPU=75
-    AUTOSCALE_OUT_COOLDOWN=60
-    AUTOSCALE_IN_COOLDOWN=120
-    AUTOSCALE_MIN_CAPACITY=2
-    AUTOSCALE_MAX_CAPACITY=5
+    cpu=75
+    outCooldown=60
+    inCooldown=300
+    minCapacity=2
+    maxCapacity=5
   else
     # Non-SLA environment
-    AUTOSCALE_CPU=80
-    AUTOSCALE_OUT_COOLDOWN=60
-    AUTOSCALE_IN_COOLDOWN=60
-    AUTOSCALE_MIN_CAPACITY=1
-    AUTOSCALE_MAX_CAPACITY=3
+    cpu=85
+    outCooldown=60
+    inCooldown=60
+    minCapacity=1
+    maxCapacity=3
   fi
-  if [ -f "$ECS_AUTOSCALE_FILE" ]
-  then
-    echo "Loading autoscale configuration"
-    . "$ECS_AUTOSCALE_FILE"
-  fi
+
+  if [ -z "${AUTOSCALE_CPU:-}" ]; then AUTOSCALE_CPU=$cpu; fi
+  if [ -z "${AUTOSCALE_OUT_COOLDOWN:-}" ]; then AUTOSCALE_OUT_COOLDOWN=$outCooldown; fi
+  if [ -z "${AUTOSCALE_IN_COOLDOWN:-}" ]; then AUTOSCALE_IN_COOLDOWN=$inCooldown; fi
+  if [ -z "${AUTOSCALE_MIN_CAPACITY:-}" ]; then AUTOSCALE_MIN_CAPACITY=$minCapacity; fi
+  if [ -z "${AUTOSCALE_MAX_CAPACITY:-}" ]; then AUTOSCALE_MAX_CAPACITY=$maxCapacity; fi
 }
 
 configureAutoscaling() {
