@@ -16,6 +16,9 @@ cat <<EOF
 - Graceful failure for unknown product
 - ECS autoscaling support
 - Smoke tests on verify blue
+- extract AWS account options into confs
+  - execution/autoscale roles
+  - load balancer names
 ************************************************************
 
 EOF
@@ -75,6 +78,7 @@ initialize() {
   setDeploymentId
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
   export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
+  export AUTOSCALE_ROLE_ARN="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
 }
 
 printParameters() {

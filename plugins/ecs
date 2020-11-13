@@ -83,7 +83,46 @@ deployService() {
     --cluster $(cluster) \
     --launch-type FARGATE \
     --target-groups $(ecsTargetGroupSpecification "$tgArn")
+  configureAutoscaling
+  waitForServiceToDeploy
+}
 
+configureAutoscaling() {
+  echo "Configuring autoscaling"
+  local cluster serviceName
+  cluster=$(cluster)
+  serviceName=$(taskDefName)
+  cat > $WORK/ecs-autoscale-policy <<EOF
+{
+  "PolicyName": "target-tracking-$serviceName",
+  "ServiceNamespace": "ecs",
+  "ResourceId": "service/$cluster/$serviceName",
+  "ScalableDimension": "ecs:service:DesiredCount",
+  "PolicyType": "TargetTrackingScaling",
+  "TargetTrackingScalingPolicyConfiguration": {
+     "TargetValue": 50,
+     "PredefinedMetricSpecification": {
+       "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
+     },
+    "ScaleOutCooldown": 60,
+    "ScaleInCooldown": 60,
+    "DisableScaleIn": false
+  }
+}
+EOF
+  aws application-autoscaling register-scalable-target \
+    --resource-id "service/$cluster/$serviceName" \
+    --service-namespace ecs \
+    --scalable-dimension ecs:service:DesiredCount \
+    --min-capacity 1 \
+    --max-capacity 3 \
+    --role-arn "$AUTOSCALE_ROLE_ARN"
+
+  aws application-autoscaling put-scaling-policy \
+      --cli-input-json file://$WORK/ecs-autoscale-policy
+}
+
+waitForServiceToDeploy() {
   echo "Waiting for service to deploy..."
   local wait=180
   local timeout=$(($(date +%s) + $wait))
