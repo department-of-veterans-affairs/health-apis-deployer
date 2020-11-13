@@ -61,6 +61,34 @@ This simplified ECS parameters is used to set resource limits, health checks, an
 - Health checks are essential for good fail over behavior, your application should define a health that will be used to determine if the application is running or not.
 - Networking and security settings will be automatically configured based on the environment. Specifically, `.task_definition.services.${service}.ecs_network_mode`, `.task_definition.services.${service}.task_execution_role`, and `.run_params` will be re-written.
 
+### Autoscaling
+Autoscaling will be configured with the following parameters.
+- Percentage CPU used
+- Minimum number of instances
+- Maximum number of instances
+- Scale out cooldown
+- Scale in cooldown
+
+A default configuration will be provided for your based on environment. For SLA environments, i.e., `production` and `lab`, the following values will be assumed.
+
+```
+export AUTOSCALE_CPU=75
+export AUTOSCALE_OUT_COOLDOWN=60
+export AUTOSCALE_IN_COOLDOWN=300
+export AUTOSCALE_MIN_CAPACITY=2
+export AUTOSCALE_MAX_CAPACITY=5
+```
+For non-SLA environments, more relaxed values will be assumed
+```
+export AUTOSCALE_CPU=85
+export AUTOSCALE_OUT_COOLDOWN=60
+export AUTOSCALE_IN_COOLDOWN=60
+export AUTOSCALE_MIN_CAPACITY=1
+export AUTOSCALE_MAX_CAPACITY=3
+```
+You may optionally override these values for any environment by defining the variables listed above in any `${ENVIRONMENT}.conf` file, e.g., `production.conf`
+
+
 ## Lifecycles
 - `initialize`
   - Verifies service defined by `DU_ECS_EXPOSE_SERVICE` is present and has a port mapping
