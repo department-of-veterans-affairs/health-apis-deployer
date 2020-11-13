@@ -15,7 +15,7 @@
 - Enable known safe rollback behaviors when deployments fail
 
 ### Overview
-The Deployer works as a set plugins operating in defined [lifecycles](docs/lifecylces.md) to deploy your application in a controlled, repeatable, and predictable way. As an application owner, you create a [deployment unit](deployment-unit.md) that specifies what you want and the Deployer machinery takes care of details, such as creating target groups or ALB rules based on a minimal specification.
+The Deployer works as a set plugins operating in defined [lifecycles](docs/lifecycles.md) to deploy your application in a controlled, repeatable, and predictable way. As an application owner, you create a [deployment unit](docs/deployment-unit.md) that specifies what you want and the Deployer machinery takes care of details, such as creating target groups or ALB rules based on a minimal specification.
 
 The Deployer is not a general purpose solution for provisioning AWS resources. It is an opinionated tool that will consistently and reliably deploy specific AWS assets to work with the DVP environment.
 
