@@ -4,6 +4,7 @@ set -euo pipefail
 
 ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
+ECS_AUTOSCALE_FILE=$DU_DIR/ecs/autoscale.conf
 ECS_DEBUG=$WORK/ecs.debug
 
 on-activate() {
@@ -87,11 +88,39 @@ deployService() {
   waitForServiceToDeploy
 }
 
+setAutoscaleValues() {
+  if [ "${IS_SLA:-false}" == true ]
+  then
+    # SLA environment
+    AUTOSCALE_CPU=75
+    AUTOSCALE_OUT_COOLDOWN=60
+    AUTOSCALE_IN_COOLDOWN=120
+    AUTOSCALE_MIN_CAPACITY=2
+    AUTOSCALE_MAX_CAPACITY=5
+  else
+    # Non-SLA environment
+    AUTOSCALE_CPU=80
+    AUTOSCALE_OUT_COOLDOWN=60
+    AUTOSCALE_IN_COOLDOWN=60
+    AUTOSCALE_MIN_CAPACITY=1
+    AUTOSCALE_MAX_CAPACITY=3
+  fi
+  if [ -f "$ECS_AUTOSCALE_FILE" ]
+  then
+    echo "Loading autoscale configuration"
+    . "$ECS_AUTOSCALE_FILE"
+  fi
+}
+
 configureAutoscaling() {
   echo "Configuring autoscaling"
   local cluster serviceName
   cluster=$(cluster)
   serviceName=$(taskDefName)
+  setAutoscaleValues
+  echo "Autoscale from at least $AUTOSCALE_MIN_CAPACITY to at most $AUTOSCALE_MAX_CAPACITY instances"
+  echo "Autoscale at ${AUTOSCALE_CPU}% cpu"
+  echo "Autoscale cooldown out $AUTOSCALE_OUT_COOLDOWN and in $AUTOSCALE_IN_COOLDOWN seconds"
   cat > $WORK/ecs-autoscale-policy <<EOF
 {
   "PolicyName": "target-tracking-$serviceName",
@@ -100,12 +129,12 @@ configureAutoscaling() {
   "ScalableDimension": "ecs:service:DesiredCount",
   "PolicyType": "TargetTrackingScaling",
   "TargetTrackingScalingPolicyConfiguration": {
-     "TargetValue": 50,
+     "TargetValue": $AUTOSCALE_CPU,
      "PredefinedMetricSpecification": {
        "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
      },
-    "ScaleOutCooldown": 60,
-    "ScaleInCooldown": 60,
+    "ScaleOutCooldown": $AUTOSCALE_OUT_COOLDOWN,
+    "ScaleInCooldown": $AUTOSCALE_IN_COOLDOWN,
     "DisableScaleIn": false
   }
 }
