@@ -128,7 +128,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2|argonaut/data-query)/(token)
+          - path: /fhir/v0/(dstu2|stu3|r4|argonaut/data-query)/(token)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
