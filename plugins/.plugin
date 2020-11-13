@@ -33,6 +33,7 @@ main() {
   if [ $# != 1 ]; then abort "No command specified"; fi
   export LIFECYCLE=$1
   . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
+  . $ENVIRONMENT_CONFIGURATION
   on-$LIFECYCLE
   exit $?
 }
