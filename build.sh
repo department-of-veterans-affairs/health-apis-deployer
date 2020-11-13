@@ -142,6 +142,8 @@ productConfiguration() {
     find $PRODUCT_CONFIGURATION_DIR
     find $DU_DIR
   fi
+  if [ ! -f $DU_DIR/${ENVIRONMENT}.conf ]; then abort "Missing ${ENVIRONMENT}.conf"; fi
+  . $DU_DIR/${ENVIRONMENT}.conf
 }
 
 initializePlugins() {
