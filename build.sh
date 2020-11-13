@@ -14,6 +14,8 @@ cat <<EOF
 - Move tools in bin to deploy-tools image
 - S3 support
 - Graceful failure for unknown product
+- ECS autoscaling support
+- Smoke tests on verify blue
 ************************************************************
 
 EOF
