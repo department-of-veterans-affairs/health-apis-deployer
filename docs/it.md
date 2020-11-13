@@ -29,6 +29,31 @@ This file is
 - encrypted using the Deployer Toolkit
 - contains literals values with no substitution special character handling
 
+## Test images
+Test images will be invoked during the build to verify the deployment in two modes, identified as a single argument to your container.
+- `regression-test` - Perform a full regression against the product in a safe manner without disrupting production traffic. 
+- `smoke-test` - Perform a quick sanity check against the product in production. Smoke tests should execute quickly.
+
+For example,
+```
+docker run [environment variables] $TEST_IMAGE regression-test
+```
+
+#### Pass or Fail
+Test images will indicate tests passed or failed by the exit status code.
+- Exit `0` to indicate success
+- Exit non-zero to indicate failure
+
+#### Environment
+The test image will be passed every environment variable in your `${ENVIRONMENT}.testvars` file along with the following additional envionrment variables.
+- `DEPLOYMENT_ENVIRONMENT` - The environment you are being deployed, e.g. `qa`, `staging-lab`, `production`.
+- `DEPLOYMENT_ID` - The unique ID of this deployment.
+- `DEPLOYMENT_PRODUCT` - The product name.
+- `DEPLOYMENT_TEST_PROTOCOL` - The HTTP protocol to use when accessing your service on the ALB. Either `http` or `https`.
+- `DEPLOYMENT_TEST_HOST` - The ALB hostname where your service is deployed, e.g. `green.qa.lighthouse.va.gov`
+- `DEPLOYMENT_TEST_PORT` - The HTTP port your service is exposed on.
+
+
 ## Lifecycles
 - `validate`
   - Verifies `TEST_IMAGE` is defined
