@@ -23,13 +23,15 @@ Options
   Print a diff of the before and after parameter files.
 -s,--service <name>
   The name of service to operate on
+--log-group-prefix <name>
+  A prefix to apply to the log group name, e.g. qa or production
 
 Commands
 exposed-port -f <file> -s <service>
   Print the port number as CSV this service is exposed on
 image-version -f <file> -s <service>
   Print the version of the image for this service
-rewrite -i <file> [-o <file>] [-I <image>] [--diff]
+rewrite -i <file> [-o <file>] [-I <image>] [--diff] [--log-group-prefix <p>]
   Rewrite the given docker compose file.
 services -i <file>
   List the services defined in the file.
@@ -40,9 +42,9 @@ exit 1
 }
 
 main() {
-  local args= in= out= serviceImage= diff=false service=
+  local args= in= out= serviceImage= diff=false service= logGroupPrefix=ecs
   if ! args=$(getopt \
-    -l "debug,in:,out:,replace-image:,diff,service:" \
+    -l "debug,in:,out:,replace-image:,diff,service:,log-group-prefix:" \
     -o "i:o:I:s:" -- "$@")
   then usage; fi
   eval set -- "$args"
@@ -54,6 +56,7 @@ main() {
       -o|--out) out="$2";;
       -I|--replace-image) serviceImage+=" $2";;
       -s|--service) service="$2";;
+      --log-group-prefix) logGroupPrefix="$2";;
       --diff) diff=true;;
       --) shift; break;;
     esac
@@ -66,7 +69,7 @@ main() {
   if [ $# != 1 ]; then usage "Command not specified"; fi
   local command=$1
   case $command in
-    rewrite)  rewrite "$in" "$out" "$serviceImage" "$diff";;
+    rewrite)  rewrite "$in" "$out" "$serviceImage" "$logGroupPrefix" "$diff";;
     exposed-port) exposedPort "$in" "$service";;
     image-version) imageVersion "$in" "$service";;
     services) services "$in";;
@@ -103,7 +106,7 @@ requireFile() {
 requireServiceNode() {
   local json="$1"
   local service="$2"
-  if [ "$(jq ".services.$service" $json)" == "null" ]
+  if [ "$(jq ".services.\"$service\"" $json)" == "null" ]
   then
     echo "Service does not exist: $service"
     exit 1
@@ -133,7 +136,7 @@ exposedPort() {
   local json
   json=$(toJson "$in")
   requireServiceNode "$json" "$service"
-  jq -r ".services.$service.ports[]" $json | cut -d : -f 1 | paste -sd ,
+  jq -r ".services.\"$service\".ports[]" $json | cut -d : -f 1 | paste -sd ,
 }
 
 imageVersion() {
@@ -151,20 +154,21 @@ image() {
   local json
   json=$(toJson "$in")
   requireServiceNode "$json" "$service"
-  jq -r ".services.$service.image" $json
+  jq -r ".services.\"$service\".image" $json
 }
 
 rewrite() {
   local in="${1:-}"
   local out="${2:-/dev/stdout}"
   local serviceImage="${3:-}"
-  local diff="${4:-false}"
+  local logGroupPrefix="${4:-ecs}"
+  local diff="${5:-false}"
   requireFile "in" "$in"
   local json
   json=$(toJson "$in")
   if [ -n "${serviceImage:-}" ]; then rewriteImage "$json" "$serviceImage"; fi
 
-  rewriteLogging "$json"
+  rewriteLogging "$json" "$logGroupPrefix"
 
   yq -y . $json > $out
 
@@ -186,16 +190,17 @@ replaceNode() {
 
 rewriteLogging() {
   local json="$1"
+  local logGroupPrefix="${2:-ecs}"
   local replacement=$(tmpFile)
   for service in $(jq -r '.services|keys|join(" ")' $json)
   do
     echo $service
     echo {} \
-      | jq --arg s "$service" \
-      '{logging:{ driver:"awslogs", options:{"awslogs-region":"us-gov-west-1","awslogs-group":$s,"awslogs-stream-prefix":$s }}}' \
+      | jq --arg s "$service" --arg g "$logGroupPrefix-$service" \
+      '{logging:{ driver:"awslogs", options:{"awslogs-region":"us-gov-west-1","awslogs-group":$g,"awslogs-stream-prefix":$s }}}' \
       > $replacement
     replaceNode \
-      ".services.$service.logging" \
+      ".services.\"$service\".logging" \
       "$json" \
       "$replacement"
   done
@@ -220,7 +225,7 @@ rewriteImage() {
       | jq -R '{image:.}' \
       > $replacement
     replaceNode \
-      ".services.$service.image" \
+      ".services.\"$service\".image" \
       "$json" \
       "$replacement"
   done

@@ -83,7 +83,79 @@ deployService() {
     --cluster $(cluster) \
     --launch-type FARGATE \
     --target-groups $(ecsTargetGroupSpecification "$tgArn")
+  configureAutoscaling
+  waitForServiceToDeploy
+}
 
+setAutoscaleValues() {
+  local cpu outCooldown inCooldown minCapacity maxCapacity
+  # Determine defaults based on SLA or not
+  if [ "${IS_SLA:-false}" == true ]
+  then
+    # SLA environment
+    cpu=75
+    outCooldown=60
+    inCooldown=300
+    minCapacity=2
+    maxCapacity=5
+  else
+    # Non-SLA environment
+    cpu=85
+    outCooldown=60
+    inCooldown=60
+    minCapacity=1
+    maxCapacity=3
+  fi
+  echo OMG WHAT IS GOIING ONM NEEB MOR GALRIC
+  env | sort
+
+  if [ -z "${AUTOSCALE_CPU:-}" ]; then AUTOSCALE_CPU=$cpu; fi
+  if [ -z "${AUTOSCALE_OUT_COOLDOWN:-}" ]; then AUTOSCALE_OUT_COOLDOWN=$outCooldown; fi
+  if [ -z "${AUTOSCALE_IN_COOLDOWN:-}" ]; then AUTOSCALE_IN_COOLDOWN=$inCooldown; fi
+  if [ -z "${AUTOSCALE_MIN_CAPACITY:-}" ]; then AUTOSCALE_MIN_CAPACITY=$minCapacity; fi
+  if [ -z "${AUTOSCALE_MAX_CAPACITY:-}" ]; then AUTOSCALE_MAX_CAPACITY=$maxCapacity; fi
+}
+
+configureAutoscaling() {
+  echo "Configuring autoscaling"
+  local cluster serviceName
+  cluster=$(cluster)
+  serviceName=$(taskDefName)
+  setAutoscaleValues
+  echo "Autoscale from at least $AUTOSCALE_MIN_CAPACITY to at most $AUTOSCALE_MAX_CAPACITY instances"
+  echo "Autoscale at ${AUTOSCALE_CPU}% cpu"
+  echo "Autoscale cooldown out $AUTOSCALE_OUT_COOLDOWN and in $AUTOSCALE_IN_COOLDOWN seconds"
+  cat > $WORK/ecs-autoscale-policy <<EOF
+{
+  "PolicyName": "target-tracking-$serviceName",
+  "ServiceNamespace": "ecs",
+  "ResourceId": "service/$cluster/$serviceName",
+  "ScalableDimension": "ecs:service:DesiredCount",
+  "PolicyType": "TargetTrackingScaling",
+  "TargetTrackingScalingPolicyConfiguration": {
+     "TargetValue": $AUTOSCALE_CPU,
+     "PredefinedMetricSpecification": {
+       "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
+     },
+    "ScaleOutCooldown": $AUTOSCALE_OUT_COOLDOWN,
+    "ScaleInCooldown": $AUTOSCALE_IN_COOLDOWN,
+    "DisableScaleIn": false
+  }
+}
+EOF
+  aws application-autoscaling register-scalable-target \
+    --resource-id "service/$cluster/$serviceName" \
+    --service-namespace ecs \
+    --scalable-dimension ecs:service:DesiredCount \
+    --min-capacity 1 \
+    --max-capacity 3 \
+    --role-arn "$AUTOSCALE_ROLE_ARN"
+
+  aws application-autoscaling put-scaling-policy \
+      --cli-input-json file://$WORK/ecs-autoscale-policy
+}
+
+waitForServiceToDeploy() {
   echo "Waiting for service to deploy..."
   local wait=180
   local timeout=$(($(date +%s) + $wait))
@@ -464,7 +536,13 @@ updateDockerCompose() {
       docker-compose-editor rewrite \
         -i $ECS_DOCKER_COMPOSE_FILE \
         -o $ECS_DOCKER_COMPOSE_FILE \
+        --log-group-prefix $ENVIRONMENT \
         --replace-image "$service:$ecrImage"
+    else
+      docker-compose-editor rewrite \
+        -i $ECS_DOCKER_COMPOSE_FILE \
+        -o $ECS_DOCKER_COMPOSE_FILE \
+        --log-group-prefix $ENVIRONMENT
     fi
   done
   banner file -m $(basename $ECS_DOCKER_COMPOSE_FILE)

@@ -12,8 +12,13 @@ cat <<EOF
 *                                                          *
 ************************************************************
 - Move tools in bin to deploy-tools image
-- Re-enable timer plugin
 - S3 support
+- Graceful failure for unknown product
+- ECS autoscaling support
+- Smoke tests on verify blue
+- extract AWS account options into confs
+  - execution/autoscale roles
+  - load balancer names
 ************************************************************
 
 EOF
@@ -22,8 +27,8 @@ EOF
 onExit() {
   STATUS=$?
   banner h2 -m "Deployment"
-  if ! cat .deployment/build-name; then echo "No build name"; fi
-  if ! cat .deployment/description; then echo "No build description"; fi
+  if ! cat .deployment/build-name 2>/dev/null; then echo "No build name"; fi
+  if ! cat .deployment/description 2>/dev/null; then echo "No build description"; fi
   if [ $STATUS -ne 0 ]
   then
     stage start -s "CRASH AND BURN"
@@ -73,6 +78,7 @@ initialize() {
   setDeploymentId
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
   export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
+  export AUTOSCALE_ROLE_ARN="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
 }
 
 printParameters() {
@@ -136,6 +142,8 @@ productConfiguration() {
     find $PRODUCT_CONFIGURATION_DIR
     find $DU_DIR
   fi
+  if [ ! -f $DU_DIR/${ENVIRONMENT}.conf ]; then abort "Missing ${ENVIRONMENT}.conf"; fi
+  . $DU_DIR/${ENVIRONMENT}.conf
 }
 
 initializePlugins() {
