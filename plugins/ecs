@@ -94,6 +94,7 @@ setAutoscaleValues() {
   then
     # SLA environment
     cpu=75
+    memory=75
     outCooldown=60
     inCooldown=300
     minCapacity=2
@@ -101,19 +102,42 @@ setAutoscaleValues() {
   else
     # Non-SLA environment
     cpu=85
+    memory=85
     outCooldown=60
     inCooldown=60
     minCapacity=1
     maxCapacity=3
   fi
-  echo OMG WHAT IS GOIING ONM NEEB MOR GALRIC
-  env | sort
-
   if [ -z "${AUTOSCALE_CPU:-}" ]; then AUTOSCALE_CPU=$cpu; fi
+  if [ -z "${AUTOSCALE_MEMORY:-}" ]; then AUTOSCALE_MEMORY=$memory; fi
   if [ -z "${AUTOSCALE_OUT_COOLDOWN:-}" ]; then AUTOSCALE_OUT_COOLDOWN=$outCooldown; fi
   if [ -z "${AUTOSCALE_IN_COOLDOWN:-}" ]; then AUTOSCALE_IN_COOLDOWN=$inCooldown; fi
   if [ -z "${AUTOSCALE_MIN_CAPACITY:-}" ]; then AUTOSCALE_MIN_CAPACITY=$minCapacity; fi
   if [ -z "${AUTOSCALE_MAX_CAPACITY:-}" ]; then AUTOSCALE_MAX_CAPACITY=$maxCapacity; fi
+}
+
+autoscalingPolicy() {
+  local type="$1"
+  local metric="$2"
+  local value="$3"
+  cat <<EOF
+{
+  "PolicyName": "target-tracking-$serviceName-$type",
+  "ServiceNamespace": "ecs",
+  "ResourceId": "service/$cluster/$serviceName",
+  "ScalableDimension": "ecs:service:DesiredCount",
+  "PolicyType": "TargetTrackingScaling",
+  "TargetTrackingScalingPolicyConfiguration": {
+     "TargetValue": $value_CPU,
+     "PredefinedMetricSpecification": {
+       "PredefinedMetricType": "$metric"
+     },
+    "ScaleOutCooldown": $AUTOSCALE_OUT_COOLDOWN,
+    "ScaleInCooldown": $AUTOSCALE_IN_COOLDOWN,
+    "DisableScaleIn": false
+  }
+}
+EOF
 }
 
 configureAutoscaling() {
@@ -123,26 +147,12 @@ configureAutoscaling() {
   serviceName=$(taskDefName)
   setAutoscaleValues
   echo "Autoscale from at least $AUTOSCALE_MIN_CAPACITY to at most $AUTOSCALE_MAX_CAPACITY instances"
-  echo "Autoscale at ${AUTOSCALE_CPU}% cpu"
+  echo "Autoscale at ${AUTOSCALE_CPU}% cpu and ${AUTOSCALE_MEMORY}% memory usage"
   echo "Autoscale cooldown out $AUTOSCALE_OUT_COOLDOWN and in $AUTOSCALE_IN_COOLDOWN seconds"
-  cat > $WORK/ecs-autoscale-policy <<EOF
-{
-  "PolicyName": "target-tracking-$serviceName",
-  "ServiceNamespace": "ecs",
-  "ResourceId": "service/$cluster/$serviceName",
-  "ScalableDimension": "ecs:service:DesiredCount",
-  "PolicyType": "TargetTrackingScaling",
-  "TargetTrackingScalingPolicyConfiguration": {
-     "TargetValue": $AUTOSCALE_CPU,
-     "PredefinedMetricSpecification": {
-       "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
-     },
-    "ScaleOutCooldown": $AUTOSCALE_OUT_COOLDOWN,
-    "ScaleInCooldown": $AUTOSCALE_IN_COOLDOWN,
-    "DisableScaleIn": false
-  }
-}
-EOF
+  autoscalingPolicy cpu "ECSServiceAverageCPUUtilization" "$AUTOSCALE_CPU" \
+    > $WORK/ecs-autoscale-policy-cpu
+  autoscalingPolicy mem "ECSServiceAverageMemoryUtilization" "$AUTOSCALE_MEMORY" \
+    > $WORK/ecs-autoscale-policy-mem
   aws application-autoscaling register-scalable-target \
     --resource-id "service/$cluster/$serviceName" \
     --service-namespace ecs \
@@ -150,9 +160,10 @@ EOF
     --min-capacity 1 \
     --max-capacity 3 \
     --role-arn "$AUTOSCALE_ROLE_ARN"
-
   aws application-autoscaling put-scaling-policy \
-      --cli-input-json file://$WORK/ecs-autoscale-policy
+    --cli-input-json file://$WORK/ecs-autoscale-policy-cpu
+  aws application-autoscaling put-scaling-policy \
+    --cli-input-json file://$WORK/ecs-autoscale-policy-mem
 }
 
 waitForServiceToDeploy() {

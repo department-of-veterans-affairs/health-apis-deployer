@@ -14,7 +14,6 @@ cat <<EOF
 - Move tools in bin to deploy-tools image
 - S3 support
 - Graceful failure for unknown product
-- ECS autoscaling support
 - extract AWS account options into confs
   - execution/autoscale roles
   - load balancer names
