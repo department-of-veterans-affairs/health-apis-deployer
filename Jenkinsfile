@@ -120,6 +120,7 @@ pipeline {
         }
         lock("${env.VPC.toLowerCase()}-deployments") {
           withCredentials( CREDENTIALS ) {
+            // This grep garbage to fix some Jenkins not always flushing output from the build script...
             catchError { sh script: 'set -eo pipefail ; ./build.sh | grep --line-buffered -E ^' }
           }
         }

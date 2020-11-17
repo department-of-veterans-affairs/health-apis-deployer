@@ -29,6 +29,13 @@ on-verify-green() {
     "$GREEN_LOAD_BALANCER_PORT"
 }
 
+on-verify-bliue() {
+  executeTests \
+    smoke-test \
+    "$BLUE_LOAD_BALANCER_PROTOCOL" \
+    "$BLUE_LOAD_BALANCER" \
+    "$BLUE_LOAD_BALANCER_PORT"
+}
 
 loadTestConf() {
   . $IT_CONF
