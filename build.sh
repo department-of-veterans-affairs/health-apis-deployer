@@ -15,7 +15,6 @@ cat <<EOF
 - S3 support
 - Graceful failure for unknown product
 - ECS autoscaling support
-- Smoke tests on verify blue
 - extract AWS account options into confs
   - execution/autoscale roles
   - load balancer names
