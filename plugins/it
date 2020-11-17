@@ -29,7 +29,7 @@ on-verify-green() {
     "$GREEN_LOAD_BALANCER_PORT"
 }
 
-on-verify-bliue() {
+on-verify-blue() {
   executeTests \
     smoke-test \
     "$BLUE_LOAD_BALANCER_PROTOCOL" \
