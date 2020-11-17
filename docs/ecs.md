@@ -56,7 +56,7 @@ task_definition:
         retries: 3
         start_period: 45s
 ```
-This simplified ECS parameters is used to set resource limits, health checks, and pass secrets. 
+This simplified ECS parameters is used to set resource limits, health checks, and pass secrets.
 - Secrets are stored in AWS Parameter Store. If you have sensitive data, work with the DevOps team to add them to Parameter Strre.
 - Health checks are essential for good fail over behavior, your application should define a health that will be used to determine if the application is running or not.
 - Networking and security settings will be automatically configured based on the environment. Specifically, `.task_definition.services.${service}.ecs_network_mode`, `.task_definition.services.${service}.task_execution_role`, and `.run_params` will be re-written.
@@ -64,6 +64,7 @@ This simplified ECS parameters is used to set resource limits, health checks, an
 ### Autoscaling
 Autoscaling will be configured with the following parameters.
 - Percentage CPU used
+- Percentage memory used
 - Minimum number of instances
 - Maximum number of instances
 - Scale out cooldown
@@ -73,6 +74,7 @@ A default configuration will be provided for your based on environment. For SLA 
 
 ```
 export AUTOSCALE_CPU=75
+export AUTOSCALE_MEMORY=75
 export AUTOSCALE_OUT_COOLDOWN=60
 export AUTOSCALE_IN_COOLDOWN=300
 export AUTOSCALE_MIN_CAPACITY=2
@@ -81,6 +83,7 @@ export AUTOSCALE_MAX_CAPACITY=5
 For non-SLA environments, more relaxed values will be assumed
 ```
 export AUTOSCALE_CPU=85
+export AUTOSCALE_MEMORY=85
 export AUTOSCALE_OUT_COOLDOWN=60
 export AUTOSCALE_IN_COOLDOWN=60
 export AUTOSCALE_MIN_CAPACITY=1
