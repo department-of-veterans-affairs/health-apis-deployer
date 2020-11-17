@@ -128,7 +128,7 @@ autoscalingPolicy() {
   "ScalableDimension": "ecs:service:DesiredCount",
   "PolicyType": "TargetTrackingScaling",
   "TargetTrackingScalingPolicyConfiguration": {
-     "TargetValue": $value_CPU,
+     "TargetValue": $value,
      "PredefinedMetricSpecification": {
        "PredefinedMetricType": "$metric"
      },
