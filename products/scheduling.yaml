@@ -29,8 +29,8 @@ spec:
         paths:
           - path: /scheduling/(.*)
             backend:
-              serviceName: scheduling
-              servicePort: 80
+              serviceName: kong
+              servicePort: 8082
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -46,5 +46,5 @@ spec:
         paths:
           - path: /fhir/v0/(r4)/(Appointment)($|/[^$].*)
             backend:
-              serviceName: scheduling
-              servicePort: 80
+              serviceName: kong
+              servicePort: 8082
