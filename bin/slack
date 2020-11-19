@@ -44,7 +44,7 @@ main() {
   done
   if [ "${DEBUG:-}" == "true" ]; then set -x; fi
   if [ "${#SLACK_MESSAGES[@]}" -eq 0 ]; then usage "message not specified"; fi
-  curl -X POST $SLACK_WEBHOOK_URL -d "$(payload)"
+  curl -sX POST $SLACK_WEBHOOK_URL -d "$(payload)"
 }
 
 payload() {

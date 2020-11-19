@@ -145,7 +145,7 @@ pipeline {
         withCredentials( CREDENTIALS ) {
           script {
             if (env.PRODUCT != 'none') {
-              sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK_LIBERTY}" ] )
+            //  sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK_LIBERTY}" ] )
             }
           }
         }

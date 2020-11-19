@@ -59,26 +59,24 @@ exit 99
 
 #============================================================
 slackBuildDescription() {
+  local title="$1"
   local code='```'
   local tick='`'
+  echo "$title - ${tick}${DEPLOYMENT_ID}${tick}"
   echo "${JOB_NAME} ${BUILD_NUMBER} (<${BUILD_URL}|Open>)"
-  echo "${code}${DEPLOYMENT_ID}${code}"
   if [ ! -f .deployment/description ]; then return; fi
   echo "$code"
   cat .deployment/description
   echo "$code"
 }
 slackMessageOnStart() {
-  echo ":rocket: Starting *${PRODUCT}* deployment to *${VPC}*"
-  slackBuildDescription
+  slackBuildDescription ":rocket: Deploying *${PRODUCT}* to *${VPC}*"
 }
 slackMessageOnSuccess() {
-  echo ":smiley: Deployed $PRODUCT to $VPC"
-  slackBuildDescription
+  slackBuildDescription ":smiley: Deployed *${PRODUCT}* to *${VPC}*"
 }
 slackMessageOnFailure() {
-  echo ":x: Failed to deploy $PRODUCT to $VPC"
-  slackBuildDescription
+  slackBuildDescription ":x: Failed to deploy *${PRODUCT}* to *${VPC}*"
 }
 slackNotifications() {
   local message="$1"
