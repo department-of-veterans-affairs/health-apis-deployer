@@ -58,16 +58,18 @@ exit 99
 
 
 #============================================================
-CODEBLOCK='```'
 slackBuildDescription() {
-  echo "${CODEBLOCK}${DEPLOYMENT_ID}${CODEBLOCK}"
+  local code='```'
+  local tick='`'
+  echo "${JOB_NAME} ${BUILD_NUMBER} (<${BUILD_URL}|Open>)"
+  echo "${code}${DEPLOYMENT_ID}${code}"
   if [ ! -f .deployment/description ]; then return; fi
-  echo "$CODEBLOCK"
+  echo "$code"
   cat .deployment/description
-  echo "$CODEBLOCK"
+  echo "$code"
 }
 slackMessageOnStart() {
-  echo ":rocket: Starting $PRODUCT deployment to $VPC"
+  echo ":rocket: Starting *${PRODUCT}* deployment to *${VPC}*"
   slackBuildDescription
 }
 slackMessageOnSuccess() {
@@ -80,6 +82,7 @@ slackMessageOnFailure() {
 }
 slackNotifications() {
   local message="$1"
+  echo "Sending ... $1"
   if ! slack --webhook $SLACK_WEBHOOK_LIBERTY --channel shanktovoid --message "$message"
   then
     echo "FAILED TO SEND SLACK NOTIFICATIONS"
