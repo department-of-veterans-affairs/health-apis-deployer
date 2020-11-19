@@ -37,7 +37,7 @@ final CREDENTIALS = [
     credentialsId: 'PROMOTATRON_USERNAME_PASSWORD',
     variable: 'PROMOTATRON_USERNAME_PASSWORD'),
   string(
-    credentialsId: 'SLACK_WEBHOOK_LIBERTY',
+    credentialsId: 'SLACK_WEBHOOK',
     variable: 'SLACK_WEBHOOK_LIBERTY' ),
   string(
     credentialsId: 'DEPLOYMENT_CRYPTO_KEY',
