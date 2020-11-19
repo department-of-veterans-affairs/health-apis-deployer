@@ -35,16 +35,24 @@ main() {
   do
     case "$1" in
       --debug) DEBUG=true;;
-      --channel) SLACK_CHANNEL="$2";;
-      --webhook) SLACK_WEBHOOK_URL="$2";;
-      --message) SLACK_MESSAGES+=("$2");;
+      -c|--channel) SLACK_CHANNEL="$2";;
+      -w|--webhook) SLACK_WEBHOOK_URL="$2";;
+      -m|-message) SLACK_MESSAGES+=("$2");;
       --) shift; break;;
     esac
     shift
   done
   if [ "${DEBUG:-}" == "true" ]; then set -x; fi
   if [ "${#SLACK_MESSAGES[@]}" -eq 0 ]; then usage "message not specified"; fi
-  curl -sX POST $SLACK_WEBHOOK_URL -d "$(payload)"
+  local out=$(mktemp)
+  trap "rm $out" EXIT
+  local status
+  status=$(curl -sX POST $SLACK_WEBHOOK_URL -d "$(payload)" -w "%{http_code}" -o $out)
+  if [ "$status" != "200" ]
+  then
+    cat $out
+    exit 1
+  fi
 }
 
 payload() {
@@ -56,17 +64,10 @@ EOF
 local i=0
 for message in "${SLACK_MESSAGES[@]}"
 do
-cat <<EOF
-    {
-      "type" : "section",
-      "text" : {
-        "type" : "mrkdwn",
-        "text" : "${message:0:3000}"
-      }
-    }
-EOF
-i=$(($i+1))
-if [ $i -lt ${#SLACK_MESSAGES[@]} ]; then echo -n ,; fi
+  echo {}|jq --arg m "${message:0:3000}" \
+    '{type:"section",text:{type:"mrkdwn",text:$m}}'
+  i=$(($i+1))
+  if [ $i -lt ${#SLACK_MESSAGES[@]} ]; then echo -n ,; fi
 done
 cat <<EOF
   ]
