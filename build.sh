@@ -27,11 +27,14 @@ onExit() {
   banner h2 -m "Deployment"
   if ! cat .deployment/build-name 2>/dev/null; then echo "No build name"; fi
   if ! cat .deployment/description 2>/dev/null; then echo "No build description"; fi
-  if [ $STATUS -ne 0 ]
+  if [ $STATUS -eq 0 ]
   then
+    slackNotifications "$(slackMessageOnSuccess)"
+  else
     stage start -s "CRASH AND BURN"
     echo "OH NOES! SOMETHING BORKED!"
     echo "TERMINATING WITH STATUS: $STATUS"
+    slackNotifications "$(slackMessageOnFailure)"
   fi
   stage end
   if [ $STATUS  == 99 ]; then echo ABORTED; fi
@@ -53,6 +56,34 @@ EOF
 exit 99
 }
 
+
+CODEBLOCK='```'
+slackBuildDescription() {
+  echo "${CODEBLOCK}${DEPLOYMENT_ID}${CODEBLOCK}"
+  if [ ! -f .deployment/description ]; then return; fi
+  echo "$CODEBLOCK"
+  cat .deployment/description
+  echo "$CODEBLOCK"
+}
+slackMessageOnStart() {
+  echo ":rocket: Starting $PRODUCT deployment to $VPC"
+  slackBuildDescription
+}
+slackMessageOnSuccess() {
+  echo ":smiley: Deployed $PRODUCT to $VPC"
+  slackBuildDescription
+}
+slackMessageOnFailure() {
+  echo ":x: Failed to deploy $PRODUCT to $VPC"
+  slackBuildDescription
+}
+slackNotifications() {
+  local message="$1"
+  if ! slack --webhook $LIBERTY_SLACK_WEBHOOK --channel shanktovoid --message "$message"
+  then
+    echo "FAILED TO SEND SLACK NOTIFICATIONS"
+  fi
+}
 
 #============================================================
 initialize() {
@@ -77,6 +108,7 @@ initialize() {
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
   export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
   export AUTOSCALE_ROLE_ARN="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
+  slackNotifications "$(slackMessageOnStart)"
 }
 
 printParameters() {

@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+cat >&2 << EOF
+$0 [options]
+
+Send a Slack message
+
+Options
+-w, --webhook <webhook>
+  The Slack webhook URL.
+  You may also specify environment variable SLACK_WEBHOOK_URL.
+-c, --channel <channel>
+  The Slack channel name.
+  You may also specify environment variable SLACK_CHANNEL.
+-m, --message <markdown>
+  The message to send. This may be repeated up to 50 times.
+  The markdown will be truncated to 3000 characters.
+${1:-}
+EOF
+exit 1
+}
+
+SLACK_MESSAGES=()
+
+main() {
+  local args
+  if ! args=$(getopt \
+    -l "debug,webhook:,channel:,message:" \
+    -o "w:c:m:" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      --channel) SLACK_CHANNEL="$2";;
+      --webhook) SLACK_WEBHOOK_URL="$2";;
+      --message) SLACK_MESSAGES+=("$2");;
+      --) shift; break;;
+    esac
+    shift
+  done
+  if [ "${DEBUG:-}" == "true" ]; then set -x; fi
+  if [ "${#SLACK_MESSAGES[@]}" -eq 0 ]; then usage "message not specified"; fi
+  curl -X POST $SLACK_WEBHOOK_URL -d "$(payload)"
+}
+
+payload() {
+cat <<EOF
+{
+  "channel" : "${SLACK_CHANNEL}",
+  "blocks" : [
+EOF
+local i=0
+for message in "${SLACK_MESSAGES[@]}"
+do
+cat <<EOF
+    {
+      "type" : "section",
+      "text" : {
+        "type" : "mrkdwn",
+        "text" : "${message:0:3000}"
+      }
+    }
+EOF
+i=$(($i+1))
+if [ $i -lt ${#SLACK_MESSAGES[@]} ]; then echo -n ,; fi
+done
+cat <<EOF
+  ]
+}
+EOF
+}
+
+main "$@"
+exit 0
