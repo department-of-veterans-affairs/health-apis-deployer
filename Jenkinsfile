@@ -37,8 +37,8 @@ final CREDENTIALS = [
     credentialsId: 'PROMOTATRON_USERNAME_PASSWORD',
     variable: 'PROMOTATRON_USERNAME_PASSWORD'),
   string(
-    credentialsId: 'SLACK_WEBHOOK',
-    variable: 'SLACK_WEBHOOK' ),
+    credentialsId: 'SLACK_WEBHOOK_LIBERTY',
+    variable: 'SLACK_WEBHOOK_LIBERTY' ),
   string(
     credentialsId: 'DEPLOYMENT_CRYPTO_KEY',
     variable: 'DEPLOYMENT_CRYPTO_KEY')
@@ -145,7 +145,7 @@ pipeline {
         withCredentials( CREDENTIALS ) {
           script {
             if (env.PRODUCT != 'none') {
-              sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK}" ] )
+              sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK_LIBERTY}" ] )
             }
           }
         }
