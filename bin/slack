@@ -37,7 +37,7 @@ main() {
       --debug) DEBUG=true;;
       -c|--channel) SLACK_CHANNEL="$2";;
       -w|--webhook) SLACK_WEBHOOK_URL="$2";;
-      -m|-message) SLACK_MESSAGES+=("$2");;
+      -m|--message) SLACK_MESSAGES+=("$2");;
       --) shift; break;;
     esac
     shift

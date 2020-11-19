@@ -80,7 +80,7 @@ slackMessageOnFailure() {
 }
 slackNotifications() {
   local message="$1"
-  echo "Sending ... $1"
+  echo "Sending ... $message"
   if ! slack --webhook $SLACK_WEBHOOK_LIBERTY --channel shanktovoid --message "$message"
   then
     echo "FAILED TO SEND SLACK NOTIFICATIONS"
