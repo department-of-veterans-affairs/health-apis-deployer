@@ -79,13 +79,29 @@ slackMessageOnSuccess() {
 slackMessageOnFailure() {
   slackBuildDescription ":x:   Failed to deploy *${PRODUCT}* to *${VPC}*"
 }
+initializeSlack() {
+  SLACK_DESTINATIONS=()
+  SLACK_DESTINATIONS+=( $SLACK_DESTINATION_ALWAYS )
+  if [ "$ENVIRONMENT" == "production" -o "$ENVIRONMENT" == "lab" ]
+  then
+    SLACK_DESTINATIONS+=( $SLACK_DESTINATION_ALWAYS_FOR_SLA )
+  fi
+  if [ -n "${SLACK_DESTINATION:-}" ]
+  then
+    SLACK_DESTINATIONS+=( $SLACK_DESTINATION )
+  fi
+  slackNotifications "$(slackMessageOnStart)"
+}
 slackNotifications() {
   local message="$1"
   local track="${2:-}"
   echo "Sending ... $message"
-  if ! slack send -d shanktovoid@liberty --message "$message"
-  then
-    echo "FAILED TO SEND SLACK NOTIFICATIONS"
+  for destination in ${SLACK_DESTINATIONS[@]}
+  do
+    if ! slack send -d "$destination" --message "$message"
+    then
+      echo "Failed to send Slack notifications TO $destination"
+    fi
   fi
   if [ -n "${track:-}" ]; then echo "${track:-sent}" > .deployment/slack-notification; fi
 }
@@ -113,7 +129,6 @@ initialize() {
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
   export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
   export AUTOSCALE_ROLE_ARN="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
-  slackNotifications "$(slackMessageOnStart)"
 }
 
 printParameters() {
@@ -360,6 +375,7 @@ main() {
   initDebugMode
   productConfiguration
   initializePlugins
+  initializeSlack
   lifecycle initialize
   lifecycle validate
   lifecycle before-deploy-green

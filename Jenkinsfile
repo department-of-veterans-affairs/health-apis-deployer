@@ -111,6 +111,9 @@ pipeline {
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker"
         HOME = "${env.WORKSPACE}"
         AWS_REGION = "us-gov-west-1"
+        SLACK_DESTINATION_ALWAYS_FOR_SLA = "shanktovoid@liberty"
+        SLACK_DESTINATION_ALWAYS = "shanktovoid@liberty"
+        SLACK_DESTINATION_ALWAYSX = "health_apis_jenkins@liberty"
       }
       steps {
         script {
