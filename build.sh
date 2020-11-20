@@ -250,7 +250,7 @@ lifecycle() {
     LIFECYCLE_STATE[$LIFECYCLE]=skipped
     return 0
   fi
-  stage start -s "lifecycle $LIFECYCLE"
+  stage start -s "$LIFECYCLE"
   LIFECYCLE_STATE[$LIFECYCLE]=started
   . $(product-configuration load-script -d $PRODUCT_CONFIGURATION_DIR)
   local status=complete
