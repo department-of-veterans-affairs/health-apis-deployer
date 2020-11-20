@@ -86,16 +86,15 @@ initializeSlack() {
   then
     SLACK_DESTINATIONS+=( $SLACK_DESTINATION_ALWAYS_FOR_SLA )
   fi
-  if [ -n "${SLACK_DESTINATION:-}" ]
+  if [ -n "${DU_SLACK_DESTINATION:-}" ]
   then
-    SLACK_DESTINATIONS+=( $SLACK_DESTINATION )
+    SLACK_DESTINATIONS+=( $DU_SLACK_DESTINATION )
   fi
   slackNotifications "$(slackMessageOnStart)"
 }
 slackNotifications() {
   local message="$1"
   local track="${2:-}"
-  echo "Sending ... $message"
   for destination in ${SLACK_DESTINATIONS[@]}
   do
     if ! slack send -d "$destination" --message "$message"
