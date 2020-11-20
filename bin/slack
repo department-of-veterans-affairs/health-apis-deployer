@@ -69,7 +69,7 @@ addWebhookAlias() {
   local spec="${1}"
   local name="${1%=*}"
   local webhook="${1#*=}"
-  if [ -z "${name:-}" -o -z "${webhook:-}" ]; then usage "Bad named webhook: $spec"; fi
+  if [ -z "${name:-}" -o -z "${webhook:-}" ]; then usage "Bad webhook alias: $spec"; fi
   WEBHOOKS[$name]="$webhook"
 }
 
@@ -79,7 +79,13 @@ loadWebhookAliases() {
   then
     usage "Alias file not found: $SLACK_WEBHOOK_ALIAS_FILE"
   fi
-  while read line; do addWebhookAlias "$line"; done < $SLACK_WEBHOOK_ALIAS_FILE
+  while read line
+  do
+    if [ -n "${line}" ]
+    then
+      addWebhookAlias "$line"
+    fi
+  done < $SLACK_WEBHOOK_ALIAS_FILE
 }
 
 resolveNamedWebhooks() {
