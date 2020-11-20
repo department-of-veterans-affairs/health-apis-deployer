@@ -71,13 +71,13 @@ slackBuildDescription() {
   echo "$code"
 }
 slackMessageOnStart() {
-  slackBuildDescription ":rocket: Deploying *${PRODUCT}* to *${VPC}*"
+  slackBuildDescription ":rocket:   Deploying *${PRODUCT}* to *${VPC}*"
 }
 slackMessageOnSuccess() {
-  slackBuildDescription ":smiley: Deployed *${PRODUCT}* to *${VPC}*"
+  slackBuildDescription ":smiley:   Deployed *${PRODUCT}* to *${VPC}*"
 }
 slackMessageOnFailure() {
-  slackBuildDescription ":x: Failed to deploy *${PRODUCT}* to *${VPC}*"
+  slackBuildDescription ":x:   Failed to deploy *${PRODUCT}* to *${VPC}*"
 }
 slackNotifications() {
   local message="$1"
@@ -223,11 +223,11 @@ rollback() {
   then
     echo "Rollback is no longer possible."
     deployment add-build-info \
-      -u "Stage \"$(stage current)\" requested a rollback after the point of no return"
+      -u "Stage $(stage current) requested a rollback after the point of no return"
     return
   fi
   deployment add-build-info \
-    -d "Stage \"$(stage current)\" failed and triggered a rollback"
+    -d "Stage $(stage current) failed and triggered a rollback"
   ROLLBACK_STARTED=$LIFECYCLE
   # Based on the current lifecycle, determine what lifecycles need
   # to be executed to perform rollack
