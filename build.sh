@@ -29,12 +29,12 @@ onExit() {
   if ! cat .deployment/description 2>/dev/null; then echo "No build description"; fi
   if [ $STATUS -eq 0 ]
   then
-    slackNotifications "$(slackMessageOnSuccess)"
+    slackNotifications "$(slackMessageOnSuccess)" "on-exit"
   else
     stage start -s "CRASH AND BURN"
     echo "OH NOES! SOMETHING BORKED!"
     echo "TERMINATING WITH STATUS: $STATUS"
-    slackNotifications "$(slackMessageOnFailure)"
+    slackNotifications "$(slackMessageOnFailure)" "on-exit"
   fi
   stage end
   if [ $STATUS  == 99 ]; then echo ABORTED; fi
@@ -62,7 +62,8 @@ slackBuildDescription() {
   local title="$1"
   local code='```'
   local tick='`'
-  echo "$title - ${tick}${DEPLOYMENT_ID}${tick}"
+  echo "$title"
+  echo "Deployment ${tick}${DEPLOYMENT_ID}${tick}"
   echo "${JOB_NAME} ${BUILD_NUMBER} (<${BUILD_URL}|Open>)"
   if [ ! -f .deployment/description ]; then return; fi
   echo "$code"
@@ -80,11 +81,13 @@ slackMessageOnFailure() {
 }
 slackNotifications() {
   local message="$1"
+  local track="${2:-}"
   echo "Sending ... $message"
   if ! slack --webhook $SLACK_WEBHOOK_LIBERTY --channel shanktovoid --message "$message"
   then
     echo "FAILED TO SEND SLACK NOTIFICATIONS"
   fi
+  if [ -n "${track:-}" ]; then echo "${track:-sent}" > .deployment/slack-notification; fi
 }
 
 #============================================================

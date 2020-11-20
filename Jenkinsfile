@@ -52,6 +52,7 @@ def contentOf(file) {
   return ''
 }
 
+slackNotificationsSent=false
 pipeline {
   agent none
   options {
@@ -134,6 +135,9 @@ pipeline {
             currentBuild.result = 'UNSTABLE';
             currentBuild.description += "Unstable because: " + unstable
           }
+          if (contentOf('.deployment/slack-notification') != '') {
+            slackNotificationsSent=true
+          }
         }
       }
     }
@@ -144,8 +148,9 @@ pipeline {
         archiveArtifacts artifacts: '.deployment/artifacts/**', onlyIfSuccessful: false, allowEmptyArchive: true
         withCredentials( CREDENTIALS ) {
           script {
-            if (env.PRODUCT != 'none') {
-            //  sendNotifications( [ "shanktovoid@${SLACK_WEBHOOK_LIBERTY}" ] )
+            if (env.PRODUCT != 'none' && !slackNotificationsSent) {
+              // fail safe notifications
+              sendNotifications( [ "shankins@${SLACK_WEBHOOK_LIBERTY}" ] )
             }
           }
         }
