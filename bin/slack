@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
 cat >&2 << EOF
-$0 [options]
+$0 [command] [options]
 
 Send a Slack message
 
@@ -14,21 +14,31 @@ Options
 -c, --channel <channel>
   The Slack channel name.
   You may also specify environment variable SLACK_CHANNEL.
+-d, --destination <channel@webhook>
+  The Slack channel and webhook.
+  This can be an alternative to -w and -c options.
 -m, --message <markdown>
   The message to send. This may be repeated up to 50 times.
   The markdown will be truncated to 3000 characters.
+
+Commands
+send [-w <>] [-c <>] [-d <>] -m <>
+  Send a message to Slack
+
 ${1:-}
 EOF
 exit 1
 }
 
+
+declare -A WEBHOOKS
 SLACK_MESSAGES=()
 
 main() {
   local args
   if ! args=$(getopt \
-    -l "debug,webhook:,channel:,message:" \
-    -o "w:c:m:" -- "$@")
+    -l "debug,destination:,webhook:,channel:,message:,webhook-alias:,webhook-alias-file:" \
+    -o "d:w:c:m:a:f:" -- "$@")
   then usage; fi
   eval set -- "$args"
   while true
@@ -36,14 +46,52 @@ main() {
     case "$1" in
       --debug) DEBUG=true;;
       -c|--channel) SLACK_CHANNEL="$2";;
+      -d|--destination) SLACK_CHANNEL="${2%@*}"; SLACK_WEBHOOK_URL="${2#*@}";;
       -w|--webhook) SLACK_WEBHOOK_URL="$2";;
       -m|--message) SLACK_MESSAGES+=("$2");;
+      -a|--webhook-alias) addWebhookAlias "$2";;
+      -f|--webhook-alias-file) SLACK_WEBHOOK_ALIAS_FILE="$2";;
       --) shift; break;;
     esac
     shift
   done
   if [ "${DEBUG:-}" == "true" ]; then set -x; fi
   if [ "${#SLACK_MESSAGES[@]}" -eq 0 ]; then usage "message not specified"; fi
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    send) send;;
+    *) usage "unknown command: $command";;
+  esac
+}
+
+addWebhookAlias() {
+  local spec="${1}"
+  local name="${1%=*}"
+  local webhook="${1#*=}"
+  if [ -z "${name:-}" -o -z "${webhook:-}" ]; then usage "Bad named webhook: $spec"; fi
+  WEBHOOKS[$name]="$webhook"
+}
+
+loadWebhookAliases() {
+  if [ -z "${SLACK_WEBHOOK_ALIAS_FILE:-}" ]; then return; fi
+  if [ ! -f "${SLACK_WEBHOOK_ALIAS_FILE}" ]
+  then
+    usage "Alias file not found: $SLACK_WEBHOOK_ALIAS_FILE"
+  fi
+  while read line; do addWebhookAlias "$line"; done < $SLACK_WEBHOOK_ALIAS_FILE
+}
+
+resolveNamedWebhooks() {
+  if [[ "$SLACK_WEBHOOK_URL" == http* ]]; then return; fi
+  loadWebhookAliases
+  local actualWebhook="${WEBHOOKS[$SLACK_WEBHOOK_URL]:-}"
+  if [ -z "${actualWebhook:-}" ]; then usage "No webhook alias for $SLACK_WEBHOOK_URL"; fi
+  SLACK_WEBHOOK_URL="$actualWebhook"
+}
+
+send() {
+  resolveNamedWebhooks
   local out=$(mktemp)
   trap "rm $out" EXIT
   local status

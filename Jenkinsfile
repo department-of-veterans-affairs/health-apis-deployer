@@ -121,7 +121,14 @@ pipeline {
         }
         lock("${env.VPC.toLowerCase()}-deployments") {
           withCredentials( CREDENTIALS ) {
-            // This grep garbage to fix some Jenkins not always flushing output from the build script...
+            script {
+              env.SLACK_WEBHOOK_ALIAS_FILE=".deployment/slack-webhooks"
+              writeFile file: "$env.SLACK_WEBHOOK_ALIAS_FILE", text:"""
+                lighthouse=${env.SLACK_WEBHOOK_LIGHTHOUSE}
+                liberty=${env.SLACK_WEBHOOK_LIBERTY}
+              """.stripIndent()
+            }
+            // This grep garbage to fix some Jenkins not always flushing output from the build script
             catchError { sh script: 'set -eo pipefail ; ./build.sh | grep --line-buffered -E ^' }
           }
         }

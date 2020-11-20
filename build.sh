@@ -83,7 +83,7 @@ slackNotifications() {
   local message="$1"
   local track="${2:-}"
   echo "Sending ... $message"
-  if ! slack --webhook $SLACK_WEBHOOK_LIBERTY --channel shanktovoid --message "$message"
+  if ! slack send -d shanktovoid@liberty --message "$message"
   then
     echo "FAILED TO SEND SLACK NOTIFICATIONS"
   fi
