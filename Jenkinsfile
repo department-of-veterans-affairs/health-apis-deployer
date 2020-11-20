@@ -40,6 +40,9 @@ final CREDENTIALS = [
     credentialsId: 'SLACK_WEBHOOK',
     variable: 'SLACK_WEBHOOK_LIBERTY' ),
   string(
+    credentialsId: 'SLACK_WEBHOOK_LIGHTHOUSE',
+    variable: 'SLACK_WEBHOOK_LIGHTHOUSE' ),
+  string(
     credentialsId: 'DEPLOYMENT_CRYPTO_KEY',
     variable: 'DEPLOYMENT_CRYPTO_KEY')
 ]
