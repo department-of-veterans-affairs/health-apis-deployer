@@ -102,7 +102,7 @@ slackNotifications() {
     then
       echo "Failed to send Slack notifications TO $destination"
     fi
-  fi
+  done
   if [ -n "${track:-}" ]; then echo "${track:-sent}" > .deployment/slack-notification; fi
 }
 
