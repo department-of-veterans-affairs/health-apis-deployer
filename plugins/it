@@ -5,7 +5,11 @@ IT_CONF=$DU_DIR/test.conf
 IT_TEST_VARS=$DU_DIR/$ENVIRONMENT.testvars
 
 on-activate() {
-  if [ ! -f $IT_CONF ]; then return $PLUGIN_DISABLED; fi
+  if [ ! -f $IT_CONF ]
+  then
+    deployment add-build-info -d "This deployment has no integration tests"
+    return $PLUGIN_DISABLED
+  fi
   return $PLUGIN_ENABLED
 }
 
