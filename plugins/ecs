@@ -20,7 +20,7 @@ on-initialize() {
 
 
 albHealthCheckPath() {
-  echo "${LOAD_BALANCER_HEALTH_CHECK_PATH:-{DU_HEALTH_CHECK_PATH:-}}"
+  echo "${LOAD_BALANCER_HEALTH_CHECK_PATH:-${DU_HEALTH_CHECK_PATH:-}}"
 }
 
 on-validate() {
