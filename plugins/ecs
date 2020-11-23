@@ -569,7 +569,8 @@ updateDockerCompose() {
       docker-compose-editor rewrite \
         -i $ECS_DOCKER_COMPOSE_FILE \
         -o $ECS_DOCKER_COMPOSE_FILE \
-        --log-group-prefix $ENVIRONMENT
+        --log-group-prefix $ENVIRONMENT \
+        --log-stream-prefix $BUILD_NUMBER
     fi
   done
   banner file -m $(basename $ECS_DOCKER_COMPOSE_FILE)
