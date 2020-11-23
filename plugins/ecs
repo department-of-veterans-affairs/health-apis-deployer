@@ -18,6 +18,13 @@ on-initialize() {
   updateEcsParams
 }
 
+on-validate() {
+  if [ -z "${DU_HEALTH_CHECK_PATH:-}" ]
+  then
+    abort "DU_HEALTH_CHECK_PATH is not defined"
+  fi
+}
+
 on-deploy-green() {
   local tgArn
   tgArn=$(createNewTargetGroup)
@@ -198,12 +205,18 @@ waitToBeHealthy() {
   local port=$3
   for path in ${DU_LOAD_BALANCER_RULES[@]}
   do
-    alb rule-health \
+    if ! alb rule-health \
       --name $alb \
       --protocol $protocol \
       --port $port \
       --path "$path" \
       --wait 180
+    then
+      echo "Service was previously healthy but load balancer rules are not."
+      echo "Target group health check is configured as $DU_HEALTH_CHECK_PATH"
+      echo "Have your health checks changed?"
+      abort "Timeout waiting for healthy target groups ($DU_HEALTH_CHECK_PATH)"
+    fi
   done
 }
 
