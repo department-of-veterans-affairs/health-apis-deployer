@@ -30,6 +30,7 @@ on-deploy-green() {
   tgArn=$(createNewTargetGroup)
   save "new-tg-arn" "$tgArn"
   echo "Target group $tgArn"
+  echo "Target group health check $DU_HEALTH_CHECK_PATH"
   replaceAlbRulesOnGreen \
     $GREEN_LOAD_BALANCER_PROTOCOL \
     $GREEN_LOAD_BALANCER_NAME \
