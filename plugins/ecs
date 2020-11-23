@@ -18,10 +18,15 @@ on-initialize() {
   updateEcsParams
 }
 
+
+albHealthCheckPath() {
+  echo "${LOAD_BALANCER_HEALTH_CHECK_PATH:-{DU_HEALTH_CHECK_PATH:-}}"
+}
+
 on-validate() {
-  if [ -z "${DU_HEALTH_CHECK_PATH:-}" ]
+  if [ -z "$(albHealthCheckPath)" ]
   then
-    abort "DU_HEALTH_CHECK_PATH is not defined"
+    abort "Niether LOAD_BALANCER_HEALTH_CHECK_PATH or DU_HEALTH_CHECK_PATH is defined"
   fi
 }
 
@@ -30,7 +35,7 @@ on-deploy-green() {
   tgArn=$(createNewTargetGroup)
   save "new-tg-arn" "$tgArn"
   echo "Target group $tgArn"
-  echo "Target group health check $DU_HEALTH_CHECK_PATH"
+  echo "Target group health check $(albHealthCheckPath)"
   replaceAlbRulesOnGreen \
     $GREEN_LOAD_BALANCER_PROTOCOL \
     $GREEN_LOAD_BALANCER_NAME \
@@ -216,9 +221,9 @@ waitToBeHealthy() {
       --wait 180
     then
       echo "Service was previously healthy but load balancer rules are not."
-      echo "Target group health check is configured as $DU_HEALTH_CHECK_PATH"
+      echo "Target group health check is configured as $(albHealthCheckPath)"
       echo "Have your health checks changed?"
-      abort "Timeout waiting for healthy target groups ($DU_HEALTH_CHECK_PATH)"
+      abort "Timeout waiting for healthy target groups ($(albHealthCheckPath))"
     fi
   done
 }
@@ -500,7 +505,7 @@ createNewTargetGroup() {
     --health-check-timeout-seconds 5 \
     --healthy-threshold-count 3 \
     --unhealthy-threshold-count 3 \
-    --health-check-path "$DU_HEALTH_CHECK_PATH" \
+    --health-check-path "$(albHealthCheckPath)" \
     --matcher HttpCode=200 \
     > $WORK/$targetGroupName
   tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
