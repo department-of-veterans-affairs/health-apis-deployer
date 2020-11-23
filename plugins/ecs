@@ -563,6 +563,7 @@ updateDockerCompose() {
         -i $ECS_DOCKER_COMPOSE_FILE \
         -o $ECS_DOCKER_COMPOSE_FILE \
         --log-group-prefix $ENVIRONMENT \
+        --log-stream-prefix $BUILD_NUMBER \
         --replace-image "$service:$ecrImage"
     else
       docker-compose-editor rewrite \
