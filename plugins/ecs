@@ -187,7 +187,9 @@ waitForServiceToDeploy() {
     fi
     sleep 10
   done
-  abort "Timeout waiting for healthy ECS service"
+  echo "Service status:"
+  ecs-cli ps --cluster $(cluster) | grep "$(taskDefName)"
+  abort "Timeout waiting for healthy ECS service after $wait seconds"
 }
 
 ecsTargetGroupSpecification() {
