@@ -31,3 +31,20 @@ spec:
             backend:
               serviceName: insurance
               servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+ name: insurance-fhir-ingress
+ namespace: $DU_NAMESPACE
+ annotations:
+   kubernetes.io/ingress.class: nginx
+   nginx.ingress.kubernetes.io/rewrite-target: /$1/$2$3
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/(r4)/(Coverage)($|/[^$].*)
+            backend:
+              serviceName: insurance
+              servicePort: 80
