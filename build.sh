@@ -129,6 +129,7 @@ initialize() {
   echo "DEPLOYMENT_ID ..... $DEPLOYMENT_ID"
   export ECS_TASK_EXECUTION_ROLE="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
   export AUTOSCALE_ROLE_ARN="arn:aws-us-gov:iam::533575416491:role/project/project-jefe-role"
+  setForceDeployment
 }
 
 printParameters() {
@@ -145,6 +146,22 @@ emptyDirectory() {
   if [ -d "$d" ]; then rm -rf $d; fi
   mkdir -p $d
   readlink -f $d
+}
+
+setForceDeployment() {
+  if [ "${DANGER_ZONE:-false}" == "true" ]
+  then
+    echo "Danger zone!"
+    export FORCE_DEPLOYMENT=true
+    return
+  fi
+  if [ "${ROLLBACK_ENABLED:-true}" == "false" ]
+  then
+    echo "Rollbacks disabled for $ENVIRONMENT"
+    export FORCE_DEPLOYMENT=true
+    return
+  fi
+  export FORCE_DEPLOYMENT=false
 }
 
 setShortEnvironment() {

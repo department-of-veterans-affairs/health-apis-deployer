@@ -186,7 +186,7 @@ waitForServiceToDeploy() {
   while [ $(date +%s) -lt $timeout ]
   do
     if ecs-cli ps --cluster $(cluster) --desired-status RUNNING \
-      | grep HEALTHY \
+      | grep " HEALTHY" \
       | grep "$(taskDefName)"
     then
       return 0
@@ -195,7 +195,7 @@ waitForServiceToDeploy() {
   done
   echo "Service status:"
   ecs-cli ps --cluster $(cluster) | grep "$(taskDefName)"
-  abort "Timeout waiting for healthy ECS service after $wait seconds"
+  abortUnlessForced "Timeout waiting for healthy ECS service after $wait seconds"
 }
 
 ecsTargetGroupSpecification() {
@@ -223,7 +223,7 @@ waitToBeHealthy() {
       echo "Service was previously healthy but load balancer rules are not."
       echo "Target group health check is configured as $(albHealthCheckPath)"
       echo "Have your health checks changed?"
-      abort "Timeout waiting for healthy target groups ($(albHealthCheckPath))"
+      abortUnlessForced "Timeout waiting for healthy target groups ($(albHealthCheckPath))"
     fi
   done
 }

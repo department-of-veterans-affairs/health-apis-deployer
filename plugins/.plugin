@@ -10,6 +10,17 @@ _init() {
   PLUGIN_SUBSTITUTIONS_FILE=$PLUGIN_SUBSTITION_DIR/$PLUGIN_NAME.env
 }
 
+abortUnlessForced() {
+  local message="$1"
+  if [ "${FORCED_DEPLOYMENT:-false}" == true ]
+  then
+    banner print -c '>' -m " FORCED DEPLOYMENT "
+    echo "IGNORING: $message"
+    return
+  fi
+  abort "$message"
+}
+
 abort() {
   deployment add-build-info -d "$1"
   echo "ABORT: $1"
