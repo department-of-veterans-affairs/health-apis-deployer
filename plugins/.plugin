@@ -12,7 +12,7 @@ _init() {
 
 abortUnlessForced() {
   local message="$1"
-  if [ "${FORCED_DEPLOYMENT:-false}" == true ]
+  if [ "${FORCE_DEPLOYMENT:-false}" == true ]
   then
     banner print -c '>' -m " FORCED DEPLOYMENT "
     echo "IGNORING: $message"
