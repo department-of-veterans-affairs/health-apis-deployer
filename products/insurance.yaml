@@ -29,8 +29,8 @@ spec:
         paths:
           - path: /insurance/(.*)
             backend:
-              serviceName: insurance
-              servicePort: 80
+              serviceName: kong
+              servicePort: 8082
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -46,5 +46,5 @@ spec:
         paths:
           - path: /fhir/v0/(r4)/(Coverage)($|/[^$].*)
             backend:
-              serviceName: insurance
-              servicePort: 80
+              serviceName: kong
+              servicePort: 8082
