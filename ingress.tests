@@ -133,6 +133,7 @@ nurse-triage /nt-ent/actuator/info
 patient-generated-data /patient-generated-data/actuator/health
 patient-generated-data /pgd/v0/r4/Observation?patient=1010101010V666666
 patient-generated-data /pgd/v0/r4/openapi.json
+patient-generated-data /services/pgd/v0/r4/openapi.json
 # Patsr
 patsr /whh-patsr-ent/actuator/health
 patsr /whh-patsr-ent/actuator/info
