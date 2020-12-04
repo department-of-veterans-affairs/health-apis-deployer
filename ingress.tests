@@ -124,8 +124,6 @@ facilities /va_facilities/metadata
 facilities /va_facilities/v0/facilities/all
 facilities /va_facilities/v0/ids?type=health
 facilities /va_facilities/v0/nearby?lat=1&lng=-1
-# Insurance
-insurance /insurance/actuator/health
 # Nurse Triage
 nurse-triage /nt-ent/actuator/health
 nurse-triage /nt-ent/actuator/info
