@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+#set -euo pipefail
+
+if [ "$DEBUG" == false ]; then SILENCE='--quiet'; fi
+
+addApplicationProperties() {
+  echo "Creating folder $FOLDER_NAME in bucket $S3_BUCKET"
+  #
+  # If the deployment unit hasn't specified s3 contents, we'll create the bucket anyway
+  # to make sure that the deployment machinery is a consistent as possible... it always
+  # creates s3 buckets, it always attached metadata to the namespace, it always deletes
+  # it when removing old versions.
+  #
+  if [ ! -d "$DU_DIR/s3" ]
+  then
+    mkdir "$DU_DIR/s3"
+  fi
+
+  cp "$DEPLOYMENT_INFO_TEXT" "$DU_DIR/s3"
+  aws s3 cp "$DU_DIR/s3" "s3://$S3_BUCKET/$FOLDER_NAME" --recursive $SILENCE
+}
+
+cleanUpOldProperties() {
+  if [ -z "$FOLDER_NAME" ] || [ -z "$S3_BUCKET" ]
+  then
+    echo "No previous s3 bucket or folder. Skipping deletion of previous deployment version..."
+    exit 0
+  fi
+
+  echo "Cleaning up deployment folder $FOLDER_NAME in bucket $S3_BUCKET"
+  aws s3 rm "s3://$S3_BUCKET/$FOLDER_NAME" --recursive $SILENCE
+}
+
+#==============================================================================
+usage() {
+cat <<EOF
+$0 <command> [options]
+
+Commands
+  push-properties --folder-name <name> --bucket-name <name> --du-directory <directory>
+    Push the generated application.properties files to the s3 bucket with the new folder-name
+  clean-up-properties --folder-name <name> --bucket-name <name>
+    Remove the older application.properties from the s3 bucket using the previous folder-name
+
+Options:
+ --folder-name <name> The id of the deployment to be used as the folder name e.g. 100_dq_1.0.213_abc123
+ --bucket-name <name> The name of the s3 bucket to perform actions on
+ --du-directory <directory> The base directory of the deployment unit
+
+Example:
+  $0 push-properties --folder-name 100_dq_1.0.213_abc123 --bucket-name s3://qa-configs --du-directory /some/directory
+  $0 clean-up-properties --folder-name 100_dq_1.0.213_abc123 --bucket-name s3://qa-configs
+EOF
+exit 1
+}
+
+DEBUG=false
+ARGS=$(getopt -n $(basename ${0}) \
+    -l "debug,help,folder-name:,bucket-name:,du-directory:" \
+    -o "xh" -- "$@")
+[ $? != 0 ] && usage
+eval set -- "$ARGS"
+while true
+do
+  case "$1" in
+    --folder-name) FOLDER_NAME="$2";;
+    --bucket-name) S3_BUCKET="$2";;
+    --du-directory) DU_DIR="$2";;
+    -x|--debug) DEBUG=true; set -x;;
+    -h|--help) usage "I need a hero. I'm holding out for a hero...";;
+    --) shift;break;;
+  esac
+  shift;
+done
+
+COMMAND="${1:-}"
+[ -z "$COMMAND" ] && usage "No command specified"
+shift
+
+case $COMMAND in
+  push-properties) addApplicationProperties;;
+  clean-up-properties) cleanUpOldProperties;;
+  *) usage "Unknown command: $COMMAND"
+esac
