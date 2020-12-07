@@ -46,6 +46,16 @@ loadTestConf() {
   if [ -z "${TEST_IMAGE:-}" ]; then abort "TEST_IMAGE not defined in $IT_CONF"; fi
 }
 
+loginToEcr() {
+  if [[ ! "$image" =~ ([^/]*)/([^:]*):(.*) ]]; then abort "Do not understand image: $image"; fi
+  org="${BASH_REMATCH[1]}"
+  name="${BASH_REMATCH[2]}"
+  if [[ $org == *dkr.ecr.*.amazonaws.com* ]]
+  then
+    ecr login -n $name
+  fi
+}
+
 executeTests() {
   local suite=$1
   local protocol=$2
@@ -56,6 +66,7 @@ executeTests() {
   echo "Using $TEST_IMAGE"
   # Support legacy K8S_ environment variables
   # Along with new DEPLOYMENT_ variables
+  loginToEcr
   if ! docker run \
     --rm \
     --network host \
