@@ -23,6 +23,7 @@ Through the [deployment unit](docs/deployment-unit.md), you can specify what dep
 - [ECS](docs/ecs.md) tasks and services for application deployment
 - [Callculon Timers](docs/timer.md) for web-based timers
 - [Integration Testing](docs/it.md)
+- [S3](docs/s3.md) for deployment specific files
 
 ### Products
 A _product_ is a set components, e.g. applications or timers, that are deployed to an environment.
