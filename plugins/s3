@@ -24,6 +24,7 @@ on-deploy-green() {
     --folder-name "$DU_S3_FOLDER" \
     --bucket-name "$DU_AWS_BUCKET_NAME" \
     --du-directory "$DU_DIR"
+  echo "$DU_S3_FOLDER/$DU_AWS_BUCKET_NAME is ready"
 }
 
 oldFolders() {
@@ -44,7 +45,7 @@ on-after-verify-blue() {
   echo "Found old S3 folders: $old"
   for folder in $(oldFolders)
   do
-    echo bucket-beaver clean-up-properties \
+    bucket-beaver clean-up-properties \
       --folder-name "$folder" \
       --bucket-name "$DU_AWS_BUCKET_NAME"
   done
