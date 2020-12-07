@@ -15,6 +15,10 @@ BLUE_LOAD_BALANCER_PROTOCOL ... The protocol to use when accessing your service:
 BLUE_LOAD_BALANCER ............ Hostname of the ALB
 BLUE_LOAD_BALANCER_PORT ....... The port on the ALB 
                                 e.g., 443
+DEPLOYMENT_AWS_S3_BUCKET ...... The name of the S3 bucket made available to the
+                                application.
+DEPLOYMENT_AWS_S3_FOLDER ...... The name of the folder in the S3 bucket specifically
+                                for this application.
 ```
 
 ### Gotchas

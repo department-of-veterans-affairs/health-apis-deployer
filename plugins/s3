@@ -9,6 +9,14 @@ on-activate() {
   if [ -d "${S3_SOURCE_DIR}" ]; then return $PLUGIN_ENABLED; fi
   return $PLUGIN_DISABLED
 }
+
+on-initialize() {
+  cat > $PLUGIN_SUBSTITION_DIR/50-s3.conf <<EOF
+export DEPLOYMENT_AWS_S3_BUCKET="$DU_AWS_BUCKET_NAME"
+export DEPLOYMENT_AWS_S3_FOLDER="$DU_S3_FOLDER"
+EOF
+}
+
 on-priority() { echo 50; }
 on-deploy-green() {
   bucket-beaver push-properties \
@@ -29,8 +37,8 @@ on-after-verify-blue() {
   for folder in $(oldFolders)
   do
     echo bucket-beaver clean-up-properties \
-      --folder-name "$PRIOR_DU_S3_FOLDER" \
-      --bucket-name "$PRIOR_DU_S3_BUCKET"
+      --folder-name "$folder" \
+      --bucket-name "$DU_AWS_BUCKET_NAME"
   done
 }
 
