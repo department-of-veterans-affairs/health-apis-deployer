@@ -48,7 +48,7 @@ loadTestConf() {
 }
 
 loginToEcr() {
-  if [[ ! "$image" =~ ([^/]*)/([^:]*):(.*) ]]; then abort "Do not understand image: $image"; fi
+  if [[ ! "$TEST_IMAGE" =~ ([^/]*)/([^:]*):(.*) ]]; then abort "Do not understand image: $TEST_IMAGE"; fi
   org="${BASH_REMATCH[1]}"
   name="${BASH_REMATCH[2]}"
   if [[ $org == *dkr.ecr.*.amazonaws.com* ]]
