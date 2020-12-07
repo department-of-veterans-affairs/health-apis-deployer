@@ -31,6 +31,7 @@ on-initialize() {
 }
 
 on-verify-green() {
+  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $IT_TEST_VARS
   executeTests \
     regression-test \
     "$GREEN_LOAD_BALANCER_PROTOCOL" \

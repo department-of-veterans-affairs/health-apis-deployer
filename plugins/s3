@@ -17,14 +17,22 @@ export DEPLOYMENT_AWS_S3_BUCKET="$DU_AWS_BUCKET_NAME"
 export DEPLOYMENT_AWS_S3_FOLDER="$DU_S3_FOLDER"
 EOF
 }
-
 on-priority() { echo 50; }
+on-before-deploy-green() {
+  for file in $(find $S3_SOURCE_DIR \
+    -name "*.yaml" \
+    -or -name "*.yml" \
+    -or -name "*.properties" )
+  do
+    substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $file
+  done
+}
 on-deploy-green() {
   bucket-beaver push-properties \
     --folder-name "$DU_S3_FOLDER" \
     --bucket-name "$DU_AWS_BUCKET_NAME" \
     --du-directory "$DU_DIR"
-  echo "$DU_S3_FOLDER/$DU_AWS_BUCKET_NAME is ready"
+  echo "$DU_AWS_BUCKET_NAME/$DU_S3_FOLDER is ready"
 }
 
 oldFolders() {
