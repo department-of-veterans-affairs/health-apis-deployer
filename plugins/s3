@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
+set -euo pipefail
 . $PLUGIN_LIB
 
 S3_SOURCE_DIR=$DU_DIR/s3
-DU_S3_FOLDER_PREFIX="d2-${PRODUCT}-${SHORT_ENVIRONMENT}-"
+DU_S3_FOLDER_PREFIX="d2-${PRODUCT}-${SHORT_ENVIRONMENT}"
 DU_S3_FOLDER="${DU_S3_FOLDER_PREFIX}-${BUILD_NUMBER}"
 
 on-activate() {
@@ -28,12 +29,19 @@ on-deploy-green() {
 oldFolders() {
   aws s3 ls app-config-storage-qa \
     | awk '/^ *PRE / {print $2}' \
-    | grep "$DU_S3_FOLDER_PREFIX" \
+    | grep "${DU_S3_FOLDER_PREFIX}-" \
     | grep -v "$DU_S3_FOLDER"
 }
 
 on-after-verify-blue() {
-  echo "delete old bucket"
+  local old
+  old=$(oldFolders)
+  if [ -z "${old:-}" ]
+  then
+    echo "No old S3 folders found"
+    return
+  fi
+  echo "Found old S3 folders: $old"
   for folder in $(oldFolders)
   do
     echo bucket-beaver clean-up-properties \

@@ -87,7 +87,7 @@ conflict.
 Path through environments
 - `QA` > `UAT` > `Staging` > `Production` (When user testing is required)
 - `QA` > `Staging` > `Production`
-- `QA` > `Lab QA` > `Lab`
+- `QA` > `Staging Lab` > `Lab`
 
 The Jenkins orchestration pipeline will manage progression of deployment units through the
 different environments. Deployment unit packages are versioned and managed in Nexus. The
