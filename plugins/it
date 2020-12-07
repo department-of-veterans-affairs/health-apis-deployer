@@ -15,13 +15,18 @@ on-activate() {
 
 on-validate() {
   loadTestConf
-  if [ ! -f $IT_TEST_VARS ]; then abort "Missing $DU_DIR/$ENVIRONMENT.testvars"; fi
+  if [ ! -f $IT_TEST_VARS ]
+  then
+    echo "$IT_TEST_VARS not found."
+    echo "D2_IT_FUGAZI=true" >> $IT_TEST_VARS
+  fi
   return 0;
 }
 
 on-initialize() {
   loadTestConf
   echo "Pulling test image $TEST_IMAGE"
+  loginToEcr
   docker pull -q $TEST_IMAGE
 }
 
@@ -44,6 +49,16 @@ on-verify-blue() {
 loadTestConf() {
   . $IT_CONF
   if [ -z "${TEST_IMAGE:-}" ]; then abort "TEST_IMAGE not defined in $IT_CONF"; fi
+}
+
+loginToEcr() {
+  if [[ ! "$TEST_IMAGE" =~ ([^/]*)/([^:]*):(.*) ]]; then abort "Do not understand image: $TEST_IMAGE"; fi
+  local org="${BASH_REMATCH[1]}"
+  local name="${BASH_REMATCH[2]}"
+  if [[ $org == *dkr.ecr.*.amazonaws.com* ]]
+  then
+    ecr login -n $name
+  fi
 }
 
 executeTests() {
