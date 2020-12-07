@@ -15,7 +15,11 @@ on-activate() {
 
 on-validate() {
   loadTestConf
-  if [ ! -f $IT_TEST_VARS ]; then abort "Missing $DU_DIR/$ENVIRONMENT.testvars"; fi
+  if [ ! -f $IT_TEST_VARS ]
+  then
+    echo "$IT_TEST_VARS not found."
+    echo "D2_IT_FUGAZI=true" >> $IT_TEST_VARS
+  fi
   return 0;
 }
 
