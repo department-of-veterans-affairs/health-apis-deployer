@@ -22,6 +22,7 @@ on-validate() {
 on-initialize() {
   loadTestConf
   echo "Pulling test image $TEST_IMAGE"
+  loginToEcr
   docker pull -q $TEST_IMAGE
 }
 
@@ -66,7 +67,6 @@ executeTests() {
   echo "Using $TEST_IMAGE"
   # Support legacy K8S_ environment variables
   # Along with new DEPLOYMENT_ variables
-  loginToEcr
   if ! docker run \
     --rm \
     --network host \
