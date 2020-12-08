@@ -44,7 +44,11 @@ oldFolders() {
 
 on-after-verify-blue() {
   local old
-  old=$(oldFolders)
+  if ! old=$(oldFolders)
+  then
+    echo "Failed to find old folders"
+    return
+  fi
   if [ -z "${old:-}" ]
   then
     echo "No old S3 folders found"
