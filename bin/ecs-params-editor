@@ -142,6 +142,13 @@ rewriteTaskExecutionRole() {
     ".task_definition.task_execution_role" \
     "$json" \
     "$replacement"
+
+  echo "{\"task_role_arn\":\"$role\"}" > $replacement
+  replaceNode \
+    ".task_definition.task_role_arn" \
+    "$json" \
+    "$replacement"
+
 }
 
 rewriteSecretPath() {
