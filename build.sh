@@ -257,6 +257,8 @@ rollback() {
     echo "Rollback is no longer possible."
     deployment add-build-info \
       -u "Stage $(stage current) requested a rollback after the point of no return"
+    deployment add-build-info \
+      -d "Stage $(stage current) requested a rollback after the point of no return"
     return
   fi
   deployment add-build-info \
@@ -292,6 +294,7 @@ lifecycle() {
     if ! $PLUGIN_DIR/$plugin $LIFECYCLE | awk -v plugin=$plugin '{ print "[" plugin "] " $0 }'
     then
       echo "$plugin failed to execute lifecycle $LIFECYCLE"
+      deployment add-build-info -d "$plugin failed to execute lifecycle $LIFECYCLE"
       LIFECYCLE_STATE[$LIFECYCLE]=failed
       if ! isRollingBack; then rollback; return; fi
     fi
