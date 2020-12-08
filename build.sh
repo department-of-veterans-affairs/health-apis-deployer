@@ -247,6 +247,11 @@ ROLLBACK_STARTED=
 isRollingBack() { test -n "${ROLLBACK_STARTED:-}"; }
 
 rollback() {
+  if [ "${FORCE_DEPLOYMENT}" == "true" ]
+  then
+    echo "Deployment is forced. Rollback request is ignored."
+    return
+  fi
   if isRollingBack
   then
     echo "An error has occurred while a rollback is in progress."
