@@ -5,6 +5,9 @@ set -euo pipefail
 ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
 ECS_DEBUG=$WORK/ecs.debug
+typeset -A ECS_EXCLUDED_SUBNETS
+for sn in ${VPC_SUBNET_EXLUDES:-}; do ECS_EXCLUDED_SUBNETS[$sn]=true;done
+
 
 on-activate() {
   if [ ! -f $ECS_DOCKER_COMPOSE_FILE ]; then return $PLUGIN_DISABLED; fi
@@ -525,13 +528,29 @@ checkExposedService() {
   fi
 }
 
+#
+# FILTER VPCS
+#
+subnets() {
+  local subnets=
+  for sn in $(vpc subnets -e $VPC)
+  do
+    if [ "${ECS_EXCLUDED_SUBNETS[$sn]:-false}" == false ]
+    then
+      subnets+="$sn "
+    fi
+  done
+  echo $subnets
+}
+
+
 updateEcsParams() {
   local subnets securityGroups
-  subnets=$(vpc subnets -e $VPC)
+  subnets=$(subnets)
   local securityGroupName="ecs-task-${ENVIRONMENT}-sg"
   securityGroups=$(vpc security-groups -g $securityGroupName -e $VPC)
 
-  echo "Using subnets $subnets"
+  echo "Using subnets $subnets (excluded ${ECS_EXCLUDED_SUBNETS[@]})"
   echo "Using security group $securityGroupName ($securityGroups)"
   if [ -z "$subnets" ]; then abort "Subnets not found for $VPC"; fi
   if [ -z "$securityGroups" ]; then abort "Security groups not found for $securityGroupName"; fi
