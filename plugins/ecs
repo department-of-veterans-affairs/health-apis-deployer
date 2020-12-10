@@ -548,7 +548,6 @@ subnets() {
 
 updateEcsParams() {
   local subnets securityGroups
-  set -x ; subnets; set +x
   subnets=$(subnets)
   local securityGroupName="ecs-task-${ENVIRONMENT}-sg"
   securityGroups=$(vpc security-groups -g $securityGroupName -e $VPC)
