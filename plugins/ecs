@@ -6,7 +6,10 @@ ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
 ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
 ECS_DEBUG=$WORK/ecs.debug
 typeset -A ECS_EXCLUDED_SUBNETS
-for sn in ${VPC_SUBNET_EXLUDES:-}; do ECS_EXCLUDED_SUBNETS[$sn]=true;done
+for sn in ${VPC_SUBNET_EXLUDES:-}; do
+  echo "EXCLUDING SUBNET: $sn"
+  ECS_EXCLUDED_SUBNETS[$sn]=true;
+done
 
 
 on-activate() {
@@ -546,6 +549,7 @@ subnets() {
 
 updateEcsParams() {
   local subnets securityGroups
+  set -x ; subnets; set +x
   subnets=$(subnets)
   local securityGroupName="ecs-task-${ENVIRONMENT}-sg"
   securityGroups=$(vpc security-groups -g $securityGroupName -e $VPC)
