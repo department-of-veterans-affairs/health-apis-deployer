@@ -7,7 +7,6 @@ ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
 ECS_DEBUG=$WORK/ecs.debug
 typeset -A ECS_EXCLUDED_SUBNETS
 for sn in ${VPC_SUBNET_EXLUDES:-}; do
-  echo "EXCLUDING SUBNET: $sn"
   ECS_EXCLUDED_SUBNETS[$sn]=true;
 done
 
