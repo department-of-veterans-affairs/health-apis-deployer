@@ -533,14 +533,14 @@ checkExposedService() {
 #
 subnets() {
   local subnets=
-  for sn in $(vpc subnets -e $VPC)
+  for sn in $(vpc subnets -e $VPC|tr , " ")
   do
     if [ "${ECS_EXCLUDED_SUBNETS[$sn]:-false}" == false ]
     then
-      subnets+="$sn "
+      subnets+=",$sn"
     fi
   done
-  echo $subnets
+  echo ${subnets:1}
 }
 
 
@@ -550,7 +550,7 @@ updateEcsParams() {
   local securityGroupName="ecs-task-${ENVIRONMENT}-sg"
   securityGroups=$(vpc security-groups -g $securityGroupName -e $VPC)
 
-  echo "Using subnets $subnets (excluded ${ECS_EXCLUDED_SUBNETS[@]})"
+  echo "Using subnets $subnets (excluded ${!ECS_EXCLUDED_SUBNETS[@]})"
   echo "Using security group $securityGroupName ($securityGroups)"
   if [ -z "$subnets" ]; then abort "Subnets not found for $VPC"; fi
   if [ -z "$securityGroups" ]; then abort "Security groups not found for $securityGroupName"; fi
