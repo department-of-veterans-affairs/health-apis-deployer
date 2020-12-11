@@ -112,6 +112,7 @@ initialize() {
   printParameters
   export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
+  export DEPLOYMENT_ENVIRONMENT=$ENVIRONMENT
   setShortEnvironment
   export BUILD_TIMESTAMP="$(date)"
   export ENVIRONMENT_CONFIGURATION=$(readlink -f environments/$ENVIRONMENT.conf)
