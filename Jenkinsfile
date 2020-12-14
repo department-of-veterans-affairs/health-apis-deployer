@@ -23,7 +23,6 @@ def products() {
   products["gal"] = ["health_apis_jenkins"]
   products["gal-processor"] = ["health_apis_jenkins"]
   products["hotline"] = ["health_apis_jenkins"]
-  products["insurance"] = ["health_apis_jenkins","shankins"]
   products["logging"] = ["health_apis_jenkins"]
   products["mock-bgs"] = ["health_apis_jenkins","shutupshutupshutup"]
   products["mock-ee"] = ["health_apis_jenkins","shankins"]
@@ -43,7 +42,6 @@ def products() {
   products["squares"] = ["health_apis_jenkins"]
   products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["unifier-kong"] = ["health_apis_jenkins"]
-  products["vistalink"] = ["health_apis_jenkins","shankins"]
   products["watrs"] = ["health_apis_jenkins"]
   return products
 }
