@@ -36,6 +36,13 @@ mkdir "$JENKINS_DIR"
 # Set up the AWS region
 #
 export AWS_DEFAULT_REGION=us-gov-west-1
+#
+# Attempt to handle throttling on the client side:
+# See https://github.com/aws/aws-cli/blob/develop/awscli/topics/config-vars.rst#general-options
+# https://github.com/aws/aws-cli/blob/develop/awscli/topics/config-vars.rst#retry-configuration
+#
+export AWS_RETRY_MODE=adaptive
+export AWS_MAX_ATTEMPTS=5
 
 #
 # Load the environment configuration
