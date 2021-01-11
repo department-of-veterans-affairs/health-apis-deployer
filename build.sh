@@ -4,6 +4,15 @@ export PATH=${WORKSPACE:-.}/bin:$PATH
 export BANNER_DEFAULT_SIZE=158
 export STAGE_PREFIX="${VPC:-} ${PRODUCT:-}"
 
+#
+# Attempt to handle throttling on the client side:
+# See https://github.com/aws/aws-cli/blob/develop/awscli/topics/config-vars.rst#general-options
+# https://github.com/aws/aws-cli/blob/develop/awscli/topics/config-vars.rst#retry-configuration
+#
+export AWS_RETRY_MODE=adaptive
+export AWS_MAX_ATTEMPTS=5
+
+
 cat <<EOF
 
 ************************************************************
@@ -12,7 +21,6 @@ cat <<EOF
 *                                                          *
 ************************************************************
 - Move tools in bin to deploy-tools image
-- S3 support
 - Graceful failure for unknown product
 - extract AWS account options into confs
   - execution/autoscale roles
