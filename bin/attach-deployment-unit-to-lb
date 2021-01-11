@@ -105,6 +105,10 @@ do
     --az-abreviation "$AZ_ABREVIATION" \
     > $WORK/$priority 2>&1 &
   pids[$priority]=$!
+  # Let's give AWS a second or two to breath when kicking off multiple background
+  # jobs. They will still be happening in parallel, but perhaps this will ease
+  # the spike when there are multiple rules.
+  sleep 3
 done
 
 #
