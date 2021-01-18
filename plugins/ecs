@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
-. $PLUGIN_DIR/.ecs-support
 set -euo pipefail
+. $PLUGIN_DIR/.ecs-support
 
 #------------------------------------------------------------
 on-activate() {
-  if hasEcsFiles; then return $PLUGIN_ENABLED; fi
+  if hasEcsFiles && hasLoadBalancerRules
+  then
+    return $PLUGIN_ENABLED
+  fi
   return $PLUGIN_DISABLED
+}
+
+hasLoadBalancerRules() {
+  if [ "${#DU_LOAD_BALANCER_RULES[@]}" == 0 ]; then return 1; fi
+  return 0;
 }
 
 
