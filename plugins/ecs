@@ -1,33 +1,35 @@
 #!/usr/bin/env bash
-. $PLUGIN_LIB
+. $PLUGIN_DIR/.ecs-support
 set -euo pipefail
 
-ECS_PARAM_FILE=$DU_DIR/ecs/ecs-params.yml
-ECS_DOCKER_COMPOSE_FILE=$DU_DIR/ecs/docker-compose.yml
-ECS_DEBUG=$WORK/ecs.debug
-typeset -A ECS_EXCLUDED_SUBNETS
-for sn in ${VPC_SUBNET_EXCLUDES:-}; do
-  ECS_EXCLUDED_SUBNETS[$sn]=true;
-done
-
-
+#------------------------------------------------------------
 on-activate() {
-  if [ ! -f $ECS_DOCKER_COMPOSE_FILE ]; then return $PLUGIN_DISABLED; fi
-  if [ ! -f $ECS_PARAM_FILE ]; then return $PLUGIN_DISABLED; fi
-  return $PLUGIN_ENABLED
+  if hasEcsFiles; then return $PLUGIN_ENABLED; fi
+  return $PLUGIN_DISABLED
 }
 
+
+#------------------------------------------------------------
 on-initialize() {
   checkExposedService
   updateDockerCompose
   updateEcsParams
 }
 
-
-albHealthCheckPath() {
-  echo "${LOAD_BALANCER_HEALTH_CHECK_PATH:-${DU_HEALTH_CHECK_PATH:-}}"
+checkExposedService() {
+  if [ -z "${DU_ECS_EXPOSE_SERVICE:-}" ]
+  then
+    abort "DU_ECS_EXPOSE_SERVICE is not defined in product conf"
+  fi
+  local port=
+  port=$(docker-compose-editor exposed-port -i $ECS_DOCKER_COMPOSE_FILE -s $DU_ECS_EXPOSE_SERVICE)
+  if [ -z "$port" ]
+  then
+    abort "Service $ECS_DOCKER_COMPOSE_FILE does not appear to be mapped to a port"
+  fi
 }
 
+#------------------------------------------------------------
 on-validate() {
   if [ -z "$(albHealthCheckPath)" ]
   then
@@ -35,6 +37,12 @@ on-validate() {
   fi
 }
 
+albHealthCheckPath() {
+  echo "${LOAD_BALANCER_HEALTH_CHECK_PATH:-${DU_HEALTH_CHECK_PATH:-}}"
+}
+
+
+#------------------------------------------------------------
 on-deploy-green() {
   local tgArn
   tgArn=$(createNewTargetGroup)
@@ -54,162 +62,26 @@ on-deploy-green() {
   return 0
 }
 
-on-switch-to-blue() {
-  local tgArn
-  tgArn=$(recall "new-tg-arn")
-  removeNewRules green
-  addAlbRulesOnBlue \
-    $BLUE_LOAD_BALANCER_PROTOCOL \
-    $BLUE_LOAD_BALANCER_NAME \
-    $BLUE_LOAD_BALANCER_PORT \
-    "$tgArn"
-  return 0
-}
-
-on-after-verify-blue() {
-  removeOldRules
-  removeTargetGroup old
-  removeServices old
-  removeTaskDefinition old
-  return 0
-}
-
-on-rollback() {
-  rollbackOldRules
-  removeNewRules blue
-  removeNewRules green
-  removeTargetGroup new
-  removeServices new
-  removeTaskDefinition new
-  return 0
-}
-
-
-cluster() {
-  echo "lighthouse-${ENVIRONMENT}"
-}
-
-deployService() {
-  local tgArn=$1
-  ecs-cli \
-    compose \
-    --project-name $(taskDefName) \
-    --ecs-params $ECS_PARAM_FILE\
-    --file $ECS_DOCKER_COMPOSE_FILE \
-    service up \
-    --create-log-groups \
-    --cluster $(cluster) \
-    --launch-type FARGATE \
-    --target-groups $(ecsTargetGroupSpecification "$tgArn")
-  configureAutoscaling
-  waitForServiceToDeploy
-}
-
-setAutoscaleValues() {
-  local cpu outCooldown inCooldown minCapacity maxCapacity
-  # Determine defaults based on SLA or not
-  if [ "${IS_SLA:-false}" == true ]
-  then
-    # SLA environment
-    cpu=75
-    memory=75
-    outCooldown=60
-    inCooldown=300
-    minCapacity=2
-    maxCapacity=5
-  else
-    # Non-SLA environment
-    cpu=85
-    memory=85
-    outCooldown=60
-    inCooldown=60
-    minCapacity=1
-    maxCapacity=3
-  fi
-  if [ -z "${AUTOSCALE_CPU:-}" ]; then AUTOSCALE_CPU=$cpu; fi
-  if [ -z "${AUTOSCALE_MEMORY:-}" ]; then AUTOSCALE_MEMORY=$memory; fi
-  if [ -z "${AUTOSCALE_OUT_COOLDOWN:-}" ]; then AUTOSCALE_OUT_COOLDOWN=$outCooldown; fi
-  if [ -z "${AUTOSCALE_IN_COOLDOWN:-}" ]; then AUTOSCALE_IN_COOLDOWN=$inCooldown; fi
-  if [ -z "${AUTOSCALE_MIN_CAPACITY:-}" ]; then AUTOSCALE_MIN_CAPACITY=$minCapacity; fi
-  if [ -z "${AUTOSCALE_MAX_CAPACITY:-}" ]; then AUTOSCALE_MAX_CAPACITY=$maxCapacity; fi
-}
-
-autoscalingPolicy() {
-  local type="$1"
-  local metric="$2"
-  local value="$3"
-  cat <<EOF
-{
-  "PolicyName": "target-tracking-$serviceName-$type",
-  "ServiceNamespace": "ecs",
-  "ResourceId": "service/$cluster/$serviceName",
-  "ScalableDimension": "ecs:service:DesiredCount",
-  "PolicyType": "TargetTrackingScaling",
-  "TargetTrackingScalingPolicyConfiguration": {
-     "TargetValue": $value,
-     "PredefinedMetricSpecification": {
-       "PredefinedMetricType": "$metric"
-     },
-    "ScaleOutCooldown": $AUTOSCALE_OUT_COOLDOWN,
-    "ScaleInCooldown": $AUTOSCALE_IN_COOLDOWN,
-    "DisableScaleIn": false
-  }
-}
-EOF
-}
-
-configureAutoscaling() {
-  echo "Configuring autoscaling"
-  local cluster serviceName
-  cluster=$(cluster)
-  serviceName=$(taskDefName)
-  setAutoscaleValues
-  echo "Autoscale from at least $AUTOSCALE_MIN_CAPACITY to at most $AUTOSCALE_MAX_CAPACITY instances"
-  echo "Autoscale at ${AUTOSCALE_CPU}% cpu and ${AUTOSCALE_MEMORY}% memory usage"
-  echo "Autoscale cooldown out $AUTOSCALE_OUT_COOLDOWN and in $AUTOSCALE_IN_COOLDOWN seconds"
-  autoscalingPolicy cpu "ECSServiceAverageCPUUtilization" "$AUTOSCALE_CPU" \
-    > $WORK/ecs-autoscale-policy-cpu
-  autoscalingPolicy mem "ECSServiceAverageMemoryUtilization" "$AUTOSCALE_MEMORY" \
-    > $WORK/ecs-autoscale-policy-mem
-  aws application-autoscaling register-scalable-target \
-    --resource-id "service/$cluster/$serviceName" \
-    --service-namespace ecs \
-    --scalable-dimension ecs:service:DesiredCount \
-    --min-capacity 1 \
-    --max-capacity 3 \
-    --role-arn "$AUTOSCALE_ROLE_ARN"
-  aws application-autoscaling put-scaling-policy \
-    --cli-input-json file://$WORK/ecs-autoscale-policy-cpu
-  aws application-autoscaling put-scaling-policy \
-    --cli-input-json file://$WORK/ecs-autoscale-policy-mem
-}
-
-waitForServiceToDeploy() {
-  echo "Waiting for service to deploy..."
-  local wait=180
-  local timeout=$(($(date +%s) + $wait))
-  while [ $(date +%s) -lt $timeout ]
+replaceAlbRulesOnGreen() {
+  local protocol=$1
+  local alb=$2
+  local port=$3
+  local tgArn=$4
+  echo "Replacing ALB rules on ${alb} for ${protocol} protocol on port ${port}"
+  for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
-    if ecs-cli ps --cluster $(cluster) --desired-status RUNNING \
-      | grep " HEALTHY" \
-      | grep "$(taskDefName)"
-    then
-      return 0
-    fi
-    sleep 10
-  done
-  echo "Service status:"
-  ecs-cli ps --cluster $(cluster) | grep "$(taskDefName)"
-  abortUnlessForced "Timeout waiting for healthy ECS service after $wait seconds"
-}
+    local path="${DU_LOAD_BALANCER_RULES[$priority]}"
+    alb replace-rule \
+      --name $alb \
+      --protocol $protocol \
+      --port $port \
+      --path "$path" \
+      --target-group $tgArn \
+      --min-priority $priority \
+      --output $WORK/ecs-green-rule
+    jq -r '.Rules[].RuleArn' $WORK/ecs-green-rule >> $WORK/ecs-green-rules
 
-ecsTargetGroupSpecification() {
-  local tgArn=$1
-  local containerPort
-  containerPort=$(docker-compose-editor exposed-port \
-    --in $ECS_DOCKER_COMPOSE_FILE \
-    --service $DU_ECS_EXPOSE_SERVICE)
-  echo "targetGroupArn=$tgArn,containerName=$DU_ECS_EXPOSE_SERVICE,containerPort=$containerPort"
+  done
 }
 
 waitToBeHealthy() {
@@ -233,26 +105,41 @@ waitToBeHealthy() {
   done
 }
 
-replaceAlbRulesOnGreen() {
-  local protocol=$1
-  local alb=$2
-  local port=$3
-  local tgArn=$4
-  echo "Replacing ALB rules on ${alb} for ${protocol} protocol on port ${port}"
-  for priority in ${!DU_LOAD_BALANCER_RULES[@]}
-  do
-    local path="${DU_LOAD_BALANCER_RULES[$priority]}"
-    alb replace-rule \
-      --name $alb \
-      --protocol $protocol \
-      --port $port \
-      --path "$path" \
-      --target-group $tgArn \
-      --min-priority $priority \
-      --output $WORK/ecs-green-rule
-    jq -r '.Rules[].RuleArn' $WORK/ecs-green-rule >> $WORK/ecs-green-rules
+#------------------------------------------------------------
+on-switch-to-blue() {
+  local tgArn
+  tgArn=$(recall "new-tg-arn")
+  removeNewRules green
+  addAlbRulesOnBlue \
+    $BLUE_LOAD_BALANCER_PROTOCOL \
+    $BLUE_LOAD_BALANCER_NAME \
+    $BLUE_LOAD_BALANCER_PORT \
+    "$tgArn"
+  return 0
+}
 
-  done
+removeNewRules() {
+  local color="$1"
+  if [ -f $WORK/ecs-$color-rules ]
+  then
+    echo "Deleting new $color rules..."
+    echo "Rules" > $ECS_DEBUG
+    local failed=false
+    while read arn
+    do
+      echo "Deleting $arn"
+      if ! aws elbv2 delete-rule --rule-arn $arn 2>&1 | tee -a $ECS_DEBUG
+      then
+        failed=true
+      fi
+    done < $WORK/ecs-$color-rules
+    if [ $failed != false -o "${DEBUG:-}" == true ]
+    then
+      cat $ECS_DEBUG
+      return 1
+    fi
+  fi
+  sleep 2
 }
 
 addAlbRulesOnBlue() {
@@ -314,6 +201,17 @@ addAlbRulesOnBlue() {
   fi
 }
 
+
+#------------------------------------------------------------
+# TODO
+on-after-verify-blue() {
+  removeOldRules
+  removeTargetGroup old
+  removeServices old
+  removeTaskDefinition old
+  return 0
+}
+
 removeOldRules() {
   if [ -f $WORK/ecs-existing-rules ]
   then
@@ -336,127 +234,18 @@ removeOldRules() {
   fi
 }
 
-removeNewRules() {
-  local color="$1"
-  if [ -f $WORK/ecs-$color-rules ]
-  then
-    echo "Deleting new $color rules..."
-    echo "Rules" > $ECS_DEBUG
-    local failed=false
-    while read arn
-    do
-      echo "Deleting $arn"
-      if ! aws elbv2 delete-rule --rule-arn $arn 2>&1 | tee -a $ECS_DEBUG
-      then
-        failed=true
-      fi
-    done < $WORK/ecs-$color-rules
-    if [ $failed != false -o "${DEBUG:-}" == true ]
-    then
-      cat $ECS_DEBUG
-      return 1
-    fi
-  fi
-  sleep 2
-}
 
-removeTargetGroup() {
-  local who=$1
-  case $who in
-    old) local opt="-v";;
-    new) local opt="";;
-    *) abort "must be 'old' or 'new'";;
-  esac
-  echo "Deleting $who target groups..."
-  echo "Target groups" > $ECS_DEBUG
-  local failed=false
-  while read arn
-  do
-    echo "Deleting $arn"
-    if ! aws elbv2 delete-target-group --target-group-arn $arn 2>&1 >> $ECS_DEBUG
-    then
-      failed=true
-    fi
-  done < <(aws elbv2 describe-target-groups \
-    --output text \
-    --query "TargetGroups[?starts_with(TargetGroupName,'$(awsPrefix)')].[TargetGroupArn]" \
-    | grep $opt "$(tgName)")
-  if [ $failed != false -o "${DEBUG:-}" == true ]
-  then
-    cat $ECS_DEBUG
-    return 1
-  fi
-}
 
-removeTaskDefinition() {
-  local who=$1
-  case $who in
-    old) local opt="-v";;
-    new) local opt="";;
-    *) abort "must be 'old' or 'new'";;
-  esac
-  echo "Deleting $who task definitions..."
-  if [ "${DEBUG:-}" == "true" ]
-  then
-    echo "Current task definitions"
-    aws ecs list-task-definitions \
-      --no-paginate \
-      --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]"
-  fi
-  echo "Task definitions" > $ECS_DEBUG
-  local failed=false
-  while read arn
-  do
-    echo "Deleting $arn"
-    if ! aws ecs deregister-task-definition --task-definition $arn --output text 2>&1 >> $ECS_DEBUG
-    then
-      failed=true
-    fi
-  done < <(aws ecs list-task-definitions \
-    --query "taskDefinitionArns[? contains(@,'$(awsPrefix)')]" \
-    | jq -r .[] \
-    | grep $opt "$(taskDefName)")
-  if [ $failed != false ]
-  then
-    cat $ECS_DEBUG
-    return 1
-  fi
-}
-
-removeServices() {
-  local who=$1
-  case $who in
-    old) local opt="-v";;
-    new) local opt="";;
-    *) abort "must be 'old' or 'new'";;
-  esac
-  echo "Deleting $who services..."
-  if [ "${DEBUG:-}" == true ]
-  then
-    echo "Current services"
-    aws ecs list-services \
-      --cluster $(cluster) \
-      --query "serviceArns[? contains(@,'$(awsPrefix)')]"
-  fi
-  local failed=false
-  echo "Services" > $ECS_DEBUG
-  while read arn
-  do
-    echo "Deleting $arn"
-    if ! aws ecs delete-service --cluster $(cluster) --service $arn --force --output text 2>&1 >> $ECS_DEBUG
-    then
-      failed=true
-    fi
-  done < <(aws ecs list-services \
-    --cluster $(cluster) \
-    --query "serviceArns[? contains(@,'$(awsPrefix)')]" \
-    | jq -r .[] \
-    | grep $opt "$(taskDefName)")
-  if [ $failed != false ]
-  then
-    cat $ECS_DEBUG
-    return 1
-  fi
+#------------------------------------------------------------
+# TODO
+on-rollback() {
+  rollbackOldRules
+  removeNewRules blue
+  removeNewRules green
+  removeTargetGroup new
+  removeServices new
+  removeTaskDefinition new
+  return 0
 }
 
 rollbackOldRules() {
@@ -477,18 +266,6 @@ rollbackOldRules() {
       return 1
     fi
   fi
-}
-
-awsPrefix() {
-  echo "ecs-${PRODUCT}-${SHORT_ENVIRONMENT}-"
-}
-
-tgName() {
-  echo "$(awsPrefix)${BUILD_NUMBER}-tg"
-}
-
-taskDefName() {
-  echo "$(awsPrefix)${BUILD_NUMBER}"
 }
 
 createNewTargetGroup() {
@@ -515,110 +292,6 @@ createNewTargetGroup() {
     > $WORK/$targetGroupName
   tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
   echo $tgArn
-}
-
-checkExposedService() {
-  if [ -z "${DU_ECS_EXPOSE_SERVICE:-}" ]
-  then
-    abort "DU_ECS_EXPOSE_SERVICE is not defined in product conf"
-  fi
-  local port=
-  port=$(docker-compose-editor exposed-port -i $ECS_DOCKER_COMPOSE_FILE -s $DU_ECS_EXPOSE_SERVICE)
-  if [ -z "$port" ]
-  then
-    abort "Service $ECS_DOCKER_COMPOSE_FILE does not appear to be mapped to a port"
-  fi
-}
-
-#
-# FILTER VPCS
-#
-subnets() {
-  local subnets=
-  for sn in $(vpc subnets -e $VPC|tr , " ")
-  do
-    if [ "${ECS_EXCLUDED_SUBNETS[$sn]:-false}" == false ]
-    then
-      subnets+=",$sn"
-    fi
-  done
-  echo ${subnets:1}
-}
-
-
-updateEcsParams() {
-  local subnets securityGroups
-  subnets=$(subnets)
-  local securityGroupName="ecs-task-${ENVIRONMENT}-sg"
-  securityGroups=$(vpc security-groups -g $securityGroupName -e $VPC)
-
-  echo "Using subnets $subnets (excluded ${!ECS_EXCLUDED_SUBNETS[@]})"
-  echo "Using security group $securityGroupName ($securityGroups)"
-  if [ -z "$subnets" ]; then abort "Subnets not found for $VPC"; fi
-  if [ -z "$securityGroups" ]; then abort "Security groups not found for $securityGroupName"; fi
-
-  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_PARAM_FILE
-  ecs-params-editor rewrite \
-    -i $ECS_PARAM_FILE \
-    -o $ECS_PARAM_FILE \
-    --replace-subnets "$subnets" \
-    --replace-security-groups "$securityGroups" \
-    --replace-task-execution-role "$ECS_TASK_EXECUTION_ROLE"
-
-  banner file -m $(basename $ECS_PARAM_FILE)
-  cat $ECS_PARAM_FILE
-  banner file -m eof
-}
-
-updateDockerCompose() {
-  substitute-env rewrite -e $PLUGIN_SUBSTITION_DIR -f $ECS_DOCKER_COMPOSE_FILE
-  local image= org= name= version=
-  for service in $(docker-compose-editor services -i $ECS_DOCKER_COMPOSE_FILE)
-  do
-    echo "Updating $service definition"
-    image=$(docker-compose-editor image -i $ECS_DOCKER_COMPOSE_FILE -s $service)
-    if [[ ! "$image" =~ ([^/]*)/([^:]*):(.*) ]]; then abort "Do not understand image: $image"; fi
-    org="${BASH_REMATCH[1]}"
-    name="${BASH_REMATCH[2]}"
-    tag="${BASH_REMATCH[3]}"
-    if [[ $org != *dkr.ecr.*.amazonaws.com* ]]
-    then
-      local ecrImage
-      ecrImage="$(ecr hostname -n $name)/$name:$tag"
-      importToEcr "$image" "$ecrImage"
-      docker-compose-editor rewrite \
-        -i $ECS_DOCKER_COMPOSE_FILE \
-        -o $ECS_DOCKER_COMPOSE_FILE \
-        --log-group-prefix $ENVIRONMENT \
-        --log-stream-prefix $BUILD_NUMBER \
-        --replace-image "$service:$ecrImage"
-    else
-      docker-compose-editor rewrite \
-        -i $ECS_DOCKER_COMPOSE_FILE \
-        -o $ECS_DOCKER_COMPOSE_FILE \
-        --log-group-prefix $ENVIRONMENT \
-        --log-stream-prefix $BUILD_NUMBER
-    fi
-  done
-  banner file -m $(basename $ECS_DOCKER_COMPOSE_FILE)
-  cat $ECS_DOCKER_COMPOSE_FILE
-  banner file -m eof
-}
-
-importToEcr() {
-  local image="$1"
-  local ecrImage="$2"
-  ecr login -n $name
-  if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect $ecrImage > /dev/null
-  then
-    echo "Image $image already exists as $ecrImage"
-    return
-  fi
-  echo "Importing $image to $ecrImage"
-  docker pull -q $image
-  docker tag $image $ecrImage
-  docker push $ecrImage
-  docker rmi $image $ecrImage
 }
 
 
