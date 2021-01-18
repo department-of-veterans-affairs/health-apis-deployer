@@ -129,7 +129,7 @@ initialize() {
   export PRODUCT_CONFIGURATION_DIR=$(emptyDirectory $WORK/product-configuration)
   export DU_DIR=$(emptyDirectory $WORK/du)
   export LOG_DIR=$(emptyDirectory $WORK/logs)
-  PLUGIN_DIR=plugins
+  export PLUGIN_DIR=plugins
   export PLUGIN_LIB=$PLUGIN_DIR/.plugin
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
   export GREEN_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
