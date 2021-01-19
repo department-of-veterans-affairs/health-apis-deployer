@@ -12,7 +12,7 @@ on-activate() {
 }
 
 hasLoadBalancerRules() {
-  if [ "${#DU_LOAD_BALANCER_RULES[@]}" == 0 ]; then return 1; fi
+  if [ "${DU_LOAD_BALANCER_RULES[@]:-}" == "" ]; then return 1; fi
   return 0;
 }
 
