@@ -77,7 +77,6 @@ createNewTargetGroup() {
       --health-check-port traffic-port \
       --health-check-enabled \
       --health-check-interval-seconds 30 \
-      --health-check-timeout-seconds 5 \
       --healthy-threshold-count 3 \
       --unhealthy-threshold-count 3 \
       > $WORK/$targetGroupName
