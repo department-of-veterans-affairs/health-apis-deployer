@@ -70,6 +70,32 @@ on-deploy-green() {
   return 0
 }
 
+createNewTargetGroup() {
+  local targetGroupName= containerPort= tgArn=
+  targetGroupName=$(tgName)
+  containerPort=$(docker-compose-editor exposed-port \
+    --in $ECS_DOCKER_COMPOSE_FILE \
+    --service $DU_ECS_EXPOSE_SERVICE)
+  aws elbv2 create-target-group \
+    --vpc-id $(vpc id-for-environment -e $VPC) \
+    --name $targetGroupName \
+    --port $containerPort \
+    --target-type ip \
+    --protocol HTTP \
+    --health-check-protocol HTTP \
+    --health-check-port traffic-port \
+    --health-check-enabled \
+    --health-check-interval-seconds 30 \
+    --health-check-timeout-seconds 5 \
+    --healthy-threshold-count 3 \
+    --unhealthy-threshold-count 3 \
+    --health-check-path "$(albHealthCheckPath)" \
+    --matcher HttpCode=200 \
+    > $WORK/$targetGroupName
+  tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
+  echo $tgArn
+}
+
 replaceAlbRulesOnGreen() {
   local protocol=$1
   local alb=$2
@@ -211,7 +237,6 @@ addAlbRulesOnBlue() {
 
 
 #------------------------------------------------------------
-# TODO
 on-after-verify-blue() {
   removeOldRules
   removeTargetGroup old
@@ -245,7 +270,6 @@ removeOldRules() {
 
 
 #------------------------------------------------------------
-# TODO
 on-rollback() {
   rollbackOldRules
   removeNewRules blue
@@ -274,32 +298,6 @@ rollbackOldRules() {
       return 1
     fi
   fi
-}
-
-createNewTargetGroup() {
-  local targetGroupName= containerPort= tgArn=
-  targetGroupName=$(tgName)
-  containerPort=$(docker-compose-editor exposed-port \
-    --in $ECS_DOCKER_COMPOSE_FILE \
-    --service $DU_ECS_EXPOSE_SERVICE)
-  aws elbv2 create-target-group \
-    --vpc-id $(vpc id-for-environment -e $VPC) \
-    --name $targetGroupName \
-    --port $containerPort \
-    --target-type ip \
-    --protocol HTTP \
-    --health-check-protocol HTTP \
-    --health-check-port traffic-port \
-    --health-check-enabled \
-    --health-check-interval-seconds 30 \
-    --health-check-timeout-seconds 5 \
-    --healthy-threshold-count 3 \
-    --unhealthy-threshold-count 3 \
-    --health-check-path "$(albHealthCheckPath)" \
-    --matcher HttpCode=200 \
-    > $WORK/$targetGroupName
-  tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
-  echo $tgArn
 }
 
 
