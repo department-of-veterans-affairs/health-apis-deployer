@@ -20,7 +20,7 @@ set -euo pipefail
 # Make our utilities available on the path and set up the caching mechanism
 #
 export PATH=$WORKSPACE/bin:$PATH
-export CACHE_DIR=$(mktemp -p . -d cache.XXXX )
+export CACHE_DIR=$(readlink -f $(mktemp -p . -d cache.XXXX ))
 
 
 #
