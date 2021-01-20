@@ -41,6 +41,7 @@ def products() {
   products["squares"] = ["health_apis_jenkins"]
   products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["unifier-kong"] = ["health_apis_jenkins"]
+  products["veteran-verification"] = ["health_apis_jenkins","shutupshutupshutup"]
   products["watrs"] = ["health_apis_jenkins"]
   return products
 }
