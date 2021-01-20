@@ -479,6 +479,8 @@ listRules() {
     echo -n "$priority $path " > $WORK/rule.$priority
     # 2021-01-20, let's see who is missing this if I remove status from the output.
     # It's expensive and eating into our rate limit hard.
+    echo
+    # ^ delete that if we restore the health status
     # aws elbv2 describe-target-health \
     #    --target-group-arn $tgArn \
     #    --query 'TargetHealthDescriptions[*]' \
