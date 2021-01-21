@@ -34,8 +34,6 @@ def products() {
   products["patsr"] = ["health_apis_jenkins"]
   products["qms"] = ["health_apis_jenkins"]
   products["scheduling"] = ["health_apis_jenkins","shankins"]
-  products["sf-mpi-con-ver-handler"] = ["health_apis_jenkins"]
-  products["sf-mpi-con-ver-query"] = ["health_apis_jenkins"]
   products["sfdc-mpi-msg-receiver"] = ["health_apis_jenkins"]
   products["sfdc-mvi-ent"] = ["health_apis_jenkins"]
   products["squares"] = ["health_apis_jenkins"]
