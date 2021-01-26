@@ -477,19 +477,23 @@ listRules() {
     read path
     read tgArn
     echo -n "$priority $path " > $WORK/rule.$priority
-    aws elbv2 describe-target-health \
-        --target-group-arn $tgArn \
-        --query 'TargetHealthDescriptions[*]' \
-      | jq -r '.[] | .TargetHealth.State' \
-      | awk 'BEGIN {h=0;u=0;w="OK"} /^healthy/ { h++ } /^unhealthy/ {u++;w="UNHEALTHY"} END {print h " " u " " (h+u) " " w}' \
-            >> $WORK/rule.$priority &
+    # 2021-01-20, let's see who is missing this if I remove status from the output.
+    # It's expensive and eating into our rate limit hard.
+    echo >> $WORK/rule.$priority
+    # ^ delete that if we restore the health status
+    # aws elbv2 describe-target-health \
+    #    --target-group-arn $tgArn \
+    #    --query 'TargetHealthDescriptions[*]' \
+    #  | jq -r '.[] | .TargetHealth.State' \
+    #  | awk 'BEGIN {h=0;u=0;w="OK"} /^healthy/ { h++ } /^unhealthy/ {u++;w="UNHEALTHY"} END {print h " " u " " (h+u) " " w}' \
+    #        >> $WORK/rule.$priority &
   done < $WORK/rules
-  wait
-  echo "PRIORITY RULE HEALTHY UNHEALTHY TOTAL STATUS" > $WORK/rule.summary
+  # wait
+  # echo "PRIORITY RULE HEALTHY UNHEALTHY TOTAL STATUS" > $WORK/rule.summary
   local filter=.
-  [ "$LIST_UNHEALTHY_RULES_ONLY" == true ] && filter="UNHEALTHY"
+  # [ "$LIST_UNHEALTHY_RULES_ONLY" == true ] && filter="UNHEALTHY"
   cat $WORK/rule.[0-9]* | grep $filter | sort -n >> $WORK/rule.summary
-  cat $WORK/rule.[0-9]* | awk '{h+=$3;u+=$4;t+=$5} END {print "TOTAL - " h " " u " " t}' >> $WORK/rule.summary
+  # cat $WORK/rule.[0-9]* | awk '{h+=$3;u+=$4;t+=$5} END {print "TOTAL - " h " " u " " t}' >> $WORK/rule.summary
   cat $WORK/rule.summary | column -t
 }
 

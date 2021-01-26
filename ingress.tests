@@ -157,21 +157,8 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
 sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
-# SFDC MPI Contact Verifier Handler
-sf-mpi-con-ver-handler /sf-mpi-con-ver-handler/v0/actuator/health
-sf-mpi-con-ver-handler /sf-mpi-con-ver-handler/v0/consumeQueue
-# SFDC MPI Contact Verifier Query
-sf-mpi-con-ver-query /sf-mpi-con-ver-query/v0/actuator/health
-sf-mpi-con-ver-query /sf-mpi-con-ver-query/v0/putContactOnQueue
 # SFDC MPI Message Receiver
 sfdc-mpi-msg-receiver /sfdc-mpi-msg-receiver/v0/ws
-# SF DMC Debt to Contact Query
-sf-d-to-c-query /sf-d-to-c-query/v0/disableCron
-sf-d-to-c-query /sf-d-to-c-query/v0/enableCron
-sf-d-to-c-query /sf-d-to-c-query/v0/putDebtsOnQueueByDate
-sf-d-to-c-query /sf-d-to-c-query/v0/putDebtsOnQueueByNumber
-# SF DMC Debt to Contact Handler
-sf-d-to-c-handler /sf-d-to-c-handler/v0/consumeQueue
 # Unifier
 unifier-kong /fhir/v0/dstu2/metadata
 unifier-kong /fhir/v0/dstu2/.well-known/smart-configuration

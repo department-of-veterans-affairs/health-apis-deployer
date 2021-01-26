@@ -37,12 +37,12 @@ checkTargetGroupHealth() {
 }
 
 # Give some time for the targets to become healthy before blasting aws with requests
-sleep 10
+sleep 60 # lol sleeping 60.
 
 timeout=$(($(date +%s) + 600))
 while [ $(date +%s) -lt $timeout ]
 do
-  sleep 2
+  sleep 30
   checkTargetGroupHealth
   [ $? != 0 ] && continue
   echo "sleeping 60" # lol
