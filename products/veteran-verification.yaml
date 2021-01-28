@@ -48,37 +48,3 @@ spec:
             backend:
               serviceName: veteran-verification
               servicePort: 80
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: veteran-verification-ingress
-  namespace: $DU_NAMESPACE
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /v0/$2$3
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /(services/|)veteran_verification/v0/(service_history|disability_rating|status)(.*)
-            backend:
-              serviceName: veteran-verification
-              servicePort: 80
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: veteran-confirmation-ingress
-  namespace: $DU_NAMESPACE
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /v0/$2$3
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /(services/|)veteran_confirmation/v0/(status)(.*)
-            backend:
-              serviceName: veteran-verification
-              servicePort: 80
