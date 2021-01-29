@@ -62,7 +62,9 @@ on-deploy-green() {
     $GREEN_LOAD_BALANCER_NAME \
     $GREEN_LOAD_BALANCER_PORT \
     "$tgArn"
-  deployService $tgArn
+  # TODO NEEDS TO CALL
+  # ecsTargetGroupSpecification
+  deployService $DU_ECS_EXPOSE_SERVICE=$tgArn
   waitToBeHealthy \
     $GREEN_LOAD_BALANCER_PROTOCOL \
     $GREEN_LOAD_BALANCER_NAME \

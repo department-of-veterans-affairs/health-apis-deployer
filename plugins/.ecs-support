@@ -120,16 +120,15 @@ taskDefName() {
 }
 
 ecsTargetGroupSpecification() {
-  local tgArn=$1
+  local service=$1
+  local port=$2
+  local tgArn=$3
   local containerPort
-  containerPort=$(docker-compose-editor exposed-port \
-    --in $ECS_DOCKER_COMPOSE_FILE \
-    --service $DU_ECS_EXPOSE_SERVICE)
-  echo "targetGroupArn=$tgArn,containerName=$DU_ECS_EXPOSE_SERVICE,containerPort=$containerPort"
+  echo "targetGroupArn=$tgArn,containerName=$service,containerPort=$port"
 }
 
 deployService() {
-  local tgArn=$1
+  local tgSpecifications="$1"
   ecs-cli \
     compose \
     --project-name $(taskDefName) \
@@ -139,7 +138,7 @@ deployService() {
     --create-log-groups \
     --cluster $(cluster) \
     --launch-type FARGATE \
-    --target-groups $(ecsTargetGroupSpecification "$tgArn")
+    --target-groups "$tgSpecifications"
   configureAutoscaling
   waitForServiceToDeploy
 }
