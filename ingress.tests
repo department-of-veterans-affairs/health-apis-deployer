@@ -157,12 +157,6 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
 sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
 sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
-# SFDC MPI Contact Verifier Handler
-sf-mpi-con-ver-handler /sf-mpi-con-ver-handler/v0/actuator/health
-sf-mpi-con-ver-handler /sf-mpi-con-ver-handler/v0/consumeQueue
-# SFDC MPI Contact Verifier Query
-sf-mpi-con-ver-query /sf-mpi-con-ver-query/v0/actuator/health
-sf-mpi-con-ver-query /sf-mpi-con-ver-query/v0/putContactOnQueue
 # SFDC MPI Message Receiver
 sfdc-mpi-msg-receiver /sfdc-mpi-msg-receiver/v0/ws
 # Unifier
