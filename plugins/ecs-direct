@@ -82,7 +82,7 @@ createNewTargetGroup() {
       --unhealthy-threshold-count 3 \
       > $WORK/$targetGroupName
     tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
-    echo $tgArn
+    echo "${service}=${tgArn}"
     # TODO only supporting one service
     break
   done
