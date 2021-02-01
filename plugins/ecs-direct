@@ -20,6 +20,7 @@ hasEcsNetworkServices() {
 
 #------------------------------------------------------------
 on-initialize() {
+  set -x
   checkExposedServices
   updateDockerCompose
   updateEcsParams
