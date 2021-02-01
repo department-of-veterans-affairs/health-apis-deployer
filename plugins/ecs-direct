@@ -26,7 +26,7 @@ on-initialize() {
 }
 
 checkExposedServices() {
-  if [ -z "${DU_ECS_NETWORK_SERVICES:-}" ]
+  if [ -z "${DU_ECS_NETWORK_SERVICES[@]:-}" ]
   then
     abort "DU_ECS_NETWORK_SERVICES is not defined in product conf"
   fi
