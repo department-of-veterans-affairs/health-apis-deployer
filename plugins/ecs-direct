@@ -12,7 +12,7 @@ on-activate() {
 }
 
 hasEcsNetworkServices() {
-  if [ "${#DU_ECS_NETWORK_SERVICES[@]}" == 0 ]; then return 1; fi
+  if [ -z "${DU_ECS_NETWORK_SERVICES[@]:-}" ]; then return 1; fi
   return 0;
 }
 
