@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+declare -xA DU_ECS_NETWORK_SERVICES
 . $PLUGIN_DIR/.ecs-support
 
 #------------------------------------------------------------
