@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "^^^^^^^^^^^^^^^^^^^^^^^ ECS DIRECT ^^^^^^^^^^^^^^^^^^^^^^^^^^"
-set -x
 declare -xA DU_ECS_NETWORK_SERVICES
 . $PLUGIN_DIR/.ecs-support
 
