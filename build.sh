@@ -117,12 +117,12 @@ slackNotifications() {
 #============================================================
 initialize() {
   stage start -s "Initializing"
+  export BUILD_TIMESTAMP="$(date)"
   printParameters
   export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
   export DEPLOYMENT_ENVIRONMENT=$ENVIRONMENT
   setShortEnvironment
-  export BUILD_TIMESTAMP="$(date)"
   export ENVIRONMENT_CONFIGURATION=$(readlink -f environments/$ENVIRONMENT.conf)
   . $ENVIRONMENT_CONFIGURATION
   export WORK=$(emptyDirectory work)
@@ -147,6 +147,7 @@ VPC ............... $VPC
 PRODUCT ........... $PRODUCT
 DEPLOYER_VERSION .. $DEPLOYER_VERSION
 DEBUG ............. $DEBUG
+BUILD_TIMESTAMP ... $BUILD_TIMESTAMP
 EOF
 }
 
