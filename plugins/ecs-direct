@@ -54,9 +54,9 @@ on-deploy-green() {
   tgArn=$(createNewTargetGroup)
   save "new-tg-arn" "$tgArn"
   echo "Target group $tgArn"
-  replaceNlbPortsOnGreen $GREEN_NLB "$tgArn"
+  replaceNlbPortsOnGreen $GREEN_NLB_NAME "$tgArn"
   deployService $tgArn
-  waitToBeHealthy $GREEN_NLB
+  waitToBeHealthy $GREEN_NLB_NAME
   return 0
 }
 
@@ -90,6 +90,7 @@ createNewTargetGroup() {
 
 replaceNlbPortsOnGreen() {
   local nlb="$1"
+  
   echo "TODO replaceNlbPortsOnGreen $@"
 }
 
@@ -103,7 +104,7 @@ on-switch-to-blue() {
   local tgArn
   tgArn=$(recall "new-tg-arn")
   removeNewPorts green
-  addNlbPortsOnBlue $BLUE_NLB "$tgArn"
+  addNlbPortsOnBlue $BLUE_NLB_NAME "$tgArn"
   return 0
 }
 
