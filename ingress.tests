@@ -87,13 +87,6 @@ carma-mpi-bulk /carma-mpi-bulk/v0/getParticipants
 carma-mpi-bulk /carma-mpi-bulk/v0/getParticipantsWithEdipi
 carma-mpi-bulk /carma-mpi-bulk/v0/updateEdipiData
 carma-mpi-bulk /carma-mpi-bulk/v0/edipiCompletion
-# Carma VSSC
-carma-vssc /carma-vssc/v0/actuator/info
-carma-vssc /carma-vssc/v0/actuator/health
-carma-vssc /carma-vssc/v0/check-connections
-carma-vssc /carma-vssc/v0/sanitize
-carma-vssc /carma-vssc/v0/import
-carma-vssc /carma-vssc/v0/export
 # DMC VetSearch
 dmc-vet-search /dmc-vet-search/v0/actuator/health
 dmc-vet-search /dmc-vet-search/v0/actuator/info
