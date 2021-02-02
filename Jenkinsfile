@@ -13,7 +13,6 @@ def products() {
   products["carma-cdw"] = ["health_apis_jenkins", "arcadian_achievements"]
   products["carma-fms-connector"] = ["health_apis_jenkins"]
   products["carma-mpi-bulk"] = ["health_apis_jenkins", "arcadian_achievements"]
-  products["carma-vssc"] = ["vasdvp_jenkins","arcadian_achievements"]
   products["community-care"] = ["health_apis_jenkins","shankins"]
   products["data-query"] = ["health_apis_jenkins","shankins"]
   products["dmc-vet-search"] = ["health_apis_jenkins"]
