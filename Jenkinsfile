@@ -31,6 +31,7 @@ def products() {
   products["scheduling"] = ["health_apis_jenkins","shankins"]
   products["sfdc-mpi-msg-receiver"] = ["health_apis_jenkins"]
   products["sfdc-mvi-ent"] = ["health_apis_jenkins"]
+  products["smart-cards"] = ["health_apis_jenkins"]
   products["squares"] = ["health_apis_jenkins"]
   products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["unifier-kong"] = ["health_apis_jenkins"]
