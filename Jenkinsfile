@@ -10,7 +10,6 @@ def products() {
   products["auth"] = ["health_apis_jenkins", "shutupshutupshutup"]
   products["bridg"] = ["health_apis_jenkins"]
   products["carma-bgs"] = ["health_apis_jenkins", "arcadian_achievements"]
-  products["carma-cdw"] = ["health_apis_jenkins", "arcadian_achievements"]
   products["carma-fms-connector"] = ["health_apis_jenkins"]
   products["carma-mpi-bulk"] = ["health_apis_jenkins", "arcadian_achievements"]
   products["community-care"] = ["health_apis_jenkins","shankins"]
