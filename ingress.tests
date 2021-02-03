@@ -64,13 +64,6 @@ carma-bgs /carma-bgs/v0/readSalesforceParticipants
 carma-bgs /carma-bgs/v0/registerParticipants
 carma-bgs /carma-bgs/v0/readIncarceration
 carma-bgs /carma-bgs/v0/writeIncarceration
-# Carma Cdw
-carma-cdw /carma-cdw/v0/actuator/info
-carma-cdw /carma-cdw/v0/actuator/health
-carma-cdw /carma-cdw/v0/check-connections
-carma-cdw /carma-cdw/v0/cdw/import
-carma-cdw /carma-cdw/v0/sf/import
-carma-cdw /carma-cdw/v0/export
 # Carma FMS
 carma-fms-connector /carma-fms/v0/actuator/info
 carma-fms-connector /carma-fms/v0/actuator/health
