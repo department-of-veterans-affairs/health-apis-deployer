@@ -50,12 +50,12 @@ on-validate() {
 
 #------------------------------------------------------------
 on-deploy-green() {
-  local tgArn
-  tgArn=$(createNewTargetGroup)
-  save "new-tg-arn" "$tgArn"
-  echo "Target group $tgArn"
-  replaceNlbPortsOnGreen $GREEN_NLB_NAME "$tgArn"
-  deployService $tgArn
+  local tgSpec
+  tgSpec=$(createNewTargetGroup)
+  save "new-tg-spec" "$tgSpec"
+  echo "Target group $tgSpec"
+  replaceNlbPortsOnGreen $GREEN_NLB_NAME "$tgSpec"
+  deployService $tgSpec
   waitToBeHealthy $GREEN_NLB_NAME
   return 0
 }
@@ -82,16 +82,27 @@ createNewTargetGroup() {
       --unhealthy-threshold-count 3 \
       > $WORK/$targetGroupName
     tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
+    # order is important, containerPort= must be at the end
     echo "targetGroupArn=$tgArn,containerName=$service,containerPort=$containerPort"
     # TODO only supporting one service
     break
   done
 }
 
+tgSpecPort() {
+  echo "${1#*containerPort=}"
+}
+tgSpecArn() {
+  echo $1 | sed 's/.*targetGroupArn=\([^,]\+\).*/\1/'
+}
+
 replaceNlbPortsOnGreen() {
   local nlb="$1"
-  
-  echo "TODO replaceNlbPortsOnGreen $@"
+  local tgSpec="$2"
+  nlb set-listener \
+    --name "$nlb" \
+    --port "$(tgSpecPort $tgSpec)" \
+    --target-group "$(tgSpecArn $tgSpec)" \
 }
 
 waitToBeHealthy() {
@@ -101,10 +112,10 @@ waitToBeHealthy() {
 
 #------------------------------------------------------------
 on-switch-to-blue() {
-  local tgArn
-  tgArn=$(recall "new-tg-arn")
+  local tgSpec
+  tgSpec=$(recall "new-tg-spec")
   removeNewPorts green
-  addNlbPortsOnBlue $BLUE_NLB_NAME "$tgArn"
+  addNlbPortsOnBlue $BLUE_NLB_NAME "$tgSpec"
   return 0
 }
 
