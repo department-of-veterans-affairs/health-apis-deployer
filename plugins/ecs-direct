@@ -102,7 +102,7 @@ replaceNlbPortsOnGreen() {
   nlb set-listener \
     --name "$nlb" \
     --port "$(tgSpecPort $tgSpec)" \
-    --target-group "$(tgSpecArn $tgSpec)" \
+    --target-group "$(tgSpecArn $tgSpec)"
 }
 
 waitToBeHealthy() {
