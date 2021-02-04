@@ -136,7 +136,7 @@ removeNewPorts() {
 
 addNlbPortsOnBlue() {
   local nlb=$1
-  local tgArn=$2
+  local tgSpec=$2
   echo "TODO addNlbPortsOnBlue $@"
   nlb set-listener \
     --name "$nlb" \
