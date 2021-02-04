@@ -3,6 +3,16 @@ set -euo pipefail
 declare -xA DU_ECS_NETWORK_SERVICES
 . $PLUGIN_DIR/.ecs-support
 
+
+#
+# We currently do not have Green and Blue NLBs, only Blue.
+# Support some sort of B/G deployment, we'll deploy "green" on
+# the blue NLB at an offset port, which effectively halves the
+# spots on the NLB.
+#
+GREEN_PORT_OFFSET=30000
+
+
 #------------------------------------------------------------
 on-activate() {
   if hasEcsFiles && hasEcsNetworkServices
@@ -101,7 +111,7 @@ replaceNlbPortsOnGreen() {
   local tgSpec="$2"
   nlb set-listener \
     --name "$nlb" \
-    --port "$(tgSpecPort $tgSpec)" \
+    --port "$(($GREEN_PORT_OFFSET + $(tgSpecPort $tgSpec)))" \
     --target-group "$(tgSpecArn $tgSpec)"
 }
 
@@ -128,6 +138,10 @@ addNlbPortsOnBlue() {
   local nlb=$1
   local tgArn=$2
   echo "TODO addNlbPortsOnBlue $@"
+  nlb set-listener \
+    --name "$nlb" \
+    --port "$(tgSpecPort $tgSpec)))" \
+    --target-group "$(tgSpecArn $tgSpec)"
 }
 
 

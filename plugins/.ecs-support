@@ -128,7 +128,6 @@ ecsTargetGroupSpecification() {
 }
 
 deployService() {
-  set -x
   local tgSpecifications="$1"
   ecs-cli \
     compose \
@@ -156,7 +155,7 @@ waitForServiceToDeploy() {
     then
       return 0
     fi
-    sleep 10
+    sleep 15 # dont spam ECS
   done
   echo "Service status:"
   ecs-cli ps --cluster $(cluster) | grep "$(taskDefName)"
