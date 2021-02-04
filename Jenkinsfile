@@ -9,9 +9,6 @@ def products() {
   products["none"] = ["health_apis_jenkins"]
   products["auth"] = ["health_apis_jenkins", "shutupshutupshutup"]
   products["bridg"] = ["health_apis_jenkins"]
-  products["carma-bgs"] = ["health_apis_jenkins", "arcadian_achievements"]
-  products["carma-cdw"] = ["health_apis_jenkins", "arcadian_achievements"]
-  products["carma-fms-connector"] = ["health_apis_jenkins"]
   products["carma-mpi-bulk"] = ["health_apis_jenkins", "arcadian_achievements"]
   products["community-care"] = ["health_apis_jenkins","shankins"]
   products["data-query"] = ["health_apis_jenkins","shankins"]
@@ -32,11 +29,9 @@ def products() {
   products["scheduling"] = ["health_apis_jenkins","shankins"]
   products["sfdc-mpi-msg-receiver"] = ["health_apis_jenkins"]
   products["sfdc-mvi-ent"] = ["health_apis_jenkins"]
-  products["squares"] = ["health_apis_jenkins"]
   products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["unifier-kong"] = ["health_apis_jenkins"]
   products["veteran-verification"] = ["health_apis_jenkins","shutupshutupshutup"]
-  products["watrs"] = ["health_apis_jenkins"]
   return products
 }
 
