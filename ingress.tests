@@ -53,32 +53,6 @@ bridg /bridg/appointments
 bridg /bridg/patientRemarks
 bridg /bridg/sensitivePatient
 bridg /bridg/vistaUsers
-# Carma BGS
-carma-bgs /carma-bgs/v0/actuator/info
-carma-bgs /carma-bgs/v0/actuator/health
-carma-bgs /carma-bgs/v0/check-connections
-carma-bgs /carma-bgs/v0/findPerson
-carma-bgs /carma-bgs/v0/createPerson
-carma-bgs /carma-bgs/v0/deletePerson
-carma-bgs /carma-bgs/v0/readSalesforceParticipants
-carma-bgs /carma-bgs/v0/registerParticipants
-carma-bgs /carma-bgs/v0/readIncarceration
-carma-bgs /carma-bgs/v0/writeIncarceration
-# Carma Cdw
-carma-cdw /carma-cdw/v0/actuator/info
-carma-cdw /carma-cdw/v0/actuator/health
-carma-cdw /carma-cdw/v0/check-connections
-carma-cdw /carma-cdw/v0/cdw/import
-carma-cdw /carma-cdw/v0/sf/import
-carma-cdw /carma-cdw/v0/export
-# Carma FMS
-carma-fms-connector /carma-fms/v0/actuator/info
-carma-fms-connector /carma-fms/v0/actuator/health
-carma-fms-connector /carma-fms/v0/check-salesforce-configuration
-carma-fms-connector /carma-fms/v0/jobs?count=100
-carma-fms-connector /carma-fms/v0/check-specific-payment-run
-carma-fms-connector /carma-fms/v0/import
-carma-fms-connector /carma-fms/v0/export
 # Carma MPI Bulk
 carma-mpi-bulk /carma-mpi-bulk/v0/actuator/info
 carma-mpi-bulk /carma-mpi-bulk/v0/actuator/health
@@ -87,13 +61,6 @@ carma-mpi-bulk /carma-mpi-bulk/v0/getParticipants
 carma-mpi-bulk /carma-mpi-bulk/v0/getParticipantsWithEdipi
 carma-mpi-bulk /carma-mpi-bulk/v0/updateEdipiData
 carma-mpi-bulk /carma-mpi-bulk/v0/edipiCompletion
-# Carma VSSC
-carma-vssc /carma-vssc/v0/actuator/info
-carma-vssc /carma-vssc/v0/actuator/health
-carma-vssc /carma-vssc/v0/check-connections
-carma-vssc /carma-vssc/v0/sanitize
-carma-vssc /carma-vssc/v0/import
-carma-vssc /carma-vssc/v0/export
 # DMC VetSearch
 dmc-vet-search /dmc-vet-search/v0/actuator/health
 dmc-vet-search /dmc-vet-search/v0/actuator/info

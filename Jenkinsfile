@@ -9,11 +9,7 @@ def products() {
   products["none"] = ["health_apis_jenkins"]
   products["auth"] = ["health_apis_jenkins", "shutupshutupshutup"]
   products["bridg"] = ["health_apis_jenkins"]
-  products["carma-bgs"] = ["health_apis_jenkins", "arcadian_achievements"]
-  products["carma-cdw"] = ["health_apis_jenkins", "arcadian_achievements"]
-  products["carma-fms-connector"] = ["health_apis_jenkins"]
   products["carma-mpi-bulk"] = ["health_apis_jenkins", "arcadian_achievements"]
-  products["carma-vssc"] = ["vasdvp_jenkins","arcadian_achievements"]
   products["community-care"] = ["health_apis_jenkins","shankins"]
   products["data-query"] = ["health_apis_jenkins","shankins"]
   products["dmc-vet-search"] = ["health_apis_jenkins"]
@@ -30,14 +26,11 @@ def products() {
   products["nurse-triage"] = ["health_apis_jenkins"]
   products["patient-generated-data"] = ["health_apis_jenkins","shankins"]
   products["patsr"] = ["health_apis_jenkins"]
-  products["qms"] = ["health_apis_jenkins"]
   products["scheduling"] = ["health_apis_jenkins","shankins"]
   products["sfdc-mpi-msg-receiver"] = ["health_apis_jenkins"]
   products["sfdc-mvi-ent"] = ["health_apis_jenkins"]
-  products["squares"] = ["health_apis_jenkins"]
   products["ssn-sensitivity-vimt"] = ["health_apis_jenkins"]
   products["unifier-kong"] = ["health_apis_jenkins"]
-  products["watrs"] = ["health_apis_jenkins"]
   return products
 }
 
