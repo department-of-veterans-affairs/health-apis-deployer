@@ -140,7 +140,7 @@ addNlbPortsOnBlue() {
   echo "TODO addNlbPortsOnBlue $@"
   nlb set-listener \
     --name "$nlb" \
-    --port "$(tgSpecPort $tgSpec)))" \
+    --port "$(tgSpecPort $tgSpec)" \
     --target-group "$(tgSpecArn $tgSpec)"
 }
 

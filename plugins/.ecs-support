@@ -145,8 +145,9 @@ deployService() {
 
 waitForServiceToDeploy() {
   echo "Waiting for service to deploy..."
-  local wait=180
+  local wait=$((60 * ${WAIT_FOR_SERVICE_TO_DEPLOY_MINUTES:-6}))
   local timeout=$(($(date +%s) + $wait))
+  local check=0
   while [ $(date +%s) -lt $timeout ]
   do
     if ecs-cli ps --cluster $(cluster) --desired-status RUNNING \
@@ -155,6 +156,8 @@ waitForServiceToDeploy() {
     then
       return 0
     fi
+    check=$(($check + 1))
+    if [ $(($check % 4)) == 0 ]; then echo "Still waiting ..."; fi
     sleep 15 # dont spam ECS
   done
   echo "Service status:"
