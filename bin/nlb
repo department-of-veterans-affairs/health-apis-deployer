@@ -50,7 +50,7 @@ PROTOCOL=TCP
 main() {
   local args
   local longOpts="debug,help,name:,port:,target-group:,wait:"
-  local shortOpts=""
+  local shortOpts="n:"
   if ! args=$(getopt -l "$longOpts" -o "$shortOpts" -- "$@"); then usage; fi
   eval set -- "$args"
   while true
@@ -58,7 +58,7 @@ main() {
     case "$1" in
       --debug) DEBUG=true;;
       --help) usage;;
-      --name) NAME="$2";;
+      -n|--name) NAME="$2";;
       --port) PORT="$2";;
       --target-group) TARGET_GROUP="$2";;
       --wait) WAIT="$2";;
@@ -78,6 +78,7 @@ main() {
     update-listener) update-listener;;
     set-listener) set-listener;;
     target-group-health) target-group-health;;
+    remove-listener) remove-listener;;
   esac
 }
 
@@ -101,8 +102,10 @@ arn() {
 
 listener-arn() {
   requireParam "port" "${PORT:-}"
+  local arn
+  arn=$(arn)
   cache "nlb-listener-arn-$NAME-$PROTOCOL-$PORT" \
-    aws elbv2 describe-listeners --load-balancer-arn $(arn) \
+    aws elbv2 describe-listeners --load-balancer-arn $arn \
     | jq -r --arg port $PORT --arg protocol $PROTOCOL \
     '.Listeners[]|select(.Port == ($port|tonumber) and .Protocol == $protocol)|.ListenerArn'
 }
@@ -142,6 +145,22 @@ set-listener() {
     update-listener
   fi
 }
+
+
+remove-listener() {
+  requireParam "port" "${PORT:-}"
+  echo "Removing listener on port $PORT for ${NAME:-}"
+  local listenerArn
+  listenerArn=$(listener-arn)
+  if [ -z "${listenerArn:-}" ]
+  then
+    echo "Listener not found for port $PORT"
+    return
+  fi
+  echo "Removing $listenerArn"
+  aws elbv2 delete-listener --listener-arn "$listenerArn"
+}
+
 
 target-group-health() {
   requireParam "target-group" "${TARGET_GROUP:-}"
