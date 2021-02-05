@@ -126,7 +126,7 @@ on-switch-to-blue() {
   tgSpec=$(recall "new-tg-spec")
   save "previous-blue-tg" \
     "$(nlb current-target-group --name "$BLUE_NLB_NAME" --port "$(tgSpecPort $tgSpec)")"
-  removeGreenPorts"$tgSpec"
+  removeGreenPorts "$tgSpec"
   addNlbPortsOnBlue "$tgSpec"
   return 0
 }
