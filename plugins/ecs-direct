@@ -117,7 +117,7 @@ replaceNlbPortsOnGreen() {
 waitToBeHealthy() {
   local nlb="$1"
   local tgSpec="$2"
-  nlb target-group-health --target-group "$(tgSpecArn $tgSpec)" --wait 180
+  nlb target-group-health --target-group "$(tgSpecArn $tgSpec)" --wait 360
 }
 
 #------------------------------------------------------------
