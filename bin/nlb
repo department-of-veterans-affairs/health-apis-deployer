@@ -79,6 +79,7 @@ main() {
     set-listener) set-listener;;
     target-group-health) target-group-health;;
     remove-listener) remove-listener;;
+    current-target-group) current-target-group;;
   esac
 }
 
@@ -108,6 +109,16 @@ listener-arn() {
     aws elbv2 describe-listeners --load-balancer-arn $arn \
     | jq -r --arg port $PORT --arg protocol $PROTOCOL \
     '.Listeners[]|select(.Port == ($port|tonumber) and .Protocol == $protocol)|.ListenerArn'
+}
+
+current-target-group() {
+  requireParam "port" "${PORT:-}"
+  local arn
+  arn=$(arn)
+  # No caching on this request
+  aws elbv2 describe-listeners --load-balancer-arn $arn \
+    | jq -r --arg port $PORT --arg protocol $PROTOCOL \
+    '.Listeners[]|select(.Port == ($port|tonumber) and .Protocol == $protocol)|.DefaultActions[].TargetGroupArn'
 }
 
 add-listener() {
