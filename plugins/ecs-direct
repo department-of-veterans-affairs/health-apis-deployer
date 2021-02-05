@@ -180,7 +180,6 @@ rollbackOldPorts() {
     nlb remove-listener \
       --name "$BLUE_NLB_NAME" \
       --port "$(tgSpecPort $tgSpec)"
-
   fi
 
 }
