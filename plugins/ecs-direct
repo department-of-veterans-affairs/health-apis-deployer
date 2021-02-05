@@ -64,9 +64,9 @@ on-deploy-green() {
   tgSpec=$(createNewTargetGroup)
   save "new-tg-spec" "$tgSpec"
   echo "Target group $tgSpec"
-  replaceNlbPortsOnGreen $GREEN_NLB_NAME "$tgSpec"
-  deployService $tgSpec
-  waitToBeHealthy $GREEN_NLB_NAME
+  replaceNlbPortsOnGreen "$tgSpec"
+  deployService "$tgSpec"
+  waitToBeHealthy $GREEN_NLB_NAME "$tgSpec"
   return 0
 }
 
@@ -107,39 +107,41 @@ tgSpecArn() {
 }
 
 replaceNlbPortsOnGreen() {
-  local nlb="$1"
-  local tgSpec="$2"
+  local tgSpec="$1"
   nlb set-listener \
-    --name "$nlb" \
+    --name "$GREEN_NLB_NAME" \
     --port "$(($GREEN_PORT_OFFSET + $(tgSpecPort $tgSpec)))" \
     --target-group "$(tgSpecArn $tgSpec)"
 }
 
 waitToBeHealthy() {
   local nlb="$1"
-  echo "TODO waitToBeHealthy $@"
+  local tgSpec="$2"
+  nlb target-group-health --target-group "$(tgSpecArn $tgSpec)" --wait 180
 }
 
 #------------------------------------------------------------
 on-switch-to-blue() {
   local tgSpec
   tgSpec=$(recall "new-tg-spec")
-  removeNewPorts green
-  addNlbPortsOnBlue $BLUE_NLB_NAME "$tgSpec"
+  save "previous-blue-tg" \
+    "$(nlb current-target-group --name "$BLUE_NLB_NAME" --port "$(tgSpecPort $tgSpec)")"
+  removeGreenPorts"$tgSpec"
+  addNlbPortsOnBlue "$tgSpec"
   return 0
 }
 
-removeNewPorts() {
-  local color="$1"
-  echo "TODO removeNewPorts $@"
+removeGreenPorts() {
+  local tgSpec="$1"
+  nlb remove-listener \
+    --name "$GREEN_NLB_NAME" \
+    --port "$(($GREEN_PORT_OFFSET + $(tgSpecPort $tgSpec)))"
 }
 
 addNlbPortsOnBlue() {
-  local nlb=$1
-  local tgSpec=$2
-  echo "TODO addNlbPortsOnBlue $@"
+  local tgSpec="$1"
   nlb set-listener \
-    --name "$nlb" \
+    --name "$BLUE_NLB_NAME" \
     --port "$(tgSpecPort $tgSpec)" \
     --target-group "$(tgSpecArn $tgSpec)"
 }
@@ -147,22 +149,16 @@ addNlbPortsOnBlue() {
 
 #------------------------------------------------------------
 on-after-verify-blue() {
-  removeOldPorts
   removeTargetGroup old
   removeServices old
   removeTaskDefinition old
   return 0
 }
 
-removeOldPorts() {
-  echo "TODO removeOldPorts"
-}
-
 #------------------------------------------------------------
 on-rollback() {
   rollbackOldPorts
-  removeNewPorts blue
-  removeNewPorts green
+  removeGreenPorts
   removeTargetGroup new
   removeServices new
   removeTaskDefinition new
@@ -170,7 +166,23 @@ on-rollback() {
 }
 
 rollbackOldPorts() {
-  echo "TODO rollbackOldPorts"
+  local tgSpec oldTg
+  oldTg=$(recall "previous-blue-tg")
+  tgSpec=$(recall "new-tg-spec")
+  if [ -n "${oldTg:-}" ]
+  then
+    # restore the listener to use the previous target group if it existed
+    nlb set-listener \
+      --name "$BLUE_NLB_NAME" \
+      --port "$(tgSpecPort $tgSpec)" \
+      --target-group "$oldTg"
+  else
+    nlb remove-listener \
+      --name "$BLUE_NLB_NAME" \
+      --port "$(tgSpecPort $tgSpec)"
+
+  fi
+
 }
 
 
