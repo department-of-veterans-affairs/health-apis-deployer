@@ -52,19 +52,19 @@ albHealthCheckPath() {
 
 #------------------------------------------------------------
 on-deploy-green() {
-  local tgArn
-  tgArn=$(createNewTargetGroup)
-  save "new-tg-arn" "$tgArn"
-  echo "Target group $tgArn"
+  local tgSpec
+  tgSpec=$(createNewTargetGroup)
+  save "new-tg-spec" "$tgSpec"
+  echo "Target group $tgSpec"
   echo "Target group health check $(albHealthCheckPath)"
   replaceAlbRulesOnGreen \
     $GREEN_LOAD_BALANCER_PROTOCOL \
     $GREEN_LOAD_BALANCER_NAME \
     $GREEN_LOAD_BALANCER_PORT \
-    "$tgArn"
+    "$tgSpec"
   # TODO NEEDS TO CALL
   # ecsTargetGroupSpecification
-  deployService $DU_ECS_EXPOSE_SERVICE=$tgArn
+  deployService $tgSpec
   waitToBeHealthy \
     $GREEN_LOAD_BALANCER_PROTOCOL \
     $GREEN_LOAD_BALANCER_NAME \
@@ -95,14 +95,21 @@ createNewTargetGroup() {
     --matcher HttpCode=200 \
     > $WORK/$targetGroupName
   tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
-  echo $tgArn
+  echo "targetGroupArn=$tgArn,containerName=$DU_ECS_EXPOSE_SERVICE,containerPort=$containerPort"
+}
+
+tgSpecPort() {
+  echo "${1#*containerPort=}"
+}
+tgSpecArn() {
+  echo $1 | sed 's/.*targetGroupArn=\([^,]\+\).*/\1/'
 }
 
 replaceAlbRulesOnGreen() {
   local protocol=$1
   local alb=$2
   local port=$3
-  local tgArn=$4
+  local tgSpec=$4
   echo "Replacing ALB rules on ${alb} for ${protocol} protocol on port ${port}"
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
@@ -112,7 +119,7 @@ replaceAlbRulesOnGreen() {
       --protocol $protocol \
       --port $port \
       --path "$path" \
-      --target-group $tgArn \
+      --target-group "$(tgSpecArn $tgSpec)" \
       --min-priority $priority \
       --output $WORK/ecs-green-rule
     jq -r '.Rules[].RuleArn' $WORK/ecs-green-rule >> $WORK/ecs-green-rules
@@ -143,14 +150,14 @@ waitToBeHealthy() {
 
 #------------------------------------------------------------
 on-switch-to-blue() {
-  local tgArn
-  tgArn=$(recall "new-tg-arn")
+  local tgSpec
+  tgSpec=$(recall "new-tg-spec")
   removeNewRules green
   addAlbRulesOnBlue \
     $BLUE_LOAD_BALANCER_PROTOCOL \
     $BLUE_LOAD_BALANCER_NAME \
     $BLUE_LOAD_BALANCER_PORT \
-    "$tgArn"
+    "$tgSpec"
   return 0
 }
 
@@ -182,7 +189,7 @@ addAlbRulesOnBlue() {
   local protocol=$1
   local alb=$2
   local port=$3
-  local tgArn=$4
+  local tgSpec=$4
   echo "Adding ALB rules on ${alb} for ${protocol} protocol on port ${port}"
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
   do
@@ -204,7 +211,7 @@ addAlbRulesOnBlue() {
       --protocol $protocol \
       --port $port \
       --path "$path" \
-      --target-group $tgArn \
+      --target-group "$(tgSpecArn $tgSpec)" \
       --min-priority $priority \
       --output $WORK/ecs-blue-rule
     jq -r '.Rules[].RuleArn' $WORK/ecs-blue-rule >> $WORK/ecs-blue-rules
