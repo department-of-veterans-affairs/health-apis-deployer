@@ -182,8 +182,11 @@ removeNewRules() {
       return 1
     fi
   fi
-  sleep 2
+  throttle 2
 }
+
+
+throttle() { sleep ${1:-2}; }
 
 addAlbRulesOnBlue() {
   local protocol=$1
@@ -201,6 +204,7 @@ addAlbRulesOnBlue() {
       --path "$path" \
       | jq -r '[.RuleArn,.Priority]|join(" ")' \
       >> $WORK/ecs-existing-rules
+    throttle 1
   done
 
   for priority in ${!DU_LOAD_BALANCER_RULES[@]}
@@ -215,6 +219,7 @@ addAlbRulesOnBlue() {
       --min-priority $priority \
       --output $WORK/ecs-blue-rule
     jq -r '.Rules[].RuleArn' $WORK/ecs-blue-rule >> $WORK/ecs-blue-rules
+    throttle 1
   done
 
   if [ -f $WORK/ecs-existing-rules ]
@@ -240,6 +245,7 @@ addAlbRulesOnBlue() {
         cat $ECS_DEBUG
         return 1
       fi
+      throttle 3
     fi
   fi
 }
@@ -267,6 +273,7 @@ removeOldRules() {
       then
         failed=true
       fi
+      throttle 1
     done < $WORK/ecs-existing-rules
     if [ $failed != false ]
     then
