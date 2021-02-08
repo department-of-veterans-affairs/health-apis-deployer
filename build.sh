@@ -117,19 +117,19 @@ slackNotifications() {
 #============================================================
 initialize() {
   stage start -s "Initializing"
+  export BUILD_TIMESTAMP="$(date)"
   printParameters
   export NEXUS_URL=https://tools.health.dev-developer.va.gov/nexus/repository/health-apis-releases
   export ENVIRONMENT=$(vpc hyphenize -e "${VPC}")
   export DEPLOYMENT_ENVIRONMENT=$ENVIRONMENT
   setShortEnvironment
-  export BUILD_TIMESTAMP="$(date)"
   export ENVIRONMENT_CONFIGURATION=$(readlink -f environments/$ENVIRONMENT.conf)
   . $ENVIRONMENT_CONFIGURATION
   export WORK=$(emptyDirectory work)
   export PRODUCT_CONFIGURATION_DIR=$(emptyDirectory $WORK/product-configuration)
   export DU_DIR=$(emptyDirectory $WORK/du)
   export LOG_DIR=$(emptyDirectory $WORK/logs)
-  PLUGIN_DIR=plugins
+  export PLUGIN_DIR=plugins
   export PLUGIN_LIB=$PLUGIN_DIR/.plugin
   export PLUGIN_SUBSTITION_DIR=$(emptyDirectory $WORK/substitions)
   export GREEN_LOAD_BALANCER_NAME=green-${ENVIRONMENT}-kubernetes
@@ -147,6 +147,7 @@ VPC ............... $VPC
 PRODUCT ........... $PRODUCT
 DEPLOYER_VERSION .. $DEPLOYER_VERSION
 DEBUG ............. $DEBUG
+BUILD_TIMESTAMP ... $BUILD_TIMESTAMP
 EOF
 }
 
@@ -197,7 +198,8 @@ setDeploymentId() {
 
 #============================================================
 initDebugMode() {
-  if [ "${DEBUG:=false}" == true ]; then
+  if [ "${DEBUG:=false}" == true ]
+  then
     set -x
     env | sort
   fi

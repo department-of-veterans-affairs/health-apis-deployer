@@ -1,0 +1,220 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export CACHE_NAME="alb"
+export CACHE_EXPIRATION="1 minute"
+export PATH=$(dirname $(readlink -f $0))/bin:$PATH
+
+ORGINAL_COMMAND_LINE="$@"
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Interact with NLBs.
+
+Options
+-n, --name <name>
+  The NLB name
+--port <number>
+  The listener port number
+--target-group <target-group-arn>
+  The ARN of the target group to apply to rule
+--wait <seconds>
+
+Commands
+arn -n <name>
+  Print the ARN for the NLB
+listener-arn -n <name> --port <n>
+  Print the ARN for the listener on the NLB for the given port.
+add-listener -n <name> --port <n> --target-group <arn>
+  Add a new listener on the NLB for given port that forwards
+  traffic to the target group.
+update-listener -n <name> --port <n> --target-group <arn>
+  Update an existing listener on the NLB for given port so that
+  it forwards traffic to the target group.
+set-listener -n <name> --port <n> --target-group <arn>
+  Add a new listener or update an existing listener on the NLB
+  for given port so that it forwards traffic to the target group.
+target-group-health --target-group <arn> [--wait <s>]
+  Check the health of a target group, optionaling waiting until
+  it's healthy.
+
+$ORGINAL_COMMAND_LINE
+
+${1:-}
+EOF
+exit 1
+}
+
+PROTOCOL=TCP
+main() {
+  local args
+  local longOpts="debug,help,name:,port:,target-group:,wait:"
+  local shortOpts="n:"
+  if ! args=$(getopt -l "$longOpts" -o "$shortOpts" -- "$@"); then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      --help) usage;;
+      -n|--name) NAME="$2";;
+      --port) PORT="$2";;
+      --target-group) TARGET_GROUP="$2";;
+      --wait) WAIT="$2";;
+      --) shift; break;;
+    esac
+    shift
+  done
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    arn) arn;;
+    listener-arn) listener-arn;;
+    add-listener) add-listener;;
+    update-listener) update-listener;;
+    set-listener) set-listener;;
+    target-group-health) target-group-health;;
+    remove-listener) remove-listener;;
+    current-target-group) current-target-group;;
+  esac
+}
+
+requireParam() {
+  local param="${1}"
+  local value="${2:-}"
+  if [ -z "$value" ]; then usage "Parameter not specified: $param"; fi
+}
+
+requireValue() {
+  local value="${1:-}"
+  local message="$2"
+  if [ -z "$value" ]; then echo "$message"; exit 1; fi
+}
+
+arn() {
+  requireParam "name" "${NAME:-}"
+  cache "nlb-$NAME" aws elbv2 describe-load-balancers --names $NAME \
+    | jq -r '.LoadBalancers[].LoadBalancerArn'
+}
+
+listener-arn() {
+  requireParam "port" "${PORT:-}"
+  local arn
+  arn=$(arn)
+  cache "nlb-listener-arn-$NAME-$PROTOCOL-$PORT" \
+    aws elbv2 describe-listeners --load-balancer-arn $arn \
+    | jq -r --arg port $PORT --arg protocol $PROTOCOL \
+    '.Listeners[]|select(.Port == ($port|tonumber) and .Protocol == $protocol)|.ListenerArn'
+}
+
+current-target-group() {
+  requireParam "port" "${PORT:-}"
+  local arn
+  arn=$(arn)
+  # No caching on this request
+  aws elbv2 describe-listeners --load-balancer-arn $arn \
+    | jq -r --arg port $PORT --arg protocol $PROTOCOL \
+    '.Listeners[]|select(.Port == ($port|tonumber) and .Protocol == $protocol)|.DefaultActions[].TargetGroupArn'
+}
+
+add-listener() {
+  requireParam "port" "${PORT:-}"
+  requireParam "target-group" "${TARGET_GROUP:-}"
+  echo "Adding listener on port $PORT to ${NAME:-}"
+  aws elbv2 create-listener \
+    --load-balancer-arn $(arn) \
+    --protocol $PROTOCOL \
+    --port "$PORT"  \
+    --default-actions "Type=forward,TargetGroupArn=$TARGET_GROUP"
+}
+
+update-listener() {
+  requireParam "port" "${PORT:-}"
+  requireParam "target-group" "${TARGET_GROUP:-}"
+  echo "Updating listener on port $PORT for ${NAME:-}"
+  local listenerArn
+  listenerArn=$(listener-arn)
+  if [ -z "${listenerArn:-}" ]; then usage "Listener not found for port $PORT"; fi
+  aws elbv2 modify-listener \
+    --listener-arn "$listenerArn" \
+    --protocol $PROTOCOL \
+    --port "$PORT"  \
+    --default-actions "Type=forward,TargetGroupArn=$TARGET_GROUP"
+}
+
+set-listener() {
+  local listenerArn
+  listenerArn=$(listener-arn)
+  if [ -z "${listenerArn:-}" ]
+  then
+    add-listener
+  else
+    update-listener
+  fi
+}
+
+
+remove-listener() {
+  requireParam "port" "${PORT:-}"
+  echo "Removing listener on port $PORT for ${NAME:-}"
+  local listenerArn
+  listenerArn=$(listener-arn)
+  if [ -z "${listenerArn:-}" ]
+  then
+    echo "Listener not found for port $PORT"
+    return
+  fi
+  echo "Removing $listenerArn"
+  aws elbv2 delete-listener --listener-arn "$listenerArn"
+}
+
+
+target-group-health() {
+  requireParam "target-group" "${TARGET_GROUP:-}"
+  if [ -z "${WAIT:-}" ]; then checkTargetGroupHealth "$TARGET_GROUP"; return 0; fi
+
+  local timeout=$(($(date +%s) + $WAIT))
+  while [ $(date +%s) -lt $timeout ]
+  do
+    if checkTargetGroupHealth "$TARGET_GROUP"; then return 0; fi
+    sleep 15
+  done
+  echo "Timed out waiting for healthy target group $TARGET_GROUP"
+  return 1
+
+}
+
+checkTargetGroupHealth() {
+  local targetGroupArn="$1"
+  local healths=
+  healths=$(aws elbv2 describe-target-health \
+    --target-group-arn $targetGroupArn \
+    --query 'TargetHealthDescriptions[*]' \
+    | jq -r '.[] | [ .Target.Id, .TargetHealth.State ]|join(" ")')
+  requireValue "$healths" "Could not determine target group health"
+
+  local good=()
+  local bad=()
+  for targetHealth in "$healths"
+  do
+    local target=${targetHealth// */}
+    local health=${targetHealth//* /}
+    if [ "$health" == "healthy" ]
+    then
+      good+=($target)
+    else
+      bad+=($target)
+    fi
+  done
+  if [ ${#good[@]} -gt 0 ]; then echo "Healthy targets: ${#good[@]} (${good[@]})"; fi
+  if [ ${#bad[@]} -gt 0 ]; then echo "Unhealthy targets: ${#bad[@]} (${bad[@]})"; fi
+  return ${#bad[@]}
+}
+
+
+main "$@"
+exit 0

@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+set -euo pipefail
+declare -xA DU_ECS_NETWORK_SERVICES
+. $PLUGIN_DIR/.ecs-support
+
+
+#
+# We currently do not have Green and Blue NLBs, only Blue.
+# Support some sort of B/G deployment, we'll deploy "green" on
+# the blue NLB at an offset port, which effectively halves the
+# spots on the NLB.
+#
+GREEN_PORT_OFFSET=30000
+
+
+#------------------------------------------------------------
+on-activate() {
+  if hasEcsFiles && hasEcsNetworkServices
+  then
+    return $PLUGIN_ENABLED
+  fi
+  return $PLUGIN_DISABLED
+}
+
+hasEcsNetworkServices() {
+  if [ -z "${DU_ECS_NETWORK_SERVICES[@]:-}" ]; then return 1; fi
+  return 0;
+}
+
+
+#------------------------------------------------------------
+on-initialize() {
+  checkExposedServices
+  updateDockerCompose
+  updateEcsParams
+}
+
+checkExposedServices() {
+  if [ -z "${DU_ECS_NETWORK_SERVICES[@]:-}" ]
+  then
+    abort "DU_ECS_NETWORK_SERVICES is not defined in product conf"
+  fi
+  local port
+  local service
+  for mappedPort in "${!DU_ECS_NETWORK_SERVICES[@]}"
+  do
+    service="${DU_ECS_NETWORK_SERVICES[$mappedPort]}"
+    port=$(docker-compose-editor exposed-port -i $ECS_DOCKER_COMPOSE_FILE -s $service)
+    if [ -z "$port" ]
+    then
+      abort "Service $service does not appear to be mapped to a port"
+    fi
+  done
+}
+
+#------------------------------------------------------------
+on-validate() {
+  echo "TODO validate"
+}
+
+#------------------------------------------------------------
+on-deploy-green() {
+  local tgSpec
+  tgSpec=$(createNewTargetGroup)
+  save "new-tg-spec" "$tgSpec"
+  echo "Target group $tgSpec"
+  replaceNlbPortsOnGreen "$tgSpec"
+  deployService "$tgSpec"
+  waitToBeHealthy $GREEN_NLB_NAME "$tgSpec"
+  return 0
+}
+
+createNewTargetGroup() {
+  local targetGroupName= containerPort= tgArn=
+  for service in ${DU_ECS_NETWORK_SERVICES[@]}
+  do
+    targetGroupName=$(tgName)
+    containerPort=$(docker-compose-editor exposed-port \
+      --in $ECS_DOCKER_COMPOSE_FILE \
+      --service $service)
+    aws elbv2 create-target-group \
+      --vpc-id $(vpc id-for-environment -e $VPC) \
+      --name $targetGroupName \
+      --port $containerPort \
+      --target-type ip \
+      --protocol TCP \
+      --health-check-protocol TCP \
+      --health-check-port traffic-port \
+      --health-check-enabled \
+      --health-check-interval-seconds 30 \
+      --healthy-threshold-count 3 \
+      --unhealthy-threshold-count 3 \
+      > $WORK/$targetGroupName
+    tgArn=$(jq -r '.TargetGroups[].TargetGroupArn' $WORK/$targetGroupName)
+    # order is important, containerPort= must be at the end
+    echo "targetGroupArn=$tgArn,containerName=$service,containerPort=$containerPort"
+    # TODO only supporting one service
+    break
+  done
+}
+
+tgSpecPort() {
+  echo "${1#*containerPort=}"
+}
+tgSpecArn() {
+  echo $1 | sed 's/.*targetGroupArn=\([^,]\+\).*/\1/'
+}
+
+replaceNlbPortsOnGreen() {
+  local tgSpec="$1"
+  nlb set-listener \
+    --name "$GREEN_NLB_NAME" \
+    --port "$(($GREEN_PORT_OFFSET + $(tgSpecPort $tgSpec)))" \
+    --target-group "$(tgSpecArn $tgSpec)"
+}
+
+waitToBeHealthy() {
+  local nlb="$1"
+  local tgSpec="$2"
+  nlb target-group-health --target-group "$(tgSpecArn $tgSpec)" --wait 360
+}
+
+#------------------------------------------------------------
+on-switch-to-blue() {
+  local tgSpec
+  tgSpec=$(recall "new-tg-spec")
+  save "previous-blue-tg" \
+    "$(nlb current-target-group --name "$BLUE_NLB_NAME" --port "$(tgSpecPort $tgSpec)")"
+  removeGreenPorts "$tgSpec"
+  addNlbPortsOnBlue "$tgSpec"
+  return 0
+}
+
+removeGreenPorts() {
+  local tgSpec="$1"
+  nlb remove-listener \
+    --name "$GREEN_NLB_NAME" \
+    --port "$(($GREEN_PORT_OFFSET + $(tgSpecPort $tgSpec)))"
+}
+
+addNlbPortsOnBlue() {
+  local tgSpec="$1"
+  nlb set-listener \
+    --name "$BLUE_NLB_NAME" \
+    --port "$(tgSpecPort $tgSpec)" \
+    --target-group "$(tgSpecArn $tgSpec)"
+}
+
+
+#------------------------------------------------------------
+on-after-verify-blue() {
+  removeTargetGroup old
+  removeServices old
+  removeTaskDefinition old
+  return 0
+}
+
+#------------------------------------------------------------
+on-rollback() {
+  rollbackOldPorts
+  removeGreenPorts
+  removeTargetGroup new
+  removeServices new
+  removeTaskDefinition new
+  return 0
+}
+
+rollbackOldPorts() {
+  local tgSpec oldTg
+  oldTg=$(recall "previous-blue-tg")
+  tgSpec=$(recall "new-tg-spec")
+  if [ -n "${oldTg:-}" ]
+  then
+    # restore the listener to use the previous target group if it existed
+    nlb set-listener \
+      --name "$BLUE_NLB_NAME" \
+      --port "$(tgSpecPort $tgSpec)" \
+      --target-group "$oldTg"
+  else
+    nlb remove-listener \
+      --name "$BLUE_NLB_NAME" \
+      --port "$(tgSpecPort $tgSpec)"
+  fi
+
+}
+
+
+
+main "$@"
+exit 1
