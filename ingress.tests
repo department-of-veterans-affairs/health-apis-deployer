@@ -4,6 +4,7 @@ auth /auth/actuator/info
 auth /auth/hello-world
 # Data-Query
 data-query /fhir/v0/dstu2/AllergyIntolerance?patient=1010101010V666666
+data-query /fhir/v0/r4/Appointment/I2-abc123def4560000
 data-query /fhir/v0/dstu2/Condition?patient=1010101010V666666
 data-query /fhir/v0/dstu2/DiagnosticReport?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Encounter/I2-abc123def4560000
@@ -113,7 +114,6 @@ patsr /whh-patsr-ent/v0/whhPing
 patsr /whh-patsr-ent/v0/whhServiceRqst
 # Scheduling
 scheduling /scheduling/actuator/health
-scheduling /fhir/v0/r4/Appointment/I2-abc123def4560000
 # SFDC MVI Enterprise
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
