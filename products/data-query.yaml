@@ -43,7 +43,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2|stu3|r4)/(AllergyIntolerance|Condition|Device|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationRequest|MedicationStatement|Observation|Organization|Patient|Practitioner|PractitionerRole|Procedure)($|/[^$].*|/[$]validate)
+          - path: /fhir/v0/(dstu2|stu3|r4)/(AllergyIntolerance|Appointment|Condition|Device|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationRequest|MedicationStatement|Observation|Organization|Patient|Practitioner|PractitionerRole|Procedure)($|/[^$].*|/[$]validate)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
