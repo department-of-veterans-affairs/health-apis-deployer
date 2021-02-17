@@ -112,8 +112,6 @@ patsr /whh-patsr-ent/v0/whhCaseStatus
 patsr /whh-patsr-ent/v0/whhCaseUpdate
 patsr /whh-patsr-ent/v0/whhPing
 patsr /whh-patsr-ent/v0/whhServiceRqst
-# Scheduling
-scheduling /scheduling/actuator/health
 # SFDC MVI Enterprise
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
