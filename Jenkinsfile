@@ -26,7 +26,6 @@ def products() {
   products["nurse-triage"] = ["health_apis_jenkins"]
   products["patient-generated-data"] = ["health_apis_jenkins","shankins"]
   products["patsr"] = ["health_apis_jenkins"]
-  products["scheduling"] = ["health_apis_jenkins","shankins"]
   products["sfdc-mpi-msg-receiver"] = ["health_apis_jenkins"]
   products["sfdc-mvi-ent"] = ["health_apis_jenkins"]
   products["smart-cards"] = ["health_apis_jenkins","shankins"]
