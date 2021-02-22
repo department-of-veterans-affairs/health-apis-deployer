@@ -4,6 +4,7 @@ auth /auth/actuator/info
 auth /auth/hello-world
 # Data-Query
 data-query /fhir/v0/dstu2/AllergyIntolerance?patient=1010101010V666666
+data-query /fhir/v0/r4/Appointment/I2-abc123def4560000
 data-query /fhir/v0/dstu2/Condition?patient=1010101010V666666
 data-query /fhir/v0/dstu2/DiagnosticReport?patient=1010101010V666666
 data-query /fhir/v0/dstu2/Encounter/I2-abc123def4560000
@@ -53,32 +54,6 @@ bridg /bridg/appointments
 bridg /bridg/patientRemarks
 bridg /bridg/sensitivePatient
 bridg /bridg/vistaUsers
-# Carma BGS
-carma-bgs /carma-bgs/v0/actuator/info
-carma-bgs /carma-bgs/v0/actuator/health
-carma-bgs /carma-bgs/v0/check-connections
-carma-bgs /carma-bgs/v0/findPerson
-carma-bgs /carma-bgs/v0/createPerson
-carma-bgs /carma-bgs/v0/deletePerson
-carma-bgs /carma-bgs/v0/readSalesforceParticipants
-carma-bgs /carma-bgs/v0/registerParticipants
-carma-bgs /carma-bgs/v0/readIncarceration
-carma-bgs /carma-bgs/v0/writeIncarceration
-# Carma Cdw
-carma-cdw /carma-cdw/v0/actuator/info
-carma-cdw /carma-cdw/v0/actuator/health
-carma-cdw /carma-cdw/v0/check-connections
-carma-cdw /carma-cdw/v0/cdw/import
-carma-cdw /carma-cdw/v0/sf/import
-carma-cdw /carma-cdw/v0/export
-# Carma FMS
-carma-fms-connector /carma-fms/v0/actuator/info
-carma-fms-connector /carma-fms/v0/actuator/health
-carma-fms-connector /carma-fms/v0/check-salesforce-configuration
-carma-fms-connector /carma-fms/v0/jobs?count=100
-carma-fms-connector /carma-fms/v0/check-specific-payment-run
-carma-fms-connector /carma-fms/v0/import
-carma-fms-connector /carma-fms/v0/export
 # Carma MPI Bulk
 carma-mpi-bulk /carma-mpi-bulk/v0/actuator/info
 carma-mpi-bulk /carma-mpi-bulk/v0/actuator/health
@@ -87,13 +62,6 @@ carma-mpi-bulk /carma-mpi-bulk/v0/getParticipants
 carma-mpi-bulk /carma-mpi-bulk/v0/getParticipantsWithEdipi
 carma-mpi-bulk /carma-mpi-bulk/v0/updateEdipiData
 carma-mpi-bulk /carma-mpi-bulk/v0/edipiCompletion
-# Carma VSSC
-carma-vssc /carma-vssc/v0/actuator/info
-carma-vssc /carma-vssc/v0/actuator/health
-carma-vssc /carma-vssc/v0/check-connections
-carma-vssc /carma-vssc/v0/sanitize
-carma-vssc /carma-vssc/v0/import
-carma-vssc /carma-vssc/v0/export
 # DMC VetSearch
 dmc-vet-search /dmc-vet-search/v0/actuator/health
 dmc-vet-search /dmc-vet-search/v0/actuator/info
@@ -144,9 +112,6 @@ patsr /whh-patsr-ent/v0/whhCaseStatus
 patsr /whh-patsr-ent/v0/whhCaseUpdate
 patsr /whh-patsr-ent/v0/whhPing
 patsr /whh-patsr-ent/v0/whhServiceRqst
-# Scheduling
-scheduling /scheduling/actuator/health
-scheduling /fhir/v0/r4/Appointment/I2-abc123def4560000
 # SFDC MVI Enterprise
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
 sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
