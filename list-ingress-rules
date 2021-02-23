@@ -2,7 +2,7 @@
 
 INGRESSES=$(mktemp)
 TEST_FILE="ingress.tests"
-
+AWK=${AWK:-awk}
 EXIT_STATUS=0
 
 #
@@ -15,13 +15,13 @@ EXIT_STATUS=0
 
 listRules() {
   grep -r -o 'path:.*' products/*.yaml \
-    | awk '{ print length($2), $2, product, $1 }' \
+    | $AWK '{ print length($2), $2, product, $1 }' \
     | sed 's/\(.*\) products\/\(.*\)\.yaml.*/\1\2/' \
     | sort -nr
 }
 
 # Reorganize Ingresses as 'Priority Rule Application'
-listRules | awk 'BEGIN { i = 1 } { print i" "$2" "$3; i++}' > $INGRESSES
+listRules | $AWK 'BEGIN { i = 1 } { print i" "$2" "$3; i++}' > $INGRESSES
 
 cat $INGRESSES
 
@@ -36,7 +36,7 @@ while read -r test; do
     [[ ! "$test" =~ ^[a-z\-]+\ /[^\ ]+ ]] && echo "Invalid Test Format: $test" && exit 1
 
     # The good stuff
-    awk -v test="$test" \
+    $AWK -v test="$test" \
       'BEGIN {
          status = 0;
          isValidIngress = "false";
