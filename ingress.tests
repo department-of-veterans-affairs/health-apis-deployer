@@ -124,6 +124,9 @@ sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
 sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
 # SFDC MPI Message Receiver
 sfdc-mpi-msg-receiver /sfdc-mpi-msg-receiver/v0/ws
+# Smart Cards
+smart-cards /smart-cards/r4/Patient/123V456/$HealthWallet.issueVc
+smart-cards /fhir/v0/r4/Patient/123V456/$HealthWallet.issueVc
 # Unifier
 unifier-kong /fhir/v0/dstu2/metadata
 unifier-kong /fhir/v0/dstu2/.well-known/smart-configuration
