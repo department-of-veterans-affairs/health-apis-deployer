@@ -17,6 +17,23 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+  name: smart-cards-fhir-ingress
+  namespace: $DU_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /r4/$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /fhir/v0/(dstu2|r4)/(Patient/[A-Z0-9]+/[$]HealthWallet[.]issueVc)
+            backend:
+              serviceName: health-apis-kong
+              servicePort: 8082
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
   name: smart-cards-internal-ingress
   namespace: $DU_NAMESPACE
   annotations:
