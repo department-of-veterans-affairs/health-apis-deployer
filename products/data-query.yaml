@@ -43,7 +43,14 @@ spec:
   rules:
     - http:
         paths:
-          - path: /fhir/v0/(dstu2|stu3|r4)/(AllergyIntolerance|Appointment|Condition|Device|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationRequest|MedicationStatement|Observation|Organization|Patient|Practitioner|PractitionerRole|Procedure)($|/[^$].*|/[$]validate)
+          # We want to fire on the follow paths
+          # ../Patient/123
+          # ../Patient/_search
+          # ../Patient?whatever=stuff
+          # ../Patient/$validate
+          # And not match for
+          # ../Patient/123/$HealthWallet.issueVc
+          - path: /fhir/v0/(dstu2|stu3|r4)/(AllergyIntolerance|Appointment|Condition|Device|DiagnosticReport|Encounter|Immunization|Location|Medication|MedicationDispense|MedicationOrder|MedicationRequest|MedicationStatement|Observation|Organization|Patient|Practitioner|PractitionerRole|Procedure)($|/[^$][^/]*$|/[$]validate)
             backend:
               serviceName: health-apis-kong
               servicePort: 8082
