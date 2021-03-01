@@ -27,41 +27,6 @@ data-query /data-query/datamart/validation
 data-query /fhir/v0/dstu2/openapi.json
 data-query /fhir/v0/r4/openapi.json
 data-query /fhir/v0/argonaut/data-query/openapi.json
-# Bridg
-bridg /bridg/
-bridg /bridg/openapi.json
-bridg /bridg/openapi.yaml
-bridg /bridg/actuator/health
-bridg /bridg/actuator/info
-bridg /bridg/cdsIsAlive
-bridg /bridg/pathwaysIsAlive
-bridg /bridg/mviSearch
-bridg /bridg/eeSearch
-bridg /bridg/vetSearch
-bridg /bridg/allergyRequest
-bridg /bridg/consults
-bridg /bridg/flags
-bridg /bridg/labs
-bridg /bridg/meds
-bridg /bridg/notes
-bridg /bridg/orders
-bridg /bridg/problems
-bridg /bridg/radiologyExams
-bridg /bridg/visit
-bridg /bridg/vitals
-bridg /bridg/additionalSigners
-bridg /bridg/appointments
-bridg /bridg/patientRemarks
-bridg /bridg/sensitivePatient
-bridg /bridg/vistaUsers
-# Carma MPI Bulk
-carma-mpi-bulk /carma-mpi-bulk/v0/actuator/info
-carma-mpi-bulk /carma-mpi-bulk/v0/actuator/health
-carma-mpi-bulk /carma-mpi-bulk/v0/checkConnections
-carma-mpi-bulk /carma-mpi-bulk/v0/getParticipants
-carma-mpi-bulk /carma-mpi-bulk/v0/getParticipantsWithEdipi
-carma-mpi-bulk /carma-mpi-bulk/v0/updateEdipiData
-carma-mpi-bulk /carma-mpi-bulk/v0/edipiCompletion
 # DMC VetSearch
 dmc-vet-search /dmc-vet-search/v0/actuator/health
 dmc-vet-search /dmc-vet-search/v0/actuator/info
@@ -99,31 +64,6 @@ nurse-triage /nt-ent/actuator/info
 patient-generated-data /patient-generated-data/actuator/health
 patient-generated-data /pgd/v0/r4/Observation?patient=1010101010V666666
 patient-generated-data /pgd/v0/r4/openapi.json
-# Patsr
-patsr /whh-patsr-ent/actuator/health
-patsr /whh-patsr-ent/actuator/info
-patsr /whh-patsr-ent/v0/patsrAttachmentCreate
-patsr /whh-patsr-ent/v0/patsrAttachmentRemove
-patsr /whh-patsr-ent/v0/patsrCase
-patsr /whh-patsr-ent/v0/patsrPing
-patsr /whh-patsr-ent/v0/whhAttachmentCreate
-patsr /whh-patsr-ent/v0/whhAttachmentRemove
-patsr /whh-patsr-ent/v0/whhCaseStatus
-patsr /whh-patsr-ent/v0/whhCaseUpdate
-patsr /whh-patsr-ent/v0/whhPing
-patsr /whh-patsr-ent/v0/whhServiceRqst
-# SFDC MVI Enterprise
-sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/health
-sfdc-mvi-ent /sfdc-mvi-ent/v0/actuator/info
-sfdc-mvi-ent /sfdc-mvi-ent/v0/mviSearch
-sfdc-mvi-ent /sfdc-mvi-ent/v0/vetSearch
-sfdc-mvi-ent /sfdc-mvi-ent/v0/mviNewPerson
-sfdc-mvi-ent /sfdc-mvi-ent/v0/mviUpdatePerson
-sfdc-mvi-ent /sfdc-mvi-ent/v0/mviCorrelate
-sfdc-mvi-ent /sfdc-mvi-ent/v0/mviRetrieve
-sfdc-mvi-ent /sfdc-mvi-ent/v0/vetRetrieve
-# SFDC MPI Message Receiver
-sfdc-mpi-msg-receiver /sfdc-mpi-msg-receiver/v0/ws
 # Smart Cards
 smart-cards /smart-cards/r4/Patient/123V456/$HealthWallet.issueVc
 smart-cards /fhir/v0/dstu2/Patient/123V456/$HealthWallet.issueVc
