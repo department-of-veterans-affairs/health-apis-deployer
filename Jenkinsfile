@@ -10,7 +10,6 @@ def products() {
   products["auth"] = ["health_apis_jenkins", "shutupshutupshutup"]
   products["community-care"] = ["health_apis_jenkins","shankins"]
   products["data-query"] = ["health_apis_jenkins","shankins"]
-  products["dmc-vet-search"] = ["health_apis_jenkins"]
   products["exemplar"] = ["health_apis_jenkins","shankins"]
   products["facilities"] = ["health_apis_jenkins","shankins"]
   products["gal-processor"] = ["health_apis_jenkins"]
