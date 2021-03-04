@@ -27,13 +27,6 @@ data-query /data-query/datamart/validation
 data-query /fhir/v0/dstu2/openapi.json
 data-query /fhir/v0/r4/openapi.json
 data-query /fhir/v0/argonaut/data-query/openapi.json
-# DMC VetSearch
-dmc-vet-search /dmc-vet-search/v0/actuator/health
-dmc-vet-search /dmc-vet-search/v0/actuator/info
-dmc-vet-search /dmc-vet-search/v0/mviSearch
-dmc-vet-search /dmc-vet-search/v0/vetSearch
-dmc-vet-search /dmc-vet-search/v0/mviRetrieve
-dmc-vet-search /dmc-vet-search/v0/vetRetrieve
 # Exemplar
 exemplar /exemplar/busy/20
 exemplar /exemplar/goodbye/1
