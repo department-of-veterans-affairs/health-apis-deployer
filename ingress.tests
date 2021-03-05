@@ -68,6 +68,4 @@ unifier-kong /fhir/v0/r4/metadata
 unifier-kong /fhir/v0/r4/.well-known/smart-configuration
 unifier-kong /fhir/v0/argonaut/data-query/metadata
 unifier-kong /fhir/v0/argonaut/data-query/.well-known/smart-configuration
-# Vistalink
-vistalink /vistalink/actuator/health
 # End of File
