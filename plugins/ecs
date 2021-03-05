@@ -179,8 +179,12 @@ removeNewRules() {
     if [ $failed != false -o "${DEBUG:-}" == true ]
     then
       cat $ECS_DEBUG
-      return 1
     fi
+  fi
+  # Finally, return 1 if removeNewRules failed
+  if [ $failed != false ]
+  then
+      return 1
   fi
   throttle 2
 }
@@ -245,9 +249,11 @@ addAlbRulesOnBlue() {
         cat $ECS_DEBUG
         return 1
       fi
-      throttle 3
+      throttle 1
     fi
   fi
+  # sleeping 60
+  throttle 5
 }
 
 
