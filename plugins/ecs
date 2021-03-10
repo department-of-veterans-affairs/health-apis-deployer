@@ -253,7 +253,7 @@ addAlbRulesOnBlue() {
     fi
   fi
   # sleeping 60
-  throttle 5
+  throttle 10
 }
 
 
